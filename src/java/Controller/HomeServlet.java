@@ -14,12 +14,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import Dao.FlashSaleProductDao;
 
 /**
  *
  * @author ASUS
  */
-public class HomeSeverlet extends HttpServlet {
+public class HomeServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -59,14 +60,60 @@ public class HomeSeverlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ProductDAO pdao = new ProductDAO();
-        CategoryDAO cdao = new CategoryDAO();
-        request.setAttribute("products",
-                pdao.getAllProducts());
-        request.setAttribute("categories",
-                cdao.getAllCategories());
-        request.getRequestDispatcher("home.jsp").forward(request, response);
+        ProductDAO p = new ProductDAO();
+        CategoryDAO c = new CategoryDAO();
+        FlashSaleProductDao fl = new FlashSaleProductDao();
         
+          // Sản phẩm bán chạy
+           String bsTab = request.getParameter("bsTab");
+    if ( bsTab == null) {
+        bsTab = "laptop";
+    }
+               request.setAttribute("bsTab", bsTab);
+
+        switch (bsTab) {
+        //Laptop
+            case "laptop":
+        request.setAttribute("products",p.getTopLapTop());
+        break;
+        //Chuột 
+        case "chuot":
+        request.setAttribute("products", p.getTopMouse());
+        break;
+        //Bàn Phím 
+        default:
+        request.setAttribute("products",p.getTopKeyboard());
+        }
+        
+        //Sản phẩm mới 
+        
+         String newTab = request.getParameter("newTab");
+    if ( newTab == null) {
+        newTab = "laptop";
+    }
+               request.setAttribute("newTab", newTab);
+
+        switch (newTab) {
+        //Laptop
+            case "laptop":
+        request.setAttribute("new_products",p.getTopLapTop());
+        break;
+        //Chuột 
+        case "chuot":
+        request.setAttribute("new_products", p.getTopMouse());
+        break;
+        //Bàn Phím 
+        default:
+        request.setAttribute("new_products",p.getTopKeyboard());
+        }
+        
+        // Danh Mục Sản Phẩm 
+        request.setAttribute("categories",c.getAllCategories());
+        
+        //FlashSale
+        request.setAttribute("flashsale",fl.getAllFlashSaleProduct());
+        
+        request.getRequestDispatcher("home.jsp").forward(request, response);       
     }
 
     /**

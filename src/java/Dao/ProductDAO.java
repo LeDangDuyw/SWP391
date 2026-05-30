@@ -27,13 +27,33 @@ public class ProductDAO extends DBContext {
             System.out.println("Connect fail");
         }
     }
-    public ArrayList<Product> getAllProducts() {
+    //Bán Chạy 
+   // Lấy top 10 laptop bán chạy nhất 
+    public ArrayList<Product> getTopLapTop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
-        String sql = "SELECT p.product_id,p.product_name,p.thumbnail,b.brand_name,MIN(v.selling_price) "
-                + "AS min_price FROM Product p JOIN Brand b ON p.brand_id=b.brand_id "
-                + "JOIN ProductVariant v ON p.product_id=v.product_id WHERE v.status='active' "
-                + "GROUP BY p.product_id,p.product_name,p.thumbnail,b.brand_name";
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 1
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity
+                     ORDER BY p.sold_quantity DESC;
+                     """;
+                                                                             
         ps = cnn.prepareStatement(sql);
         rs = ps.executeQuery();
         while (rs.next()) {
@@ -42,7 +62,7 @@ public class ProductDAO extends DBContext {
             p.setProductName(rs.getString(2));
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getDouble(5));
+            p.setMinPrice(rs.getDouble(6));
             data.add(p);
         }
     } catch (Exception e) {
@@ -50,5 +70,217 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
-    
+// Lấy top 10 Chuột bán chạy nhất 
+ public ArrayList<Product> getTopMouse() {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 2
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity
+                     ORDER BY p.sold_quantity DESC;
+                     """;
+                                                                             
+        ps = cnn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            Product p = new Product();
+            p.setProductId(rs.getInt(1));
+            p.setProductName(rs.getString(2));
+            p.setThumbnail(rs.getString(3));
+            p.setBrandName(rs.getString(4));
+            p.setMinPrice(rs.getDouble(6));
+            data.add(p);
+        }
+    } catch (Exception e) {
+        System.out.println("getAllProducts: " + e.getMessage());
+    }
+    return data;
+}
+ 
+// Lấy top 10 bàn phím bán chạy nhất 
+ public ArrayList<Product> getTopKeyboard() {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 1
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.sold_quantity
+                     ORDER BY p.sold_quantity DESC;
+                     """;
+                                                                             
+        ps = cnn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            Product p = new Product();
+            p.setProductId(rs.getInt(1));
+            p.setProductName(rs.getString(2));
+            p.setThumbnail(rs.getString(3));
+            p.setBrandName(rs.getString(4));
+            p.setMinPrice(rs.getDouble(6));
+            data.add(p);
+        }
+    } catch (Exception e) {
+        System.out.println("getAllProducts: " + e.getMessage());
+    }
+    return data;
+}
+ 
+ //Sản phẩm mới 
+ //sql lấy  10 Laptop mới 
+ public ArrayList<Product> getNewLaptop() {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 1
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.created_at 
+                     ORDER BY p.created_at DESC;
+                     """;
+                                                                             
+        ps = cnn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            Product p = new Product();
+            p.setProductId(rs.getInt(1));
+            p.setProductName(rs.getString(2));
+            p.setThumbnail(rs.getString(3));
+            p.setBrandName(rs.getString(4));
+            p.setMinPrice(rs.getDouble(6));
+            data.add(p);
+        }
+    } catch (Exception e) {
+        System.out.println("getAllProducts: " + e.getMessage());
+    }
+    return data;
+}
+ 
+// 10 sp chuột mới 
+ public ArrayList<Product> getNewMouse() {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 2
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.created_at 
+                     ORDER BY p.created_at DESC;
+                     """;
+                                                                             
+        ps = cnn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            Product p = new Product();
+            p.setProductId(rs.getInt(1));
+            p.setProductName(rs.getString(2));
+            p.setThumbnail(rs.getString(3));
+            p.setBrandName(rs.getString(4));
+            p.setMinPrice(rs.getDouble(6));
+            data.add(p);
+        }
+    } catch (Exception e) {
+        System.out.println("getAllProducts: " + e.getMessage());
+    }
+    return data;
+}
+ // 10 sp bàn phím mới
+ public ArrayList<Product> getNewKeyborad() {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+                     SELECT TOP 10
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         MIN(v.selling_price) AS min_price
+                     FROM Product p
+                     JOIN Brand b ON p.brand_id = b.brand_id
+                     JOIN ProductVariant v ON p.product_id = v.product_id
+                     WHERE v.status = 'active'
+                     AND p.category_id = 3
+                     GROUP BY
+                         p.product_id,
+                         p.product_name,
+                         p.thumbnail,
+                         b.brand_name,
+                         p.created_at 
+                     ORDER BY p.created_at DESC;
+                     """;
+                                                                             
+        ps = cnn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            Product p = new Product();
+            p.setProductId(rs.getInt(1));
+            p.setProductName(rs.getString(2));
+            p.setThumbnail(rs.getString(3));
+            p.setBrandName(rs.getString(4));
+            p.setMinPrice(rs.getDouble(6));
+            data.add(p);
+        }
+    } catch (Exception e) {
+        System.out.println("getAllProducts: " + e.getMessage());
+    }
+    return data;
+}
+ 
+ 
 }
