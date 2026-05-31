@@ -13,8 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import model.Product;
+import viewmodel.ProductInventory;
 /**
  *
  * @author huy
@@ -57,12 +59,35 @@ public class InventoryListController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         ProductDAO dao = new ProductDAO();
-        List<Product> products = dao.GetAllProducts();
+        List<ProductInventory> products = new ArrayList<ProductInventory>();
+        String searchInput = request.getParameter("searchInput");
+        String sortBy = request.getParameter("sortBy");
+        
+        int page = 1;
+        int pageSize = 10;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        int offset = (page - 1) * pageSize;
+        int totalRecords = dao.getTotalInventoryCount(searchInput);
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        
+        products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
+        
         request.setAttribute("products", products);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("pageSize", pageSize);
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("views/InventoryManagement.jsp");
-
         dispatcher.forward(request, response);
-
     } 
 
     /** 
@@ -75,7 +100,10 @@ public class InventoryListController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        ProductDAO dao = new ProductDAO();
+        String action = request.getParameter("action");
+        
+        
     }
 
     /** 

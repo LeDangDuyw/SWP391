@@ -8,4 +8,12 @@
         <servlet-name>InventoryListController</servlet-name>
         <url-pattern>/admin/inventory</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>AddProductController</servlet-name>
+        <servlet-class>controller.AddProductController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddProductController</servlet-name>
+        <url-pattern>/admin/inventory/add</url-pattern>
+    </servlet-mapping>
 </web-app>
