@@ -13,15 +13,17 @@ public class WarrantyPolicy {
     private String policyName;
     private String description;
     private int warrantyMonths;
+    private String status;
 
     public WarrantyPolicy() {
     }
-
-    public WarrantyPolicy(int policyId, String policyName, String description, int warrantyMonths) {
+    
+    public WarrantyPolicy(int policyId, String policyName, String description, int warrantyMonths, String status) {
         this.policyId = policyId;
         this.policyName = policyName;
         this.description = description;
         this.warrantyMonths = warrantyMonths;
+        this.status = status;
     }
 
     public int getPolicyId() {
@@ -55,6 +57,13 @@ public class WarrantyPolicy {
     public void setWarrantyMonths(int warrantyMonths) {
         this.warrantyMonths = warrantyMonths;
     }
-    
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
     
 }

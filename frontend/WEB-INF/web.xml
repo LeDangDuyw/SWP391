@@ -4,8 +4,16 @@
         <servlet-name>AdminDashboard</servlet-name>
         <servlet-class>controller.AdminDashboardServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AdminPolicy</servlet-name>
+        <servlet-class>controller.AdminPolicy</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>AdminDashboard</servlet-name>
         <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminPolicy</servlet-name>
+        <url-pattern>/admin/policy</url-pattern>
     </servlet-mapping>
 </web-app>
