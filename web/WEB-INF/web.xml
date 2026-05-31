@@ -4,8 +4,16 @@
         <servlet-name>HomeServlet</servlet-name>
         <servlet-class>Controller.HomeServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProductListServlet</servlet-name>
+        <servlet-class>Controller.ProductListServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>HomeServlet</servlet-name>
         <url-pattern>/HomeServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProductListServlet</servlet-name>
+        <url-pattern>/ProductListServlet</url-pattern>
     </servlet-mapping>
 </web-app>

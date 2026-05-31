@@ -14,13 +14,18 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=2">
-        <style>
-            /* Ghi đè CSS cho nút a để trông giống button ban đầu */
+        <style>          
             .tab-btn {
                 display: inline-block;
                 text-decoration: none;
                 text-align: center;
-            }
+            }          
+            .actions { display: flex; gap: 10px; margin-top: 15px; width: 100%; align-items: stretch; }
+            .actions .btn-add-cart, .actions .btn-buy-now { margin: 0; height: 38px; box-sizing: border-box; border: none; padding: 0 5px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; transition: 0.3s; }
+            .actions .btn-add-cart { background: #0b4bcc; color: #fff; }
+            .actions .btn-add-cart:hover { background: #093da5; }
+            .actions .btn-buy-now { background: #eef2ff; color: #0b4bcc; }
+            .actions .btn-buy-now:hover { background: #e1e7ff; }
         </style>
     </head>
     <body>
@@ -30,14 +35,18 @@
                 <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>
                 <nav class="main-nav">
                     <a href="${pageContext.request.contextPath}/HomeServlet" class="active">Trang chủ</a>
-                    <a href="#">Laptop</a>
-                    <a href="#">Bàn Phím</a>
-                    <a href="#">Chuột</a>
-                    <a href="#">Phụ kiện</a>
+                    <a href="ProductListServlet?category=1">Laptop</a>
+                    <a href="ProductListServlet?category=3">Bàn Phím</a>
+                    <a href="ProductListServlet?category=2">Chuột</a>
+                    <a href="ProductListServlet?category=4">Phụ kiện</a>
                     <a href="#">Khuyến mãi</a>
                 </nav>
-                <div class="header-icons">
-                    <a href="#"><i class="fas fa-search"></i></a>
+                <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
+                    <form action="ProductListServlet" method="GET" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
+                        <input type="hidden" name="category" value="1">
+                        <input type="text" name="search" placeholder="Tìm kiếm laptop..." style="border:none; background:transparent; outline:none; font-size:14px; width:150px; font-family:'Inter', sans-serif;">
+                        <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
+                    </form>
                     <a href="#"><i class="fas fa-shopping-cart"></i></a>
                     <a href="#"><i class="fas fa-bell"></i></a>
                     <a href="#"><i class="fas fa-user"></i></a>
@@ -169,7 +178,10 @@
                                             <div class="product-price">
                                                 <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                             </div>
-                                            <button class="btn btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
+                                            <div class="actions">
+                                                <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                                                <button type="button" class="btn-buy-now">Mua ngay</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </c:forEach>
@@ -203,7 +215,10 @@
                                             <div class="product-price">
                                                 <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                             </div>
-                                            <button class="btn btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
+                                            <div class="actions">
+                                                <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                                                <button type="button" class="btn-buy-now">Mua ngay</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </c:forEach>

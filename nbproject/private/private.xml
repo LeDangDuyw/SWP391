@@ -9,10 +9,13 @@
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Model/Product.java</file>
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Dao/ProductDAO.java</file>
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Dao/DBContext.java</file>
-            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Controller/HomeSeverlet.java</file>
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/web/js/script.js</file>
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/web/index.html</file>
             <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Dao/CategoryDAO.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Controller/ProductListServlet.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Controller/HomeServlet.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/web/product_list.jsp</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap/src/java/Dao/FlashSaleProductDao.java</file>
         </group>
     </open-files>
 </project-private>

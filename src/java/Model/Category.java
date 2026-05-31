@@ -6,7 +6,7 @@ package Model;
 
 /**
  *
- * @author ASUS
+ * @author Cao Tuấn Minh
  */
 public class Category {
      private int categoryId;

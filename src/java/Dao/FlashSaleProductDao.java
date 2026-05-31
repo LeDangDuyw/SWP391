@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  *
- * @author ASUS
+ * @author Cao Tuấn Minh
  */
 public class FlashSaleProductDao extends DBContext {
 
@@ -75,8 +75,8 @@ public class FlashSaleProductDao extends DBContext {
                     fl.setProductId(rs.getInt(1));
                     fl.setProductName(rs.getString(2));
                     fl.setThumbnail(rs.getString(3));
-                    fl.setOriginalPrice(rs.getDouble(4));
-                    fl.setSalePrice(rs.getDouble(5));
+                    fl.setOriginalPrice(rs.getLong(4));
+                    fl.setSalePrice(rs.getLong(5));
                     fl.setQuantityLimit(rs.getInt(6));
                     fl.setSoldQuantity(rs.getInt(7));
                     fl.setDiscountPercent(rs.getInt(8));

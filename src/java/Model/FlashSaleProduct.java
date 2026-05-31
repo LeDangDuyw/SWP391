@@ -6,14 +6,14 @@ package Model;
 
 /**
  *
- * @author ASUS
+ * @author Cao Tuấn Minh 
  */
 public class FlashSaleProduct {
    private int productId;
 private String productName;
 private String thumbnail;
-private double originalPrice;
-private double salePrice;
+private long originalPrice;
+private long salePrice;
 private int quantityLimit;
 private int soldQuantity;
 private int discountPercent;
@@ -21,7 +21,7 @@ private int discountPercent;
     public FlashSaleProduct() {
     }
 
-    public FlashSaleProduct(int productId, String productName, String thumbnail, double originalPrice, double salePrice, int quantityLimit, int soldQuantity, int discountPercent) {
+    public FlashSaleProduct(int productId, String productName, String thumbnail, long originalPrice, long salePrice, int quantityLimit, int soldQuantity, int discountPercent) {
         this.productId = productId;
         this.productName = productName;
         this.thumbnail = thumbnail;
@@ -56,19 +56,19 @@ private int discountPercent;
         this.thumbnail = thumbnail;
     }
 
-    public double getOriginalPrice() {
+    public long getOriginalPrice() {
         return originalPrice;
     }
 
-    public void setOriginalPrice(double originalPrice) {
+    public void setOriginalPrice(long originalPrice) {
         this.originalPrice = originalPrice;
     }
 
-    public double getSalePrice() {
+    public long getSalePrice() {
         return salePrice;
     }
 
-    public void setSalePrice(double salePrice) {
+    public void setSalePrice(long salePrice) {
         this.salePrice = salePrice;
     }
 
