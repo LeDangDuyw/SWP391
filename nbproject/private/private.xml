@@ -2,6 +2,10 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="luyentap_prj">
             <file>file:/D:/ky5/swp/duan/SWP391/src/java/dao/UserDAO.java</file>
             <file>file:/D:/ky5/swp/duan/SWP391/web/css/auth.css</file>
@@ -15,6 +19,9 @@
             <file>file:/D:/ky5/swp/duan/SWP391/web/login.jsp</file>
             <file>file:/D:/ky5/swp/duan/SWP391/src/java/controller/RegisterController.java</file>
             <file>file:/D:/ky5/swp/duan/SWP391/web/META-INF/context.xml</file>
+        </group>
+    </open-files>
+</project-private>
         </group>
     </open-files>
 </project-private>
