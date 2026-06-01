@@ -121,8 +121,10 @@
     </style>
 </head>
 <% 
+    // Lấy danh sách sản phẩm từ Controller truyền qua (attribute 'products')
     List<ProductInventory> products = (List<ProductInventory>) request.getAttribute("products");
     if (products == null) {
+        // Nếu không có dữ liệu thì khởi tạo danh sách rỗng để tránh lỗi NullPointerException
         products = new ArrayList<ProductInventory>(); 
     }
 %>
@@ -195,7 +197,7 @@
                         
                         <div class="relative">
                             <select name="sortBy" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none">
-                                
+                                <option value="all" ${param.sortBy == 'all' ? 'selected' : ''}>All</option>
                                 <option value="highToLow" ${param.sortBy == 'highToLow' ? 'selected' : ''}>Price: High to Low</option>
                                 <option value="lowToHigh" ${param.sortBy == 'lowToHigh' ? 'selected' : ''}>Price: Low to High</option>
                             </select>
@@ -232,7 +234,10 @@
                             </tr>
                         </thead>
                         <tbody class="font-body-sm text-body-sm">
-                            <% for(ProductInventory p: products) { %>
+                            <% 
+                               // Duyệt qua từng sản phẩm để render ra các dòng trong bảng
+                               for(ProductInventory p: products) { 
+                            %>
                             <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest">
                                 <td class="py-2 px-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></td>
                                 <td class="py-2 px-4">
@@ -259,9 +264,22 @@
                                 </td>
                         
                                 <td class="py-2 px-4 text-right">
-                                    <button class="p-1 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+                                    <a class="p-1 text-on-surface-variant hover:text-primary transition-colors"
+                                       href="${pageContext.request.contextPath}/admin/inventory/edit?variantId= <%= p.getProductId() %>"
+                                            ><span class="material-symbols-outlined text-[20px]">edit</span></a>
                                     <form action="${pageContext.request.contextPath}/admin/inventory" method="post">
-                                    <button class="p-1 text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">block</span></button>
+                                        <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
+                                        <button class="p-1 text-on-surface-variant hover:text-error transition-colors" name="action" value="delete" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này không? Lưu ý: Sản phẩm chỉ bị ẩn tạm thời chứ không xóa hoàn toàn?');"><span class="material-symbols-outlined text-[20px]" >block</span></button>
+                                        <button 
+                                            class="p-1 text-on-surface-variant hover:text-success transition-colors"
+                                            name="action" 
+                                            value="restore"
+                                            onclick="return confirm('Bạn có chắc chắn muốn hiển thị lại biến thể này không?');">
+
+                                            <span class="material-symbols-outlined text-[20px]">
+                                                settings_backup_restore
+                                            </span>
+                                        </button>
                                     </form>
                                 </td>
                         </form
@@ -273,10 +291,13 @@
                 
                 <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
 <%
+    // Xử lý thanh phân trang (Pagination)
     Integer currentPage = (Integer) request.getAttribute("currentPage");
     Integer totalPages = (Integer) request.getAttribute("totalPages");
     if (currentPage == null) currentPage = 1;
-    if (totalPages == null) totalPages = 1;
+    if (totalPages == null) totalPages = 1; // Mặc định là trang 1 nếu chưa có dữ liệu
+
+    // Giữ nguyên tham số tìm kiếm và sắp xếp khi người dùng chuyển trang
     String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
     String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
     String queryStr = searchInputAttr + sortByAttr;

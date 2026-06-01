@@ -60,32 +60,40 @@ public class InventoryListController extends HttpServlet {
     throws ServletException, IOException {
         ProductDAO dao = new ProductDAO();
         List<ProductInventory> products = new ArrayList<ProductInventory>();
+        
+        // Lấy từ khóa tìm kiếm và tiêu chí sắp xếp từ request
         String searchInput = request.getParameter("searchInput");
         String sortBy = request.getParameter("sortBy");
         
+        // Khởi tạo các biến dùng cho chức năng phân trang
         int page = 1;
         int pageSize = 10;
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.isEmpty()) {
             try {
+                // Ép kiểu số trang hiện tại
                 page = Integer.parseInt(pageParam);
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
         
+        // Tính toán vị trí bắt đầu lấy dữ liệu (offset) và tổng số trang
         int offset = (page - 1) * pageSize;
         int totalRecords = dao.getTotalInventoryCount(searchInput);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
         
+        // Lấy danh sách sản phẩm đã được phân trang và lọc từ CSDL
         products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
         
+        // Đưa các thông số phân trang và dữ liệu sản phẩm lên view (JSP)
         request.setAttribute("products", products);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalRecords", totalRecords);
         request.setAttribute("pageSize", pageSize);
         
+        // Chuyển tiếp request sang trang InventoryManagement.jsp để hiển thị
         RequestDispatcher dispatcher = request.getRequestDispatcher("views/InventoryManagement.jsp");
         dispatcher.forward(request, response);
     } 
@@ -101,9 +109,27 @@ public class InventoryListController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         ProductDAO dao = new ProductDAO();
+        // Kiểm tra xem hành động người dùng gửi lên là gì (xóa hay khôi phục)
         String action = request.getParameter("action");
         
+        if ("delete".equals(action)) {
+            // Xử lý ẩn (xóa mềm) sản phẩm
+            String variantIdToHide = request.getParameter("variantIdToDelete");
+            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
+                int v = Integer.parseInt(variantIdToHide);
+                dao.hideProduct(v);
+            }
+        }else if("restore".equals(action)) {
+            // Xử lý khôi phục lại sản phẩm đã ẩn
+            String variantIdToHide = request.getParameter("variantIdToDelete");
+            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
+                int v = Integer.parseInt(variantIdToHide);
+                dao.unhideProduct(v);
+            }
+        }
         
+        // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
+        response.sendRedirect(request.getContextPath() + "/admin/inventory");
     }
 
     /** 

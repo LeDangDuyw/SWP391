@@ -11,6 +11,7 @@ public class BrandDAO extends DBContext {
     ResultSet rs;
 
     public List<Brand> getAllBrands() {
+        // Lấy danh sách tất cả các thương hiệu từ bảng Brand
         List<Brand> brands = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Brand";

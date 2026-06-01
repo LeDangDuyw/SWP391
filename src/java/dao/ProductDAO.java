@@ -18,12 +18,13 @@ public class ProductDAO extends DBContext{
     PreparedStatement stm;
     ResultSet rs;
     public List<Product> GetAllProducts() {
+        // Lấy danh sách tất cả các sản phẩm (cơ bản) từ cơ sở dữ liệu
         List<Product> products = new ArrayList<Product>();
         try{
             String sql = "select * from Product";
-        stm = connection.prepareStatement(sql);
-        rs = stm.executeQuery();
-        while(rs.next()) {
+            stm = connection.prepareStatement(sql);
+            rs = stm.executeQuery();
+            while(rs.next()) {
             Product p = new Product(rs.getInt("variant_id"),rs.getString("product_name"), rs.getString("description"),rs.getInt("warranty_period"),
                                     rs.getString("thumbnail"), rs.getInt("category_id"), rs.getInt("brand_id"));
             products.add(p);
@@ -35,8 +36,10 @@ public class ProductDAO extends DBContext{
     }
     
     public List<ProductInventory> GetAllProductInventory() {
+        // Lấy danh sách sản phẩm cùng với thông tin kho hàng, danh mục, thương hiệu
         List<ProductInventory> products = new ArrayList<ProductInventory>();
         try{
+            // Join nhiều bảng để lấy đầy đủ thông tin: Tên sản phẩm, biến thể, giá bán, số lượng kho...
             String sql = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, \n" +
                         "case \n" +
                         "	when i.available_quantity > 0 then N'In Stock'\n" +
@@ -45,7 +48,8 @@ public class ProductDAO extends DBContext{
                         "from Product p join Category c on p.category_id = c.category_id\n" +
                         "	join Brand b on p.brand_id = b.brand_id\n" +
                         "	join ProductVariant pv on p.product_id = pv.product_id\n" +
-                        "	join Inventory i on pv.variant_id = i.variant_id";
+                        "	join Inventory i on pv.variant_id = i.variant_id\n"
+                    + "where pv.status = 'active'";
         stm = connection.prepareStatement(sql);
         rs = stm.executeQuery();
         while(rs.next()) {
@@ -68,8 +72,10 @@ public class ProductDAO extends DBContext{
     }
     
     public List<ProductInventory> GetProductsByNameAndSort(String search, String sortBy){
+        // Hàm tìm kiếm sản phẩm theo tên, danh mục, sku và sắp xếp giá
         List<ProductInventory> products = new ArrayList<ProductInventory>();
         try{
+            // Xác định chiều sắp xếp: ASC (thấp đến cao) hoặc DESC (cao đến thấp)
             String order = (sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
             String strSQL = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, \n" +
                         "case \n" +
@@ -80,7 +86,9 @@ public class ProductDAO extends DBContext{
                         "	join Brand b on p.brand_id = b.brand_id\n" +
                         "	join ProductVariant pv on p.product_id = pv.product_id\n" +
                         "	join Inventory i on pv.variant_id = i.variant_id\n" +
-                        "where p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%'\n" +
+                        // Lọc theo từ khóa tìm kiếm (so khớp tương đối bằng LIKE)
+                        "where (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%')\n" +
+                    "and pv.status = 'active'\n" +
                         "order by pv.selling_price " + order;
             stm = connection.prepareStatement(strSQL);
             stm.setString(1, search);
@@ -120,15 +128,18 @@ public class ProductDAO extends DBContext{
         return false;
     }
     public int getTotalInventoryCount(String search) {
+        // Đếm tổng số lượng sản phẩm (phục vụ cho việc phân trang)
         int count = 0;
         try {
             String sql = "select count(*) from Product p " +
                          "join Category c on p.category_id = c.category_id " +
                          "join Brand b on p.brand_id = b.brand_id " +
                          "join ProductVariant pv on p.product_id = pv.product_id " +
-                         "join Inventory i on pv.variant_id = i.variant_id";
+                         "join Inventory i on pv.variant_id = i.variant_id " +
+                    "where pv.status = 'active'";
+            // Nếu có tham số tìm kiếm, nối thêm điều kiện WHERE vào câu query
             if (search != null && !search.trim().isEmpty()) {
-                sql += " where p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%'";
+                sql += " and (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%')";
             }
             stm = connection.prepareStatement(sql);
             if (search != null && !search.trim().isEmpty()) {
@@ -147,9 +158,11 @@ public class ProductDAO extends DBContext{
     }
 
     public List<ProductInventory> GetProductInventoryPaginated(String search, String sortBy, int offset, int fetchSize){
+        // Lấy danh sách sản phẩm có phân trang (dùng OFFSET và FETCH NEXT của SQL Server)
         List<ProductInventory> products = new ArrayList<>();
         try {
-            String order = (sortBy != null && sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
+            // Sắp xếp: Mặc định là DESC, nếu truyền lowToHigh thì là ASC
+            String order = (sortBy != null && !sortBy.equals("all") && sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
             String strSQL = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, " +
                         "case " +
                         "	when i.available_quantity > 0 then N'In Stock' " +
@@ -158,10 +171,11 @@ public class ProductDAO extends DBContext{
                         "from Product p join Category c on p.category_id = c.category_id " +
                         "	join Brand b on p.brand_id = b.brand_id " +
                         "	join ProductVariant pv on p.product_id = pv.product_id " +
-                        "	join Inventory i on pv.variant_id = i.variant_id ";
+                        "	join Inventory i on pv.variant_id = i.variant_id " +
+                        "where pv.status = 'active'";
                         
             if (search != null && !search.trim().isEmpty()) {
-                strSQL += "where p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%' ";
+                strSQL += " and (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%') ";
             }
             strSQL += "order by pv.selling_price " + order + " " +
                       "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -197,10 +211,12 @@ public class ProductDAO extends DBContext{
         return products;
     }
     public int insertProduct(Product p) {
+        // Thêm mới một sản phẩm vào bảng Product và trả về ID vừa được sinh ra
         int productId = -1;
         try {
             String sql = "INSERT INTO Product (product_name, description, warranty_period, thumbnail, category_id, brand_id) " +
                          "VALUES (?, ?, ?, ?, ?, ?)";
+            // Dùng Statement.RETURN_GENERATED_KEYS để lấy ID tự tăng
             stm = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             stm.setString(1, p.getProductName());
             stm.setString(2, p.getDescription());
@@ -220,6 +236,7 @@ public class ProductDAO extends DBContext{
     }
 
     public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
+        // Thêm biến thể của sản phẩm vào bảng ProductVariant và cập nhật kho Inventory
         try {
             String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -230,20 +247,21 @@ public class ProductDAO extends DBContext{
             stm.setBigDecimal(4, price);
             stm.setBigDecimal(5, price);
             stm.setBoolean(6, false);
-            stm.setString(7, "active");
+            stm.setString(7, "active"); // Mặc định trạng thái là active
             stm.executeUpdate();
             
             rs = stm.getGeneratedKeys();
             int variantId = -1;
             if (rs.next()) {
-                variantId = rs.getInt(1);
+                variantId = rs.getInt(1); // Lấy variant_id vừa được tạo
             }
             
+            // Nếu lưu biến thể thành công, tiếp tục tạo bản ghi tồn kho
             if (variantId != -1) {
                 String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
                 PreparedStatement stmInv = connection.prepareStatement(sqlInv);
                 stmInv.setInt(1, variantId);
-                stmInv.setInt(2, 0);
+                stmInv.setInt(2, 0); // reserved_quantity mặc định là 0
                 stmInv.setInt(3, stock);
                 stmInv.executeUpdate();
             }
@@ -251,4 +269,32 @@ public class ProductDAO extends DBContext{
             System.out.println("Insert ProductVariant Error: " + e.getMessage());
         }
     }
+    
+    public void hideProduct(int variant_id) {
+        try{
+            String strSQL = "update ProductVariant\n" +
+                            "set status = 'inactive'\n" +
+                            "where variant_id = ? ";
+            stm = connection.prepareStatement(strSQL);
+            stm.setInt(1, variant_id);
+            stm.executeUpdate();
+        }catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void unhideProduct(int variant_id) {
+        try{
+            String strSQL = "update ProductVariant\n" +
+                            "set status = 'active'\n" +
+                            "where variant_id = ? ";
+            stm = connection.prepareStatement(strSQL);
+            stm.setInt(1, variant_id);
+            stm.executeUpdate();
+        }catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    
 }

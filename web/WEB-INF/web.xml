@@ -4,6 +4,10 @@
         <servlet-name>InventoryListController</servlet-name>
         <servlet-class>controller.InventoryListController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EditProductController</servlet-name>
+        <servlet-class>controller.EditProductController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>InventoryListController</servlet-name>
         <url-pattern>/admin/inventory</url-pattern>
@@ -15,5 +19,9 @@
     <servlet-mapping>
         <servlet-name>AddProductController</servlet-name>
         <url-pattern>/admin/inventory/add</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditProductController</servlet-name>
+        <url-pattern>/admin/inventory/edit</url-pattern>
     </servlet-mapping>
 </web-app>

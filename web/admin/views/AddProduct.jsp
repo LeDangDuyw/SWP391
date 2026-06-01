@@ -115,7 +115,7 @@
                         <h3 class="text-xl font-semibold text-on-surface">General Information</h3>
                     </div>
                     
-                    <div class="p-6 flex flex-col lg:flex-row gap-8">
+                    <div class="p-6 flex flex-col gap-8">
                         <div class="flex-1 space-y-6">
                             <!-- Product Name -->
                             <div>
@@ -162,7 +162,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Thumbnail -->
                         <div class="w-full lg:w-72 flex-shrink-0">
                             <label class="block text-sm font-medium text-on-surface-variant mb-2">Product Thumbnail</label>
@@ -214,25 +214,27 @@
 
     <!-- Scripts for dynamic functionality -->
     <script>
-        // Image Preview
+        // --- Xử lý xem trước ảnh (Image Preview) khi người dùng chọn file ---
         document.querySelector('input[name="thumbnail"]').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Sử dụng FileReader để đọc file ảnh dưới dạng Data URL hiển thị tạm thời
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const container = document.querySelector('.border-dashed');
                     
+                    // Nếu đã có ảnh preview trước đó thì xóa đi
                     const existingPreview = container.querySelector('.img-preview-container');
                     if (existingPreview) existingPreview.remove();
 
-                    // Hide placeholder text and icons
+                    // Ẩn các đoạn text hướng dẫn (Click to upload...) và icon mặc định
                     Array.from(container.children).forEach(child => {
                         if (child.tagName !== 'INPUT') {
                             child.style.display = 'none';
                         }
                     });
 
-                    
+                    // Tạo thẻ div chứa thẻ img để hiển thị ảnh vừa chọn
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'img-preview-container absolute inset-0 w-full h-full pointer-events-none';
                     previewDiv.innerHTML = `
@@ -247,10 +249,11 @@
             }
         });
 
-        // Dynamic Variants
+        // --- Xử lý giao diện thêm các biến thể (Dynamic Variants) ---
         const variantsContainer = document.getElementById('variants-container');
-        let variantCount = 0;
+        let variantCount = 0; // Đếm số lượng variant để tạo placeholder tên SKU tự động
 
+        // Hàm thêm một dòng (hàng) nhập biến thể mới vào bảng
         function addVariantRow() {
             variantCount++;
             const tr = document.createElement('tr');
@@ -281,21 +284,25 @@
             variantsContainer.appendChild(tr);
         }
 
+        // Hàm thêm thuộc tính (màu sắc, RAM...) cho biến thể bằng cách bật hộp thoại prompt
         function addAttribute(btn) {
             const attrName = prompt("Enter attribute (e.g. 32GB RAM, Midnight Black):");
             if (attrName && attrName.trim() !== "") {
+                // Tạo thẻ span chứa tên thuộc tính (hiển thị dưới dạng nhãn/badge)
                 const span = document.createElement('span');
                 span.className = 'px-2 py-1 bg-[#d0e1fb] text-[#003ec7] text-xs font-semibold rounded cursor-pointer attribute-badge';
                 span.textContent = attrName.trim();
                 span.title = "Click to remove";
                 span.onclick = function() { this.remove(); updateHiddenVariantName(btn.closest('td')); };
                 
+                // Chèn nhãn thuộc tính vào trước nút Add (+)
                 const container = btn.parentElement;
                 container.insertBefore(span, btn);
-                updateHiddenVariantName(btn.closest('td'));
+                updateHiddenVariantName(btn.closest('td')); // Cập nhật lại chuỗi tên gộp
             }
         }
 
+        // Cập nhật giá trị vào input hidden để gửi lên Server dạng "Thuộc tính 1 / Thuộc tính 2"
         function updateHiddenVariantName(td) {
             const badges = td.querySelectorAll('.attribute-badge');
             const hiddenInput = td.querySelector('.variant-name-hidden');
@@ -303,7 +310,7 @@
             hiddenInput.value = values.join(' / ');
         }
 
-        // Add one initial variant row
+        // Khởi tạo dòng nhập biến thể đầu tiên lúc vừa load trang
         addVariantRow();
     </script>
 </body>

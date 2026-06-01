@@ -11,6 +11,7 @@ public class CategoryDAO extends DBContext {
     ResultSet rs;
 
     public List<Category> getAllCategories() {
+        // Lấy danh sách tất cả các danh mục từ bảng Category
         List<Category> categories = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Category";
