@@ -3,8 +3,8 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
-<%@ page import="model.Campaign" %>
-<%@ page import="model.ProductSearchItem" %>
+<%@ page import="Model.Campaign" %>
+<%@ page import="Model.ProductSearchItem" %>
 
 <%!
     String h(String s) {

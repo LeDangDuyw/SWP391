@@ -1,10 +1,10 @@
 package dal;
 
 import context.DBContext;
-import model.Campaign;
-import model.CampaignProduct;
-import model.CampaignStats;
-import model.ProductSearchItem;
+import Model.Campaign;
+import Model.CampaignProduct;
+import Model.CampaignStats;
+import Model.ProductSearchItem;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

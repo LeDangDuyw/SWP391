@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, java.text.*, java.math.*, model.Campaign, model.CampaignProduct" %>
+<%@ page import="java.util.*, java.text.*, java.math.*, Model.Campaign, Model.CampaignProduct" %>
 <%!
     String h(String s) { return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;"); }
     String money(Number n) { return NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(n == null ? 0 : n); }
