@@ -202,7 +202,7 @@
             </li>
             <li>
                 <a href="${pageContext.request.contextPath}/admin/policy">
-                    <span class="nav-icon">📋</span> Policies
+                    <span class="nav-icon">⚙</span> Settings
                 </a>
             </li>
         </ul>

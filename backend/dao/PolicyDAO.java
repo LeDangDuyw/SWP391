@@ -1,434 +1,252 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import model.WarrantyPolicy;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Region;
-import model.WarrantyPolicy;
-
 /**
- * PolicyDAO
+ * PolicyDAO handles CRUD operations for the WarrantyPolicies table.
  *
- * Purpose: Defines the PolicyDAO component of the system.
- * Responsibilities:
- * - Encapsulates the behavior and data related to PolicyDAO.
- * - Supports the application business logic according to Java coding conventions.
+ * Version 1.4
  *
- * Author: Project Team
- * Version: 1.3
+ * Author DuyLD
  */
 public class PolicyDAO extends DBContext {
 
-    // ══════════════════════════════════════════════════════════════
-    // REGION OPERATIONS
-    // ══════════════════════════════════════════════════════════════
-
     /**
-     * Executes getAllActiveRegions.
-     */
-    public List<Region> getAllActiveRegions() throws Exception {
-        List<Region> list = new ArrayList<>();
-        String sql = """
-            SELECT RegionID, RegionCode, RegionName, IsActive
-            FROM   Regions
-            WHERE  IsActive = 1
-            ORDER  BY RegionName
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(mapRegion(rs));
-            }
-        }
-        return list;
-    }
-
-    /**
-     * Executes getRegionsForPolicy.
-     */
-    public List<Region> getRegionsForPolicy(int policyId) throws Exception {
-        List<Region> list = new ArrayList<>();
-        String sql = """
-            SELECT r.RegionID, r.RegionCode, r.RegionName, r.IsActive
-            FROM   Regions r
-            JOIN   PolicyRegions pr ON pr.RegionID = r.RegionID
-            WHERE  pr.PolicyID = ?
-            ORDER  BY r.RegionName
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, policyId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRegion(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // POLICY READ OPERATIONS
-    // ══════════════════════════════════════════════════════════════
-
-    /**
-     * Executes getAllPolicies.
+     * Retrieves all warranty policies ordered by most recently created.
      */
     public List<WarrantyPolicy> getAllPolicies() throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
-        String sql = """
-            SELECT PolicyID, PolicyName, Description, PolicyContent,
-                   WarrantyMonths, Status, Version, EffectiveDate,
-                   CreatedAt, UpdatedAt
-            FROM   WarrantyPolicies
-            ORDER  BY PolicyID DESC
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+
+        String sql = "SELECT * FROM WarrantyPolicies ORDER BY PolicyID DESC";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                WarrantyPolicy p = mapPolicy(rs);
-                p.setApplicableRegions(getRegionsForPolicy(p.getPolicyId()));
-                list.add(p);
+                list.add(mapPolicy(rs));
             }
         }
         return list;
     }
 
     /**
-     * Executes getPolicyById.
+     * Retrieves a single warranty policy by its unique identifier.
      */
     public WarrantyPolicy getPolicyById(int id) throws Exception {
-        String sql = """
-            SELECT PolicyID, PolicyName, Description, PolicyContent,
-                   WarrantyMonths, Status, Version, EffectiveDate,
-                   CreatedAt, UpdatedAt
-            FROM   WarrantyPolicies
-            WHERE  PolicyID = ?
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+
+        String sql = "SELECT * FROM WarrantyPolicies WHERE PolicyID = ?";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, id);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    WarrantyPolicy p = mapPolicy(rs);
-                    p.setApplicableRegions(getRegionsForPolicy(id));
-                    return p;
+                    return mapPolicy(rs);
                 }
             }
         }
         return null;
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Duplicate-name validation
-    // ──────────────────────────────────────────────────────────────
-
     /**
-     * Executes isPolicyNameTakenForCreate.
+     * Creates a new warranty policy record in the database.
      */
-    public boolean isPolicyNameTakenForCreate(String name) throws Exception {
-        String sql = """
-            SELECT 1 FROM WarrantyPolicies
-            WHERE  PolicyName = ?
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, name.trim());
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
+    public void insertPolicy(WarrantyPolicy p) throws Exception {
 
-    /**
-     * Executes isPolicyNameTakenByOther.
-     */
-    public boolean isPolicyNameTakenByOther(String name, int ownerId) throws Exception {
-        String sql = """
-            SELECT 1 FROM WarrantyPolicies
-            WHERE  PolicyName = ?
-              AND  PolicyID  <> ?
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, name.trim());
-            ps.setInt(2, ownerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // Search / Filter
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Executes searchPolicies.
-     */
-    public List<WarrantyPolicy> searchPolicies(String keyword, String status) throws Exception {
-        List<WarrantyPolicy> list = new ArrayList<>();
-
-        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
-        boolean hasStatus  = status  != null && !status.trim().isEmpty();
-
-        StringBuilder sql = new StringBuilder("""
-            SELECT PolicyID, PolicyName, Description, PolicyContent,
-                   WarrantyMonths, Status, Version, EffectiveDate,
-                   CreatedAt, UpdatedAt
-            FROM   WarrantyPolicies
-            WHERE  1=1
-            """);
-        if (hasKeyword) sql.append(" AND PolicyName LIKE ?");
-        if (hasStatus)  sql.append(" AND Status     = ?");
-        sql.append(" ORDER BY PolicyID DESC");
-
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-            int idx = 1;
-            if (hasKeyword) ps.setString(idx++, "%" + keyword.trim() + "%");
-            if (hasStatus)  ps.setString(idx,   status.trim());
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    WarrantyPolicy p = mapPolicy(rs);
-                    p.setApplicableRegions(getRegionsForPolicy(p.getPolicyId()));
-                    list.add(p);
-                }
-            }
-        }
-        return list;
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // Pagination
-    // ──────────────────────────────────────────────────────────────
-
-    public List<WarrantyPolicy> getPoliciesPaged(int page, int pageSize) throws Exception {
-        List<WarrantyPolicy> list = new ArrayList<>();
-        String sql = """
-            SELECT PolicyID, PolicyName, Description, PolicyContent,
-                   WarrantyMonths, Status, Version, EffectiveDate,
-                   CreatedAt, UpdatedAt
-            FROM   WarrantyPolicies
-            ORDER  BY PolicyID DESC
-            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-            """;
-        int offset = (page - 1) * pageSize;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, offset);
-            ps.setInt(2, pageSize);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    WarrantyPolicy p = mapPolicy(rs);
-                    p.setApplicableRegions(getRegionsForPolicy(p.getPolicyId()));
-                    list.add(p);
-                }
-            }
-        }
-        return list;
-    }
-
-    public int countPolicies() throws Exception {
-        String sql = "SELECT COUNT(*) FROM WarrantyPolicies";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            return rs.next() ? rs.getInt(1) : 0;
-        }
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // POLICY WRITE OPERATIONS
-    // ══════════════════════════════════════════════════════════════
-
-    /**
-     * Executes insertPolicy.
-     */
-    public void insertPolicy(WarrantyPolicy p, List<Integer> regionIds) throws Exception {
         String sql = """
             INSERT INTO WarrantyPolicies
-                (PolicyName, Description, PolicyContent, WarrantyMonths,
-                 Status, Version, EffectiveDate, CreatedAt, UpdatedAt)
-            OUTPUT INSERTED.PolicyID
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
-        try (Connection con = getConnection()) {
-            con.setAutoCommit(false);
-            try {
-                int newId;
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
-                    ps.setString(1, p.getPolicyName().trim());
-                    ps.setString(2, p.getDescription());
-                    ps.setString(3, p.getPolicyContent());
-                    ps.setInt   (4, p.getWarrantyMonths());
-                    ps.setString(5, p.getStatus());
-                    ps.setString(6, p.getVersion());
-                    ps.setDate  (7, p.getEffectiveDate());
-                    ps.setTimestamp(8, p.getCreatedAt());
-                    ps.setTimestamp(9, p.getUpdatedAt());
-                    try (ResultSet rs = ps.executeQuery()) {
-                        rs.next();
-                        newId = rs.getInt(1);
-                    }
-                }
-                linkRegions(con, newId, regionIds);
-                con.commit();
-            } catch (Exception ex) {
-                con.rollback();
-                throw ex;
-            } finally {
-                con.setAutoCommit(true);
-            }
+            (PolicyName, Description, PolicyContent, ApplicableRegions,
+             WarrantyMonths, Status, Version, EffectiveDate, CreatedAt, UpdatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, p.getPolicyName());
+            ps.setString(2, p.getDescription());
+            ps.setString(3, p.getPolicyContent());
+            ps.setString(4, p.getApplicableRegions());
+            ps.setInt(5, p.getWarrantyMonths());
+            ps.setString(6, p.getStatus());
+            ps.setString(7, p.getVersion());
+            ps.setDate(8, p.getEffectiveDate());
+            ps.setTimestamp(9, p.getCreatedAt());
+            ps.setTimestamp(10, p.getUpdatedAt());
+
+            ps.executeUpdate();
         }
     }
 
     /**
-     * Executes updatePolicy.
+     * Searches for policies whose name or description matches the given
+     * keyword.
      */
-    public void updatePolicy(WarrantyPolicy p, List<Integer> regionIds) throws Exception {
+    public List<WarrantyPolicy> searchPolicies(String keyword) throws Exception {
+
+        List<WarrantyPolicy> list = new ArrayList<>();
+
+        String sql = """
+        SELECT * FROM WarrantyPolicies
+        WHERE PolicyName LIKE ? OR Description LIKE ?
+        ORDER BY PolicyID DESC
+    """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            String k = "%" + keyword + "%";
+            ps.setString(1, k);
+            ps.setString(2, k);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapPolicy(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Retrieves all warranty policies matching the given status value.
+     */
+    public List<WarrantyPolicy> getPoliciesByStatus(String status) throws Exception {
+
+        List<WarrantyPolicy> list = new ArrayList<>();
+
+        String sql = """
+        SELECT * FROM WarrantyPolicies
+        WHERE Status = ?
+        ORDER BY PolicyID DESC
+    """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapPolicy(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Updates an existing warranty policy record with the provided values.
+     */
+    public void updatePolicy(WarrantyPolicy p) throws Exception {
+
         String sql = """
             UPDATE WarrantyPolicies
-            SET    PolicyName    = ?,
-                   Description   = ?,
-                   PolicyContent = ?,
-                   WarrantyMonths = ?,
-                   Status        = ?,
-                   Version       = ?,
-                   EffectiveDate = ?,
-                   UpdatedAt     = ?
-            WHERE  PolicyID = ?
-            """;
-        try (Connection con = getConnection()) {
-            con.setAutoCommit(false);
-            try {
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
-                    ps.setString(1, p.getPolicyName().trim());
-                    ps.setString(2, p.getDescription());
-                    ps.setString(3, p.getPolicyContent());
-                    ps.setInt   (4, p.getWarrantyMonths());
-                    ps.setString(5, p.getStatus());
-                    ps.setString(6, p.getVersion());
-                    ps.setDate  (7, p.getEffectiveDate());
-                    ps.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
-                    ps.setInt   (9, p.getPolicyId());
-                    ps.executeUpdate();
-                }
-                // Full replace: delete existing links then re-insert
-                deleteRegionLinks(con, p.getPolicyId());
-                linkRegions(con, p.getPolicyId(), regionIds);
-                con.commit();
-            } catch (Exception ex) {
-                con.rollback();
-                throw ex;
-            } finally {
-                con.setAutoCommit(true);
-            }
+            SET PolicyName = ?,
+                Description = ?,
+                PolicyContent = ?,
+                ApplicableRegions = ?,
+                WarrantyMonths = ?,
+                Status = ?,
+                Version = ?,
+                EffectiveDate = ?,
+                UpdatedAt = ?
+            WHERE PolicyID = ?
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, p.getPolicyName());
+            ps.setString(2, p.getDescription());
+            ps.setString(3, p.getPolicyContent());
+            ps.setString(4, p.getApplicableRegions());
+            ps.setInt(5, p.getWarrantyMonths());
+            ps.setString(6, p.getStatus());
+            ps.setString(7, p.getVersion());
+            ps.setDate(8, p.getEffectiveDate());
+            ps.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+            ps.setInt(10, p.getPolicyId());
+
+            ps.executeUpdate();
         }
     }
 
     /**
-     * Executes deletePolicy.
+     * Deletes a warranty policy record by its unique identifier.
      */
-    public void deletePolicy(int policyId) throws Exception {
+    public void deletePolicy(int id) throws Exception {
+
         String sql = "DELETE FROM WarrantyPolicies WHERE PolicyID = ?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, policyId);
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
             ps.executeUpdate();
         }
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Status shortcuts
-    // ──────────────────────────────────────────────────────────────
+    /**
+     * Updates the status of a warranty policy to the specified value.
+     */
+    private void updateStatus(int id, String status) throws Exception {
 
-    public void publishPolicy(int policyId)  throws Exception { updateStatus(policyId, "LIVE"); }
-    public void saveDraft(int policyId)      throws Exception { updateStatus(policyId, "DRAFT"); }
-    public void disablePolicy(int policyId)  throws Exception { updateStatus(policyId, "DISABLED"); }
-
-    private void updateStatus(int policyId, String newStatus) throws Exception {
         String sql = """
-            UPDATE WarrantyPolicies
-            SET    Status    = ?,
-                   UpdatedAt = ?
-            WHERE  PolicyID  = ?
-            """;
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, newStatus);
+        UPDATE WarrantyPolicies
+        SET Status = ?, UpdatedAt = ?
+        WHERE PolicyID = ?
+    """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, status);
             ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-            ps.setInt   (3, policyId);
-            ps.executeUpdate();
-        }
-    }
+            ps.setInt(3, id);
 
-    // ══════════════════════════════════════════════════════════════
-    // PRIVATE HELPERS
-    // ══════════════════════════════════════════════════════════════
-
-    /**
-     * Executes linkRegions.
-     */
-    private void linkRegions(Connection con, int policyId,
-                             List<Integer> regionIds) throws Exception {
-        if (regionIds == null || regionIds.isEmpty()) return;
-        String sql = "INSERT INTO PolicyRegions (PolicyID, RegionID) VALUES (?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            for (int rid : regionIds) {
-                ps.setInt(1, policyId);
-                ps.setInt(2, rid);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-        }
-    }
-
-    /**
-     * Executes deleteRegionLinks.
-     */
-    private void deleteRegionLinks(Connection con, int policyId) throws Exception {
-        String sql = "DELETE FROM PolicyRegions WHERE PolicyID = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, policyId);
             ps.executeUpdate();
         }
     }
 
     /**
-     * Executes mapPolicy.
+     * Publishes a warranty policy by setting its status to LIVE.
+     */
+    public void publishPolicy(int id) throws Exception {
+        updateStatus(id, "LIVE");
+    }
+
+    /**
+     * Saves a warranty policy as a draft by setting its status to DRAFT.
+     */
+    public void saveDraft(int id) throws Exception {
+        updateStatus(id, "DRAFT");
+    }
+
+    /**
+     * Disables a warranty policy by setting its status to DISABLED.
+     */
+    public void disablePolicy(int id) throws Exception {
+        updateStatus(id, "DISABLED");
+    }
+
+    /**
+     * Maps a ResultSet row to a WarrantyPolicy model object.
      */
     private WarrantyPolicy mapPolicy(ResultSet rs) throws Exception {
         WarrantyPolicy p = new WarrantyPolicy();
-        p.setPolicyId      (rs.getInt      ("PolicyID"));
-        p.setPolicyName    (rs.getString   ("PolicyName"));
-        p.setDescription   (rs.getString   ("Description"));
-        p.setPolicyContent (rs.getString   ("PolicyContent"));
-        p.setWarrantyMonths(rs.getInt      ("WarrantyMonths"));
-        p.setStatus        (rs.getString   ("Status"));
-        p.setVersion       (rs.getString   ("Version"));
-        p.setEffectiveDate (rs.getDate     ("EffectiveDate"));
-        p.setCreatedAt     (rs.getTimestamp("CreatedAt"));
-        p.setUpdatedAt     (rs.getTimestamp("UpdatedAt"));
-        return p;
-    }
 
-    /**
-     * Executes mapRegion.
-     */
-    private Region mapRegion(ResultSet rs) throws Exception {
-        return new Region(
-            rs.getInt    ("RegionID"),
-            rs.getString ("RegionCode"),
-            rs.getString ("RegionName"),
-            rs.getBoolean("IsActive")
-        );
+        p.setPolicyId(rs.getInt("PolicyID"));
+        p.setPolicyName(rs.getString("PolicyName"));
+        p.setDescription(rs.getString("Description"));
+        p.setPolicyContent(rs.getString("PolicyContent"));
+        p.setApplicableRegions(rs.getString("ApplicableRegions"));
+        p.setWarrantyMonths(rs.getInt("WarrantyMonths"));
+        p.setStatus(rs.getString("Status"));
+        p.setVersion(rs.getString("Version"));
+        p.setEffectiveDate(rs.getDate("EffectiveDate"));
+        p.setCreatedAt(rs.getTimestamp("CreatedAt"));
+        p.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
+
+        return p;
     }
 }

@@ -1,16 +1,13 @@
 package model;
 
 /**
- * DashboardSummary
+ * DashboardSummary represents aggregated KPI data displayed on the admin dashboard.
  *
- * Purpose: Defines the DashboardSummary component of the system.
- * Responsibilities:
- * - Encapsulates the behavior and data related to DashboardSummary.
- * - Supports the application business logic according to Java coding conventions.
+ * Version 1.4
  *
- * Author: Project Team
- * Version: 1.3
+ * Author DuyLD
  */
+
 public class DashboardSummary {
 
     private int totalUsers;
@@ -19,7 +16,7 @@ public class DashboardSummary {
     private int totalPolicies;
     private double totalRevenue;
     private String systemStatus;
-
+    
     public DashboardSummary() {
     }
 

@@ -11,25 +11,27 @@ import java.io.IOException;
 import model.DashboardSummary;
 
 /**
- * AdminDashboardServlet
+ * AdminDashboardServlet loads and forwards KPI summary data to the admin dashboard view.
  *
- * Purpose: Defines the AdminDashboardServlet component of the system.
- * Responsibilities:
- * - Encapsulates the behavior and data related to AdminDashboardServlet.
- * - Supports the application business logic according to Java coding conventions.
+ * Version 1.4
  *
- * Author: Project Team
- * Version: 1.3
+ * Author DuyLD
  */
 public class AdminDashboardServlet extends HttpServlet {
 
     private AdminDashboardDAO dao;
 
+    /**
+     * Initializes the AdminDashboardDAO instance used by this servlet.
+     */
     @Override
     public void init() {
         dao = new AdminDashboardDAO();
     }
 
+    /**
+     * Handles GET requests by loading the dashboard summary and forwarding to the dashboard JSP.
+     */
     @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)

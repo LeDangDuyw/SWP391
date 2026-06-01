@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="fn"  uri="http://java.sun.com/jsp/jstl/functions"%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -851,33 +852,16 @@
                         </div>
 
                         <!-- Search -->
-                        <!--                <div class="search-wrap">
-                                            <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
-                                                <span class="search-icon">🔍</span>
-                                                <input type="text" name="keyword" placeholder="Search..."
-                                                       value="${keyword}" style="padding-left:34px;"/>
-                        <%-- Do NOT carry the selected policy id on a new search;
-                             the list will re-filter and the user can pick a result. --%>
-                        <button type="submit">Go</button>
-                    </form>
-                </div>-->
-                        <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
-
-                            <span class="search-icon">🔍</span>
-
-                            <input type="text" name="keyword" placeholder="Search..."
-                                   value="${keyword}" />
-
-                            <select name="statusFilter">
-                                <option value="">All</option>
-                                <option value="DRAFT" ${statusFilter == 'DRAFT' ? 'selected' : ''}>Draft</option>
-                                <option value="LIVE" ${statusFilter == 'LIVE' ? 'selected' : ''}>Live</option>
-                                <option value="PUBLISHED" ${statusFilter == 'PUBLISHED' ? 'selected' : ''}>Published</option>
-                                <option value="DISABLED" ${statusFilter == 'DISABLED' ? 'selected' : ''}>Disabled</option>
-                            </select>
-
-                            <button type="submit">Go</button>
-                        </form>
+                        <div class="search-wrap">
+                            <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" name="keyword" placeholder="Search..."
+                                       value="${keyword}" style="padding-left:34px;"/>
+                                <%-- Do NOT carry the selected policy id on a new search;
+                                     the list will re-filter and the user can pick a result. --%>
+                                <button type="submit">Go</button>
+                            </form>
+                        </div>
 
                         <div class="doc-list">
                             <c:choose>
@@ -979,34 +963,39 @@
                                         <div class="meta-item">
                                             <label>APPLICABLE REGIONS</label>
                                             <div class="region-chips">
-                                                <span class="region-chip">NA</span>
-                                                <span class="region-chip">EU</span>
-                                                <span class="region-chip">APAC</span>
+                                                <c:choose>
+                                                    <c:when test="${not empty selectedPolicy.applicableRegions}">
+                                                        <c:forEach items="${fn:split(selectedPolicy.applicableRegions, ',')}" var="region">
+                                                            <span class="region-chip">${fn:trim(region)}</span>
+                                                        </c:forEach>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="meta-chip" style="color:#9ca3af;">—</span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Section 1: Limited Hardware Warranty -->
-                                    <h2 class="policy-section-title">1. Limited Hardware Warranty</h2>
-                                    <p class="policy-text">
-                                        UNILAP warrants that the hardware products it manufactures will be free
-                                        from defects in materials and workmanship. The warranty term is
-                                        <span class="hl-months">${selectedPolicy.warrantyMonths} months</span>
-                                        beginning on the date of invoice.
-                                    </p>
-                                    <div class="policy-highlight">
-                                        <div class="hl-title">Important Update (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
-                                        <div class="hl-body">${not empty selectedPolicy.description ? selectedPolicy.description : 'No additional details.'}</div>
-                                    </div>
+                                    <!-- Policy body — fully DB-driven via policyContent -->
+                                    <c:choose>
+                                        <c:when test="${not empty selectedPolicy.policyContent}">
+                                            <div class="policy-text" style="white-space:pre-wrap;">${selectedPolicy.policyContent}</div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="policy-text" style="color:#9ca3af;font-style:italic;">
+                                                No policy content yet. Use <strong>Edit Policy</strong> to add body text.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
 
-                                    <!-- Section 2: Exclusions -->
-                                    <h2 class="policy-section-title">2. Exclusions</h2>
-                                    <p class="policy-text">This warranty does not apply to:</p>
-                                    <ul class="policy-list">
-                                        <li>Damage caused by accident, abuse, misuse, fire, liquid contact, earthquake or other external cause.</li>
-                                        <li>Damage caused by operating the product outside UNILAP's published guidelines.</li>
-                                        <li>Products modified to alter functionality or capability without written permission.</li>
-                                    </ul>
+                                    <!-- Description / highlight block (if provided) -->
+                                    <c:if test="${not empty selectedPolicy.description}">
+                                        <div class="policy-highlight">
+                                            <div class="hl-title">Note (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
+                                            <div class="hl-body">${selectedPolicy.description}</div>
+                                        </div>
+                                    </c:if>
                                 </div>
 
                                 <!-- Action footer -->
@@ -1055,7 +1044,7 @@
                     <h2>Create New Policy</h2>
                     <button class="modal-close" onclick="closeModal('createModal')">×</button>
                 </div>
-                <form id="createForm" method="post" action="${pageContext.request.contextPath}/admin/policy">
+                <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                     <input type="hidden" name="action" value="create">
                     <div class="modal-body">
                         <div class="form-group">
@@ -1064,12 +1053,21 @@
                         </div>
                         <div class="form-group">
                             <label>Description</label>
-                            <textarea name="description" rows="4" placeholder="Enter policy description..."></textarea>
+                            <textarea name="description" rows="2" placeholder="Short summary of this policy..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Policy Content</label>
+                            <textarea name="policyContent" rows="5" placeholder="Full policy body text..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Applicable Regions <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU, APAC)</span></label>
+                            <input type="text" name="applicableRegions" placeholder="e.g. NA, EU, APAC">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Warranty Months *</label>
-                                <input type="number" name="warrantyMonths" min="1" required>                            </div>
+                                <label>Warranty Months</label>
+                                <input type="number" name="warrantyMonths" min="0" placeholder="e.g. 24">
+                            </div>
                             <div class="form-group">
                                 <label>Version</label>
                                 <input type="text" name="version" placeholder="e.g. v1.0" value="v1.0">
@@ -1109,7 +1107,15 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="description" rows="4">${selectedPolicy.description}</textarea>
+                                <textarea name="description" rows="2">${selectedPolicy.description}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Policy Content</label>
+                                <textarea name="policyContent" rows="5">${selectedPolicy.policyContent}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Applicable Regions <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU, APAC)</span></label>
+                                <input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}">
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
@@ -1414,35 +1420,6 @@
                     openEditModal();
                 }
             })();
-            
-            /* Block submit request */
-            document.getElementById("createForm").addEventListener("submit", function (e) {
-                e.preventDefault(); // ❗ chặn chuyển trang
-
-                let formData = new FormData(this);
-
-                fetch(this.action, {
-                    method: "POST",
-                    body: formData
-                })
-                        .then(res => res.json())
-                        .then(data => {
-
-                            if (data.success) {
-                                showToast(data.message);
-                                closeModal("createModal");
-
-                                // reload list
-                                setTimeout(() => location.reload(), 500);
-
-                            } else {
-                                showToast(data.message);
-                            }
-                        })
-                        .catch(() => {
-                            showToast("Server error!");
-                        });
-            });
         </script>
 
     </body>

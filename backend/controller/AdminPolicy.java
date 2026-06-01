@@ -2,331 +2,229 @@ package controller;
 
 import dao.PolicyDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Region;
+import java.util.List;
 import model.WarrantyPolicy;
 
 /**
- * AdminPolicy
+ * AdminPolicy handles policy management requests from administrators.
  *
- * Purpose: Defines the AdminPolicy component of the system.
- * Responsibilities:
- * - Encapsulates the behavior and data related to AdminPolicy.
- * - Supports the application business logic according to Java coding conventions.
+ * Version 1.4
  *
- * Author: Project Team
- * Version: 1.3
+ * Author DuyLD
  */
 public class AdminPolicy extends HttpServlet {
 
     private PolicyDAO dao;
 
+    /**
+     * Initializes the PolicyDAO instance used by this servlet.
+     */
     @Override
     public void init() {
         dao = new PolicyDAO();
     }
 
-    /* 
-    GET – list / detail
-    */
+    /**
+     * Handles GET requests by loading, filtering, or searching policies and forwarding to the policy JSP.
+     */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        req.setCharacterEncoding("UTF-8");
-
         try {
-            //  Load all active regions for the multi-select dropdowns 
-            List<Region> allRegions = dao.getAllActiveRegions();
-            req.setAttribute("allRegions", allRegions);
 
-            //  Search / filter
-            String keyword      = req.getParameter("keyword");
-            String statusFilter = req.getParameter("statusFilter");
+            String keyword = request.getParameter("keyword");
+            String statusFilter = request.getParameter("statusFilter");
 
-            List<WarrantyPolicy> policies =
-                    dao.searchPolicies(keyword, statusFilter);
-            req.setAttribute("policies",     policies);
-            req.setAttribute("keyword",      keyword     != null ? keyword      : "");
-            req.setAttribute("statusFilter", statusFilter!= null ? statusFilter : "");
+            List<WarrantyPolicy> policies;
 
-            // Optional: load a selected policy for the detail pane
-            String idParam = req.getParameter("id");
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                policies = dao.searchPolicies(keyword.trim());
+                request.setAttribute("keyword", keyword.trim());
+            } else if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+                policies = dao.getPoliciesByStatus(statusFilter.trim());
+                request.setAttribute("statusFilter", statusFilter.trim());
+            } else {
+                policies = dao.getAllPolicies();
+            }
+
+            request.setAttribute("policies", policies);
+
+            String idParam = request.getParameter("id");
             if (idParam != null && !idParam.trim().isEmpty()) {
                 try {
                     int id = Integer.parseInt(idParam.trim());
                     WarrantyPolicy selected = dao.getPolicyById(id);
-                    req.setAttribute("selectedPolicy", selected);
-                } catch (NumberFormatException ignored) {
-                    // bad id → no selection
+                    request.setAttribute("selectedPolicy", selected);
+                } catch (Exception ignored) {
                 }
             }
 
-            req.getRequestDispatcher("/Admin/PolicyManagement.jsp")
-               .forward(req, res);
+            request.getRequestDispatcher("/Admin/PolicyManagement.jsp")
+                    .forward(request, response);
 
         } catch (Exception e) {
             throw new ServletException("Error loading policies", e);
         }
     }
 
-    /*
-        POST – create / update / delete / status changes 
-    */
-    
+    /**
+     * Handles POST requests by dispatching to the appropriate create, update, delete, or status action.
+     */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        req.setCharacterEncoding("UTF-8");
-        String action      = req.getParameter("action");
-        String contextPath = req.getContextPath();
+        request.setCharacterEncoding("UTF-8");
+
+        String action = request.getParameter("action");
+        String contextPath = request.getContextPath();
 
         try {
+
             switch (action == null ? "" : action) {
 
-                // CREATE 
                 case "create": {
-                    String name = trimOrNull(req.getParameter("policyName"));
 
-                    // Validate
-                    String err = validateCreate(name, req);
-                    if (err != null) {
-                        sendJsonError(res, err);
-                        return;
-                    }
+                    WarrantyPolicy p = buildPolicyFromRequest(request);
 
-                    WarrantyPolicy p = buildFromRequest(req);
                     Timestamp now = new Timestamp(System.currentTimeMillis());
                     p.setStatus("DRAFT");
                     p.setCreatedAt(now);
                     p.setUpdatedAt(now);
 
-                    List<Integer> regionIds = parseRegionIds(req);
-                    dao.insertPolicy(p, regionIds);
+                    dao.insertPolicy(p);
 
-                    sendJsonSuccess(res, "Policy created successfully.");
+                    response.sendRedirect(contextPath + "/admin/policy");
                     break;
                 }
 
-                // UPDATE 
                 case "update": {
-                    int id = parseId(req.getParameter("policyId"));
-                    if (id <= 0) {
-                        sendJsonError(res, "Invalid policy ID.");
-                        return;
+
+                    int id = Integer.parseInt(request.getParameter("policyId"));
+                    WarrantyPolicy p = dao.getPolicyById(id);
+
+                    if (p != null) {
+                        updatePolicyFromRequest(request, p);
+                        dao.updatePolicy(p);
                     }
 
-                    WarrantyPolicy existing = dao.getPolicyById(id);
-                    if (existing == null) {
-                        sendJsonError(res, "Policy not found.");
-                        return;
-                    }
-
-                    String name = trimOrNull(req.getParameter("policyName"));
-                    String err  = validateUpdate(name, id, req);
-                    if (err != null) {
-                        sendJsonError(res, err);
-                        return;
-                    }
-
-                    applyFormToPolicy(existing, req);
-                    List<Integer> regionIds = parseRegionIds(req);
-                    dao.updatePolicy(existing, regionIds);
-
-                    sendJsonSuccess(res, "Policy updated successfully.");
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 
-                //  DELETE 
                 case "delete": {
-                    int id = parseId(req.getParameter("policyId"));
-                    if (id > 0) dao.deletePolicy(id);
-                    res.sendRedirect(contextPath + "/admin/policy");
+                    int id = Integer.parseInt(request.getParameter("policyId"));
+                    dao.deletePolicy(id);
+                    response.sendRedirect(contextPath + "/admin/policy");
                     break;
                 }
 
-                // STATUS TRANSITIONS 
                 case "publish": {
-                    int id = parseId(req.getParameter("policyId"));
+                    int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.publishPolicy(id);
-                    res.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
+
                 case "saveDraft": {
-                    int id = parseId(req.getParameter("policyId"));
+                    int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.saveDraft(id);
-                    res.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
+
                 case "disable": {
-                    int id = parseId(req.getParameter("policyId"));
+                    int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.disablePolicy(id);
-                    res.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 
                 default:
-                    res.sendRedirect(contextPath + "/admin/policy");
+                    response.sendRedirect(contextPath + "/admin/policy");
             }
 
-        } catch (NumberFormatException e) {
-            throw new ServletException("Invalid numeric parameter", e);
         } catch (Exception e) {
-            throw new ServletException("Error processing action: " + action, e);
+            throw new ServletException("Error processing policy action: " + action, e);
         }
     }
 
     /**
-     * Executes buildFromRequest.
+     * Builds a new WarrantyPolicy object from the HTTP request parameters.
      */
-    private WarrantyPolicy buildFromRequest(HttpServletRequest req) {
+    private WarrantyPolicy buildPolicyFromRequest(HttpServletRequest request) {
         WarrantyPolicy p = new WarrantyPolicy();
-        applyFormToPolicy(p, req);
+
+        p.setPolicyName(request.getParameter("policyName"));
+        p.setDescription(request.getParameter("description"));
+        p.setPolicyContent(request.getParameter("policyContent"));
+        p.setApplicableRegions(request.getParameter("applicableRegions"));
+
+        String wm = request.getParameter("warrantyMonths");
+        p.setWarrantyMonths(wm != null && !wm.isEmpty() ? Integer.parseInt(wm) : 0);
+
+        String version = request.getParameter("version");
+        p.setVersion(version != null && !version.trim().isEmpty() ? version.trim() : "1.0");
+
+        String effDate = request.getParameter("effectiveDate");
+        if (effDate != null && !effDate.isEmpty()) {
+            p.setEffectiveDate(java.sql.Date.valueOf(effDate));
+        } else {
+            p.setEffectiveDate(new java.sql.Date(System.currentTimeMillis()));
+        }
+
         return p;
     }
 
     /**
-     * Executes applyFormToPolicy.
+     * Updates an existing WarrantyPolicy object with values from the HTTP request parameters.
      */
-    private void applyFormToPolicy(WarrantyPolicy p, HttpServletRequest req) {
-        p.setPolicyName   (trimOrEmpty(req.getParameter("policyName")));
-        p.setDescription  (trimOrEmpty(req.getParameter("description")));
-        p.setPolicyContent(req.getParameter("policyContent")); // raw HTML from CKEditor
+    private void updatePolicyFromRequest(HttpServletRequest request, WarrantyPolicy p) {
 
-        String wm = req.getParameter("warrantyMonths");
-        p.setWarrantyMonths(wm != null && !wm.trim().isEmpty()
-                ? Integer.parseInt(wm.trim()) : 0);
+        p.setPolicyName(request.getParameter("policyName"));
+        p.setDescription(request.getParameter("description"));
 
-        String ver = trimOrNull(req.getParameter("version"));
-        p.setVersion(ver != null ? ver : "v1.0");
+        String content = request.getParameter("policyContent");
+        if (content != null) {
+            p.setPolicyContent(content);
+        }
 
-        String effDate = req.getParameter("effectiveDate");
-        p.setEffectiveDate(
-            (effDate != null && !effDate.trim().isEmpty())
-                ? Date.valueOf(effDate.trim())
-                : new Date(System.currentTimeMillis())
-        );
+        String regions = request.getParameter("applicableRegions");
+        if (regions != null) {
+            p.setApplicableRegions(regions);
+        }
 
-        String status = trimOrNull(req.getParameter("status"));
-        if (status != null && !status.isEmpty()) {
-            p.setStatus(status);
+        String wm = request.getParameter("warrantyMonths");
+        if (wm != null && !wm.isEmpty()) {
+            p.setWarrantyMonths(Integer.parseInt(wm));
+        }
+
+        String version = request.getParameter("version");
+        if (version != null) {
+            p.setVersion(version.trim());
+        }
+
+        String status = request.getParameter("status");
+        if (status != null && !status.trim().isEmpty()) {
+            p.setStatus(status.trim());
+        }
+
+        String effDate = request.getParameter("effectiveDate");
+        if (effDate != null && !effDate.isEmpty()) {
+            p.setEffectiveDate(java.sql.Date.valueOf(effDate));
         }
     }
 
     /**
-     * Executes parseRegionIds.
+     * Returns a brief description of this servlet.
      */
-    private List<Integer> parseRegionIds(HttpServletRequest req) {
-        String[] vals = req.getParameterValues("regionIds");
-        List<Integer> ids = new ArrayList<>();
-        if (vals != null) {
-            for (String v : vals) {
-                try { ids.add(Integer.parseInt(v.trim())); }
-                catch (NumberFormatException ignored) {}
-            }
-        }
-        return ids;
-    }
-
-    
-    // Validation
-    
-    /*
-        Validate exist policy name when create new
-    */
-    private String validateCreate(String name, HttpServletRequest req) throws Exception {
-        if (name == null || name.isEmpty())
-            return "Policy Name is required.";
-        String wmStr = req.getParameter("warrantyMonths");
-        if (wmStr == null || wmStr.trim().isEmpty() || Integer.parseInt(wmStr.trim()) < 1)
-            return "Warranty Months must be at least 1.";
-        if (dao.isPolicyNameTakenForCreate(name))
-            return "A policy named \"" + name + "\" already exists. Please use a different name.";
-        return null; // valid
-    }
-    
-    /*
-        Validate exist policy name when edit
-    */
-    private String validateUpdate(String name, int ownerId,
-                                  HttpServletRequest req) throws Exception {
-        if (name == null || name.isEmpty())
-            return "Policy Name is required.";
-        String wmStr = req.getParameter("warrantyMonths");
-        if (wmStr != null && !wmStr.trim().isEmpty()) {
-            int wm = Integer.parseInt(wmStr.trim());
-            if (wm < 1) return "Warranty Months must be at least 1.";
-        }
-        if (dao.isPolicyNameTakenByOther(name, ownerId))
-            return "Another policy already uses the name \"" + name + "\". Please use a different name.";
-        return null; // valid
-    }
-
-    // JSON response helpers 
-
-    /**
-     * Executes sendJsonError.
-     */
-    private void sendJsonError(HttpServletResponse res, String message)
-            throws IOException {
-        res.setContentType("application/json;charset=UTF-8");
-        try (PrintWriter out = res.getWriter()) {
-            out.print("{\"success\":false,\"message\":\""
-                    + escapeJson(message) + "\"}");
-        }
-    }
-
-    /**
-     * Executes sendJsonSuccess.
-     */
-    private void sendJsonSuccess(HttpServletResponse res, String message)
-            throws IOException {
-        res.setContentType("application/json;charset=UTF-8");
-        try (PrintWriter out = res.getWriter()) {
-            out.print("{\"success\":true,\"message\":\""
-                    + escapeJson(message) + "\"}");
-        }
-    }
-
-    /*
-        String utilities 
-    */
-    private String trimOrNull(String s) {
-        return (s == null || s.trim().isEmpty()) ? null : s.trim();
-    }
-
-    private String trimOrEmpty(String s) {
-        return (s == null) ? "" : s.trim();
-    }
-
-    private int parseId(String s) {
-        try { return Integer.parseInt(s.trim()); }
-        catch (Exception e) { return 0; }
-    }
-
-    /**
-     * Executes escapeJson.
-     */
-    private String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-    }
-
     @Override
     public String getServletInfo() {
-        return "AdminPolicyServlet – Warranty Policy CRUD (MVC v2)";
+        return "AdminPolicy Servlet";
     }
 }

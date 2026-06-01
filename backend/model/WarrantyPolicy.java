@@ -1,62 +1,47 @@
+
 package model;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
 
 /**
- * WarrantyPolicy
+ * WarrantyPolicy represents warranty policy information stored in the system.
  *
- * Purpose: Defines the WarrantyPolicy component of the system.
- * Responsibilities:
- * - Encapsulates the behavior and data related to WarrantyPolicy.
- * - Supports the application business logic according to Java coding conventions.
+ * Version 1.4
  *
- * Author: Project Team
- * Version: 1.3
+ * Author DuyLD
  */
 public class WarrantyPolicy {
 
-    // ── Core fields (match WarrantyPolicies columns) ──────────────
     private int policyId;
     private String policyName;
     private String description;
-    private String policyContent;      // NEW – HTML from CKEditor/TinyMCE
     private int warrantyMonths;
     private String status;
     private String version;
     private Date effectiveDate;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String policyContent;
+    private String applicableRegions;
 
-    // ── Related data (loaded via JOIN / PolicyRegions) ─────────────
-    private List<Region> applicableRegions = new ArrayList<>();
-
-    // ── Constructors ───────────────────────────────────────────────
     public WarrantyPolicy() {
     }
 
-    /**
-     * Executes WarrantyPolicy.
-     */
-    public WarrantyPolicy(int policyId, String policyName, String description,
-            String policyContent, int warrantyMonths, String status,
-            String version, Date effectiveDate,
-            Timestamp createdAt, Timestamp updatedAt) {
+    public WarrantyPolicy(int policyId, String policyName, String description, int warrantyMonths, String status, String version, Date effectiveDate, Timestamp createdAt, Timestamp updatedAt, String policyContent, String applicableRegions) {
         this.policyId = policyId;
         this.policyName = policyName;
         this.description = description;
-        this.policyContent = policyContent;
         this.warrantyMonths = warrantyMonths;
         this.status = status;
         this.version = version;
         this.effectiveDate = effectiveDate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.policyContent = policyContent;
+        this.applicableRegions = applicableRegions;
     }
 
-    // ── Getters & Setters ──────────────────────────────────────────
     public int getPolicyId() {
         return policyId;
     }
@@ -81,20 +66,12 @@ public class WarrantyPolicy {
         this.description = description;
     }
 
-    public String getPolicyContent() {
-        return policyContent;
-    }
-
-    public void setPolicyContent(String pc) {
-        this.policyContent = pc;
-    }
-
     public int getWarrantyMonths() {
         return warrantyMonths;
     }
 
-    public void setWarrantyMonths(int wm) {
-        this.warrantyMonths = wm;
+    public void setWarrantyMonths(int warrantyMonths) {
+        this.warrantyMonths = warrantyMonths;
     }
 
     public String getStatus() {
@@ -117,45 +94,41 @@ public class WarrantyPolicy {
         return effectiveDate;
     }
 
-    public void setEffectiveDate(Date d) {
-        this.effectiveDate = d;
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
     }
 
     public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp t) {
-        this.createdAt = t;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp t) {
-        this.updatedAt = t;
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public List<Region> getApplicableRegions() {
+    public String getPolicyContent() {
+        return policyContent;
+    }
+
+    public void setPolicyContent(String policyContent) {
+        this.policyContent = policyContent;
+    }
+
+    public String getApplicableRegions() {
         return applicableRegions;
     }
 
-    public void setApplicableRegions(List<Region> r) {
-        this.applicableRegions = r;
+    public void setApplicableRegions(String applicableRegions) {
+        this.applicableRegions = applicableRegions;
     }
-
-    /**
-     * Executes getRegionCodesJoined.
-     */
-    public String getRegionCodesJoined() {
-        StringBuilder sb = new StringBuilder();
-        for (Region r : applicableRegions) {
-            if (sb.length() > 0) {
-                sb.append(", ");
-            }
-            sb.append(r.getRegionCode());
-        }
-        return sb.toString();
-    }
+    
+    
 }
