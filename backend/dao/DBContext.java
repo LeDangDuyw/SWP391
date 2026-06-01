@@ -4,6 +4,17 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * DBContext
+ *
+ * Purpose: Defines the DBContext component of the system.
+ * Responsibilities:
+ * - Encapsulates the behavior and data related to DBContext.
+ * - Supports the application business logic according to Java coding conventions.
+ *
+ * Author: Project Team
+ * Version: 1.0
+ */
 public class DBContext {
 
     // =========================
@@ -11,7 +22,7 @@ public class DBContext {
     // =========================
     private static final String SERVER   = "localhost";
     private static final String PORT     = "1433";
-    private static final String DATABASE = "UniLap";
+    private static final String DATABASE = "UniLapWarrantyDB";
     private static final String USER_DB  = "sa";
     private static final String PASSWORD = "1234";
 
@@ -29,9 +40,10 @@ public class DBContext {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(URL, USER_DB, PASSWORD);
         } catch (Exception e) {
-            e.printStackTrace();
+            // Propagate so callers (DAO try-with-resources) get a real error
+            // instead of a NullPointerException that hides the root cause.
+            throw new RuntimeException("Cannot connect to database: " + e.getMessage(), e);
         }
-        return null;
     }
 
     // =========================
