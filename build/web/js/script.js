@@ -1,27 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Countdown Timer Logic
-    const hoursSpan = document.getElementById('hours');
-    const minutesSpan = document.getElementById('minutes');
-    const secondsSpan = document.getElementById('seconds');
+    const countdownEl = document.getElementById('flash-sale-countdown');
+    if (countdownEl) {
+        const hoursSpan = document.getElementById('hours');
+        const minutesSpan = document.getElementById('minutes');
+        const secondsSpan = document.getElementById('seconds');
 
-    if (hoursSpan && minutesSpan && secondsSpan) {
-        let timeInSeconds = 2 * 3600 + 45 * 60 + 12;
-
-        const updateTimer = () => {
-            if (timeInSeconds <= 0) return;
+        if (hoursSpan && minutesSpan && secondsSpan) {
+            let endTimeMs = Number(countdownEl.dataset.endtime);
+            if (!endTimeMs) {
+                // Fallback to 02:45:12 from current page load time if database flashsale is empty
+                endTimeMs = Date.now() + (2 * 3600 + 45 * 60 + 12) * 1000;
+            }
             
-            timeInSeconds--;
-            
-            const h = Math.floor(timeInSeconds / 3600);
-            const m = Math.floor((timeInSeconds % 3600) / 60);
-            const s = timeInSeconds % 60;
+            const updateTimer = () => {
+                const now = Date.now();
+                const timeInSeconds = Math.max(0, Math.floor((endTimeMs - now) / 1000));
+                
+                if (timeInSeconds <= 0) {
+                    hoursSpan.textContent = '00';
+                    minutesSpan.textContent = '00';
+                    secondsSpan.textContent = '00';
+                    return;
+                }
+                
+                const h = Math.floor(timeInSeconds / 3600);
+                const m = Math.floor((timeInSeconds % 3600) / 60);
+                const s = timeInSeconds % 60;
 
-            hoursSpan.textContent = h.toString().padStart(2, '0');
-            minutesSpan.textContent = m.toString().padStart(2, '0');
-            secondsSpan.textContent = s.toString().padStart(2, '0');
-        };
+                hoursSpan.textContent = h.toString().padStart(2, '0');
+                minutesSpan.textContent = m.toString().padStart(2, '0');
+                secondsSpan.textContent = s.toString().padStart(2, '0');
+            };
 
-        setInterval(updateTimer, 1000);
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
     }
 
     // 2. Product Slider Logic
@@ -134,6 +148,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Lỗi khi load sản phẩm tab", err);
                     window.location.href = href; // Fallback
                 }
+            }
+        });
+    });
+
+    // 4. Search Form Category Dynamic Input Matcher
+    document.querySelectorAll('.search-form').forEach(form => {
+        const searchInput = form.querySelector('input[name="search"]');
+        const categoryInput = form.querySelector('input[name="category"]');
+        if (!searchInput || !categoryInput) return;
+
+        const defaultCategoryId = categoryInput.value;
+
+        const keywordsMap = {
+            "1": ["laptop", "lap", "máy tính xách tay"],
+            "2": ["chuột", "mouse", "chuot"],
+            "3": ["bàn phím", "ban phim", "keyboard", "phím", "phim"],
+            "4": ["phụ kiện", "phu kien", "gear", "sạc", "tai nghe", "loa", "pad"]
+        };
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) {
+                categoryInput.value = defaultCategoryId;
+                return;
+            }
+
+            // Find if query matches any category keywords
+            let matchedId = null;
+            for (const [catId, keywords] of Object.entries(keywordsMap)) {
+                const found = keywords.some(keyword => query.includes(keyword) || keyword.includes(query));
+                if (found) {
+                    matchedId = catId;
+                    break;
+                }
+            }
+
+            if (matchedId) {
+                categoryInput.value = matchedId;
+            } else {
+                categoryInput.value = defaultCategoryId;
             }
         });
     });

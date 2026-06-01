@@ -48,4 +48,30 @@ Connection cnn;
     }
     return data;
 }
+    
+    // tìm kiếm sản phẩm theo danh mục 
+    public Integer getCategoryIdByName(String keyword) {
+
+    String sql = """
+        SELECT category_id
+        FROM Category
+        WHERE LOWER(category_name) LIKE ?
+        """;
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, "%" + keyword.toLowerCase() + "%");
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt("category_id");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
 }

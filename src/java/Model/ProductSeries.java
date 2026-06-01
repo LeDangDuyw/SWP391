@@ -6,7 +6,7 @@ package Model;
 
 /**
  *
- * @author ASUS
+ * @author Cao Tuấn Minh 
  */
 public class ProductSeries {
     private int seriesId;

@@ -4,12 +4,14 @@
  */
 package Model;
 
+import java.sql.Timestamp;
+
 /**
  *
  * @author Cao Tuấn Minh 
  */
 public class FlashSaleProduct {
-   private int productId;
+private int productId;
 private String productName;
 private String thumbnail;
 private long originalPrice;
@@ -17,11 +19,13 @@ private long salePrice;
 private int quantityLimit;
 private int soldQuantity;
 private int discountPercent;
+// time 
+private Timestamp endTime;
 
     public FlashSaleProduct() {
     }
 
-    public FlashSaleProduct(int productId, String productName, String thumbnail, long originalPrice, long salePrice, int quantityLimit, int soldQuantity, int discountPercent) {
+    public FlashSaleProduct(int productId, String productName, String thumbnail, long originalPrice, long salePrice, int quantityLimit, int soldQuantity, int discountPercent, Timestamp endTime) {
         this.productId = productId;
         this.productName = productName;
         this.thumbnail = thumbnail;
@@ -30,7 +34,18 @@ private int discountPercent;
         this.quantityLimit = quantityLimit;
         this.soldQuantity = soldQuantity;
         this.discountPercent = discountPercent;
+        this.endTime = endTime;
     }
+
+    public Timestamp getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
+    }
+
+    
 
     public int getProductId() {
         return productId;

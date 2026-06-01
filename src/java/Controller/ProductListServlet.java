@@ -60,13 +60,49 @@ public class ProductListServlet extends HttpServlet {
             throws ServletException, IOException {
         ProductDAO p = new ProductDAO();
         BrandDao b = new BrandDao();
-        // check xem danh mục có null ko 
+        
+        String search = request.getParameter("search"); // Lấy tham số tìm kiếm trước để xử lý tự động điều hướng
         String category = request.getParameter("category");
-        if (category == null) {
+        
+        Integer categoryId = null;
+        if (category != null && !category.isEmpty()) {
+            try {
+                categoryId = Integer.parseInt(category);
+            } catch (NumberFormatException e) {
+                // Bỏ qua lỗi parse
+            }
+        }
+        
+        // Tự động nhận diện danh mục từ từ khóa tìm kiếm (Backend Java Servlet + SQL)
+        if (search != null && !search.trim().isEmpty()) {
+            Dao.CategoryDAO categoryDAO = new Dao.CategoryDAO();
+            String cleanSearch = search.trim().toLowerCase();
+            
+            // 1. Truy vấn SQL xem từ khóa tìm kiếm có khớp với tên danh mục nào không
+            Integer detectedCategoryId = categoryDAO.getCategoryIdByName(cleanSearch);
+            
+            // 2. Dự phòng thông minh: Ánh xạ từ khóa tiếng Anh/tiếng Việt phổ biến nếu tìm kiếm tương đối
+            if (detectedCategoryId == null) {
+                if (cleanSearch.contains("mouse") || cleanSearch.contains("chuột")) {
+                    detectedCategoryId = categoryDAO.getCategoryIdByName("Chuột");
+                } else if (cleanSearch.contains("keyboard") || cleanSearch.contains("bàn phím") || cleanSearch.contains("phím")) {
+                    detectedCategoryId = categoryDAO.getCategoryIdByName("Bàn phím");
+                } else if (cleanSearch.contains("laptop") || cleanSearch.contains("máy tính")) {
+                    detectedCategoryId = categoryDAO.getCategoryIdByName("Laptop");
+                }
+            }
+            
+            // Nếu tìm thấy danh mục phù hợp từ từ khóa, tự động chuyển hướng tìm kiếm sang danh mục đó!
+            if (detectedCategoryId != null) {
+                categoryId = detectedCategoryId;
+            }
+        }
+        
+        if (categoryId == null) {
             response.sendRedirect("HomeServlet");
             return;
         }
-        Integer categoryId = Integer.parseInt(category);
+        
         String brand = request.getParameter("brand");
         String series = request.getParameter("series");
         String purpose = request.getParameter("purpose");
@@ -77,7 +113,6 @@ public class ProductListServlet extends HttpServlet {
         String screen = request.getParameter("screen");
         String price = request.getParameter("price");
         String sort = request.getParameter("sort"); //  thêm lấy sort
-        String search = request.getParameter("search"); //  thêm lấy search
         
         // Thêm các tham số cho chuột và bàn phím
         String connectivity = request.getParameter("connectivity");

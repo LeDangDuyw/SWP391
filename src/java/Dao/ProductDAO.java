@@ -38,20 +38,20 @@ public class ProductDAO extends DBContext {
                          p.product_name,
                          p.thumbnail,
                          b.brand_name,
-                         p.sold_quantity,
+                         SUM(od.quantity) AS sold_quantity,
                          MIN(v.selling_price) AS min_price
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
                      AND p.category_id = 1
                      GROUP BY
                          p.product_id,
                          p.product_name,
                          p.thumbnail,
-                         b.brand_name,
-                         p.sold_quantity
-                     ORDER BY p.sold_quantity DESC;
+                         b.brand_name
+                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -80,20 +80,20 @@ public class ProductDAO extends DBContext {
                          p.product_name,
                          p.thumbnail,
                          b.brand_name,
-                         p.sold_quantity,
+                         SUM(od.quantity) AS sold_quantity,
                          MIN(v.selling_price) AS min_price
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
-                     AND p.category_id = 2
+                     AND p.category_id = 4
                      GROUP BY
                          p.product_id,
                          p.product_name,
                          p.thumbnail,
-                         b.brand_name,
-                         p.sold_quantity
-                     ORDER BY p.sold_quantity DESC;
+                         b.brand_name
+                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -123,20 +123,20 @@ public class ProductDAO extends DBContext {
                          p.product_name,
                          p.thumbnail,
                          b.brand_name,
-                         p.sold_quantity,
+                         SUM(od.quantity) AS sold_quantity,
                          MIN(v.selling_price) AS min_price
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
-                     AND p.category_id = 1
+                     AND p.category_id = 3
                      GROUP BY
                          p.product_id,
                          p.product_name,
                          p.thumbnail,
-                         b.brand_name,
-                         p.sold_quantity
-                     ORDER BY p.sold_quantity DESC;
+                         b.brand_name
+                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -297,7 +297,7 @@ public class ProductDAO extends DBContext {
                 ps.series_name,
                 p.sold_quantity,
                 MIN(pv.selling_price) AS min_price,
-                -- Ghi chú fix lại: Thêm subquery lấy cpu, ram, gpu để hiển thị tag trên UI
+                --Thêm subquery lấy cpu, ram, gpu để hiển thị tag trên UI
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 1) AS cpu,
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 2) AS ram,
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 4) AS gpu,

@@ -35,16 +35,15 @@
                 <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>
                 <nav class="main-nav">
                     <a href="${pageContext.request.contextPath}/HomeServlet" class="active">Trang chủ</a>
-                    <a href="ProductListServlet?category=1">Laptop</a>
-                    <a href="ProductListServlet?category=3">Bàn Phím</a>
-                    <a href="ProductListServlet?category=2">Chuột</a>
-                    <a href="ProductListServlet?category=4">Phụ kiện</a>
+                    <c:forEach items="${categories}" var="cat">
+                        <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
+                    </c:forEach>
                     <a href="#">Khuyến mãi</a>
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
                     <form action="ProductListServlet" method="GET" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
                         <input type="hidden" name="category" value="1">
-                        <input type="text" name="search" placeholder="Tìm kiếm laptop..." style="border:none; background:transparent; outline:none; font-size:14px; width:150px; font-family:'Inter', sans-serif;">
+                        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:150px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
                     <a href="#"><i class="fas fa-shopping-cart"></i></a>
@@ -73,17 +72,18 @@
         </section>
 
         <!-- Flash Sale Section -->
+        <c:if test="${not empty flashsale}">
         <section class="flash-sale">
             <div class="container">
                 <div class="section-header flash-sale-header">
                     <h2><i class="fas fa-bolt flash-icon"></i> Săn Deal Thần Tốc</h2>
 
-                    <div class="countdown">
+                    <div class="countdown" id="flash-sale-countdown" data-endtime="${not empty flashsale ? flashsale[0].endTime.time : ''}">
                         <span>Kết thúc trong: </span>
                         <div class="timer">
-                            <span id="hours">02</span> :
-                            <span id="minutes">45</span> :
-                            <span id="seconds">12</span>
+                            <span id="hours">00</span> :
+                            <span id="minutes">00</span> :
+                            <span id="seconds">00</span>
                         </div>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                             </div>
 
                             <div class="product-img-wrapper">
-                                <img src="${p.thumbnail}" alt="${p.productName}">
+                                <img src="images/${p.thumbnail}" alt="${p.productName}">
                             </div>
 
                             <div class="product-info">
@@ -151,6 +151,7 @@
                 </div>
             </div>
         </section>
+        </c:if>
 
                     <!-- Best Sellers Section -->
                     <section class="best-sellers">
@@ -167,11 +168,12 @@
                             </div>
 
                             <div class="product-grid" id="best-seller-grid">
+                         
                                 <c:forEach items="${products}" var="p">
                                     <div class="product-card">
                                         <div class="product-badge best-seller">Bán chạy</div>
                                         <div class="product-img-wrapper">
-                                            <img src="${p.thumbnail}" alt="${p.productName}">
+                                            <img src="images/${p.thumbnail}" alt="${p.productName}">
                                         </div>
                                         <div class="product-info">
                                             <h3>${p.productName}</h3>
@@ -208,7 +210,7 @@
                                     <div class="product-card">
                                         <div class="product-badge new">Mới</div>
                                         <div class="product-img-wrapper">
-                                            <img src="${p.thumbnail}" alt="${p.productName}">
+                                            <img src="images/${p.thumbnail}" alt="${p.productName}">
                                         </div>
                                         <div class="product-info">
                                             <h3>${p.productName}</h3>
@@ -252,17 +254,10 @@
                                     <li><a href="#">Về chúng tôi</a></li>
                                 </ul>
                             </div>
-                            <div class="footer-col">
-                                <h3>Đăng ký nhận tin</h3>
-                                <p>Nhận thông tin ưu đãi mới nhất từ UniLap.</p>
-                                <form class="newsletter-form">
-                                    <input type="email" placeholder="Email của bạn" required>
-                                    <button type="submit" class="btn btn-primary">Đăng ký</button>
-                                </form>
-                            </div>
+
                         </div>
                         <div class="footer-bottom">
-                            <p>&copy; 2024 UniLap. All rights reserved.</p>
+                            <p>&copy; 2026 UniLap. All rights reserved.</p>
                         </div>
                     </footer>
 
