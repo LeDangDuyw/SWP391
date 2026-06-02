@@ -108,7 +108,7 @@ if (c.getUsageLimit() != null) {
 <head>
     <meta charset="UTF-8">
     <title><%= editing ? "Edit Campaign" : "Create Campaign" %></title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/promotion.css">
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/promotion.css">
 </head>
 
 <body>
