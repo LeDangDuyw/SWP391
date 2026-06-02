@@ -1,7 +1,0 @@
-context\DBContext.class
-dal\CampaignDAO.class
-model\CampaignStats.class
-model\ProductSearchItem.class
-model\CampaignProduct.class
-controller\PromotionServlet.class
-model\Campaign.class
