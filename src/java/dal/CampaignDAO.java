@@ -22,13 +22,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
+import jakarta.servlet.ServletContext;
 public class CampaignDAO extends DBContext {
     Connection con;
     PreparedStatement ps;
     ResultSet rs;
+    private ServletContext context;
 // check  connect and conect
-    public CampaignDAO() {
+    public CampaignDAO(ServletContext context) {
+        super(context);
+        this.context = context;
         connect();
     }
 
@@ -44,7 +47,7 @@ public class CampaignDAO extends DBContext {
 
 private void checkConnection() throws SQLException {
     if (con == null || con.isClosed()) {
-        DBContext db = new DBContext();
+        DBContext db = new DBContext(this.context);
         this.connection = db.connection;
         this.con = this.connection;
     }

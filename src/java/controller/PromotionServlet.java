@@ -29,8 +29,14 @@ import java.util.Random;
 
 @WebServlet(name = "PromotionServlet", urlPatterns = {"/admin/promotions"})
 public class PromotionServlet extends HttpServlet {
-    private final CampaignDAO dao = new CampaignDAO();
+    private CampaignDAO dao;
     private static final int PAGE_SIZE = 6;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        dao = new CampaignDAO(getServletContext());
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

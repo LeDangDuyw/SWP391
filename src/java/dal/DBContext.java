@@ -10,22 +10,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import jakarta.servlet.ServletContext;
 
 public class DBContext {
 
     protected Connection connection;
     public static String lastError = "";
 
-    public DBContext() {
+    public DBContext(ServletContext context) {
         try {
             Properties properties = new Properties();
 
-            InputStream inputStream = getClass()
-                    .getClassLoader()
-                    .getResourceAsStream("ConnectDB.properties");
+            InputStream inputStream = context.getResourceAsStream("/WEB-INF/ConnectDB.properties");
 
             if (inputStream == null) {
-                throw new IOException("Không tìm thấy ConnectDB.properties trong Source Packages.");
+                throw new IOException("Không tìm thấy ConnectDB.properties trong WEB-INF.");
             }
 
             properties.load(inputStream);
