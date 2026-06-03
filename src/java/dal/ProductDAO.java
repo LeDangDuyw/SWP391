@@ -1,7 +1,7 @@
-package Dao;
-import Dao.DBContext;
+package dal;
+import dal.DBContext;
 import java.sql.Connection;
-import Model.Product;
+import model.Product;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -162,24 +162,23 @@ public class ProductDAO extends DBContext {
     ArrayList<Product> data = new ArrayList<>();
     try {
         String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         MIN(v.selling_price) AS min_price
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 1
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         p.created_at 
-                     ORDER BY p.created_at DESC;
+                    SELECT TOP 10
+                        p.product_id,
+                        p.product_name,
+                        p.thumbnail,
+                        b.brand_name,
+                        MIN(v.selling_price) AS min_price
+                    FROM Product p
+                    JOIN Brand b ON p.brand_id = b.brand_id
+                    JOIN ProductVariant v ON p.product_id = v.product_id
+                    WHERE v.status = 'active'
+                    AND p.category_id = 1
+                    GROUP BY
+                        p.product_id,
+                        p.product_name,
+                        p.thumbnail,
+                        b.brand_name
+                    ORDER BY p.product_id DESC;
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -190,7 +189,7 @@ public class ProductDAO extends DBContext {
             p.setProductName(rs.getString(2));
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
+            p.setMinPrice(rs.getLong(5));
             data.add(p);
         }
     } catch (Exception e) {
@@ -204,24 +203,23 @@ public class ProductDAO extends DBContext {
     ArrayList<Product> data = new ArrayList<>();
     try {
         String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         MIN(v.selling_price) AS min_price
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 2
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         p.created_at 
-                     ORDER BY p.created_at DESC;
+                                         SELECT TOP 10
+                                             p.product_id,
+                                             p.product_name,
+                                             p.thumbnail,
+                                             b.brand_name,
+                                             MIN(v.selling_price) AS min_price
+                                         FROM Product p
+                                         JOIN Brand b ON p.brand_id = b.brand_id
+                                         JOIN ProductVariant v ON p.product_id = v.product_id
+                                         WHERE v.status = 'active'
+                                         AND p.category_id = 4
+                                         GROUP BY
+                                             p.product_id,
+                                             p.product_name,
+                                             p.thumbnail,
+                                             b.brand_name
+                                         ORDER BY p.product_id DESC; 
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -232,7 +230,7 @@ public class ProductDAO extends DBContext {
             p.setProductName(rs.getString(2));
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
+            p.setMinPrice(rs.getLong(5));
             data.add(p);
         }
     } catch (Exception e) {
@@ -245,24 +243,23 @@ public class ProductDAO extends DBContext {
     ArrayList<Product> data = new ArrayList<>();
     try {
         String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         MIN(v.selling_price) AS min_price
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 3
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         p.created_at 
-                     ORDER BY p.created_at DESC;
+                                        SELECT TOP 10
+                                            p.product_id,
+                                            p.product_name,
+                                            p.thumbnail,
+                                            b.brand_name,
+                                            MIN(v.selling_price) AS min_price
+                                        FROM Product p
+                                        JOIN Brand b ON p.brand_id = b.brand_id
+                                        JOIN ProductVariant v ON p.product_id = v.product_id
+                                        WHERE v.status = 'active'
+                                        AND p.category_id = 3
+                                        GROUP BY
+                                            p.product_id,
+                                            p.product_name,
+                                            p.thumbnail,
+                                            b.brand_name
+                                        ORDER BY p.product_id DESC;                                   
                      """;
                                                                              
         ps = cnn.prepareStatement(sql);
@@ -273,7 +270,7 @@ public class ProductDAO extends DBContext {
             p.setProductName(rs.getString(2));
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
+            p.setMinPrice(rs.getLong(5));
             data.add(p);
         }
     } catch (Exception e) {
@@ -283,9 +280,9 @@ public class ProductDAO extends DBContext {
 }
  // Lọc Laptop
  public ArrayList<Product> filterLaptop(int categoryId,Integer brandId,Integer seriesId,String purpose,String cpu,String ram,String ssd,String gpu,String screen,String price, String sort, int page, int pageSize, String search, String connectivity, String switchType, String dpi) {
-    ArrayList<Product> data = new ArrayList<>();
-    try {
-        String sql = """
+     ArrayList<Product> data = new ArrayList<>();
+     try {
+         String sql = """
             SELECT
                 p.product_id,
                 p.product_name,
@@ -293,24 +290,22 @@ public class ProductDAO extends DBContext {
                 b.brand_id,
                 b.brand_name,
                 c.category_name,
-                ps.series_id,
-                ps.series_name,
-                p.sold_quantity,
+                NULL AS series_id,
+                NULL AS series_name,
+                0 AS sold_quantity,
                 MIN(pv.selling_price) AS min_price,
                 --Thêm subquery lấy cpu, ram, gpu để hiển thị tag trên UI
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 1) AS cpu,
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 2) AS ram,
                 (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 4) AS gpu,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 5) AS connectivity,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 6) AS switch_type,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 7) AS dpi
+                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 18) AS connectivity,
+                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 10) AS switch_type,
+                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 13) AS dpi
             FROM Product p
             JOIN Brand b
                 ON p.brand_id = b.brand_id
             JOIN Category c
                 ON p.category_id = c.category_id
-            LEFT JOIN ProductSeries ps
-                ON p.series_id = ps.series_id
             JOIN ProductVariant pv
                 ON p.product_id = pv.product_id
             WHERE p.category_id = ?
@@ -318,9 +313,7 @@ public class ProductDAO extends DBContext {
         if (brandId != null) {
             sql += " AND p.brand_id = ?";
         }
-        if (seriesId != null) {
-            sql += " AND p.series_id = ?";
-        }
+
         if (purpose != null && !purpose.isEmpty()) {
             sql += " AND p.description LIKE ?";
         }
@@ -332,7 +325,7 @@ public class ProductDAO extends DBContext {
                     FROM VariantSpecification vs
                     WHERE vs.variant_id = pv.variant_id
                     AND vs.specification_id = 1
-                    AND vs.value = ?
+                    AND vs.value LIKE ?
                 )
             """;
         }
@@ -344,7 +337,7 @@ public class ProductDAO extends DBContext {
                     FROM VariantSpecification vs
                     WHERE vs.variant_id = pv.variant_id
                     AND vs.specification_id = 2
-                    AND vs.value = ?
+                    AND vs.value LIKE ?
                 )
             """;
         }
@@ -355,8 +348,8 @@ public class ProductDAO extends DBContext {
                     SELECT 1
                     FROM VariantSpecification vs
                     WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 3
-                    AND vs.value = ?
+                    AND vs.specification_id = 5
+                    AND vs.value LIKE ?
                 )
             """;
         }
@@ -368,7 +361,7 @@ public class ProductDAO extends DBContext {
                     FROM VariantSpecification vs
                     WHERE vs.variant_id = pv.variant_id
                     AND vs.specification_id = 4
-                    AND vs.value = ?
+                    AND vs.value LIKE ?
                 )
             """;
         }
@@ -379,7 +372,7 @@ public class ProductDAO extends DBContext {
                     SELECT 1
                     FROM VariantSpecification vs
                     WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 8
+                    AND vs.specification_id = 3
                     AND vs.value LIKE ?
                 )
             """;
@@ -390,7 +383,7 @@ public class ProductDAO extends DBContext {
             sql += """
                 AND EXISTS (
                     SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 5 AND vs.value = ?
+                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 18 AND vs.value LIKE ?
                 )
 """;
         }
@@ -398,7 +391,7 @@ public class ProductDAO extends DBContext {
             sql += """
                 AND EXISTS (
                     SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 6 AND vs.value = ?
+                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 10 AND vs.value LIKE ?
                 )
 """;
         }
@@ -406,7 +399,7 @@ public class ProductDAO extends DBContext {
             sql += """
                 AND EXISTS (
                     SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 7 AND vs.value = ?
+                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 13 AND vs.value LIKE ?
                 )
 """;
         }
@@ -464,10 +457,7 @@ public class ProductDAO extends DBContext {
                 p.thumbnail,
                 b.brand_id,
                 b.brand_name,
-                c.category_name,
-                ps.series_id,
-                ps.series_name,
-                p.sold_quantity
+                c.category_name
         """;
 
         //Thêm ORDER BY và phân trang (OFFSET FETCH)
@@ -475,10 +465,8 @@ public class ProductDAO extends DBContext {
             sql += " ORDER BY min_price ASC";
         } else if ("price_desc".equals(sort)) {
             sql += " ORDER BY min_price DESC";
-        } else if ("new".equals(sort)) {
-            sql += " ORDER BY p.product_id DESC";
         } else {
-            sql += " ORDER BY p.sold_quantity DESC";
+            sql += " ORDER BY p.product_id DESC";
         }
         sql += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -488,32 +476,30 @@ public class ProductDAO extends DBContext {
         if (brandId != null) {
             ps.setInt(index++, brandId);
         }
-        if (seriesId != null) {
-            ps.setInt(index++, seriesId);
-        }
+
         if (purpose != null && !purpose.isEmpty()) {
             ps.setString(index++, "%" + purpose + "%");
         }
         if (cpu != null && !cpu.isEmpty()) {
-            ps.setString(index++, cpu);
+            ps.setString(index++, "%" + cpu + "%");
         }
         if (ram != null && !ram.isEmpty()) {
-            ps.setString(index++, ram);
+            ps.setString(index++, "%" + ram + "%");
         }
         if (ssd != null && !ssd.isEmpty()) {
-            ps.setString(index++, ssd);
+            ps.setString(index++, "%" + ssd + "%");
         }
         if (gpu != null && !gpu.isEmpty()) {
-            ps.setString(index++, gpu);
+            ps.setString(index++, "%" + gpu + "%");
         }
         if (screen != null && !screen.isEmpty()) {
             ps.setString(index++, "%" + screen + "%");
         }
         
         // set param cho phu kien
-        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, connectivity);
-        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, switchType);
-        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, dpi);
+        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, "%" + connectivity + "%");
+        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, "%" + switchType + "%");
+        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, "%" + dpi + "%");
 
         //set giá trị cho tham số tìm kiếm
         if (search != null && !search.trim().isEmpty()) {
@@ -562,16 +548,16 @@ public int countFilteredLaptop(int categoryId,Integer brandId,Integer seriesId,S
             WHERE p.category_id = ?
         """;
         if (brandId != null) sql += " AND p.brand_id = ?";
-        if (seriesId != null) sql += " AND p.series_id = ?";
+
         if (purpose != null && !purpose.isEmpty()) sql += " AND p.description LIKE ?";
-        if (cpu != null && !cpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 1 AND vs.value = ?)";
-        if (ram != null && !ram.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 2 AND vs.value = ?)";
-        if (ssd != null && !ssd.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 3 AND vs.value = ?)";
-        if (gpu != null && !gpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 4 AND vs.value = ?)";
-        if (screen != null && !screen.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 8 AND vs.value LIKE ?)";
-        if (connectivity != null && !connectivity.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 5 AND vs.value = ?)";
-        if (switchType != null && !switchType.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 6 AND vs.value = ?)";
-        if (dpi != null && !dpi.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 7 AND vs.value = ?)";
+        if (cpu != null && !cpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 1 AND vs.value LIKE ?)";
+        if (ram != null && !ram.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 2 AND vs.value LIKE ?)";
+        if (ssd != null && !ssd.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 5 AND vs.value LIKE ?)";
+        if (gpu != null && !gpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 4 AND vs.value LIKE ?)";
+        if (screen != null && !screen.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 3 AND vs.value LIKE ?)";
+        if (connectivity != null && !connectivity.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 18 AND vs.value LIKE ?)";
+        if (switchType != null && !switchType.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 10 AND vs.value LIKE ?)";
+        if (dpi != null && !dpi.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 13 AND vs.value LIKE ?)";
         if (price != null) {
             switch (price) {
                 case "under15": sql += " AND pv.selling_price < 15000000"; break;
@@ -597,17 +583,17 @@ public int countFilteredLaptop(int categoryId,Integer brandId,Integer seriesId,S
         int index = 1;
         ps.setInt(index++, categoryId);
         if (brandId != null) ps.setInt(index++, brandId);
-        if (seriesId != null) ps.setInt(index++, seriesId);
+
         if (purpose != null && !purpose.isEmpty()) ps.setString(index++, "%" + purpose + "%");
-        if (cpu != null && !cpu.isEmpty()) ps.setString(index++, cpu);
-        if (ram != null && !ram.isEmpty()) ps.setString(index++, ram);
-        if (ssd != null && !ssd.isEmpty()) ps.setString(index++, ssd);
-        if (gpu != null && !gpu.isEmpty()) ps.setString(index++, gpu);
+        if (cpu != null && !cpu.isEmpty()) ps.setString(index++, "%" + cpu + "%");
+        if (ram != null && !ram.isEmpty()) ps.setString(index++, "%" + ram + "%");
+        if (ssd != null && !ssd.isEmpty()) ps.setString(index++, "%" + ssd + "%");
+        if (gpu != null && !gpu.isEmpty()) ps.setString(index++, "%" + gpu + "%");
         if (screen != null && !screen.isEmpty()) ps.setString(index++, "%" + screen + "%");
         
-        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, connectivity);
-        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, switchType);
-        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, dpi);
+        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, "%" + connectivity + "%");
+        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, "%" + switchType + "%");
+        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, "%" + dpi + "%");
         
         if (search != null && !search.trim().isEmpty()) ps.setString(index++, "%" + search.trim() + "%");
 
@@ -621,5 +607,25 @@ public int countFilteredLaptop(int categoryId,Integer brandId,Integer seriesId,S
     return 0;
 }
  
+    public Integer getCategoryIdByProductSearch(String search) {
+        try {
+            String sql = """
+                SELECT TOP 1 category_id
+                FROM Product
+                WHERE product_name LIKE ?
+                GROUP BY category_id
+                ORDER BY COUNT(*) DESC
+                """;
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, "%" + search + "%");
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("category_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
  
 }

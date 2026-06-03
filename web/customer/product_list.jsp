@@ -1,12 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%
-    if (request.getAttribute("categories") == null) {
-        Dao.CategoryDAO categoryDAO = new Dao.CategoryDAO();
-        request.setAttribute("categories", categoryDAO.getAllCategories());
-    }
-%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -17,109 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=2">
-    <style>
-        body {
-            background-color: var(--bg-light);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-        .main-layout { display: flex; gap: 30px; margin-top: 30px; }
-        .sidebar { width: 260px; flex-shrink: 0; }
-        .content { flex: 1; }
-        
-        /* Brand Top */
-        .brand-list { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
-        .brand-btn input { display: none; }
-        .brand-btn span {
-            display: inline-block; padding: 10px 24px; background: #fff; border-radius: var(--radius-md); cursor: pointer;
-            font-weight: 600; color: var(--text-muted); border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.01); transition: var(--transition);
-        }
-        .brand-btn:hover span {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .brand-btn input:checked + span {
-            background: var(--secondary); color: var(--secondary-text); border: 1px solid var(--primary); box-shadow: 0 4px 12px rgba(26, 86, 219, 0.1);
-        }
-        
-        /* Sort Bar */
-        .sort-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; gap: 10px; font-size: 14px; color: var(--text-muted); }
-        .sort-bar select { padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); outline: none; background: #fff; color: var(--text-main); font-weight: 500; cursor: pointer; transition: var(--transition); }
-        .sort-bar select:focus { border-color: var(--primary); }
-
-        /* Sidebar Filter */
-        .filter-card { background: #fff; border-radius: var(--radius-md); padding: 25px 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01); }
-        .filter-card h2 { font-size: 20px; margin-bottom: 25px; margin-top: 0; color: var(--text-main); font-weight: 700; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
-        .filter-group { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .filter-group:last-child { border-bottom: none; }
-        .filter-group h4 { font-size: 14px; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        .filter-group h4 i { color: var(--primary); }
-        .filter-group label { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); cursor: pointer; gap: 10px; transition: var(--transition); }
-        .filter-group label:hover { color: var(--primary); }
-        .filter-group input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-        
-        .clear-all { display: block; text-align: center; color: var(--primary); font-weight: 600; font-size: 14px; margin-top: 20px; cursor: pointer; background: none; border: none; width: 100%; transition: var(--transition); }
-        .clear-all:hover { text-decoration: underline; color: var(--primary-hover); }
-
-        /* Product Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 50px; }
-        .product-card { background: #fff; border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; transition: var(--transition); }
-        .product-card:hover { transform: translateY(-8px); border-color: rgba(26, 86, 219, 0.25); box-shadow: 0 20px 25px -5px rgba(26, 86, 219, 0.08), 0 10px 10px -5px rgba(26, 86, 219, 0.03); }
-        
-        /* Product Badges */
-        .badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            color: white;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: var(--shadow-sm);
-        }
-        .badge.new-arrival { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); box-shadow: 0 4px 10px rgba(17, 153, 142, 0.3); }
-        .badge.best-seller { background: linear-gradient(135deg, #7f00ff 0%, #e100ff 100%); box-shadow: 0 4px 10px rgba(127, 0, 255, 0.3); }
-        
-        .product-img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; transition: transform 0.5s ease; }
-        .product-card:hover .product-img { transform: scale(1.05); }
-        .product-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1; transition: var(--transition); }
-        .product-card:hover .product-title { color: var(--primary); }
-        .specs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
-        .spec-chip { background: var(--bg-light); color: var(--text-muted); font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 500; border: 1px solid var(--border-color); }
-        .price { font-size: 20px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
-        
-        .actions { display: flex; gap: 10px; margin-top: auto; align-items: stretch; }
-        .btn-add-cart, .btn-buy-now { margin: 0; height: 38px; box-sizing: border-box; border: none; padding: 0 5px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; transition: 0.3s; }
-        .btn-add-cart { background: var(--primary); color: #fff; }
-        .btn-add-cart:hover { background: var(--primary-hover); }
-        .btn-buy-now { background: var(--secondary); color: var(--secondary-text); }
-        .btn-buy-now:hover { background: #c7d2fe; }
-
-        /* Pagination */
-        .pagination { display: flex; justify-content: center; gap: 8px; margin: 40px 0 60px; }
-        .pagination a { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: #fff; color: var(--text-muted); text-decoration: none; font-size: 14px; border: 1px solid var(--border-color); transition: 0.3s; font-weight: 600; }
-        .pagination .active { background: var(--primary); color: #fff; border-color: var(--primary); }
-        .pagination a:hover { background: var(--bg-light); color: var(--primary); border-color: var(--primary); }
-        
-    </style>
-    <script>
-        function filterChanged() {
-            document.getElementById('pageInput').value = 1; // Reset trang về 1 khi đổi bộ lọc
-            document.getElementById('filterForm').submit();
-        }
-        function goToPage(page) {
-            document.getElementById('pageInput').value = page;
-            document.getElementById('filterForm').submit();
-        }
-    </script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=10">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=1">
+    <script src="${pageContext.request.contextPath}/js/product_list.js?v=1"></script>
 </head>
 <body>
     <!-- Header -->
@@ -129,8 +23,22 @@
             <nav class="main-nav">
                 <a href="${pageContext.request.contextPath}/HomeServlet">Trang chủ</a>
                 <c:forEach items="${categories}" var="cat">
-                    <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
+                    <c:if test="${cat.categoryId == 1 || cat.categoryId == 3 || cat.categoryId == 4}">
+                        <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
+                    </c:if>
                 </c:forEach>
+                
+                <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
+                    <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                    <div class="dropdown-content">
+                        <c:forEach items="${categories}" var="cat">
+                            <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
+                                <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
+                            </c:if>
+                        </c:forEach>
+                    </div>
+                </div>
+                
                 <a href="#">Khuyến mãi</a>
             </nav>
             <div class="header-icons" style="display:flex; align-items:center; gap:15px;">
@@ -154,7 +62,7 @@
             <!--Giữ lại keyword khi lọc -->
             <input type="hidden" name="search" value="${param.search}">
 
-            <!-- BRANDS (Top) -->
+            <!-- thương hiệu -->
             <div class="brand-list" style="margin-top: 30px;">
                 <label class="brand-btn">
                     <input type="radio" name="brand" value="" onchange="filterChanged()" ${empty param.brand ? 'checked' : ''}>
@@ -169,8 +77,7 @@
             </div>
 
             <div class="main-layout">
-                <!-- SIDEBAR -->
-                <aside class="sidebar">
+                            <aside class="sidebar">
                     <div class="filter-card">
                         <h2>Bộ Lọc</h2>
 
@@ -200,8 +107,8 @@
                             </div>
                         </c:if>
 
-                        <!--Thêm Nhu cầu cho Chuột, Bàn phím -->
-                        <c:if test="${categoryId == 2 || categoryId == 3}">
+                        <!--Nhu cầu cho Chuột, Bàn phím -->
+                        <c:if test="${categoryId == 4 || categoryId == 3}">
                             <div class="filter-group">
                                 <h4><i class="fas fa-briefcase"></i> Nhu cầu</h4>
                                 <label><input type="radio" name="purpose" value="" onchange="filterChanged()" ${empty param.purpose ? 'checked' : ''}> Tất cả nhu cầu</label>
@@ -210,9 +117,8 @@
                             </div>
                         </c:if>
 
-                        <!-- Thêm bộ lọc Kỹ thuật cho Chuột (2) và Bàn phím (3) -->
-                        <c:if test="${categoryId == 2 || categoryId == 3}">
-                            <!-- Kết nối (Dùng chung cho cả Chuột và Bàn phím) -->
+                        <!--  bộ lọc kỹ thuật cho Chuột và Bàn phím  -->
+                        <c:if test="${categoryId == 4 || categoryId == 3}">
                             <div class="filter-group">
                                 <h4><i class="fas fa-wifi"></i> Độ kết nối</h4>
                                 <label><input type="radio" name="connectivity" value="" onchange="filterChanged()" ${empty param.connectivity ? 'checked' : ''}> Tất cả</label>
@@ -224,7 +130,7 @@
                         </c:if>
 
                         <c:if test="${categoryId == 3}">
-                            <!-- Switch (Bàn phím) -->
+                            <!-- Switch -->
                             <div class="filter-group">
                                 <h4><i class="fas fa-keyboard"></i> Switch (Phím cơ)</h4>
                                 <label><input type="radio" name="switch" value="" onchange="filterChanged()" ${empty param['switch'] ? 'checked' : ''}> Tất cả</label>
@@ -234,8 +140,8 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${categoryId == 2}">
-                            <!-- DPI (Chuột) -->
+                        <c:if test="${categoryId == 4}">
+                            <!-- DPI -->
                             <div class="filter-group">
                                 <h4><i class="fas fa-mouse"></i> DPI</h4>
                                 <label><input type="radio" name="dpi" value="" onchange="filterChanged()" ${empty param.dpi ? 'checked' : ''}> Tất cả</label>
@@ -248,7 +154,7 @@
                             </div>
                         </c:if>
 
-                        <!-- Laptop specific filters -->
+                        <!-- bộ lọc laptop -->
                         <c:if test="${categoryId == 1}">
                             <!-- CPU -->
                             <div class="filter-group">
@@ -329,7 +235,7 @@
                     </div>
                 </aside>
 
-                <!-- MAIN CONTENT -->
+                <!--sort -->
                 <main class="content">
                     <div class="sort-bar">
                         <span>Sắp xếp:</span>
@@ -363,13 +269,13 @@
                                 
                                 <h3 class="product-title">${p.productName}</h3>
                                 
-                                <div class="product-specs">
+                                <div class="specs">
                                     <!-- Laptop -->
                                     <c:if test="${not empty p.cpu}"><span class="spec-chip">${p.cpu}</span></c:if>
                                     <c:if test="${not empty p.ram}"><span class="spec-chip">${p.ram}</span></c:if>
                                     <c:if test="${not empty p.gpu}"><span class="spec-chip">${p.gpu}</span></c:if>
                                     
-                                    <!-- Ghi chú fix lại: Chuột, Bàn phím -->
+                                    <!--Chuột, Bàn phím -->
                                     <c:if test="${not empty p.connectivity}"><span class="spec-chip">${p.connectivity}</span></c:if>
                                     <c:if test="${not empty p.switchType}"><span class="spec-chip">${p.switchType}</span></c:if>
                                     <c:if test="${not empty p.dpi}"><span class="spec-chip">${p.dpi}</span></c:if>
@@ -386,9 +292,7 @@
                             </div>
                         </c:forEach>
                     </div>
-
-                    <!-- Pagination -->
-                    <c:if test="${totalPages > 1}">
+                                    <c:if test="${totalPages > 1}">
                         <div class="pagination">
                             <c:if test="${currentPage > 1}">
                                 <a href="javascript:void(0)" onclick="goToPage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></a>

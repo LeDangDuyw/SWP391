@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package Controller;
+package controller;
 
-import Dao.CategoryDAO;
-import Dao.ProductDAO;
-import Model.Product;
+import dal.CategoryDAO;
+import dal.ProductDAO;
+import model.Product;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import Dao.FlashSaleProductDao;
+import dal.FlashSaleProductDao;
 
 /**
  *
@@ -95,15 +95,15 @@ public class HomeServlet extends HttpServlet {
         switch (newTab) {
             //Laptop
             case "laptop":
-                request.setAttribute("new_products", p.getTopLapTop());
+                request.setAttribute("new_products", p.getNewLaptop());
                 break;
             //Chuột 
             case "chuot":
-                request.setAttribute("new_products", p.getTopMouse());
+                request.setAttribute("new_products", p.getNewMouse());
                 break;
             //Bàn Phím 
             default:
-                request.setAttribute("new_products", p.getTopKeyboard());
+                request.setAttribute("new_products", p.getNewKeyborad());
         }
 
         // Danh Mục Sản Phẩm 
@@ -112,7 +112,7 @@ public class HomeServlet extends HttpServlet {
         //FlashSale
         request.setAttribute("flashsale", fl.getAllFlashSaleProduct());
 
-        request.getRequestDispatcher("home.jsp").forward(request, response);
+        request.getRequestDispatcher("customer/home.jsp").forward(request, response);
     }
 
     /**

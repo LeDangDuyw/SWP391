@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Countdown Timer Logic
+    // đếm ngược giờ
     const countdownEl = document.getElementById('flash-sale-countdown');
     if (countdownEl) {
         const hoursSpan = document.getElementById('hours');
@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hoursSpan && minutesSpan && secondsSpan) {
             let endTimeMs = Number(countdownEl.dataset.endtime);
             if (!endTimeMs) {
-                // Fallback to 02:45:12 from current page load time if database flashsale is empty
                 endTimeMs = Date.now() + (2 * 3600 + 45 * 60 + 12) * 1000;
             }
             
@@ -38,17 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. Product Slider Logic
     const productGrids = document.querySelectorAll('.product-grid');
     
     productGrids.forEach(grid => {
-        // Wrap grid in slider-wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'slider-wrapper';
         grid.parentNode.insertBefore(wrapper, grid);
         wrapper.appendChild(grid);
-        
-        // Create buttons
         const prevBtn = document.createElement('button');
         prevBtn.className = 'slider-btn slider-prev';
         prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
@@ -72,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         });
         
-        // Show/hide buttons based on scroll position
         const updateButtons = () => {
             if (grid.scrollLeft <= 0) {
                 prevBtn.style.opacity = '0';
@@ -81,8 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 prevBtn.style.opacity = '1';
                 prevBtn.style.pointerEvents = 'auto';
             }
-            
-            // Add a 5px threshold to account for rounding errors in scrollWidth/clientWidth
             if (grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 5) {
                 nextBtn.style.opacity = '0';
                 nextBtn.style.pointerEvents = 'none';
@@ -94,19 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         grid.addEventListener('scroll', updateButtons);
         window.addEventListener('resize', updateButtons);
-        // Initial check
         setTimeout(updateButtons, 100);
     });
 
-    // 3. AJAX Tabs Logic
     document.querySelectorAll('.tabs').forEach(tabsContainer => {
         tabsContainer.addEventListener('click', async (e) => {
             const btn = e.target.closest('.tab-btn');
             if (btn) {
                 e.preventDefault();
                 const href = btn.getAttribute('href');
-                
-                // Cập nhật giao diện tab active ngay lập tức
                 tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
@@ -115,8 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const html = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Xác định phần nào đang được click
                     const section = btn.closest('section');
                     const targetGridId = section.classList.contains('best-sellers') ? '#best-seller-grid' : '#new-product-grid';
                     
@@ -124,15 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const currentGrid = document.querySelector(targetGridId);
                     
                     if (newGrid && currentGrid) {
-                        // Thay thế nội dung các sản phẩm
                         currentGrid.innerHTML = newGrid.innerHTML;
-                        // Reset thanh cuộn về vị trí đầu
                         currentGrid.scrollLeft = 0;
-                        // Cập nhật lại nút mũi tên
                         currentGrid.dispatchEvent(new Event('scroll'));
                     }
-                    
-                    // Cập nhật lại href của tất cả các tab để tránh click bị sai param cho các lần tiếp theo
                     const newTabs = doc.querySelectorAll('.tab-btn');
                     const currentTabs = document.querySelectorAll('.tab-btn');
                     currentTabs.forEach((tab, index) => {
@@ -140,8 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             tab.href = newTabs[index].href;
                         }
                     });
-                    
-                    // Thay đổi URL trên trình duyệt mà không reload
                     window.history.pushState({}, '', href);
                     
                 } catch (err) {
@@ -151,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // 4. Search Form Category Dynamic Input Matcher
     document.querySelectorAll('.search-form').forEach(form => {
         const searchInput = form.querySelector('input[name="search"]');
         const categoryInput = form.querySelector('input[name="category"]');
@@ -162,9 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const keywordsMap = {
             "1": ["laptop", "lap", "máy tính xách tay"],
-            "2": ["chuột", "mouse", "chuot"],
+            "2": ["màn hình", "man hinh", "monitor", "display"],
             "3": ["bàn phím", "ban phim", "keyboard", "phím", "phim"],
-            "4": ["phụ kiện", "phu kien", "gear", "sạc", "tai nghe", "loa", "pad"]
+            "4": ["chuột", "mouse", "chuot"]
         };
 
         searchInput.addEventListener('input', () => {
@@ -173,8 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryInput.value = defaultCategoryId;
                 return;
             }
-
-            // Find if query matches any category keywords
             let matchedId = null;
             for (const [catId, keywords] of Object.entries(keywordsMap)) {
                 const found = keywords.some(keyword => query.includes(keyword) || keyword.includes(query));
