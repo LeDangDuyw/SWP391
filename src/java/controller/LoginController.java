@@ -46,9 +46,7 @@ public class LoginController extends HttpServlet {
                 response.sendRedirect("auth/admin.jsp");
             } else if (user.roleId == 2) {
                 response.sendRedirect("auth/user.jsp");
-            } else {
-                response.sendRedirect("auth/staff.jsp");
-            }
+            } 
         }
     }
 }
