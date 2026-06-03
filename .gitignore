@@ -1,12 +1,12 @@
-build/
-dist/
-target/
-nbproject/private/
+# Build files
+/build/
+/dist/
 
+# NetBeans
+/nbproject/private/
+
+# Java
 *.class
-*.war
-*.jar
-*.log
 
-.DS_Store
-Thumbs.db
+# Logs
+*.log
