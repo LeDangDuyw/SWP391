@@ -1,0 +1,86 @@
+package model;
+
+/**
+ * DashboardSummary represents aggregated KPI data displayed on the admin
+ * dashboard.
+ *
+ * Version 1.4
+ *
+ * Author DuyLD
+ */
+public class DashboardSummary {
+
+    private int totalUsers;
+    private int totalOrders;
+    private int totalProducts;
+    private int totalPolicies;
+    private double totalRevenue;
+    private String systemStatus;
+
+    /**
+     * Creates a new DashboardSummary instance with default values.
+     */
+    public DashboardSummary() {
+    }
+
+    /**
+     * Creates a new DashboardSummary instance with all KPI fields initialized.
+     */
+    public DashboardSummary(int totalUsers, int totalOrders, int totalProducts,
+            int totalPolicies, double totalRevenue, String systemStatus) {
+        this.totalUsers = totalUsers;
+        this.totalOrders = totalOrders;
+        this.totalProducts = totalProducts;
+        this.totalPolicies = totalPolicies;
+        this.totalRevenue = totalRevenue;
+        this.systemStatus = systemStatus;
+    }
+
+    public int getTotalUsers() {
+        return totalUsers;
+    }
+
+    public void setTotalUsers(int totalUsers) {
+        this.totalUsers = totalUsers;
+    }
+
+    public int getTotalOrders() {
+        return totalOrders;
+    }
+
+    public void setTotalOrders(int totalOrders) {
+        this.totalOrders = totalOrders;
+    }
+
+    public int getTotalProducts() {
+        return totalProducts;
+    }
+
+    public void setTotalProducts(int totalProducts) {
+        this.totalProducts = totalProducts;
+    }
+
+    public int getTotalPolicies() {
+        return totalPolicies;
+    }
+
+    public void setTotalPolicies(int totalPolicies) {
+        this.totalPolicies = totalPolicies;
+    }
+
+    public double getTotalRevenue() {
+        return totalRevenue;
+    }
+
+    public void setTotalRevenue(double totalRevenue) {
+        this.totalRevenue = totalRevenue;
+    }
+
+    public String getSystemStatus() {
+        return systemStatus;
+    }
+
+    public void setSystemStatus(String systemStatus) {
+        this.systemStatus = systemStatus;
+    }
+}
