@@ -24,7 +24,7 @@ import model.Product;
     maxFileSize = 1024 * 1024 * 10,      // 10MB
     maxRequestSize = 1024 * 1024 * 50    // 50MB
 )
-@WebServlet("/admin/inventory/add")
+@WebServlet("/staff/inventory/add")
 public class AddProductController extends HttpServlet {
 
     @Override
@@ -43,7 +43,7 @@ public class AddProductController extends HttpServlet {
         request.setAttribute("brands", brands);
 
         // Chuyển hướng người dùng đến trang AddProduct.jsp
-        request.getRequestDispatcher("/admin/views/AddProduct.jsp").forward(request, response);
+        request.getRequestDispatcher("/staff/AddProduct.jsp").forward(request, response);
     }
 
     @Override
@@ -154,6 +154,6 @@ public class AddProductController extends HttpServlet {
         }
         
         // Quay về trang quản lý kho sau khi lưu xong
-        response.sendRedirect(request.getContextPath() + "/admin/inventory");
+        response.sendRedirect(request.getContextPath() + "/staff/inventory");
     }
 }

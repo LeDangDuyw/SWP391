@@ -183,7 +183,7 @@
 
             <div class="flex flex-col gap-4 mb-8">
                 <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
-                    <form action="${pageContext.request.contextPath}/admin/inventory" method="get">
+                    <form action="${pageContext.request.contextPath}/staff/inventory" method="get">
                         <div class="relative flex-1 min-w-[300px]">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                         <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Search inventory by product name, SKU, or category..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
@@ -210,7 +210,7 @@
                         <button class="px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">download</span> Export
                         </button>
-                        <a href="${pageContext.request.contextPath}/admin/inventory/add" class="px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
+                        <a href="${pageContext.request.contextPath}/staff/inventory/add" class="px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
                             <span class="material-symbols-outlined text-[20px]">add</span> Add Product
                         </a>
                     </div>
@@ -265,9 +265,9 @@
                         
                                 <td class="py-2 px-4 text-right">
                                     <a class="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                                       href="${pageContext.request.contextPath}/admin/inventory/edit?variantId= <%= p.getProductId() %>"
+                                       href="${pageContext.request.contextPath}/staff/inventory/edit?variantId=<%= p.getProductId() %>"
                                             ><span class="material-symbols-outlined text-[20px]">edit</span></a>
-                                    <form action="${pageContext.request.contextPath}/admin/inventory" method="post">
+                                    <form action="${pageContext.request.contextPath}/staff/inventory" method="post">
                                         <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
                                         <button class="p-1 text-on-surface-variant hover:text-error transition-colors" name="action" value="delete" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này không? Lưu ý: Sản phẩm chỉ bị ẩn tạm thời chứ không xóa hoàn toàn?');"><span class="material-symbols-outlined text-[20px]" >block</span></button>
                                         <button 
@@ -282,7 +282,6 @@
                                         </button>
                                     </form>
                                 </td>
-                        </form
                             </tr>
                             <% } %> 
                         </tbody>

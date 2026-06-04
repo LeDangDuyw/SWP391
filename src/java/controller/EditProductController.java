@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author huy
  */
-@WebServlet("/admin/inventory/edit")
+@WebServlet("/staff/inventory/edit")
 public class EditProductController extends HttpServlet {
    
     /** 
@@ -57,7 +57,7 @@ public class EditProductController extends HttpServlet {
     throws ServletException, IOException {
         // Chuyển hướng người dùng sang trang giao diện sửa sản phẩm (EditProduct.jsp)
         // Lưu ý: Cần bổ sung logic lấy thông tin sản phẩm từ CSDL trước khi forward
-        request.getRequestDispatcher("/admin/views/EditProduct.jsp").forward(request, response);
+        request.getRequestDispatcher("/staff/EditProduct.jsp").forward(request, response);
     } 
 
     /** 

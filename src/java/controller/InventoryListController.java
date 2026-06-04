@@ -22,7 +22,7 @@ import viewmodel.ProductInventory;
  *
  * @author huy
  */
-@WebServlet("/admin/inventory")
+@WebServlet("/staff/inventory")
 public class InventoryListController extends HttpServlet {
    
     /** 
@@ -96,7 +96,7 @@ public class InventoryListController extends HttpServlet {
         request.setAttribute("pageSize", pageSize);
         
         // Chuyển tiếp request sang trang InventoryManagement.jsp để hiển thị
-        RequestDispatcher dispatcher = request.getRequestDispatcher("views/InventoryManagement.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
     } 
 
@@ -131,7 +131,7 @@ public class InventoryListController extends HttpServlet {
         }
         
         // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
-        response.sendRedirect(request.getContextPath() + "/admin/inventory");
+        response.sendRedirect(request.getContextPath() + "/staff/inventory");
     }
 
     /** 

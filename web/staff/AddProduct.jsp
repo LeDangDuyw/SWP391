@@ -66,7 +66,7 @@
         <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
             <span class="material-symbols-outlined mr-3 text-[20px]">shopping_cart</span> Orders
         </a>
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-label-md text-sm font-medium border-l-4 border-primary" href="${pageContext.request.contextPath}/admin/inventory">
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-label-md text-sm font-medium border-l-4 border-primary" href="${pageContext.request.contextPath}/staff/inventory">
             <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">inventory_2</span> Inventory
         </a>
         <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
@@ -93,18 +93,18 @@
     <div class="flex-1 ml-64 flex flex-col min-h-screen bg-background">
         <main class="flex-1 p-8">
             <!-- Header Section -->
-            <form action="${pageContext.request.contextPath}/admin/inventory/add" method="post" enctype="multipart/form-data">
+            <form action="${pageContext.request.contextPath}/staff/inventory/add" method="post" enctype="multipart/form-data">
                 <div class="flex justify-between items-end mb-6">
                     <div>
                         <div class="flex items-center text-sm text-on-surface-variant mb-2">
-                            <a href="${pageContext.request.contextPath}/admin/inventory" class="hover:text-primary transition-colors">Inventory</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory" class="hover:text-primary transition-colors">Inventory</a>
                             <span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
                             <span class="text-primary font-medium">Add Product</span>
                         </div>
                         <h2 class="font-headline-lg text-3xl font-bold text-on-surface">Add New Product</h2>
                     </div>
                     <div class="flex items-center gap-3">
-                        <a href="${pageContext.request.contextPath}/admin/inventory" class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Cancel</a>
+                        <a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Cancel</a>
                         <button type="submit" class="px-6 py-2 bg-[#003ec7] text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">Save Product</button>
                     </div>
                 </div>
