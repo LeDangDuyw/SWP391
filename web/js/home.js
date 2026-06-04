@@ -121,6 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             tab.href = newTabs[index].href;
                         }
                     });
+                    
+                    // Cập nhật link "Xem tất cả" (View all) cho mục hiện tại
+                    let sectionSelector = '';
+                    if (section.classList.contains('best-sellers')) {
+                        sectionSelector = '.best-sellers';
+                    } else if (section.classList.contains('new-products')) {
+                        sectionSelector = '.new-products';
+                    }
+                    if (sectionSelector) {
+                        const newViewAll = doc.querySelector(`${sectionSelector} .view-all`);
+                        const currentViewAll = section.querySelector('.view-all');
+                        if (newViewAll && currentViewAll) {
+                            currentViewAll.href = newViewAll.getAttribute('href');
+                        }
+                    }
+                    
                     window.history.pushState({}, '', href);
                     
                 } catch (err) {
@@ -158,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Nếu tìm thấy category khớp -> thêm/cập nhật hidden input
+            // có -> thêm/cập nhật hidden input
             let categoryInput = form.querySelector('input[name="category"]');
             if (matchedId) {
                 if (!categoryInput) {
@@ -169,11 +185,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 categoryInput.value = matchedId;
             } else {
-                // Không khớp -> bỏ category để search toàn bộ
+                // Không-> bỏ category để search toàn bộ
                 if (categoryInput && !categoryInput.dataset.keep) {
                     categoryInput.remove();
                 }
             }
         });
     });
+
+    // Image URL Context Path fixer
+    document.querySelectorAll('.banner-img-auto').forEach(img => {
+        let src = img.getAttribute('src');
+        if (src && !src.startsWith('http://') && !src.startsWith('https://')) {
+            const context = img.getAttribute('data-context') || '';
+            if (!src.startsWith(context)) {
+                img.src = context + (src.startsWith('/') ? '' : '/') + src;
+            }
+        }
+    });
+
+    // Hero Banner Slider
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.hero-dot');
+    const prevBtn = document.querySelector('.hero-prev');
+    const nextBtn = document.querySelector('.hero-next');
+    
+    if (slides.length > 1) {
+        let currentSlide = 0;
+        let slideInterval;
+        
+        const showSlide = (index) => {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            currentSlide = (index + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+        };
+        
+        const nextSlide = () => showSlide(currentSlide + 1);
+        const prevSlide = () => showSlide(currentSlide - 1);
+        
+        const startAutoSlide = () => {
+            stopAutoSlide();
+            slideInterval = setInterval(nextSlide, 5000);
+        };
+        
+        const stopAutoSlide = () => {
+            if (slideInterval) clearInterval(slideInterval);
+        };
+        
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            nextSlide();
+            startAutoSlide();
+        });
+        
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            prevSlide();
+            startAutoSlide();
+        });
+        
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.dataset.index);
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+        
+        const sliderWrapper = document.querySelector('.hero-slider-wrapper');
+        if (sliderWrapper) {
+            sliderWrapper.addEventListener('mouseenter', stopAutoSlide);
+            sliderWrapper.addEventListener('mouseleave', startAutoSlide);
+        }
+        
+        startAutoSlide();
+    } else if (slides.length === 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+    }
 });
