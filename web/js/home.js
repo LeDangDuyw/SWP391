@@ -121,6 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             tab.href = newTabs[index].href;
                         }
                     });
+                    
+                    // Cập nhật link "Xem tất cả" (View all) cho mục hiện tại
+                    let sectionSelector = '';
+                    if (section.classList.contains('best-sellers')) {
+                        sectionSelector = '.best-sellers';
+                    } else if (section.classList.contains('new-products')) {
+                        sectionSelector = '.new-products';
+                    }
+                    if (sectionSelector) {
+                        const newViewAll = doc.querySelector(`${sectionSelector} .view-all`);
+                        const currentViewAll = section.querySelector('.view-all');
+                        if (newViewAll && currentViewAll) {
+                            currentViewAll.href = newViewAll.getAttribute('href');
+                        }
+                    }
+                    
                     window.history.pushState({}, '', href);
                     
                 } catch (err) {

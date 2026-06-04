@@ -48,7 +48,54 @@
                     </form>
                     <a href="#"><i class="fas fa-shopping-cart"></i></a>
                     <a href="#"><i class="fas fa-bell"></i></a>
-                    <a href="#"><i class="fas fa-user"></i></a>
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                            <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
+                                <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: inherit;">
+                                    <i class="fas fa-user"></i>
+                                    <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                                </a>
+                                <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.user.roleId == 1}">
+                                            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
+                                        </c:when>
+                                        <c:when test="${sessionScope.user.roleId == 2}">
+                                            <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
+                                    <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
+                                </div>
+                            </div>
+                            <script>
+                                (function () {
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        var triggers = document.querySelectorAll('.user-menu-trigger');
+                                        triggers.forEach(function (trigger) {
+                                            trigger.addEventListener('click', function (e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                var dropdown = this.nextElementSibling;
+                                                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                            });
+                                        });
+                                        document.addEventListener('click', function () {
+                                            document.querySelectorAll('.user-menu-dropdown-content').forEach(function (dropdown) {
+                                                dropdown.style.display = 'none';
+                                            });
+                                        });
+                                    });
+                                })();
+                            </script>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${pageContext.request.contextPath}/login"><i class="fas fa-user"></i></a>
+                            </c:otherwise>
+                        </c:choose>
                 </div>
             </div>
         </header>
@@ -59,34 +106,36 @@
                 <div class="hero-slides">
                     <c:forEach items="${banners}" var="b" varStatus="status">
                         <div class="hero-slide ${status.first ? 'active' : ''}">
-                            <a href="${pageContext.request.contextPath}/ProductListServlet?category=1">
+                            <a href="#">
                                 <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner">
                             </a>
                         </div>
                     </c:forEach>
                     <c:if test="${empty banners}">
                         <div class="hero-slide active">
-                            <a href="${pageContext.request.contextPath}/ProductListServlet?category=1">
+                            <a href="#">
                                 <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Laptop AI">
                             </a>
                         </div>
                     </c:if>
                 </div>
-                <!-- Indicators -->
+               <!--có banner-->
                 <div class="hero-indicators">
                     <c:forEach items="${banners}" var="b" varStatus="status">
                         <span class="hero-dot ${status.first ? 'active' : ''}" data-index="${status.index}"></span>
                     </c:forEach>
+                        
+                        <!--Không có banner-->
                     <c:if test="${empty banners}">
                         <span class="hero-dot active" data-index="0"></span>
                     </c:if>
                 </div>
-                <!-- Arrows -->
+               
                 <button class="hero-arrow hero-prev"><i class="fas fa-chevron-left"></i></button>
                 <button class="hero-arrow hero-next"><i class="fas fa-chevron-right"></i></button>
             </div>
         </section>
-
+        <!-- Flash Sale -->
         <c:if test="${not empty flashsale}">
             <section class="flash-sale">
                 <div class="container">
@@ -223,10 +272,10 @@
                     <h2>Sản phẩm mới</h2>
                     <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->
                     <c:choose>
-                        <c:when test="${param.newTab == 'chuot'}">
+                        <c:when test="${newTab == 'chuot'}">
                             <a href="ProductListServlet?category=4&sort=new" class="view-all">Xem tất cả</a>
                         </c:when>
-                        <c:when test="${param.newTab == 'banphim'}">
+                        <c:when test="${newTab == 'banphim'}">
                             <a href="ProductListServlet?category=3&sort=new" class="view-all">Xem tất cả</a>
                         </c:when>
                         <c:otherwise>
@@ -236,9 +285,9 @@
                 </div>
                 <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->  
                 <div class="tabs">
-                    <a href="HomeServlet?bsTab=${bsTab}&newTab=laptop" class="tab-btn ${param.newTab == 'laptop' || empty param.newTab ? 'active' : ''}">Laptop</a>
-                    <a href="HomeServlet?bsTab=${bsTab}&newTab=chuot" class="tab-btn ${param.newTab == 'chuot' ? 'active' : ''}">Chuột</a>
-                    <a href="HomeServlet?bsTab=${bsTab}&newTab=banphim" class="tab-btn ${param.newTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=laptop" class="tab-btn ${newTab == 'laptop' ? 'active' : ''}">Laptop</a>
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=chuot" class="tab-btn ${newTab == 'chuot' ? 'active' : ''}">Chuột</a>
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=banphim" class="tab-btn ${newTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
                 </div>
                 <!--hiển thị sản phẩm bán chạy-->
                 <div class="product-grid" id="new-product-grid">
@@ -283,7 +332,7 @@
                     <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
                     <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
                     <div class="footer-contact-info">
-                        <p><i class="fas fa-map-marker-alt"></i> Nội</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
                         <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
                         <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
                     </div>
@@ -295,7 +344,6 @@
                     </div>
                 </div>
                 
-                <!-- Column 2: Quick Links & Support Policies -->
                 <div class="footer-col">
                     <h3>Chính sách & Hỗ trợ</h3>
                     <ul>
@@ -315,9 +363,6 @@
                 </div>
             </div>
         </footer>
-
-
-
-        <script src="${pageContext.request.contextPath}/js/home.js?v=2"></script>
+        <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
     </body>
 </html>

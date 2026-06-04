@@ -14,8 +14,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=2">
 </head>
-
-<!--Header-->
 <body class="product-list-page">
     <header class="header">
         <div class="container header-container">
@@ -27,7 +25,7 @@
                         <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
                     </c:if>
                 </c:forEach>
-                   
+
                 <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
                     <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down dropdown-chevron"></i></span>
                     <div class="dropdown-content">
@@ -38,7 +36,7 @@
                         </c:forEach>
                     </div>
                 </div>
-              <!--Danh mục-->
+
                 <a href="#">Khuyến mãi</a>
             </nav>
             <div class="header-icons header-icons-inline">
@@ -51,14 +49,61 @@
                 </form>
                 <a href="#"><i class="fas fa-shopping-cart"></i></a>
                 <a href="#"><i class="fas fa-bell"></i></a>
-                <a href="#"><i class="fas fa-user"></i></a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
+                            <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: inherit;">
+                                <i class="fas fa-user"></i>
+                                <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                            </a>
+                            <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
+                                <c:choose>
+                                    <c:when test="${sessionScope.user.roleId == 1}">
+                                        <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
+                                    </c:when>
+                                    <c:when test="${sessionScope.user.roleId == 2}">
+                                        <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                    </c:otherwise>
+                                </c:choose>
+                                <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
+                                <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
+                            </div>
+                        </div>
+                        <script>
+                            (function() {
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    var triggers = document.querySelectorAll('.user-menu-trigger');
+                                    triggers.forEach(function(trigger) {
+                                        trigger.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            var dropdown = this.nextElementSibling;
+                                            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                        });
+                                    });
+                                    document.addEventListener('click', function() {
+                                        document.querySelectorAll('.user-menu-dropdown-content').forEach(function(dropdown) {
+                                            dropdown.style.display = 'none';
+                                        });
+                                    });
+                                });
+                            })();
+                        </script>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/login"><i class="fas fa-user"></i></a>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </header>
-    
+
     <div class="container">
         <c:if test="${globalSearch}">
-            <!-- Chế độ tìm kiếm-->
+            <!-- Chế độ tìm kiếm toàn bộ -->
             <div class="global-search-header">
                 <div class="search-result-info">
                     <h2><i class="fas fa-search"></i> Kết quả tìm kiếm cho: "<span class="search-keyword">${searchKeyword}</span>"</h2>
@@ -85,7 +130,7 @@
                     </div>
                 </c:forEach>
             </div>
-            <!--Báo không tìm thấy-->
+
             <c:if test="${empty products}">
                 <div class="empty-state">
                     <i class="fas fa-search" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
@@ -93,7 +138,7 @@
                     <p>Hãy thử tìm kiếm với từ khóa khác</p>
                 </div>
             </c:if>
-            <!--Phân quyền-->
+
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:if test="${currentPage > 1}">
@@ -108,7 +153,7 @@
                 </div>
             </c:if>
         </c:if>
-          
+
         <c:if test="${!globalSearch}">
         <form action="ProductListServlet" method="GET" id="filterForm">
             <input type="hidden" name="category" value="${categoryId}">
@@ -336,55 +381,56 @@
         </c:if>
     </div>
 
-    <%
-        if (request.getAttribute("footerPages") == null) {
-            try {
-                dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                request.setAttribute("footerPages", footerPagesList);
-            } catch (Exception e) {
-                e.printStackTrace();
+     <!-- Footer -->
+        <%
+            if (request.getAttribute("footerPages") == null) {
+                try {
+                    dal.PageContentDAO pgDAO = new dal.PageContentDAO();
+                    java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
+                    request.setAttribute("footerPages", footerPagesList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
-    %>
-    <footer class="footer">
-        <div class="container footer-grid">
-            <!-- Column 1: Brand & Contact -->
-            <div class="footer-col">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-                <div class="footer-contact-info">
-                    <p><i class="fas fa-map-marker-alt"></i>Mỹ Đình, Hà Nội</p>
-                    <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                    <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
+        %>
+        <footer class="footer">
+            <div class="container footer-grid">
+                <!-- Column 1: Brand & Contact -->
+                <div class="footer-col">
+                    <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
+                    <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
+                    <div class="footer-contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
+                        <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
+                        <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
+                    </div>
                 </div>
-                <div class="social-icons">
-                    <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
+                
+                <div class="footer-col">
+                    <h3>Chính sách & Hỗ trợ</h3>
+                    <ul>
+                        <c:if test="${not empty footerPages}">
+                            <c:forEach items="${footerPages}" var="pageItem">
+                                <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
+                            </c:forEach>
+                        </c:if>
+                    </ul>
                 </div>
             </div>
-            <div class="footer-col">
-                <h3>Chính sách & Hỗ trợ</h3>
-                <ul>
-                    <c:if test="${not empty footerPages}">
-                        <c:forEach items="${footerPages}" var="pageItem">
-                            <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                        </c:forEach>
-                    </c:if>
-                </ul>
+            
+            <div class="footer-bottom">
+                <div class="container footer-bottom-container">
+                    <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
+                    <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
+                </div>
             </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <div class="container footer-bottom-container">
-                <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-                <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="${pageContext.request.contextPath}/js/product_list.js?v=2"></script>
+        </footer>
+        <script src="${pageContext.request.contextPath}/js/product_list.js?v=3"></script>
 </body>
 </html>
