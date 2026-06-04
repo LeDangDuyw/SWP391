@@ -95,7 +95,7 @@ public class LoginController extends HttpServlet {
             } else if (user.roleId == 2) {
                 response.sendRedirect("staff/inventory");
             }else{
-                response.sendRedirect("auth/home.jsp");
+                response.sendRedirect("HomeServlet");
             } 
         }
     }

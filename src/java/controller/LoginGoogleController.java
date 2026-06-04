@@ -70,9 +70,9 @@ public class LoginGoogleController extends HttpServlet {
             if (user.roleId == 1) {
                 response.sendRedirect("admin/dashboard");
             } else if (user.roleId == 2) {
-                response.sendRedirect("auth/staff.jsp");
+                response.sendRedirect("staff/inventory");
             } else {
-                response.sendRedirect("auth/home.jsp");
+                response.sendRedirect("HomeServlet");
             }
 
         } catch (Exception e) {
