@@ -32,6 +32,13 @@ public class InventoryListController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    /*
+     * Name: processRequest
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý chung các yêu cầu HTTP (GET và POST), trả về mã HTML hiển thị thông tin mặc định của servlet.
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -56,6 +63,13 @@ public class InventoryListController extends HttpServlet {
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
+     */
+    /*
+     * Name: doGet
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu GET để hiển thị danh sách hàng tồn kho, hỗ trợ tìm kiếm, sắp xếp và phân trang.
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -107,6 +121,13 @@ public class InventoryListController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    /*
+     * Name: doPost
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu POST để thực hiện các thao tác ẩn (xóa mềm) hoặc khôi phục sản phẩm trong kho.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
@@ -137,6 +158,13 @@ public class InventoryListController extends HttpServlet {
     /** 
      * Returns a short description of the servlet.
      * @return a String containing servlet description
+     */
+    /*
+     * Name: getServletInfo
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Trả về thông tin ngắn gọn mô tả về servlet này.
      */
     @Override
     public String getServletInfo() {

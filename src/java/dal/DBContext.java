@@ -16,6 +16,13 @@ import java.util.logging.Logger;
 
 public class DBContext {
     protected Connection connection;
+    /*
+     * Name: DBContext
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Khởi tạo kết nối tới cơ sở dữ liệu SQL Server thông qua cấu hình trong file ConnectDB.properties.
+     */
     public DBContext() {
         try {
             Properties properties = new Properties();

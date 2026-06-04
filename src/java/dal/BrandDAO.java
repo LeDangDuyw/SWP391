@@ -10,6 +10,13 @@ public class BrandDAO extends DBContext {
     PreparedStatement stm;
     ResultSet rs;
 
+    /*
+     * Name: getAllBrands
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Truy xuất danh sách tất cả các thương hiệu (Brand) từ cơ sở dữ liệu.
+     */
     public List<Brand> getAllBrands() {
         // Lấy danh sách tất cả các thương hiệu từ bảng Brand
         List<Brand> brands = new ArrayList<>();

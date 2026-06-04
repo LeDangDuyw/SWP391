@@ -17,6 +17,13 @@ import viewmodel.ProductInventory;
 public class ProductDAO extends DBContext{
     PreparedStatement stm;
     ResultSet rs;
+    /*
+     * Name: GetAllProducts
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Lấy danh sách tất cả các sản phẩm cơ bản từ cơ sở dữ liệu.
+     */
     public List<Product> GetAllProducts() {
         // Lấy danh sách tất cả các sản phẩm (cơ bản) từ cơ sở dữ liệu
         List<Product> products = new ArrayList<Product>();
@@ -35,6 +42,13 @@ public class ProductDAO extends DBContext{
         return products;
     }
     
+    /*
+     * Name: GetAllProductInventory
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Lấy danh sách chi tiết các sản phẩm bao gồm thông tin kho hàng, danh mục, thương hiệu.
+     */
     public List<ProductInventory> GetAllProductInventory() {
         // Lấy danh sách sản phẩm cùng với thông tin kho hàng, danh mục, thương hiệu
         List<ProductInventory> products = new ArrayList<ProductInventory>();
@@ -71,6 +85,13 @@ public class ProductDAO extends DBContext{
         return products;
     }
     
+    /*
+     * Name: GetProductsByNameAndSort
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Tìm kiếm sản phẩm theo tên, danh mục, SKU và sắp xếp theo giá.
+     */
     public List<ProductInventory> GetProductsByNameAndSort(String search, String sortBy){
         // Hàm tìm kiếm sản phẩm theo tên, danh mục, sku và sắp xếp giá
         List<ProductInventory> products = new ArrayList<ProductInventory>();
@@ -116,6 +137,13 @@ public class ProductDAO extends DBContext{
         return products;
     }
     
+    /*
+     * Name: DeleteProduct
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xóa cứng một biến thể sản phẩm khỏi cơ sở dữ liệu dựa trên mã biến thể (variant_id).
+     */
     public boolean DeleteProduct(int productVariantId){
         try{
             String sql = "delete from ProductVariant where variant_id = ?";
@@ -127,6 +155,13 @@ public class ProductDAO extends DBContext{
         }
         return false;
     }
+    /*
+     * Name: getTotalInventoryCount
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Đếm tổng số lượng biến thể sản phẩm đang hoạt động, có hỗ trợ lọc theo từ khóa tìm kiếm.
+     */
     public int getTotalInventoryCount(String search) {
         // Đếm tổng số lượng sản phẩm (phục vụ cho việc phân trang)
         int count = 0;
@@ -157,6 +192,13 @@ public class ProductDAO extends DBContext{
         return count;
     }
 
+    /*
+     * Name: GetProductInventoryPaginated
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Lấy danh sách sản phẩm chi tiết có phân trang, hỗ trợ lọc theo từ khóa và sắp xếp theo giá.
+     */
     public List<ProductInventory> GetProductInventoryPaginated(String search, String sortBy, int offset, int fetchSize){
         // Lấy danh sách sản phẩm có phân trang (dùng OFFSET và FETCH NEXT của SQL Server)
         List<ProductInventory> products = new ArrayList<>();
@@ -210,6 +252,13 @@ public class ProductDAO extends DBContext{
         }
         return products;
     }
+    /*
+     * Name: insertProduct
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Thêm mới một sản phẩm (Product) vào cơ sở dữ liệu và trả về ID tự tăng của sản phẩm vừa thêm.
+     */
     public int insertProduct(Product p) {
         // Thêm mới một sản phẩm vào bảng Product và trả về ID vừa được sinh ra
         int productId = -1;
@@ -235,6 +284,13 @@ public class ProductDAO extends DBContext{
         return productId;
     }
 
+    /*
+     * Name: insertProductVariant
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Thêm mới một biến thể của sản phẩm (ProductVariant) và khởi tạo bản ghi tồn kho (Inventory) tương ứng.
+     */
     public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
         // Thêm biến thể của sản phẩm vào bảng ProductVariant và cập nhật kho Inventory
         try {
@@ -270,6 +326,13 @@ public class ProductDAO extends DBContext{
         }
     }
     
+    /*
+     * Name: hideProduct
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Ẩn (xóa mềm) một biến thể sản phẩm bằng cách cập nhật trạng thái thành 'inactive'.
+     */
     public void hideProduct(int variant_id) {
         try{
             String strSQL = "update ProductVariant\n" +
@@ -283,6 +346,13 @@ public class ProductDAO extends DBContext{
         }
     }
 
+    /*
+     * Name: unhideProduct
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Khôi phục một biến thể sản phẩm đã bị ẩn bằng cách cập nhật trạng thái thành 'active'.
+     */
     public void unhideProduct(int variant_id) {
         try{
             String strSQL = "update ProductVariant\n" +

@@ -10,6 +10,13 @@ public class CategoryDAO extends DBContext {
     PreparedStatement stm;
     ResultSet rs;
 
+    /*
+     * Name: getAllCategories
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Truy xuất danh sách tất cả các danh mục (Category) từ cơ sở dữ liệu.
+     */
     public List<Category> getAllCategories() {
         // Lấy danh sách tất cả các danh mục từ bảng Category
         List<Category> categories = new ArrayList<>();

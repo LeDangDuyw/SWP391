@@ -27,6 +27,13 @@ public class EditProductController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    /*
+     * Name: processRequest
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý chung các yêu cầu HTTP (GET và POST), trả về mã HTML hiển thị thông tin mặc định của servlet.
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -52,6 +59,13 @@ public class EditProductController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    /*
+     * Name: doGet
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu GET để chuyển hướng người dùng sang trang giao diện sửa thông tin sản phẩm (EditProduct.jsp).
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
@@ -67,6 +81,13 @@ public class EditProductController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    /*
+     * Name: doPost
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu POST bằng cách gọi hàm processRequest.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
@@ -76,6 +97,13 @@ public class EditProductController extends HttpServlet {
     /** 
      * Returns a short description of the servlet.
      * @return a String containing servlet description
+     */
+    /*
+     * Name: getServletInfo
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Trả về thông tin ngắn gọn mô tả về servlet này.
      */
     @Override
     public String getServletInfo() {

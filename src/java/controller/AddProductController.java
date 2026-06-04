@@ -27,6 +27,13 @@ import model.Product;
 @WebServlet("/staff/inventory/add")
 public class AddProductController extends HttpServlet {
 
+    /*
+     * Name: doGet
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu GET để hiển thị trang thêm sản phẩm, bao gồm việc tải danh sách danh mục và thương hiệu
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -46,6 +53,13 @@ public class AddProductController extends HttpServlet {
         request.getRequestDispatcher("/staff/AddProduct.jsp").forward(request, response);
     }
 
+    /*
+     * Name: doPost
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu POST để lưu thông tin sản phẩm mới và các biến thể của nó vào cơ sở dữ liệu, bao gồm cả upload ảnh
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
