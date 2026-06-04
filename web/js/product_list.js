@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Auto-submit khi thay đổi filter
+    // tự động load khi thay đổi filter
     document.querySelectorAll('.js-auto-submit').forEach(el => {
         el.addEventListener('change', () => {
             const pageInput = document.getElementById('pageInput');
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Pagination
+    
     document.querySelectorAll('.js-go-to-page').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Clear All Filters
+    // xóa toàn bộ bộ lọc 
     document.querySelectorAll('.js-clear-all').forEach(btn => {
         btn.addEventListener('click', () => {
             const url = btn.dataset.clearUrl;
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fallback image
+  
     document.querySelectorAll('.product-img').forEach(img => {
         img.addEventListener('error', () => {
             const fallback = img.dataset.fallbackSrc;
@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Auto-categorize search form in header
     document.querySelectorAll('.search-form').forEach(form => {
         const searchInput = form.querySelector('input[name="search"]');
         if (!searchInput) return;
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Nếu tìm thấy category khớp -> thêm/cập nhật hidden input
+            // có -> thêm/cập nhật hidden input
             let categoryInput = form.querySelector('input[name="category"]');
             if (matchedId) {
                 if (!categoryInput) {
@@ -80,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 categoryInput.value = matchedId;
             } else {
-                // Không khớp -> bỏ category để search toàn bộ
+                // Không -> bỏ category để search toàn bộ
                 if (categoryInput && !categoryInput.dataset.keep) {
                     categoryInput.remove();
                 }
