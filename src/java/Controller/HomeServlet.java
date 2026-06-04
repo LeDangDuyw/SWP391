@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import dal.FlashSaleProductDao;
+import dal.FlashSaleProductDAO;
 
 /**
  *
@@ -62,7 +62,7 @@ public class HomeServlet extends HttpServlet {
             throws ServletException, IOException {
         ProductDAO p = new ProductDAO();
         CategoryDAO c = new CategoryDAO();
-        FlashSaleProductDao fl = new FlashSaleProductDao();
+        FlashSaleProductDAO fl = new FlashSaleProductDAO();
        
         // Sản phẩm bán chạy
         String bsTab = request.getParameter("bsTab");

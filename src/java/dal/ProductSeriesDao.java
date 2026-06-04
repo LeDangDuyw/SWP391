@@ -14,13 +14,13 @@ import model.ProductSeries;
  *
  * @author Cao Tuấn Minh
  */
-public class ProductSeriesDao extends DBContext {
+public class ProductSeriesDAO extends DBContext {
 
     Connection cnn;
     PreparedStatement ps;
     ResultSet rs;
 
-    public ProductSeriesDao() {
+    public ProductSeriesDAO() {
         connect();
     }
 

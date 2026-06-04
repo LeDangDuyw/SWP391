@@ -17,13 +17,13 @@ import java.sql.Timestamp;
  *
  * @author Cao Tuấn Minh
  */
-public class FlashSaleProductDao extends DBContext {
+public class FlashSaleProductDAO extends DBContext {
 
     Connection cnn;
     PreparedStatement ps;
     ResultSet rs;
 
-    public FlashSaleProductDao() {
+    public FlashSaleProductDAO() {
         connect();
     }
 

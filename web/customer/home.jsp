@@ -13,8 +13,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=10">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=1">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=2">
     </head>
     <body>
         <!-- Header -->
@@ -44,8 +43,7 @@
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
                     <form action="ProductListServlet" method="GET" class="search-form" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
-                        <input type="hidden" name="category" value="1">
-                        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:150px; font-family:'Inter', sans-serif;">
+                        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
                     <a href="#"><i class="fas fa-shopping-cart"></i></a>
@@ -284,6 +282,6 @@
                         </div>
                     </footer>
 
-                    <script src="${pageContext.request.contextPath}/js/script.js?v=3"></script>
+                    <script src="${pageContext.request.contextPath}/js/home.js?v=2"></script>
                     </body>
                     </html>

@@ -132,10 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.querySelectorAll('.search-form').forEach(form => {
         const searchInput = form.querySelector('input[name="search"]');
-        const categoryInput = form.querySelector('input[name="category"]');
-        if (!searchInput || !categoryInput) return;
-
-        const defaultCategoryId = categoryInput.value;
+        if (!searchInput) return;
 
         const keywordsMap = {
             "1": ["laptop", "lap", "máy tính xách tay"],
@@ -144,12 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
             "4": ["chuột", "mouse", "chuot"]
         };
 
-        searchInput.addEventListener('input', () => {
+        form.addEventListener('submit', (e) => {
             const query = searchInput.value.trim().toLowerCase();
             if (!query) {
-                categoryInput.value = defaultCategoryId;
+                e.preventDefault();
                 return;
             }
+            
+            // Tìm category phù hợp với keyword
             let matchedId = null;
             for (const [catId, keywords] of Object.entries(keywordsMap)) {
                 const found = keywords.some(keyword => query.includes(keyword) || keyword.includes(query));
@@ -159,10 +158,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // có -> thêm/cập nhật hidden input
+            let categoryInput = form.querySelector('input[name="category"]');
             if (matchedId) {
+                if (!categoryInput) {
+                    categoryInput = document.createElement('input');
+                    categoryInput.type = 'hidden';
+                    categoryInput.name = 'category';
+                    form.appendChild(categoryInput);
+                }
                 categoryInput.value = matchedId;
             } else {
-                categoryInput.value = defaultCategoryId;
+                // Không-> bỏ category để search toàn bộ
+                if (categoryInput && !categoryInput.dataset.keep) {
+                    categoryInput.remove();
+                }
             }
         });
     });

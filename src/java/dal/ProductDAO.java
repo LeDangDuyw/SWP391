@@ -278,354 +278,122 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
- // Lọc Laptop
- public ArrayList<Product> filterLaptop(int categoryId,Integer brandId,Integer seriesId,String purpose,String cpu,String ram,String ssd,String gpu,String screen,String price, String sort, int page, int pageSize, String search, String connectivity, String switchType, String dpi) {
-     ArrayList<Product> data = new ArrayList<>();
-     try {
-         String sql = """
-            SELECT
-                p.product_id,
-                p.product_name,
-                p.thumbnail,
-                b.brand_id,
-                b.brand_name,
-                c.category_name,
-                NULL AS series_id,
-                NULL AS series_name,
-                0 AS sold_quantity,
-                MIN(pv.selling_price) AS min_price,
-                --Thêm subquery lấy cpu, ram, gpu để hiển thị tag trên UI
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 1) AS cpu,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 2) AS ram,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 4) AS gpu,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 18) AS connectivity,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 10) AS switch_type,
-                (SELECT TOP 1 value FROM VariantSpecification WHERE variant_id = (SELECT TOP 1 variant_id FROM ProductVariant WHERE product_id = p.product_id ORDER BY selling_price ASC) AND specification_id = 13) AS dpi
+
+ // Tìm category_id từ tên sản phẩm khi search
+ public Integer getCategoryIdByProductSearch(String search) {
+    try {
+        String sql = """
+            SELECT TOP 1 p.category_id
             FROM Product p
-            JOIN Brand b
-                ON p.brand_id = b.brand_id
-            JOIN Category c
-                ON p.category_id = c.category_id
-            JOIN ProductVariant pv
-                ON p.product_id = pv.product_id
-            WHERE p.category_id = ?
-        """;
-        if (brandId != null) {
-            sql += " AND p.brand_id = ?";
-        }
-
-        if (purpose != null && !purpose.isEmpty()) {
-            sql += " AND p.description LIKE ?";
-        }
-        // CPU
-        if (cpu != null && !cpu.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1
-                    FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 1
-                    AND vs.value LIKE ?
-                )
+            WHERE p.product_name LIKE ?
             """;
-        }
-        // RAM
-        if (ram != null && !ram.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1
-                    FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 2
-                    AND vs.value LIKE ?
-                )
-            """;
-        }
-        // SSD
-        if (ssd != null && !ssd.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1
-                    FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 5
-                    AND vs.value LIKE ?
-                )
-            """;
-        }
-        // GPU
-        if (gpu != null && !gpu.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1
-                    FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 4
-                    AND vs.value LIKE ?
-                )
-            """;
-        }
-        // Màn hình
-        if (screen != null && !screen.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1
-                    FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id
-                    AND vs.specification_id = 3
-                    AND vs.value LIKE ?
-                )
-            """;
-        }
-        
-        //filter cho Chuột, Bàn phím
-        if (connectivity != null && !connectivity.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 18 AND vs.value LIKE ?
-                )
-""";
-        }
-        if (switchType != null && !switchType.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 10 AND vs.value LIKE ?
-                )
-""";
-        }
-        if (dpi != null && !dpi.isEmpty()) {
-            sql += """
-                AND EXISTS (
-                    SELECT 1 FROM VariantSpecification vs
-                    WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 13 AND vs.value LIKE ?
-                )
-""";
-        }
-        // Giá
-        if (price != null) {
-
-            switch (price) {
-
-                case "under15":
-                    sql += " AND pv.selling_price < 15000000";
-                    break;
-
-                case "15to20":
-                    sql += " AND pv.selling_price BETWEEN 15000000 AND 20000000";
-                    break;
-
-                case "20to30":
-                    sql += " AND pv.selling_price BETWEEN 20000000 AND 30000000";
-                    break;
-
-                case "30to40":
-                    sql += " AND pv.selling_price BETWEEN 30000000 AND 40000000";
-                    break;
-
-                case "over40":
-                    sql += " AND pv.selling_price > 40000000";
-                    break;
-                    
-                //Mức giá cho Phụ kiện, Chuột, Bàn phím
-                case "under500k":
-                    sql += " AND pv.selling_price < 500000";
-                    break;
-                case "500kto1m":
-                    sql += " AND pv.selling_price BETWEEN 500000 AND 1000000";
-                    break;
-                case "1mto2m":
-                    sql += " AND pv.selling_price BETWEEN 1000000 AND 2000000";
-                    break;
-                case "2mto3m":
-                    sql += " AND pv.selling_price BETWEEN 2000000 AND 3000000";
-                    break;
-                case "over3m":
-                    sql += " AND pv.selling_price > 3000000";
-                    break;
-            }
-        }
-        //Thêm lọc theo từ khoá tìm kiếm
-        if (search != null && !search.trim().isEmpty()) {
-            sql += " AND p.product_name LIKE ?";
-        }
-        sql += """
-            GROUP BY
-                p.product_id,
-                p.product_name,
-                p.thumbnail,
-                b.brand_id,
-                b.brand_name,
-                c.category_name
-        """;
-
-        //Thêm ORDER BY và phân trang (OFFSET FETCH)
-        if ("price_asc".equals(sort)) {
-            sql += " ORDER BY min_price ASC";
-        } else if ("price_desc".equals(sort)) {
-            sql += " ORDER BY min_price DESC";
-        } else {
-            sql += " ORDER BY p.product_id DESC";
-        }
-        sql += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
         ps = cnn.prepareStatement(sql);
-        int index = 1;
-        ps.setInt(index++, categoryId);
-        if (brandId != null) {
-            ps.setInt(index++, brandId);
+        ps.setString(1, "%" + search + "%");
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
         }
+    } catch (Exception e) {
+        System.out.println("getCategoryIdByProductSearch: " + e.getMessage());
+    }
+    return null;
+}
 
-        if (purpose != null && !purpose.isEmpty()) {
-            ps.setString(index++, "%" + purpose + "%");
-        }
-        if (cpu != null && !cpu.isEmpty()) {
-            ps.setString(index++, "%" + cpu + "%");
-        }
-        if (ram != null && !ram.isEmpty()) {
-            ps.setString(index++, "%" + ram + "%");
-        }
-        if (ssd != null && !ssd.isEmpty()) {
-            ps.setString(index++, "%" + ssd + "%");
-        }
-        if (gpu != null && !gpu.isEmpty()) {
-            ps.setString(index++, "%" + gpu + "%");
-        }
-        if (screen != null && !screen.isEmpty()) {
-            ps.setString(index++, "%" + screen + "%");
-        }
-        
-        // set param cho phu kien
-        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, "%" + connectivity + "%");
-        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, "%" + switchType + "%");
-        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, "%" + dpi + "%");
-
-        //set giá trị cho tham số tìm kiếm
-        if (search != null && !search.trim().isEmpty()) {
-            ps.setString(index++, "%" + search.trim() + "%");
-        }
-        
-        ps.setInt(index++, (page - 1) * pageSize);
-        ps.setInt(index++, pageSize);
-
+ // Tìm sản phẩm theo keyword trên tất cả danh mục (dùng cho Home search)
+ public ArrayList<Product> searchAllProducts(String keyword, int page, int pageSize) {
+    ArrayList<Product> data = new ArrayList<>();
+    try {
+        String sql = """
+            SELECT
+                p.product_id, p.product_name, p.thumbnail,
+                b.brand_name, c.category_name, p.category_id,
+                MIN(v.selling_price) AS min_price
+            FROM Product p
+            JOIN Brand b ON p.brand_id = b.brand_id
+            JOIN Category c ON p.category_id = c.category_id
+            JOIN ProductVariant v ON p.product_id = v.product_id
+            WHERE v.status = 'active'
+            AND (p.product_name LIKE ? OR b.brand_name LIKE ?)
+            GROUP BY
+                p.product_id, p.product_name, p.thumbnail,
+                b.brand_name, c.category_name, p.category_id
+            ORDER BY p.product_id DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+            """;
+        ps = cnn.prepareStatement(sql);
+        ps.setString(1, "%" + keyword.trim() + "%");
+        ps.setString(2, "%" + keyword.trim() + "%");
+        ps.setInt(3, (page - 1) * pageSize);
+        ps.setInt(4, pageSize);
         rs = ps.executeQuery();
         while (rs.next()) {
             Product p = new Product();
             p.setProductId(rs.getInt("product_id"));
             p.setProductName(rs.getString("product_name"));
             p.setThumbnail(rs.getString("thumbnail"));
-            p.setBrandId(rs.getInt("brand_id"));
             p.setBrandName(rs.getString("brand_name"));
             p.setCategoryName(rs.getString("category_name"));
-            p.setSeriesId(rs.getInt("series_id"));
-            p.setSeriesName(rs.getString("series_name"));
             p.setMinPrice(rs.getLong("min_price"));
-            //set giá trị cpu, ram, gpu vào model
-            p.setCpu(rs.getString("cpu"));
-            p.setRam(rs.getString("ram"));
-            p.setGpu(rs.getString("gpu"));
-            
-            // map them cac spec moi
-            p.setConnectivity(rs.getString("connectivity"));
-            p.setSwitchType(rs.getString("switch_type"));
-            p.setDpi(rs.getString("dpi"));
-            
             data.add(p);
         }
     } catch (Exception e) {
-        System.out.println("filterLaptop: " + e.getMessage());
+        System.out.println("searchAllProducts: " + e.getMessage());
     }
     return data;
 }
 
-public int countFilteredLaptop(int categoryId,Integer brandId,Integer seriesId,String purpose,String cpu,String ram,String ssd,String gpu,String screen,String price, String search, String connectivity, String switchType, String dpi) {
+ // Đếm tổng sản phẩm tìm được theo keyword
+ public int countSearchAllProducts(String keyword) {
     try {
         String sql = """
             SELECT COUNT(DISTINCT p.product_id)
             FROM Product p
-            JOIN ProductVariant pv ON p.product_id = pv.product_id
-            WHERE p.category_id = ?
-        """;
-        if (brandId != null) sql += " AND p.brand_id = ?";
-
-        if (purpose != null && !purpose.isEmpty()) sql += " AND p.description LIKE ?";
-        if (cpu != null && !cpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 1 AND vs.value LIKE ?)";
-        if (ram != null && !ram.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 2 AND vs.value LIKE ?)";
-        if (ssd != null && !ssd.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 5 AND vs.value LIKE ?)";
-        if (gpu != null && !gpu.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 4 AND vs.value LIKE ?)";
-        if (screen != null && !screen.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 3 AND vs.value LIKE ?)";
-        if (connectivity != null && !connectivity.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 18 AND vs.value LIKE ?)";
-        if (switchType != null && !switchType.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 10 AND vs.value LIKE ?)";
-        if (dpi != null && !dpi.isEmpty()) sql += " AND EXISTS (SELECT 1 FROM VariantSpecification vs WHERE vs.variant_id = pv.variant_id AND vs.specification_id = 13 AND vs.value LIKE ?)";
-        if (price != null) {
-            switch (price) {
-                case "under15": sql += " AND pv.selling_price < 15000000"; break;
-                case "15to20": sql += " AND pv.selling_price BETWEEN 15000000 AND 20000000"; break;
-                case "20to30": sql += " AND pv.selling_price BETWEEN 20000000 AND 30000000"; break;
-                case "30to40": sql += " AND pv.selling_price BETWEEN 30000000 AND 40000000"; break;
-                case "over40": sql += " AND pv.selling_price > 40000000"; break;
-                
-                //Mức giá cho Phụ kiện, Chuột, Bàn phím
-                case "under500k": sql += " AND pv.selling_price < 500000"; break;
-                case "500kto1m": sql += " AND pv.selling_price BETWEEN 500000 AND 1000000"; break;
-                case "1mto2m": sql += " AND pv.selling_price BETWEEN 1000000 AND 2000000"; break;
-                case "2mto3m": sql += " AND pv.selling_price BETWEEN 2000000 AND 3000000"; break;
-                case "over3m": sql += " AND pv.selling_price > 3000000"; break;
-            }
-        }
-        //Thêm điều kiện tìm kiếm đếm số lượng
-        if (search != null && !search.trim().isEmpty()) {
-            sql += " AND p.product_name LIKE ?";
-        }
-
+            JOIN Brand b ON p.brand_id = b.brand_id
+            JOIN ProductVariant v ON p.product_id = v.product_id
+            WHERE v.status = 'active'
+            AND (p.product_name LIKE ? OR b.brand_name LIKE ?)
+            """;
         ps = cnn.prepareStatement(sql);
-        int index = 1;
-        ps.setInt(index++, categoryId);
-        if (brandId != null) ps.setInt(index++, brandId);
-
-        if (purpose != null && !purpose.isEmpty()) ps.setString(index++, "%" + purpose + "%");
-        if (cpu != null && !cpu.isEmpty()) ps.setString(index++, "%" + cpu + "%");
-        if (ram != null && !ram.isEmpty()) ps.setString(index++, "%" + ram + "%");
-        if (ssd != null && !ssd.isEmpty()) ps.setString(index++, "%" + ssd + "%");
-        if (gpu != null && !gpu.isEmpty()) ps.setString(index++, "%" + gpu + "%");
-        if (screen != null && !screen.isEmpty()) ps.setString(index++, "%" + screen + "%");
-        
-        if (connectivity != null && !connectivity.isEmpty()) ps.setString(index++, "%" + connectivity + "%");
-        if (switchType != null && !switchType.isEmpty()) ps.setString(index++, "%" + switchType + "%");
-        if (dpi != null && !dpi.isEmpty()) ps.setString(index++, "%" + dpi + "%");
-        
-        if (search != null && !search.trim().isEmpty()) ps.setString(index++, "%" + search.trim() + "%");
-
+        ps.setString(1, "%" + keyword.trim() + "%");
+        ps.setString(2, "%" + keyword.trim() + "%");
         rs = ps.executeQuery();
         if (rs.next()) {
             return rs.getInt(1);
         }
     } catch (Exception e) {
-        System.out.println("countFilteredLaptop: " + e.getMessage());
+        System.out.println("countSearchAllProducts: " + e.getMessage());
     }
     return 0;
 }
- 
-    public Integer getCategoryIdByProductSearch(String search) {
-        try {
-            String sql = """
-                SELECT TOP 1 category_id
-                FROM Product
-                WHERE product_name LIKE ?
-                GROUP BY category_id
-                ORDER BY COUNT(*) DESC
-                """;
-            ps = cnn.prepareStatement(sql);
-            ps.setString(1, "%" + search + "%");
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("category_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+
+ // Phương thức lọc tổng hợp - gọi từ ProductListServlet
+ public java.util.List<?> filterLaptop(int categoryId, Integer brandId, Integer seriesId,
+         String purpose, String cpu, String ram, String ssd, String gpu, String screen,
+         String price, String sort, int page, int pageSize, String search,
+         String connectivity, String switchType, String dpi) {
+    ProductListFilterDAO dao = new ProductListFilterDAO();
+    switch (categoryId) {
+        case 4:
+            return dao.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search);
+        case 3:
+            return dao.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search);
+        default:
+            return dao.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search);
     }
- 
+}
+
+ // Phương thức đếm tổng hợp - gọi từ ProductListServlet
+ public int countFilteredLaptop(int categoryId, Integer brandId, Integer seriesId,
+         String purpose, String cpu, String ram, String ssd, String gpu, String screen,
+         String price, String search, String connectivity, String switchType, String dpi) {
+    ProductListFilterDAO dao = new ProductListFilterDAO();
+    switch (categoryId) {
+        case 4:
+            return dao.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
+        case 3:
+            return dao.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
+        default:
+            return dao.countFilteredLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, search);
+    }
+}
 }
