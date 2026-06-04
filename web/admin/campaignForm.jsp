@@ -238,7 +238,7 @@ if (c.getUsageLimit() != null) {
                             </button>
                         </div>
 
-                        <div class="two-cols">
+                     <label>Discount Value <span id="discountUnit"></span></label>
                             <div>
                                 <label>Discount Value</label>
                                 <input name="discountValue"
@@ -340,13 +340,13 @@ if (c.getUsageLimit() != null) {
                     <section class="form-card side-card">
                         <h3>≋ Conditions</h3>
 
-                        <label>Minimum Order Value</label>
+                        <label>Minimum Order Value VND</label>
                         <input name="minOrderValue"
                                type="number"
-                               step="0.01"
+                               step="1"
                                min="0"
                                value="<%= numberValue(c.getMinOrderValue()) %>"
-                               placeholder="500000">
+                               placeholder="500000 Đ">
 
                         <label>Status</label>
                         <select name="status">
@@ -436,6 +436,24 @@ if (c.getUsageLimit() != null) {
 
             xhr.send();
         };
+    }
+    
+    
+    var campaignTypeSelect = document.getElementById("campaignType");
+    var discountUnitSpan = document.getElementById("discountUnit");
+    function updateDiscountUnit() {
+        if (campaignTypeSelect && discountUnitSpan) {
+            var val = campaignTypeSelect.value;
+            if (val === "percentage") {
+                discountUnitSpan.textContent = " (%)";
+            } else {
+                discountUnitSpan.textContent = " (VND)";
+            }
+        }
+    }
+    if (campaignTypeSelect) {
+        campaignTypeSelect.addEventListener("change", updateDiscountUnit);
+        updateDiscountUnit();
     }
 </script>
 

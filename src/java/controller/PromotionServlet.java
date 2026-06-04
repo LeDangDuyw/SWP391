@@ -18,6 +18,7 @@ import java.util.Random;
 
 public abstract class PromotionServlet extends HttpServlet {
     /**
+     *  @Author: MINHBQHE200724
      * Chức năng: Thiết lập mã hóa ký tự (encoding) UTF-8 cho HTTP Request và Response.
      * Tác nhân liên quan: Hệ thống / Admin thông qua các Controller kế thừa.
      * Nhận dữ liệu từ: Đối tượng HttpServletRequest và HttpServletResponse.

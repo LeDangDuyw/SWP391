@@ -18,6 +18,7 @@ public class CampaignDAO extends DBContext {
     private final ServletContext context;
 
     /**
+     * 
      * Chức năng: Khởi tạo lớp DAO cho Chiến dịch (Campaign), kế thừa DBContext và lấy đối tượng Connection.
      * Tác nhân liên quan: Hệ thống.
      * Nhận dữ liệu từ: ServletContext.
