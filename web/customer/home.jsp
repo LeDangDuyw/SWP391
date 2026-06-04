@@ -27,7 +27,7 @@
                             <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
                         </c:if>
                     </c:forEach>
-                    
+
                     <div class="nav-dropdown">
                         <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                         <div class="dropdown-content">
@@ -38,7 +38,7 @@
                             </c:forEach>
                         </div>
                     </div>
-                    
+
                     <a href="#">Khuyến mãi</a>
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
@@ -55,93 +55,204 @@
 
         <!-- phần quảng cáo -->
         <section class="hero">
-            <div class="container hero-container">
-                <div class="hero-content">
-                    <div class="badge-new">Ra mắt bộ sưu tập 2026</div>
-                    <h1>Kỷ Nguyên Công Nghệ Mới</h1>
-                    <p>Sở hữu Laptop AI & Gaming mạnh mẽ nhất 2026. Hiệu năng vượt đỉnh, thiết kế tinh xảo, trải nghiệm không giới hạn.</p>
-                    <div class="hero-buttons">
-                        <a href="#" class="btn btn-primary">Mua ngay</a>
-                        <a href="#" class="btn btn-secondary">Khám phá</a>
-                    </div>
+            <div class="hero-slider-wrapper">
+                <div class="hero-slides">
+                    <c:forEach items="${banners}" var="b" varStatus="status">
+                        <div class="hero-slide ${status.first ? 'active' : ''}">
+                            <a href="${pageContext.request.contextPath}/ProductListServlet?category=1">
+                                <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner">
+                            </a>
+                        </div>
+                    </c:forEach>
+                    <c:if test="${empty banners}">
+                        <div class="hero-slide active">
+                            <a href="${pageContext.request.contextPath}/ProductListServlet?category=1">
+                                <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Laptop AI">
+                            </a>
+                        </div>
+                    </c:if>
                 </div>
-                <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Laptop AI 2026" class="floating-img">
+                <!-- Indicators -->
+                <div class="hero-indicators">
+                    <c:forEach items="${banners}" var="b" varStatus="status">
+                        <span class="hero-dot ${status.first ? 'active' : ''}" data-index="${status.index}"></span>
+                    </c:forEach>
+                    <c:if test="${empty banners}">
+                        <span class="hero-dot active" data-index="0"></span>
+                    </c:if>
                 </div>
+                <!-- Arrows -->
+                <button class="hero-arrow hero-prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="hero-arrow hero-next"><i class="fas fa-chevron-right"></i></button>
             </div>
         </section>
 
-        <!-- Flash Sale -->
         <c:if test="${not empty flashsale}">
-        <section class="flash-sale">
-            <div class="container">
-                <div class="section-header flash-sale-header">
-                    <h2><i class="fas fa-bolt flash-icon"></i> Săn Deal Thần Tốc</h2>
-                    <!--giờ đếm ngược cho đến hết flash sale--> 
-                    <div class="countdown" id="flash-sale-countdown" data-endtime="${not empty flashsale ? flashsale[0].endTime.time : ''}">
-                        <span>Kết thúc trong: </span>
-                        <div class="timer">
-                            <span id="hours">00</span> :
-                            <span id="minutes">00</span> :
-                            <span id="seconds">00</span>
+            <section class="flash-sale">
+                <div class="container">
+                    <div class="section-header flash-sale-header">
+                        <h2><i class="fas fa-bolt flash-icon"></i> Săn Deal Thần Tốc</h2>
+                        <!--giờ đếm ngược cho đến hết flash sale--> 
+                        <div class="countdown" id="flash-sale-countdown" data-endtime="${not empty flashsale ? flashsale[0].endTime.time : ''}">
+                            <span>Kết thúc trong: </span>
+                            <div class="timer">
+                                <span id="hours">00</span> :
+                                <span id="minutes">00</span> :
+                                <span id="seconds">00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!--Hiển thị sản phẩm flash sale--> 
-                <div class="product-grid flash-grid">
-                    <c:forEach items="${flashsale}" var="p">
+                    <!--Hiển thị sản phẩm flash sale--> 
+                    <div class="product-grid flash-grid">
+                        <c:forEach items="${flashsale}" var="p">
 
-                        <div class="product-card">
+                            <div class="product-card">
 
-                            <div class="product-badge discount">
-                                -${p.discountPercent}%
+                                <div class="product-badge discount">
+                                    -${p.discountPercent}%
+                                </div>
+
+                                <div class="product-img-wrapper">
+                                    <img src="images/${p.thumbnail}" alt="${p.productName}">
+                                </div>
+
+                                <div class="product-info">
+
+                                    <h3>${p.productName}</h3>
+
+                                    <div class="product-price">
+
+                                        <span class="current-price">
+                                            <fmt:formatNumber
+                                                value="${p.salePrice}"
+                                                pattern="#,##0"/>₫
+                                        </span>
+
+                                        <span class="old-price">
+                                            <fmt:formatNumber
+                                                value="${p.originalPrice}"
+                                                pattern="#,##0"/>₫
+                                        </span>
+
+                                    </div>
+
+                                    <div class="progress-bar-container">
+
+                                        <div class="progress-bar"
+                                             style="width:${p.soldQuantity * 100.0 / p.quantityLimit}%;">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="stock-info">
+
+                                        <span>
+                                            Đã bán: ${p.soldQuantity}
+                                        </span>
+
+                                        <span>
+                                            Còn lại:
+                                            ${p.quantityLimit - p.soldQuantity}
+                                        </span>
+
+                                    </div>
+                                    <!--nút mua hoặc để thêm vào trong giỏ hàng--> 
+                                    <div class="actions">
+                                        <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                                        <button type="button" class="btn-buy-now">Mua ngay</button>
+                                    </div>
+                                </div>
                             </div>
-
+                        </c:forEach>
+                    </div>
+                </div>
+            </section>
+        </c:if>
+        <!-- Sản phẩm bán chạy -->
+        <section class="best-sellers">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Sản phẩm bán chạy</h2>
+                    <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->  
+                    <c:choose>
+                        <c:when test="${bsTab == 'chuot'}">
+                            <a href="ProductListServlet?category=4&sort=popular" class="view-all">Xem tất cả</a>
+                        </c:when>
+                        <c:when test="${bsTab == 'banphim'}">
+                            <a href="ProductListServlet?category=3&sort=popular" class="view-all">Xem tất cả</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="ProductListServlet?category=1&sort=popular" class="view-all">Xem tất cả</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <!--hiển thị nút lựa chọn danh mục của sản phẩm và nhận giá trị danh mục-->  
+                <div class="tabs">
+                    <a href="HomeServlet?bsTab=laptop&newTab=${newTab}" class="tab-btn ${bsTab == 'laptop' || empty bsTab ? 'active' : ''}">Laptop</a>
+                    <a href="HomeServlet?bsTab=chuot&newTab=${newTab}" class="tab-btn ${bsTab == 'chuot' ? 'active' : ''}">Chuột</a>
+                    <a href="HomeServlet?bsTab=banphim&newTab=${newTab}" class="tab-btn ${bsTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
+                </div>
+                <div class="product-grid" id="best-seller-grid">
+                    <!--hiển thị toàn bộ sản phẩm bán chạy theo danh mục-->
+                    <c:forEach items="${products}" var="p">
+                        <div class="product-card">
+                            <div class="product-badge best-seller">Bán chạy</div>
                             <div class="product-img-wrapper">
                                 <img src="images/${p.thumbnail}" alt="${p.productName}">
                             </div>
-
                             <div class="product-info">
-
                                 <h3>${p.productName}</h3>
-
                                 <div class="product-price">
-
-                                    <span class="current-price">
-                                        <fmt:formatNumber
-                                            value="${p.salePrice}"
-                                            pattern="#,##0"/>₫
-                                    </span>
-
-                                    <span class="old-price">
-                                        <fmt:formatNumber
-                                            value="${p.originalPrice}"
-                                            pattern="#,##0"/>₫
-                                    </span>
-
+                                    <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>
-
-                                <div class="progress-bar-container">
-
-                                    <div class="progress-bar"
-                                         style="width:${p.soldQuantity * 100.0 / p.quantityLimit}%;">
-                                    </div>
-
+                                <div class="actions">
+                                    <!--nút mua bán sản phẩm và nút thêm vào giỏ hàng-->
+                                    <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                                    <button type="button" class="btn-buy-now">Mua ngay</button>
                                 </div>
-
-                                <div class="stock-info">
-
-                                    <span>
-                                        Đã bán: ${p.soldQuantity}
-                                    </span>
-
-                                    <span>
-                                        Còn lại:
-                                        ${p.quantityLimit - p.soldQuantity}
-                                    </span>
-
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+        </section>
+        <!-- Sản phẩm mới -->
+        <section class="new-products" style="padding: 60px 0; background-color: var(--bg-white);">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Sản phẩm mới</h2>
+                    <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->
+                    <c:choose>
+                        <c:when test="${param.newTab == 'chuot'}">
+                            <a href="ProductListServlet?category=4&sort=new" class="view-all">Xem tất cả</a>
+                        </c:when>
+                        <c:when test="${param.newTab == 'banphim'}">
+                            <a href="ProductListServlet?category=3&sort=new" class="view-all">Xem tất cả</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="ProductListServlet?category=1&sort=new" class="view-all">Xem tất cả</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->  
+                <div class="tabs">
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=laptop" class="tab-btn ${param.newTab == 'laptop' || empty param.newTab ? 'active' : ''}">Laptop</a>
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=chuot" class="tab-btn ${param.newTab == 'chuot' ? 'active' : ''}">Chuột</a>
+                    <a href="HomeServlet?bsTab=${bsTab}&newTab=banphim" class="tab-btn ${param.newTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
+                </div>
+                <!--hiển thị sản phẩm bán chạy-->
+                <div class="product-grid" id="new-product-grid">
+                    <c:forEach items="${new_products}" var="p">
+                        <div class="product-card">
+                            <div class="product-badge new">Mới</div>
+                            <div class="product-img-wrapper">
+                                <img src="images/${p.thumbnail}" alt="${p.productName}">
+                            </div>
+                            <div class="product-info">
+                                <h3>${p.productName}</h3>
+                                <div class="product-price">
+                                    <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>
-                                <!--nút mua hoặc để thêm vào trong giỏ hàng--> 
                                 <div class="actions">
                                     <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
                                     <button type="button" class="btn-buy-now">Mua ngay</button>
@@ -152,136 +263,61 @@
                 </div>
             </div>
         </section>
-        </c:if>
-                    <!-- Sản phẩm bán chạy -->
-                    <section class="best-sellers">
-                        <div class="container">
-                            <div class="section-header">
-                                <h2>Sản phẩm bán chạy</h2>
-                                <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->  
-                                <c:choose>
-                                    <c:when test="${bsTab == 'chuot'}">
-                                        <a href="ProductListServlet?category=4&sort=popular" class="view-all">Xem tất cả</a>
-                                    </c:when>
-                                    <c:when test="${bsTab == 'banphim'}">
-                                        <a href="ProductListServlet?category=3&sort=popular" class="view-all">Xem tất cả</a>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="ProductListServlet?category=1&sort=popular" class="view-all">Xem tất cả</a>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                                <!--hiển thị nút lựa chọn danh mục của sản phẩm và nhận giá trị danh mục-->  
-                            <div class="tabs">
-                                <a href="HomeServlet?bsTab=laptop&newTab=${newTab}" class="tab-btn ${bsTab == 'laptop' || empty bsTab ? 'active' : ''}">Laptop</a>
-                                <a href="HomeServlet?bsTab=chuot&newTab=${newTab}" class="tab-btn ${bsTab == 'chuot' ? 'active' : ''}">Chuột</a>
-                                <a href="HomeServlet?bsTab=banphim&newTab=${newTab}" class="tab-btn ${bsTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
-                            </div>
-                            <div class="product-grid" id="best-seller-grid">
-                                  <!--hiển thị toàn bộ sản phẩm bán chạy theo danh mục-->
-                                <c:forEach items="${products}" var="p">
-                                    <div class="product-card">
-                                        <div class="product-badge best-seller">Bán chạy</div>
-                                        <div class="product-img-wrapper">
-                                            <img src="images/${p.thumbnail}" alt="${p.productName}">
-                                        </div>
-                                        <div class="product-info">
-                                            <h3>${p.productName}</h3>
-                                            <div class="product-price">
-                                                <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
-                                            </div>
-                                            <div class="actions">
-                                            <!--nút mua bán sản phẩm và nút thêm vào giỏ hàng-->
-                                                <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
-                                                <button type="button" class="btn-buy-now">Mua ngay</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </section>
-                    <!-- Sản phẩm mới -->
-                    <section class="new-products" style="padding: 60px 0; background-color: var(--bg-white);">
-                        <div class="container">
-                            <div class="section-header">
-                                <h2>Sản phẩm mới</h2>
-                                <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->
-                                <c:choose>
-                                    <c:when test="${param.newTab == 'chuot'}">
-                                        <a href="ProductListServlet?category=4&sort=new" class="view-all">Xem tất cả</a>
-                                    </c:when>
-                                    <c:when test="${param.newTab == 'banphim'}">
-                                        <a href="ProductListServlet?category=3&sort=new" class="view-all">Xem tất cả</a>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="ProductListServlet?category=1&sort=new" class="view-all">Xem tất cả</a>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                             <!--hiển thị lựa chọn xem tất cả sản phẩm của danh mục và nhận giá trị danh mục-->  
-                            <div class="tabs">
-                                <a href="HomeServlet?bsTab=${bsTab}&newTab=laptop" class="tab-btn ${param.newTab == 'laptop' || empty param.newTab ? 'active' : ''}">Laptop</a>
-                                <a href="HomeServlet?bsTab=${bsTab}&newTab=chuot" class="tab-btn ${param.newTab == 'chuot' ? 'active' : ''}">Chuột</a>
-                                <a href="HomeServlet?bsTab=${bsTab}&newTab=banphim" class="tab-btn ${param.newTab == 'banphim' ? 'active' : ''}">Bàn phím</a>
-                            </div>
-                            <!--hiển thị sản phẩm bán chạy-->
-                            <div class="product-grid" id="new-product-grid">
-                                <c:forEach items="${new_products}" var="p">
-                                    <div class="product-card">
-                                        <div class="product-badge new">Mới</div>
-                                        <div class="product-img-wrapper">
-                                            <img src="images/${p.thumbnail}" alt="${p.productName}">
-                                        </div>
-                                        <div class="product-info">
-                                            <h3>${p.productName}</h3>
-                                            <div class="product-price">
-                                                <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
-                                            </div>
-                                            <div class="actions">
-                                                <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
-                                                <button type="button" class="btn-buy-now">Mua ngay</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </section>
 
-                    <!-- Footer -->
-                    <footer class="footer">
-                        <div class="container footer-grid">
-                            <div class="footer-col">
-                                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                                <p>Nền tảng mua sắm công nghệ cao cấp hàng đầu.</p>
-                                <div class="social-icons">
-                                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                    <a href="#"><i class="fab fa-youtube"></i></a>
-                                </div>
-                            </div>
-                            <div class="footer-col">
-                                <h3>Khách hàng</h3>
-                                <ul>
-                                    <li><a href="#">Chính sách bảo mật</a></li>
-                                    <li><a href="#">Điều khoản sử dụng</a></li>
-                                    <li><a href="#">Hướng dẫn mua hàng</a></li>
-                                </ul>
-                            </div>
-                            <div class="footer-col">
-                                <h3>UniLap</h3>
-                                <ul>
-                                    <li><a href="#">Liên hệ</a></li>
-                                    <li><a href="#">Về chúng tôi</a></li>
-                                </ul>
-                            </div>
+        <!-- Footer -->
+        <%
+            if (request.getAttribute("footerPages") == null) {
+                try {
+                    dal.PageContentDAO pgDAO = new dal.PageContentDAO();
+                    java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
+                    request.setAttribute("footerPages", footerPagesList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        %>
+        <footer class="footer">
+            <div class="container footer-grid">
+                <!-- Column 1: Brand & Contact -->
+                <div class="footer-col">
+                    <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
+                    <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
+                    <div class="footer-contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i> Nội</p>
+                        <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
+                        <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Column 2: Quick Links & Support Policies -->
+                <div class="footer-col">
+                    <h3>Chính sách & Hỗ trợ</h3>
+                    <ul>
+                        <c:if test="${not empty footerPages}">
+                            <c:forEach items="${footerPages}" var="pageItem">
+                                <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
+                            </c:forEach>
+                        </c:if>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="container footer-bottom-container">
+                    <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
+                    <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
+                </div>
+            </div>
+        </footer>
 
-                        </div>
-                        <div class="footer-bottom">
-                            <p>&copy; 2026 UniLap. All rights reserved.</p>
-                        </div>
-                    </footer>
 
-                    <script src="${pageContext.request.contextPath}/js/home.js?v=2"></script>
-                    </body>
-                    </html>
+
+        <script src="${pageContext.request.contextPath}/js/home.js?v=2"></script>
+    </body>
+</html>
