@@ -202,6 +202,7 @@ code { color: #6b7280; font-weight: 700; background: transparent; }
 .form-card { padding: 26px; }
 .form-card h3 { font-size: 25px; margin: 0 0 25px; }
 .form-card label { display: block; margin: 18px 0 9px; color: #273044; font-weight: 700; font-size: 14px; }
+.required-mark { color: #d97706; margin-left: 4px; font-weight: 800; }
 .form-card input, .form-card textarea, .form-card select, .mini-search {
     width: 100%;
     border: 1px solid var(--line);

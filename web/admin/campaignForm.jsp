@@ -176,8 +176,10 @@
                                                                         <section class="form-card">
                                                                             <h3>📣 Campaign Details</h3>
 
-                                                                            <label>Campaign Name</label>
+                                                                            <label>Campaign Name <span class="required-mark">*</span></label>
                                                                             <input name="campaignName" required
+                                                                                pattern=".*\S.*"
+                                                                                title="Campaign name cannot be empty or only spaces"
                                                                                 value="<%= h(c.getCampaignName()) %>"
                                                                                 placeholder="e.g. Summer Tech Extravaganza 2026">
 
@@ -251,10 +253,12 @@
                                                                         <section class="form-card">
                                                                             <h3>🎟 Voucher Configuration</h3>
 
-                                                                            <label>Promo Code</label>
+                                                                            <label>Promo Code <span class="required-mark">*</span></label>
                                                                             <div class="input-button">
                                                                                 <input name="promoCode" id="promoCode"
                                                                                     required
+                                                                                    pattern=".*\S.*"
+                                                                                    title="Promo code cannot be empty or only spaces"
                                                                                     value="<%= h(c.getPromoCode()) %>"
                                                                                     placeholder="SUMMER24">
 
@@ -362,11 +366,11 @@
                                                                         <section class="form-card side-card">
                                                                             <h3>▣ Scheduling</h3>
 
-                                                                            <label>Start Date</label>
+                                                                            <label>Start Date <span class="required-mark">*</span></label>
                                                                             <input name="startDate" type="date" required
                                                                                 value="<%= dateValue(c.getStartDate()) %>">
 
-                                                                            <label>End Date</label>
+                                                                            <label>End Date <span class="required-mark">*</span></label>
                                                                             <input name="endDate" type="date" required
                                                                                 value="<%= dateValue(c.getEndDate()) %>">
 
