@@ -85,6 +85,8 @@ public class ProductListFilterDAO extends DBContext {
         p.setCategoryName(rs.getString("category_name"));
         p.setPurpose(rs.getString("purpose"));
         p.setMinPrice(rs.getLong("min_price"));
+        p.setOriginalPrice(rs.getLong("original_price"));
+        p.setDiscountPercent(rs.getInt("discount_percent"));
     }
 // 
 
