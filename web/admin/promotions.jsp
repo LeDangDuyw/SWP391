@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, java.text.*, model.Campaign, model.CampaignStats" %>
+<%@ page import="java.util.*, java.text.*, java.math.BigDecimal, model.Campaign, model.CampaignStats" %>
 <%!
     String h(String s) { return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;"); }
     String money(Number n) { return NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(n == null ? 0 : n); }
@@ -137,7 +137,18 @@
                         <b><%=h(c.getCampaignName())%></b>
                         <small><%=h(c.getCampaignDescription())%></small>
                     </td>
-                    <td><code><%=h(c.getPromoCode())%></code><small><%=h(c.getCampaignType())%></small></td>
+                    <td>
+                        <code><%=h(c.getPromoCode())%></code>
+                        <small>
+                            <%=h(c.getCampaignType())%>
+                            <% if (c.getDiscountValue() != null) { %>
+                                <br>Val: <b><%= "percentage".equals(c.getCampaignType()) ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : money(c.getDiscountValue()) %></b>
+                            <% } %>
+                            <% if (c.getMinOrderValue() != null && c.getMinOrderValue().compareTo(BigDecimal.ZERO) > 0) { %>
+                                <br>Min: <%= money(c.getMinOrderValue()) %>
+                            <% } %>
+                        </small>
+                    </td>
                     <td><span class="badge <%=statusClass(c.getStatus())%>"><%=statusText(c.getStatus())%></span></td>
                     <td><%=NumberFormat.getNumberInstance(Locale.US).format(c.getUsedCount())%> / <%=c.getUsageLimit() == null ? "∞" : NumberFormat.getNumberInstance(Locale.US).format(c.getUsageLimit())%></td>
                     <td><%=date(c.getEndDate())%></td>

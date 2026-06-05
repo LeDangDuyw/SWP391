@@ -97,6 +97,35 @@
         </div>
         <% } %>
 
+        <div class="campaign-summary-bar" style="background: white; border: 1px solid var(--line); border-radius: 7px; padding: 18px; margin-bottom: 24px; display: flex; gap: 40px; box-shadow: var(--shadow); flex-wrap: wrap;">
+            <div>
+                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Promo Code</small>
+                <code style="font-size: 16px; font-weight: 700; color: var(--blue);"><%=h(c.getPromoCode())%></code>
+            </div>
+            <div>
+                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Campaign Type</small>
+                <span style="font-weight: 600;"><%=h(c.getCampaignType())%></span>
+            </div>
+            <div>
+                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Discount Value</small>
+                <span style="font-weight: 700; color: #111827;">
+                    <% if ("percentage".equals(c.getCampaignType())) { %>
+                        <%= c.getDiscountValue() != null ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : "0%" %>
+                    <% } else { %>
+                        <%= money(c.getDiscountValue()) %>
+                    <% } %>
+                </span>
+            </div>
+            <div>
+                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Min Order (Condition)</small>
+                <span style="font-weight: 600;"><%= money(c.getMinOrderValue()) %></span>
+            </div>
+            <div>
+                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Status</small>
+                <span class="badge <%=statusClass(c.getStatus())%>" style="padding: 2px 8px; font-size: 12px;"><%=c.getStatus()%></span>
+            </div>
+        </div>
+
         <section class="metric-grid four">
             <article class="metric-card"><span class="icon">▭</span><small>TOTAL UNITS SOLD</small><b><%=NumberFormat.getNumberInstance(Locale.US).format(totalUnits)%></b><div class="bar"><i style="width:<%=totalUnitsProgress%>%"></i></div></article>
             <article class="metric-card"><span class="icon">▣</span><small>TOTAL REVENUE</small><b><%=shortMoney(revenue)%></b><div class="bar"><i style="width:<%=revenueProgress%>%"></i></div></article>
