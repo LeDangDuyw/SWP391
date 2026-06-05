@@ -72,19 +72,18 @@ public class PolicyDAO extends DBContext {
      *
      */
     public boolean existsPolicyName(String policyName) throws Exception {
-    String sql = "SELECT 1 FROM WarrantyPolicies WHERE PolicyName = ?";
+        String sql = "SELECT 1 FROM WarrantyPolicies WHERE PolicyName = ?";
 
-    try (Connection con = getConnection();
-         PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setString(1, policyName.trim());
+            ps.setString(1, policyName.trim());
 
-        try (ResultSet rs = ps.executeQuery()) {
-            return rs.next();
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
-}
-    
+
     /*
      * Searches for policies whose name or description matches the given
      * keyword.
@@ -92,12 +91,11 @@ public class PolicyDAO extends DBContext {
     public List<WarrantyPolicy> searchPolicies(String keyword) throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies "
-                + "WHERE PolicyName LIKE ? OR Description LIKE ? "
+                + "WHERE PolicyName LIKE ?"
                 + "ORDER BY PolicyID DESC";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";
             ps.setString(1, k);
-            ps.setString(2, k);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapPolicy(rs));
@@ -105,6 +103,30 @@ public class PolicyDAO extends DBContext {
             }
         }
         return list;
+    }
+
+    /*
+     * Check for existed policy bane for update
+     *
+     */
+    public boolean existsPolicyNameForUpdate(String policyName, int policyId) {
+        String sql = """
+        SELECT 1
+        FROM WarrantyPolicies
+        WHERE PolicyName = ?
+        AND PolicyID <> ?
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, policyName.trim());
+            ps.setInt(2, policyId);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /*
@@ -173,10 +195,111 @@ public class PolicyDAO extends DBContext {
     }
 
     /*
+     * Count total policies.
+     */
+    public int countPolicies() throws Exception {
+        String sql = "SELECT COUNT(*) FROM WarrantyPolicies";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    /*
+     * Count total search by name policies
+     */
+    public int countSearchPolicies(String keyword) throws Exception {
+        String sql = """
+        SELECT COUNT(*)
+        FROM WarrantyPolicies
+        WHERE PolicyName LIKE ?
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+
+        return 0;
+    }
+
+    /*
+     * Norma; paging
+     */
+    public List<WarrantyPolicy> getPoliciesPaging(int offset, int pageSize) throws Exception {
+
+        List<WarrantyPolicy> list = new ArrayList<>();
+
+        String sql = """
+        SELECT *
+        FROM WarrantyPolicies
+        ORDER BY PolicyID DESC
+        OFFSET ? ROWS
+        FETCH NEXT ? ROWS ONLY
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapPolicy(rs));
+            }
+        }
+
+        return list;
+    }
+
+    /*
+     * Paging by search 
+     */
+    public List<WarrantyPolicy> searchPoliciesPaging(String keyword, int offset, int pageSize) throws Exception {
+
+        List<WarrantyPolicy> list = new ArrayList<>();
+
+        String sql = """
+        SELECT *
+        FROM WarrantyPolicies
+        WHERE PolicyName LIKE ?
+        ORDER BY PolicyID DESC
+        OFFSET ? ROWS
+        FETCH NEXT ? ROWS ONLY
+        """;
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapPolicy(rs));
+            }
+        }
+
+        return list;
+    }
+
+    /*
      * Publishes a warranty policy by setting its status to LIVE.
      */
     public void publishPolicy(int id) throws Exception {
-        updateStatus(id, "LIVE");
+        updateStatus(id, "PUBLISHED");
     }
 
     /*

@@ -696,7 +696,7 @@
                             <c:choose>
                                 <c:when test="${not empty policies}">
                                     <c:forEach items="${policies}" var="p">
-                                        <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
+                                        <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}&page=${currentPage}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
                                             <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
                                                 <div class="doc-item-top">
                                                     <span class="doc-item-name">${p.policyName}</span>
@@ -722,6 +722,23 @@
                                 </c:otherwise>
                             </c:choose>
                         </div>
+                        <c:if test="${totalPages > 1}">
+                            <div class="pagination">
+
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+
+                                    <a href="${pageContext.request.contextPath}/admin/policy?page=${i}
+                                       <c:if test='${not empty keyword}'>&keyword=${keyword}</c:if>"
+                                       class="${currentPage == i ? 'active' : ''}">
+
+                                        ${i}
+
+                                    </a>
+
+                                </c:forEach>
+
+                            </div>
+                        </c:if>
                     </div>
 
                     <!-- Right pane -->
@@ -744,8 +761,8 @@
                                                 onclick="toggleStatus(${selectedPolicy.policyId}, '${selectedPolicy.status}')"></button>
                                         <span id="statusLabel">
                                             <c:choose>
-                                                <c:when test="${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED'}">Live</c:when>
-                                                <c:otherwise>Draft</c:otherwise>
+                                                <c:when test="${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED'}">Published</c:when>
+                                                <c:otherwise>Draft/Disabled</c:otherwise>
                                             </c:choose>
                                         </span>
                                     </div>
@@ -809,11 +826,13 @@
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="saveDraft">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
                                         <button type="submit" class="btn btn-outline btn-sm">&#128190; Save Draft</button>
                                     </form>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="publish">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
                                         <button type="submit" class="btn btn-primary btn-sm">&#9650; Publish</button>
                                     </form>
                                 </div>
@@ -840,6 +859,7 @@
                 </div>
                 <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                     <input type="hidden" name="action" value="create">
+                    <input type="hidden" name="page" value="${currentPage}">
                     <div class="modal-body">
                         <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\S.*"
                                                                                    title="Policy Name cannot contain only spaces"></div>
@@ -876,8 +896,14 @@
                     <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                        <input type="hidden" name="page" value="${currentPage}">
                         <div class="modal-body">
-                            <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required></div>
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger">
+                                    ${error}
+                                </div>
+                            </c:if>
+                            <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\S.*" title="Policy Name cannot be empty or contain only spaces"></div>
                             <div class="form-group"><label>Description</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
                             <div class="form-group"><label>Policy Content</label><textarea name="policyContent" rows="5">${selectedPolicy.policyContent}</textarea></div>
                             <div class="form-group"><label>Applicable Regions</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
@@ -890,7 +916,6 @@
                                 <div class="form-group"><label>Status</label>
                                     <select name="status">
                                         <option value="DRAFT"     ${selectedPolicy.status eq 'DRAFT'     ? 'selected' : ''}>Draft</option>
-                                        <option value="LIVE"      ${selectedPolicy.status eq 'LIVE'      ? 'selected' : ''}>Live</option>
                                         <option value="PUBLISHED" ${selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Published</option>
                                         <option value="DISABLED"  ${selectedPolicy.status eq 'DISABLED'  ? 'selected' : ''}>Disabled</option>
                                     </select>
@@ -982,21 +1007,32 @@
             function toggleStatus(policyId, currentStatus) {
                 var isLive = (currentStatus === 'LIVE' || currentStatus === 'PUBLISHED');
                 var newAction = isLive ? 'disable' : 'publish';
+
                 if (!confirm(isLive ? 'Set this policy to Disabled?' : 'Publish this policy as Live?'))
                     return;
+
                 var form = document.createElement('form');
                 form.method = 'post';
                 form.action = '${pageContext.request.contextPath}/admin/policy';
+
                 var a = document.createElement('input');
                 a.type = 'hidden';
                 a.name = 'action';
                 a.value = newAction;
                 form.appendChild(a);
+
                 var i = document.createElement('input');
                 i.type = 'hidden';
                 i.name = 'policyId';
                 i.value = policyId;
                 form.appendChild(i);
+
+                var p = document.createElement('input');
+                p.type = 'hidden';
+                p.name = 'page';
+                p.value = '${currentPage}';
+                form.appendChild(p);
+
                 document.body.appendChild(form);
                 form.submit();
             }

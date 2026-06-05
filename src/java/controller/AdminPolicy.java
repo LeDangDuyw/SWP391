@@ -43,16 +43,32 @@ public class AdminPolicy extends HttpServlet {
             String keyword = request.getParameter("keyword");
             String statusFilter = request.getParameter("statusFilter");
 
+            int page = 1;
+            int pageSize = 5;
+            int totalRecords;
             List<WarrantyPolicy> policies;
 
+            String pageParam = request.getParameter("page");
+
+            if (pageParam != null) {
+                page = Integer.parseInt(pageParam);
+            }
+
             if (keyword != null && !keyword.trim().isEmpty()) {
-                policies = dao.searchPolicies(keyword.trim());
-                request.setAttribute("keyword", keyword.trim());
-            } else if (statusFilter != null && !statusFilter.trim().isEmpty()) {
-                policies = dao.getPoliciesByStatus(statusFilter.trim());
-                request.setAttribute("statusFilter", statusFilter.trim());
+
+                keyword = keyword.trim();
+
+                totalRecords = dao.countSearchPolicies(keyword);
+
+                policies = dao.searchPoliciesPaging(keyword, (page - 1) * pageSize, pageSize);
+
+                request.setAttribute("keyword", keyword);
+
             } else {
-                policies = dao.getAllPolicies();
+
+                totalRecords = dao.countPolicies();
+
+                policies = dao.getPoliciesPaging((page - 1) * pageSize, pageSize);
             }
 
             request.setAttribute("policies", policies);
@@ -66,13 +82,18 @@ public class AdminPolicy extends HttpServlet {
                 } catch (Exception ignored) {
                 }
             }
+            int totalPages
+                    = (int) Math.ceil((double) totalRecords / pageSize);
 
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
             request.getRequestDispatcher("/admin/PolicyManagement.jsp")
                     .forward(request, response);
 
         } catch (Exception e) {
             throw new ServletException("Error loading policies", e);
         }
+
     }
 
     /**
@@ -86,70 +107,101 @@ public class AdminPolicy extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         String contextPath = request.getContextPath();
+        String pageParam = request.getParameter("page");
 
         try {
             switch (action == null ? "" : action) {
 
                 case "create": {
                     WarrantyPolicy p = buildPolicyFromRequest(request);
-                    
-                    if(dao.existsPolicyName(p.getPolicyName())) {
+
+                    if (dao.existsPolicyName(p.getPolicyName())) {
                         request.setAttribute("error", "Policy name has already existed");
                         request.setAttribute("formData", p);
-                        
-                        List<WarrantyPolicy> policies = dao.getAllPolicies();
+
+                        int page;
+
+                        if (pageParam != null && !pageParam.trim().isEmpty()) {
+                            page = Integer.parseInt(pageParam);
+                        } else {
+                            page = 1;
+                        }
+                        int pageSize = 5;
+                        int offset = (page - 1) * pageSize;
+
+                        List<WarrantyPolicy> policies = dao.getPoliciesPaging(offset, pageSize);
+                        int totalPolicies = dao.countPolicies();
+                        int totalPages = (int) Math.ceil((double) totalPolicies / pageSize);
+
                         request.setAttribute("policies", policies);
-                        
+                        request.setAttribute("currentPage", page);
+                        request.setAttribute("totalPages", totalPages);
+
+                        request.setAttribute("policies", policies);
+                        request.setAttribute("currentPage", page);
+                        request.setAttribute("totalPages", totalPages);
+
                         request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
                         return;
                     }
-                    
-                    
+
                     Timestamp now = new Timestamp(System.currentTimeMillis());
                     p.setStatus("DRAFT");
                     p.setCreatedAt(now);
                     p.setUpdatedAt(now);
                     dao.insertPolicy(p);
-                    response.sendRedirect(contextPath + "/admin/policy");
+                    response.sendRedirect(contextPath + "/admin/policy?page=" + pageParam);
                     break;
                 }
 
                 case "update": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     WarrantyPolicy p = dao.getPolicyById(id);
+
                     if (p != null) {
                         updatePolicyFromRequest(request, p);
+
+                        if (dao.existsPolicyNameForUpdate(p.getPolicyName(), id)) {
+                            request.setAttribute("error", "Policy name has existed!");
+                            request.setAttribute("selectedPolicy", p);
+
+                            List<WarrantyPolicy> policies = dao.getAllPolicies();
+                            request.setAttribute("policies", policies);
+
+                            request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
+                            return;
+                        }
                         dao.updatePolicy(p);
                     }
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
                     break;
                 }
 
                 case "delete": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.deletePolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy");
+                    response.sendRedirect(contextPath + "/admin/policy?page=" + pageParam);
                     break;
                 }
 
                 case "publish": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.publishPolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
                     break;
                 }
 
                 case "saveDraft": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.saveDraft(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
                     break;
                 }
 
                 case "disable": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.disablePolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
                     break;
                 }
 
@@ -179,10 +231,18 @@ public class AdminPolicy extends HttpServlet {
         p.setApplicableRegions(request.getParameter("applicableRegions"));
 
         String wm = request.getParameter("warrantyMonths");
-        p.setWarrantyMonths(wm != null && !wm.isEmpty() ? Integer.parseInt(wm) : 0);
+        if (wm != null && !wm.isEmpty()) {
+            p.setWarrantyMonths(Integer.parseInt(wm));
+        } else {
+            p.setWarrantyMonths(0);
+        }
 
         String version = request.getParameter("version");
-        p.setVersion(version != null && !version.trim().isEmpty() ? version.trim() : "1.0");
+        if (version != null && !version.trim().isEmpty()) {
+            p.setVersion(version.trim());
+        } else {
+            p.setVersion("1.0");
+        }
 
         String effDate = request.getParameter("effectiveDate");
         if (effDate != null && !effDate.isEmpty()) {
