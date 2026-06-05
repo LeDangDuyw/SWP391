@@ -133,7 +133,7 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen flex">
 
         <aside class="sidebar">
-        <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
