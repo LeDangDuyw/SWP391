@@ -381,37 +381,56 @@
         </c:if>
     </div>
 
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-col">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                <p>Sự đổi mới hiệu suất cao cho mọi người dùng. Nền tảng mua sắm công nghệ cao cấp hàng đầu.</p>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
+     <!-- Footer -->
+        <%
+            if (request.getAttribute("footerPages") == null) {
+                try {
+                    dal.PageContentDAO pgDAO = new dal.PageContentDAO();
+                    java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
+                    request.setAttribute("footerPages", footerPagesList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        %>
+        <footer class="footer">
+            <div class="container footer-grid">
+                <!-- Column 1: Brand & Contact -->
+                <div class="footer-col">
+                    <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
+                    <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
+                    <div class="footer-contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
+                        <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
+                        <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>Chính sách & Hỗ trợ</h3>
+                    <ul>
+                        <c:if test="${not empty footerPages}">
+                            <c:forEach items="${footerPages}" var="pageItem">
+                                <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
+                            </c:forEach>
+                        </c:if>
+                    </ul>
                 </div>
             </div>
-            <div class="footer-col">
-                <h3>Khách hàng</h3>
-                <ul>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Điều khoản sử dụng</a></li>
-                    <li><a href="#">Hướng dẫn mua hàng</a></li>
-                </ul>
+            
+            <div class="footer-bottom">
+                <div class="container footer-bottom-container">
+                    <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
+                    <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
+                </div>
             </div>
-            <div class="footer-col">
-                <h3>UniLap</h3>
-                <ul>
-                    <li><a href="#">Liên hệ</a></li>
-                    <li><a href="#">Về chúng tôi</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-        </div>
-    </footer>
-
-    <script src="${pageContext.request.contextPath}/js/product_list.js?v=2"></script>
+        </footer>
+        <script src="${pageContext.request.contextPath}/js/product_list.js?v=3"></script>
 </body>
 </html>
