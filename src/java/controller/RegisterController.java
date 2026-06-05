@@ -57,13 +57,19 @@ public class RegisterController extends HttpServlet {
             return;
         }
         
+        if (userName.length() > 100) {
+            request.setAttribute("error", "Họ và tên không được vượt quá 100 ký tự!");
+            request.getRequestDispatcher("auth/register.jsp").forward(request, response);
+            return;
+        }
+        
         if (!password.equals(confirmPassword)) {
             request.setAttribute("error", "Mật khẩu không khớp!");
             request.getRequestDispatcher("auth/register.jsp").forward(request, response);
             return;
         }
         
-        String emailRegex = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$";
+        String emailRegex = "^[\\w.+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$";
         if (!email.matches(emailRegex)) {
             request.setAttribute("error", "Email không hợp lệ!");
             request.getRequestDispatcher("auth/register.jsp").forward(request, response);

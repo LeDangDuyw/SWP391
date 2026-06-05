@@ -137,8 +137,8 @@ public class CampaignFormController extends PromotionServlet {
         int id = parseInt(request.getParameter("id"), 0);
 
         campaign.setCampaignId(id);
-        campaign.setCampaignName(req(request, "campaignName"));
-        campaign.setCampaignDescription(req(request, "campaignDescription"));
+        campaign.setCampaignName(req(request, "campaignName").trim());
+        campaign.setCampaignDescription(req(request, "campaignDescription").trim());
         campaign.setPromoCode(req(request, "promoCode").toUpperCase(Locale.ROOT).replaceAll("\\s+", ""));
         campaign.setCampaignType(req(request, "campaignType"));
         campaign.setTargetGroup(req(request, "targetGroup"));
