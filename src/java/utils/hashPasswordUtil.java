@@ -25,6 +25,20 @@ public class hashPasswordUtil {
     với mật khẩu đã được băm (hash) trong cơ sở dữ liệu xem có khớp nhau hay không.
      */
     public static boolean checkPassword(String plainPassword, String hashedPassword) {
-        return BCrypt.checkpw(plainPassword, hashedPassword);
+        if (hashedPassword == null || hashedPassword.isEmpty()) {
+            return false;
+        }
+        // Convert $2b$ and $2y$ prefixes to $2a$ for compatibility with classic Java jBCrypt
+        if (hashedPassword.startsWith("$2b$")) {
+            hashedPassword = "$2a$" + hashedPassword.substring(4);
+        } else if (hashedPassword.startsWith("$2y$")) {
+            hashedPassword = "$2a$" + hashedPassword.substring(4);
+        }
+        try {
+            return BCrypt.checkpw(plainPassword, hashedPassword);
+        } catch (IllegalArgumentException e) {
+            // Handle invalid salt format gracefully (e.g. empty or non-bcrypt password hashes)
+            return false;
+        }
     }
 }
