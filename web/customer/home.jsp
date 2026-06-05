@@ -246,6 +246,9 @@
                     <c:forEach items="${products}" var="p">
                         <div class="product-card">
                             <div class="product-badge best-seller">Bán chạy</div>
+                            <c:if test="${p.discountPercent > 0}">
+                                <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                            </c:if>
                             <div class="product-img-wrapper">
                                 <img src="images/${p.thumbnail}" alt="${p.productName}">
                             </div>
@@ -253,6 +256,9 @@
                                 <h3>${p.productName}</h3>
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
+                                    <c:if test="${p.discountPercent > 0}">
+                                        <span class="old-price"><fmt:formatNumber value="${p.originalPrice}" type="number" pattern="###,###"/>₫</span>
+                                    </c:if>
                                 </div>
                                 <div class="actions">
                                     <!--nút mua bán sản phẩm và nút thêm vào giỏ hàng-->
@@ -294,6 +300,9 @@
                     <c:forEach items="${new_products}" var="p">
                         <div class="product-card">
                             <div class="product-badge new">Mới</div>
+                            <c:if test="${p.discountPercent > 0}">
+                                <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                            </c:if>
                             <div class="product-img-wrapper">
                                 <img src="images/${p.thumbnail}" alt="${p.productName}">
                             </div>
@@ -301,6 +310,9 @@
                                 <h3>${p.productName}</h3>
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
+                                    <c:if test="${p.discountPercent > 0}">
+                                        <span class="old-price"><fmt:formatNumber value="${p.originalPrice}" type="number" pattern="###,###"/>₫</span>
+                                    </c:if>
                                 </div>
                                 <div class="actions">
                                     <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
