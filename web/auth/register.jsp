@@ -62,7 +62,7 @@
                         <label>Confirm Password</label>
                         <input type="password" name="confirmPassword" 
                                placeholder="••••••••" 
-                               value="${param.password}" required>
+                               value="${param.confirmPassword}" required>
                     </div>
                     <button type="submit" class="btn-submit">
                         Register →
