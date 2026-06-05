@@ -5,13 +5,55 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*"%>
+<%@page import="java.text.NumberFormat"%>
+<%@page import="model.Product"%>
+<%@page import="model.ProductVariant"%>
+<%@page import="model.Category"%>
+<%@page import="model.Brand"%>
+<%
+    Product product = (Product) request.getAttribute("product");
+    List<ProductVariant> variants = (List<ProductVariant>) request.getAttribute("variants");
+    List<Category> categories = (List<Category>) request.getAttribute("categories");
+    List<Brand> brands = (List<Brand>) request.getAttribute("brands");
+    if (variants == null) {
+        variants = new ArrayList<>();
+    }
+    if (categories == null) {
+        categories = new ArrayList<>();
+    }
+    if (brands == null) {
+        brands = new ArrayList<>();
+    }
+    NumberFormat moneyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+    int totalStock = 0;
+    java.math.BigDecimal totalPrice = java.math.BigDecimal.ZERO;
+    java.math.BigDecimal totalValue = java.math.BigDecimal.ZERO;
+    boolean published = false;
+    for (ProductVariant v : variants) {
+        totalStock += v.getAvailableQuantity();
+        java.math.BigDecimal price = v.getSellingPrice() == null ? java.math.BigDecimal.ZERO : v.getSellingPrice();
+        totalPrice = totalPrice.add(price);
+        totalValue = totalValue.add(price.multiply(java.math.BigDecimal.valueOf(v.getAvailableQuantity())));
+        if ("active".equalsIgnoreCase(v.getStatus())) {
+            published = true;
+        }
+    }
+    java.math.BigDecimal avgPrice = variants.isEmpty()
+            ? java.math.BigDecimal.ZERO
+            : totalPrice.divide(java.math.BigDecimal.valueOf(variants.size()), 2, java.math.RoundingMode.HALF_UP);
+    String productName = product == null ? "" : product.getProductName();
+    String description = product == null || product.getDescription() == null ? "" : product.getDescription();
+    String thumbnail = product == null ? "" : product.getThumbnail();
+    boolean hasThumbnail = thumbnail != null && !thumbnail.trim().isEmpty();
+%>
 <!DOCTYPE html>
 <!DOCTYPE html>
 
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Edit Product: UNILAP Pro 16 | UNILAP Admin</title>
+<title>Edit Product: <%= productName %> | UNILAP Admin</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -132,28 +174,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <body class="bg-background font-body-md text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
-<!-- TopNavBar -->
-<header class="sticky top-0 z-50 flex justify-between items-center px-gutter w-full h-16 bg-surface-container-lowest border-b border-outline-variant">
-<div class="flex items-center gap-6">
-<span class="font-headline-md text-headline-md font-bold text-primary">UNILAP</span>
-<div class="hidden md:flex items-center bg-surface-container rounded-full px-4 py-2 gap-2 w-96 border border-outline-variant focus-within:border-primary transition-all">
-<span class="material-symbols-outlined text-on-surface-variant">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full outline-none" placeholder="Search tech retail ecosystem..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors relative">
-<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border border-surface-container-lowest"></span>
-</button>
-<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
-<span class="material-symbols-outlined" data-icon="help">help</span>
-</button>
-<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
-<img alt="Admin Profile Avatar" data-alt="A professional studio portrait of a high-level technology administrator in a bright, modern corporate environment. The person has a friendly, confident expression, with soft, high-key lighting that emphasizes clarity and precision. The background is a blurred high-tech workspace with clean lines and cool blue and silver tones, maintaining a premium light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB451IzG945lwtHnmq9gifjRptaBxRjxE34iL8JZ35yUf-CQ0f42LLBBirnrTBu65A6JArN5hpnmXIs7CmKq2y5zw4wLQxqM8Mpal0qudCnBLdu4wtw4tfyDRBrAFT3cucFOrPEtcbznV09ghix7eoo_g-bNuS5E6cFm8ANBVzCjTgyzqVDqFwjCQ7ON9emmYAu0akdHhtZ5uIzWNsLjzJY0sDrlvUnOx_ntehY6kWDsEwLpArAJyRLsZKikg-DzYuRR-c-WyoK8E7q"/>
-</div>
-</div>
-</header>
+
 <div class="flex">
     <aside class="sidebar">
         <div class="brand"><span>UNILAP</span><small>System Controller</small></div>
@@ -161,6 +182,7 @@
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="#"><span>♚</span>Users</a>
             <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
             <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
@@ -180,10 +202,10 @@
 <span class="material-symbols-outlined text-[16px]">chevron_right</span>
 <span class="font-label-md text-label-md text-on-surface">Edit</span>
 </nav>
-<h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Product: UNILAP Pro 16</h1>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Product: <%= productName %></h1>
 </div>
 <div class="flex items-center gap-4">
-<span class="hidden lg:inline text-body-sm text-on-surface-variant mr-2">Last updated: 2 hours ago by Admin</span>
+<span class="hidden lg:inline text-body-sm text-on-surface-variant mr-2">Variants: <%= variants.size() %></span>
 <button class="px-6 py-2 border border-primary text-primary font-bold hover:bg-primary-container/10 transition-all rounded-lg active:scale-95">
                         Discard Changes
                     </button>
@@ -205,24 +227,22 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="col-span-2">
 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Product Name</label>
-<input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" value="UNILAP Pro 16"/>
+<input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="productName" value="<%= productName %>"/>
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Category</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
-<option>Laptops</option>
-<option>Desktops</option>
-<option>Monitors</option>
-<option>Accessories</option>
+<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="categoryId">
+<% for (Category c : categories) { %>
+<option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
+<% } %>
 </select>
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Brand</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
-<option>Apple</option>
-<option>UNILAP Native</option>
-<option>Dell</option>
-<option>Razer</option>
+<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="brandId">
+<% for (Brand b : brands) { %>
+<option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
+<% } %>
 </select>
 </div>
 <div class="col-span-2">
@@ -234,7 +254,7 @@
 <button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
 <button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">link</span></button>
 </div>
-<textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" rows="6">The UNILAP Pro 16 is engineered for elite performance. Featuring the latest M3 Max chip with a 16-core CPU and 40-core GPU, it delivers unprecedented speed for creative workflows. The 16.2-inch Liquid Retina XDR display offers extreme dynamic range and a million-to-one contrast ratio. Experience professional-grade connectivity and all-day battery life in a precision-milled aluminum chassis.</textarea>
+<textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" name="description" rows="6"><%= description %></textarea>
 </div>
 </div>
 </div>
@@ -263,63 +283,50 @@
 </tr>
 </thead>
 <tbody class="divide-y divide-outline-variant">
-<tr class="hover:bg-surface-container-low transition-colors group">
-<td class="px-4 py-4"><span class="font-code-sm text-code-sm">ULP-16-SG-32</span></td>
-<td class="px-4 py-4 font-bold">$2,499.00</td>
+<% if (variants.isEmpty()) { %>
+<tr>
+<td class="px-4 py-6 text-center text-on-surface-variant" colspan="5">No variants found for this product.</td>
+</tr>
+<% } else { %>
+<% for (int i = 0; i < variants.size(); i++) {
+    ProductVariant v = variants.get(i);
+    String rowClass = (i % 2 == 0 ? "" : "bg-surface-container-low/30 ") + "hover:bg-surface-container-low transition-colors group";
+    String stockClass = v.getAvailableQuantity() > 5
+            ? "bg-emerald-100 text-emerald-800"
+            : "bg-amber-100 text-amber-800";
+    String variantName = v.getVariantName() == null ? "" : v.getVariantName();
+    String variantNameAttr = variantName.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+%>
+<tr class="<%= rowClass %>" data-variant-id="<%= v.getVariantId() %>" data-variant-name="<%= variantNameAttr %>">
+<td class="px-4 py-4"><span class="font-code-sm text-code-sm"><%= v.getSku() %></span></td>
+<td class="px-4 py-4 font-bold" data-price="<%= v.getSellingPrice() == null ? "0" : v.getSellingPrice().toPlainString() %>"><%= moneyFormat.format(v.getSellingPrice() == null ? 0 : v.getSellingPrice()) %>₫</td>
 <td class="px-4 py-4">
-<div class="flex gap-2">
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">32GB RAM</span>
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">Space Grey</span>
+<div class="flex flex-wrap gap-2">
+<% if (variantName.trim().isEmpty()) { %>
+<span class="text-on-surface-variant text-body-sm">No attributes</span>
+<% } else {
+    String[] attrs = variantName.split("\\s*/\\s*|\\s*,\\s*");
+    for (String attr : attrs) {
+        if (attr != null && !attr.trim().isEmpty()) {
+%>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold"><%= attr.trim() %></span>
+<%      }
+    }
+} %>
 </div>
 </td>
 <td class="px-4 py-4 text-center">
-<span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-[12px] rounded-full font-bold">12</span>
+<span class="px-3 py-1 <%= stockClass %> text-[12px] rounded-full font-bold"><%= v.getAvailableQuantity() %></span>
 </td>
 <td class="px-4 py-4 text-right">
 <div class="flex justify-end gap-2">
-<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button type="button" onclick="openEditVariantModal(this)" class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
 <button class="p-1 hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
 </div>
 </td>
 </tr>
-<tr class="bg-surface-container-low/30 hover:bg-surface-container-low transition-colors group">
-<td class="px-4 py-4"><span class="font-code-sm text-code-sm">ULP-16-SG-64</span></td>
-<td class="px-4 py-4 font-bold">$3,199.00</td>
-<td class="px-4 py-4">
-<div class="flex gap-2">
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">64GB RAM</span>
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">Space Grey</span>
-</div>
-</td>
-<td class="px-4 py-4 text-center">
-<span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-[12px] rounded-full font-bold">8</span>
-</td>
-<td class="px-4 py-4 text-right">
-<div class="flex justify-end gap-2">
-<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
-<button class="p-1 hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-surface-container-low transition-colors group">
-<td class="px-4 py-4"><span class="font-code-sm text-code-sm">ULP-16-SL-32</span></td>
-<td class="px-4 py-4 font-bold">$2,499.00</td>
-<td class="px-4 py-4">
-<div class="flex gap-2">
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">32GB RAM</span>
-<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[11px] rounded uppercase font-bold">Silver</span>
-</div>
-</td>
-<td class="px-4 py-4 text-center">
-<span class="px-3 py-1 bg-amber-100 text-amber-800 text-[12px] rounded-full font-bold">5</span>
-</td>
-<td class="px-4 py-4 text-right">
-<div class="flex justify-end gap-2">
-<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
-<button class="p-1 hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
+<% } %>
+<% } %>
 </tbody>
 </table>
 </div>
@@ -337,7 +344,14 @@
 <button class="text-primary font-bold text-label-md hover:underline">Change Image</button>
 </div>
 <div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant group relative aspect-video flex items-center justify-center">
-<img alt="UNILAP Pro 16 Thumbnail" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A high-end, sleek laptop presented in a professional product photography style. The laptop is finished in premium Space Grey aluminum, resting on a clean, minimalist surface with soft, diffused cyber-silver lighting. The scene highlights the precision engineering and sharp lines of the device, set against a pristine, bright studio background that reinforces a modern, corporate high-tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbRpuVam0wbB79-60GNTg-hBeeEdyH7m6Sw4HfK-hccGd1B0lYNTggwjWTKF3uY3oqPjz0rP_Tzd_h3snnUJWFvY25pLaS-K74dArL-K-fK2YM7LsxuBwJgLKXqyuEK2H024oT_VuXdaSoaHzhxpgBYP3M1kmebfOcHc-rdwymgh0DVqMpCDRS7x3Z5x3damVcaEthVLpnxpwK3gJTK_FWglZChXI0VvdhtJVpydSQ8hgAE9Ql2gB2l6aFE61RY1hz3E9sEgfsyDCY"/>
+<% if (hasThumbnail) { %>
+<img alt="<%= productName %> Thumbnail" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="${pageContext.request.contextPath}/images/<%= thumbnail %>"/>
+<% } else { %>
+<div class="text-center text-on-surface-variant">
+<span class="material-symbols-outlined text-5xl mb-2">image_not_supported</span>
+<p>No thumbnail</p>
+</div>
+<% } %>
 <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
 <span class="material-symbols-outlined text-white text-4xl">zoom_in</span>
 </div>
@@ -352,21 +366,21 @@
 <div class="space-y-4">
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
 <span class="text-on-surface-variant text-body-sm">Total Stock</span>
-<span class="font-bold">25 Units</span>
+<span class="font-bold"><%= totalStock %> Units</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
 <span class="text-on-surface-variant text-body-sm">Avg. Variant Price</span>
-<span class="font-bold">$2,732.33</span>
+<span class="font-bold"><%= moneyFormat.format(avgPrice) %>₫</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
 <span class="text-on-surface-variant text-body-sm">Total Value</span>
-<span class="font-bold text-primary">$68,308.25</span>
+<span class="font-bold text-primary"><%= moneyFormat.format(totalValue) %>₫</span>
 </div>
 <div class="flex justify-between items-center py-2">
 <span class="text-on-surface-variant text-body-sm">Store Visibility</span>
 <div class="flex items-center gap-2">
-<span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
-<span class="font-bold text-emerald-600 uppercase text-[12px]">Published</span>
+<span class="w-3 h-3 <%= published ? "bg-emerald-500" : "bg-amber-500" %> rounded-full"></span>
+<span class="font-bold <%= published ? "text-emerald-600" : "text-amber-600" %> uppercase text-[12px]"><%= published ? "Published" : "Hidden" %></span>
 </div>
 </div>
 </div>
@@ -420,5 +434,73 @@
                 cardImg.style.transform = `scale(1) translate(0, 0)`;
             });
         }
+
+        function openEditVariantModal(btn) {
+            const tr = btn.closest('tr');
+            const sku = tr.querySelector('td:nth-child(1) span').innerText.trim();
+            const priceCell = tr.querySelector('td:nth-child(2)');
+            const priceText = priceCell.dataset.price || priceCell.innerText.replace(/[^\d.]/g, '').trim();
+            
+            const attrSpans = tr.querySelectorAll('td:nth-child(3) span');
+            let variantName = tr.dataset.variantName || Array.from(attrSpans).map(s => s.innerText.trim()).join(', ');
+            
+            const stock = tr.querySelector('td:nth-child(4) span').innerText.trim();
+            
+            const variantId = tr.dataset.variantId || 1;
+            
+            document.getElementById('editVariantId').value = variantId;
+            document.getElementById('editSku').value = sku;
+            document.getElementById('editVariantName').value = variantName;
+            document.getElementById('editPrice').value = priceText;
+            document.getElementById('editStock').value = stock;
+            
+            document.getElementById('editVariantModal').classList.remove('hidden');
+        }
+
+        function closeEditVariantModal() {
+            document.getElementById('editVariantModal').classList.add('hidden');
+        }
     </script>
+
+<!-- Edit Variant Modal -->
+<div id="editVariantModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Edit Variant</h3>
+            <button type="button" onclick="closeEditVariantModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form action="${pageContext.request.contextPath}/staff/inventory/edit" method="post" class="flex flex-col gap-4">
+            <input type="hidden" name="action" value="updateVariant"/>
+            <input type="hidden" name="variantId" id="editVariantId" value=""/>
+            
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">SKU</label>
+                <input type="text" name="sku" id="editSku" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+            </div>
+            
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Variant Attributes</label>
+                <input type="text" name="variantName" id="editVariantName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Price (VND)</label>
+                    <input type="number" step="0.01" name="price" id="editPrice" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Stock</label>
+                    <input type="number" name="stock" id="editStock" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeEditVariantModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Cancel</button>
+                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body></html>

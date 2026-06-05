@@ -62,6 +62,7 @@
         <nav>
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             
         </nav>
         <div class="profile">♙ <span>Admin User Profile</span></div>
