@@ -202,6 +202,7 @@ code { color: #6b7280; font-weight: 700; background: transparent; }
 .form-card { padding: 26px; }
 .form-card h3 { font-size: 25px; margin: 0 0 25px; }
 .form-card label { display: block; margin: 18px 0 9px; color: #273044; font-weight: 700; font-size: 14px; }
+.required-mark { color: #d97706; margin-left: 4px; font-weight: 800; }
 .form-card input, .form-card textarea, .form-card select, .mini-search {
     width: 100%;
     border: 1px solid var(--line);
@@ -213,6 +214,27 @@ code { color: #6b7280; font-weight: 700; background: transparent; }
 .form-card textarea { resize: vertical; }
 .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .input-button { display: grid; grid-template-columns: 1fr 140px; gap: 8px; }
+.input-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+.input-group input {
+    flex: 1;
+    min-width: 0;
+    border-right: none !important;
+}
+.input-group .input-suffix {
+    display: flex;
+    align-items: center;
+    background: var(--sidebar);
+    border: 1px solid var(--line);
+    border-left: none;
+    padding: 0 16px;
+    font-weight: 700;
+    color: #4b5563;
+    white-space: nowrap;
+}
 .info-box { margin-top: 22px; background: #f0f4fa; padding: 18px; border-radius: 5px; color: #283244; text-align: center; letter-spacing: .01em; }
 .inline-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .inline-title h3, .inline-title b { margin: 0; display: block; }

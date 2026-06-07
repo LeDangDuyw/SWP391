@@ -5,13 +5,21 @@
 
 package controller;
 
+import dal.BrandDao;
+import dal.CategoryDAO;
+import dal.ProductDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Brand;
+import model.Category;
+import model.Product;
+import model.ProductVariant;
 
 /**
  *
@@ -71,6 +79,24 @@ public class EditProductController extends HttpServlet {
     throws ServletException, IOException {
         // Chuyển hướng người dùng sang trang giao diện sửa sản phẩm (EditProduct.jsp)
         // Lưu ý: Cần bổ sung logic lấy thông tin sản phẩm từ CSDL trước khi forward
+        ProductDAO productDAO = new ProductDAO();
+        int variantId = parseInt(request.getParameter("variantId"), 1);
+
+        Product product = productDAO.getProductByVariantId(variantId);
+        if (product == null) {
+            response.sendRedirect(request.getContextPath() + "/staff/inventory");
+            return;
+        }
+
+        List<ProductVariant> variants = productDAO.getProductVariantsByProductId(product.getProductId());
+        List<Category> categories = new CategoryDAO().getAllCategories();
+        List<Brand> brands = new BrandDao().getAllBrands();
+
+        request.setAttribute("product", product);
+        request.setAttribute("variants", variants);
+        request.setAttribute("categories", categories);
+        request.setAttribute("brands", brands);
+        request.setAttribute("selectedVariantId", variantId);
         request.getRequestDispatcher("/staff/EditProduct.jsp").forward(request, response);
     } 
 
@@ -91,7 +117,34 @@ public class EditProductController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if ("updateVariant".equals(action)) {
+            try {
+                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String sku = request.getParameter("sku");
+                String variantName = request.getParameter("variantName");
+                java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
+                int stock = Integer.parseInt(request.getParameter("stock"));
+                
+                dal.ProductDAO dao = new dal.ProductDAO();
+                dao.updateProductVariant(variantId, sku, variantName, price, stock);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/inventory");
+            return;
+        }
         processRequest(request, response);
+    }
+
+    private int parseInt(String value, int defaultValue) {
+        try {
+            return value == null || value.trim().isEmpty() ? defaultValue : Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     /** 

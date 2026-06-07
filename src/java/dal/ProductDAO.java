@@ -2,6 +2,7 @@ package dal;
 import dal.DBContext;
 import java.sql.Connection;
 import model.Product;
+import model.ProductVariant;
 import viewmodel.ProductInventory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,10 +41,19 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(v.selling_price) AS min_price
+                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(v.selling_price) AS original_price,
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN (
+                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                         FROM FlashSaleItem fsi
+                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                         GROUP BY fsi.variant_id
+                     ) fs_active ON v.variant_id = fs_active.variant_id
                      LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
                      AND p.category_id = 1
@@ -64,6 +74,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(6));
+            p.setOriginalPrice(rs.getLong(7));
+            p.setDiscountPercent(rs.getInt(8));
             data.add(p);
         }
     } catch (Exception e) {
@@ -82,10 +94,19 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(v.selling_price) AS min_price
+                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(v.selling_price) AS original_price,
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN (
+                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                         FROM FlashSaleItem fsi
+                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                         GROUP BY fsi.variant_id
+                     ) fs_active ON v.variant_id = fs_active.variant_id
                      LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
                      AND p.category_id = 4
@@ -106,6 +127,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(6));
+            p.setOriginalPrice(rs.getLong(7));
+            p.setDiscountPercent(rs.getInt(8));
             data.add(p);
         }
     } catch (Exception e) {
@@ -125,10 +148,19 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(v.selling_price) AS min_price
+                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(v.selling_price) AS original_price,
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
+                     LEFT JOIN (
+                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                         FROM FlashSaleItem fsi
+                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                         GROUP BY fsi.variant_id
+                     ) fs_active ON v.variant_id = fs_active.variant_id
                      LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
                      WHERE v.status = 'active'
                      AND p.category_id = 3
@@ -149,6 +181,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(6));
+            p.setOriginalPrice(rs.getLong(7));
+            p.setDiscountPercent(rs.getInt(8));
             data.add(p);
         }
     } catch (Exception e) {
@@ -168,10 +202,19 @@ public class ProductDAO extends DBContext {
                         p.product_name,
                         p.thumbnail,
                         b.brand_name,
-                        MIN(v.selling_price) AS min_price
+                        MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                        MIN(v.selling_price) AS original_price,
+                        CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                     FROM Product p
                     JOIN Brand b ON p.brand_id = b.brand_id
                     JOIN ProductVariant v ON p.product_id = v.product_id
+                    LEFT JOIN (
+                        SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                        FROM FlashSaleItem fsi
+                        JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                        WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                        GROUP BY fsi.variant_id
+                    ) fs_active ON v.variant_id = fs_active.variant_id
                     WHERE v.status = 'active'
                     AND p.category_id = 1
                     GROUP BY
@@ -191,6 +234,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(5));
+            p.setOriginalPrice(rs.getLong(6));
+            p.setDiscountPercent(rs.getInt(7));
             data.add(p);
         }
     } catch (Exception e) {
@@ -209,10 +254,19 @@ public class ProductDAO extends DBContext {
                                              p.product_name,
                                              p.thumbnail,
                                              b.brand_name,
-                                             MIN(v.selling_price) AS min_price
+                                             MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                                             MIN(v.selling_price) AS original_price,
+                                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                                          FROM Product p
                                          JOIN Brand b ON p.brand_id = b.brand_id
                                          JOIN ProductVariant v ON p.product_id = v.product_id
+                                         LEFT JOIN (
+                                             SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                                             FROM FlashSaleItem fsi
+                                             JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                                             WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                                             GROUP BY fsi.variant_id
+                                         ) fs_active ON v.variant_id = fs_active.variant_id
                                          WHERE v.status = 'active'
                                          AND p.category_id = 4
                                          GROUP BY
@@ -232,6 +286,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(5));
+            p.setOriginalPrice(rs.getLong(6));
+            p.setDiscountPercent(rs.getInt(7));
             data.add(p);
         }
     } catch (Exception e) {
@@ -249,10 +305,19 @@ public class ProductDAO extends DBContext {
                                             p.product_name,
                                             p.thumbnail,
                                             b.brand_name,
-                                            MIN(v.selling_price) AS min_price
+                                            MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                                            MIN(v.selling_price) AS original_price,
+                                            CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                                         FROM Product p
                                         JOIN Brand b ON p.brand_id = b.brand_id
                                         JOIN ProductVariant v ON p.product_id = v.product_id
+                                        LEFT JOIN (
+                                            SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                                            FROM FlashSaleItem fsi
+                                            JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                                            WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                                            GROUP BY fsi.variant_id
+                                        ) fs_active ON v.variant_id = fs_active.variant_id
                                         WHERE v.status = 'active'
                                         AND p.category_id = 3
                                         GROUP BY
@@ -272,6 +337,8 @@ public class ProductDAO extends DBContext {
             p.setThumbnail(rs.getString(3));
             p.setBrandName(rs.getString(4));
             p.setMinPrice(rs.getLong(5));
+            p.setOriginalPrice(rs.getLong(6));
+            p.setDiscountPercent(rs.getInt(7));
             data.add(p);
         }
     } catch (Exception e) {
@@ -308,11 +375,20 @@ public class ProductDAO extends DBContext {
             SELECT
                 p.product_id, p.product_name, p.thumbnail,
                 b.brand_name, c.category_name, p.category_id,
-                MIN(v.selling_price) AS min_price
+                MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                MIN(v.selling_price) AS original_price,
+                CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
             FROM Product p
             JOIN Brand b ON p.brand_id = b.brand_id
             JOIN Category c ON p.category_id = c.category_id
             JOIN ProductVariant v ON p.product_id = v.product_id
+            LEFT JOIN (
+                SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                FROM FlashSaleItem fsi
+                JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                GROUP BY fsi.variant_id
+            ) fs_active ON v.variant_id = fs_active.variant_id
             WHERE v.status = 'active'
             AND (p.product_name LIKE ? OR b.brand_name LIKE ?)
             GROUP BY
@@ -335,6 +411,8 @@ public class ProductDAO extends DBContext {
             p.setBrandName(rs.getString("brand_name"));
             p.setCategoryName(rs.getString("category_name"));
             p.setMinPrice(rs.getLong("min_price"));
+            p.setOriginalPrice(rs.getLong("original_price"));
+            p.setDiscountPercent(rs.getInt("discount_percent"));
             data.add(p);
         }
     } catch (Exception e) {
@@ -417,6 +495,68 @@ public List<Product> GetAllProducts() {
             System.out.println(e.getMessage());
         }
         return products;
+    }
+
+    public Product getProductByVariantId(int variantId) {
+        try {
+            String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, p.thumbnail, " +
+                         "p.category_id, p.brand_id, c.category_name, b.brand_name " +
+                         "from Product p " +
+                         "join ProductVariant pv on p.product_id = pv.product_id " +
+                         "join Category c on p.category_id = c.category_id " +
+                         "join Brand b on p.brand_id = b.brand_id " +
+                         "where pv.variant_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, variantId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                Product p = new Product(
+                        rs.getInt("product_id"),
+                        rs.getString("product_name"),
+                        rs.getString("description"),
+                        rs.getInt("warranty_period"),
+                        rs.getString("thumbnail"),
+                        rs.getInt("category_id"),
+                        rs.getInt("brand_id"));
+                p.setCategoryName(rs.getString("category_name"));
+                p.setBrandName(rs.getString("brand_name"));
+                return p;
+            }
+        } catch (Exception e) {
+            System.out.println("getProductByVariantId: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<ProductVariant> getProductVariantsByProductId(int productId) {
+        List<ProductVariant> variants = new ArrayList<>();
+        try {
+            String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
+                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity " +
+                         "from ProductVariant pv " +
+                         "left join Inventory i on pv.variant_id = i.variant_id " +
+                         "where pv.product_id = ? and pv.status = 'active' " +
+                         "order by pv.variant_id";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, productId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ProductVariant variant = new ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status"),
+                        rs.getInt("available_quantity"));
+                variants.add(variant);
+            }
+        } catch (Exception e) {
+            System.out.println("getProductVariantsByProductId: " + e.getMessage());
+        }
+        return variants;
     }
     
     /*
@@ -700,6 +840,35 @@ public List<Product> GetAllProducts() {
             }
         } catch (Exception e) {
             System.out.println("Insert ProductVariant Error: " + e.getMessage());
+        }
+    }
+    
+    /*
+     * Name: updateProductVariant
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Cập nhật thông tin của một ProductVariant và tồn kho của nó dựa trên giao diện.
+     */
+    public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal price, int stock) {
+        try {
+            // Update ProductVariant table
+            String sql = "UPDATE ProductVariant SET sku = ?, variant_name = ?, selling_price = ? WHERE variant_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, sku);
+            ps.setString(2, variantName);
+            ps.setBigDecimal(3, price);
+            ps.setInt(4, variantId);
+            ps.executeUpdate();
+            
+            // Update Inventory table
+            String sqlInv = "UPDATE Inventory SET available_quantity = ? WHERE variant_id = ?";
+            PreparedStatement psInv = cnn.prepareStatement(sqlInv);
+            psInv.setInt(1, stock);
+            psInv.setInt(2, variantId);
+            psInv.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Update ProductVariant Error: " + e.getMessage());
         }
     }
     

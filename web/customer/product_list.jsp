@@ -118,13 +118,21 @@
                 <c:forEach items="${products}" var="p">
                     <div class="product-card">
                         <div class="product-badge category-badge">${p.categoryName}</div>
+                        <c:if test="${p.discountPercent > 0}">
+                            <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                        </c:if>
                         <div class="product-img-wrap">
                             <img src="images/${p.thumbnail}" alt="${p.productName}" class="product-img">
                         </div>
                         <div class="product-meta">${p.brandName}</div>
                         <h3 class="product-title">${p.productName}</h3>
                         <div class="price-row">
-                            <div class="price"><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</div>
+                            <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                <c:if test="${p.discountPercent > 0}">
+                                    <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                </c:if>
+                            </div>
                             <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
                         </div>
                     </div>
@@ -335,6 +343,9 @@
                     <div class="product-grid">
                         <c:forEach items="${products}" var="p">
                             <div class="product-card">
+                                <c:if test="${p.discountPercent > 0}">
+                                    <div class="product-badge discount">-${p.discountPercent}%</div>
+                                </c:if>
                                 <div class="product-img-wrap">
                                     <img src="images/${p.thumbnail}" alt="${p.productName}" class="product-img" data-fallback-src="https://via.placeholder.com/200x150?text=Laptop">
                                 </div>
@@ -351,8 +362,11 @@
                                 </div>
 
                                 <div class="price-row">
-                                    <div class="price">
-                                        <fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫
+                                    <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                        <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                        <c:if test="${p.discountPercent > 0}">
+                                            <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                        </c:if>
                                     </div>
                                     <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
                                 </div>

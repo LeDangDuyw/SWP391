@@ -42,7 +42,7 @@
                     </div>
                     <div class="form-group">
                         <label>Corporate Email</label>
-                        <input type="text" name="email" 
+                        <input type="email" name="email" 
                                placeholder="user@unilap.co" 
                                value="${param.email}" required>
                     </div>
@@ -50,19 +50,26 @@
                         <label>Phone</label>
                         <input type="text" name="phone" 
                                placeholder="0912345678" 
+                               pattern="^0[35789]\d{8}$"
+                               title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"
+                               maxlength="10"
                                value="${param.phone}" required>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" name="password" 
                                placeholder="••••••••" 
+                               minlength="6"
+                               maxlength="32"
                                value="${param.password}" required>
                     </div>
                     <div class="form-group">
                         <label>Confirm Password</label>
                         <input type="password" name="confirmPassword" 
                                placeholder="••••••••" 
-                               value="${param.password}" required>
+                               minlength="6"
+                               maxlength="32"
+                               value="${param.confirmPassword}" required>
                     </div>
                     <button type="submit" class="btn-submit">
                         Register →
