@@ -16,6 +16,8 @@ public class ProductSearchItem {
     private BigDecimal price;
     private int stock;
     private boolean selected;
+    private int soldQty;
+    private boolean gift;
 
     public int getVariantId() { return variantId; }
     public void setVariantId(int variantId) { this.variantId = variantId; }
@@ -33,4 +35,8 @@ public class ProductSearchItem {
     public void setStock(int stock) { this.stock = stock; }
     public boolean isSelected() { return selected; }
     public void setSelected(boolean selected) { this.selected = selected; }
+    public int getSoldQty() { return soldQty; }
+    public void setSoldQty(int soldQty) { this.soldQty = soldQty; }
+    public boolean isGift() { return gift; }
+    public void setGift(boolean gift) { this.gift = gift; }
 }

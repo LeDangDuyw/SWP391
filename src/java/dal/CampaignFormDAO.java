@@ -2,6 +2,7 @@
 package dal;
 
 import jakarta.servlet.ServletContext;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,40 +39,79 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Thực thi câu lệnh, gán các thuộc tính vào đối tượng ProductSearchItem và đánh dấu `setSelected(true/false)`.
      */
     public List<ProductSearchItem> searchProducts(String keyword, int selectedCampaignId) throws SQLException {
+        return searchProducts(keyword, selectedCampaignId, null, null, null);
+    }
+
+    public List<ProductSearchItem> searchProducts(String keyword, int selectedCampaignId, String optionType, String startDateStr, String endDateStr) throws SQLException {
         List<ProductSearchItem> list = new ArrayList<>();
         String key = keyword == null ? "" : keyword.trim();
 
         Set<Integer> selectedIds = new HashSet<>();
+        Set<Integer> giftIds = new HashSet<>();
         if (selectedCampaignId > 0) {
             selectedIds = getSelectedVariantIds(selectedCampaignId);
+            giftIds = getGiftVariantIds(selectedCampaignId);
         }
 
-        String sql =
-                "SELECT TOP 120 " +
-                "    pv.variant_id, " +
-                "    p.product_name, " +
-                "    pv.variant_name, " +
-                "    pv.sku, " +
-                "    ca.category_name, " +
-                "    pv.selling_price, " +
-                "    ISNULL(SUM(i.available_quantity), 0) AS stock " +
-                "FROM [ProductVariant] pv " +
-                "JOIN [Product] p ON p.product_id = pv.product_id " +
-                "LEFT JOIN [Category] ca ON ca.category_id = p.category_id " +
-                "LEFT JOIN [Inventory] i ON i.variant_id = pv.variant_id " +
-                "WHERE ISNULL(pv.status, N'active') = N'active' " +
-                "  AND (? = '' OR p.product_name LIKE ? OR pv.variant_name LIKE ? OR pv.sku LIKE ? OR ca.category_name LIKE ?) " +
-                "GROUP BY pv.variant_id, p.product_name, pv.variant_name, pv.sku, ca.category_name, pv.selling_price " +
-                "ORDER BY p.product_name, pv.variant_name";
+        boolean hasDateFilter = (startDateStr != null && !startDateStr.trim().isEmpty() && endDateStr != null && !endDateStr.trim().isEmpty());
 
-        try (PreparedStatement ps = prepare(sql)) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT TOP 120 ")
+           .append("    pv.variant_id, ")
+           .append("    p.product_name, ")
+           .append("    pv.variant_name, ")
+           .append("    pv.sku, ")
+           .append("    ca.category_name, ")
+           .append("    pv.selling_price, ")
+           .append("    ISNULL(SUM(i.available_quantity), 0) AS stock, ")
+           .append("    ISNULL(sales.sold_qty, 0) AS sold_qty ")
+           .append("FROM [ProductVariant] pv ")
+           .append("JOIN [Product] p ON p.product_id = pv.product_id ")
+           .append("LEFT JOIN [Category] ca ON ca.category_id = p.category_id ")
+           .append("LEFT JOIN [Inventory] i ON i.variant_id = pv.variant_id ")
+           .append("LEFT JOIN ( ")
+           .append("    SELECT od.variant_id, COUNT(ois.order_item_serial_id) AS sold_qty ")
+           .append("    FROM [OrderDetail] od ")
+           .append("    JOIN [Order] o ON o.order_id = od.order_id ")
+           .append("    JOIN [OrderItemSerial] ois ON ois.order_detail_id = od.order_detail_id ")
+           .append("    WHERE o.order_status IN (N'delivered', N'shipped', N'processing', N'completed') ");
+        
+        if (hasDateFilter) {
+            sql.append("      AND CAST(ois.assigned_at AS date) BETWEEN ? AND ? ");
+        }
+        
+        sql.append("    GROUP BY od.variant_id ")
+           .append(") sales ON sales.variant_id = pv.variant_id ")
+           .append("WHERE ISNULL(pv.status, N'active') = N'active' ")
+           .append("  AND (? = '' OR p.product_name LIKE ? OR pv.variant_name LIKE ? OR pv.sku LIKE ? OR ca.category_name LIKE ?) ")
+           .append("GROUP BY pv.variant_id, p.product_name, pv.variant_name, pv.sku, ca.category_name, pv.selling_price, sales.sold_qty ");
+
+        if ("best_seller".equals(optionType)) {
+            sql.append("ORDER BY sold_qty DESC, p.product_name, pv.variant_name");
+        } else if ("least_bought".equals(optionType)) {
+            sql.append("ORDER BY sold_qty ASC, p.product_name, pv.variant_name");
+        } else {
+            sql.append("ORDER BY p.product_name, pv.variant_name");
+        }
+
+        try (PreparedStatement ps = prepare(sql.toString())) {
+            int paramIndex = 1;
+            if (hasDateFilter) {
+                try {
+                    ps.setDate(paramIndex++, java.sql.Date.valueOf(startDateStr));
+                    ps.setDate(paramIndex++, java.sql.Date.valueOf(endDateStr));
+                } catch (IllegalArgumentException e) {
+                    // Fail-safe: if date parsing fails, revert dynamic parameters to null, though handled by JS
+                    ps.setDate(paramIndex++, null);
+                    ps.setDate(paramIndex++, null);
+                }
+            }
             String like = "%" + key + "%";
-
-            ps.setString(1, key);
-            ps.setString(2, like);
-            ps.setString(3, like);
-            ps.setString(4, like);
-            ps.setString(5, like);
+            ps.setString(paramIndex++, key);
+            ps.setString(paramIndex++, like);
+            ps.setString(paramIndex++, like);
+            ps.setString(paramIndex++, like);
+            ps.setString(paramIndex++, like);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -85,6 +125,8 @@ public class CampaignFormDAO extends CampaignDAO {
                     item.setPrice(nvl(rs.getBigDecimal("selling_price")));
                     item.setStock(rs.getInt("stock"));
                     item.setSelected(selectedIds.contains(item.getVariantId()));
+                    item.setSoldQty(rs.getInt("sold_qty"));
+                    item.setGift(giftIds.contains(item.getVariantId()));
 
                     list.add(item);
                 }
@@ -123,6 +165,30 @@ public class CampaignFormDAO extends CampaignDAO {
     }
 
     /**
+     * Chức năng: Lấy danh sách ID quà tặng (sale_price = 0) thuộc một chiến dịch cụ thể trong CSDL.
+     */
+    public Set<Integer> getGiftVariantIds(int campaignId) throws SQLException {
+        Set<Integer> set = new HashSet<>();
+
+        String sql =
+                "SELECT variant_id " +
+                "FROM [CampaignProduct] " +
+                "WHERE campaign_id = ? AND sale_price = 0";
+
+        try (PreparedStatement ps = prepare(sql)) {
+            ps.setInt(1, campaignId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    set.add(rs.getInt("variant_id"));
+                }
+            }
+        }
+
+        return set;
+    }
+
+    /**
      * Chức năng: Thêm mới một chiến dịch khuyến mãi vào CSDL, đồng thời tự động đồng bộ sang bảng Voucher (nếu cần) và lưu danh sách sản phẩm liên kết dưới dạng một Giao dịch (Transaction) an toàn.
      * Tác nhân liên quan: Admin / Hệ thống.
      * Nhận dữ liệu từ: Đối tượng Campaign chứa thông tin chiến dịch mới và mảng ID sản phẩm liên kết `variantIds`.
@@ -134,7 +200,7 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Gọi `replaceCampaignProducts` để lưu liên kết sản phẩm khuyến mãi.
      *   - Thực hiện commit giao dịch. Nếu có lỗi xảy ra, thực hiện rollback để đảm bảo tính toàn vẹn dữ liệu.
      */
-    public int insertCampaign(Campaign campaign, int[] variantIds) throws SQLException {
+    public int insertCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
         checkConnection();
         con.setAutoCommit(false);
 
@@ -163,7 +229,7 @@ public class CampaignFormDAO extends CampaignDAO {
                 }
             }
 
-            replaceCampaignProducts(newId, variantIds);
+            replaceCampaignProducts(newId, variantIds , giftVariantIds);
 
             con.commit();
             return newId;
@@ -187,7 +253,7 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Làm mới liên kết sản phẩm bằng cách xóa liên kết cũ và chèn lại qua `replaceCampaignProducts`.
      *   - Commit giao dịch, thực hiện rollback nếu gặp ngoại lệ SQL.
      */
-    public void updateCampaign(Campaign campaign, int[] variantIds) throws SQLException {
+    public void updateCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
         checkConnection();
         con.setAutoCommit(false);
 
@@ -216,7 +282,7 @@ public class CampaignFormDAO extends CampaignDAO {
                 ps.executeUpdate();
             }
 
-            replaceCampaignProducts(campaign.getCampaignId(), variantIds);
+            replaceCampaignProducts(campaign.getCampaignId(), variantIds, giftVariantIds);
 
             con.commit();
         } catch (SQLException e) {
@@ -386,7 +452,7 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Tạo câu lệnh INSERT và đưa vào lô xử lý (addBatch) cho từng ID biến thể.
      *   - Thực thi chèn hàng loạt bằng lệnh `executeBatch()`.
      */
-    private void replaceCampaignProducts(int campaignId, int[] variantIds) throws SQLException {
+    private void replaceCampaignProducts(int campaignId, int[] variantIds, int[] giftVariantIds) throws SQLException {
         String deleteSql =
                 "DELETE FROM [CampaignProduct] " +
                 "WHERE campaign_id = ?";
@@ -399,11 +465,18 @@ public class CampaignFormDAO extends CampaignDAO {
         if (variantIds == null || variantIds.length == 0) {
             return;
         }
+        
+        Set<Integer> giftIds = new HashSet<>();
+        if(giftVariantIds != null){
+        for( int gid : giftVariantIds){
+         giftIds.add(gid);
+        }
+        }
 
         String insertSql =
                 "INSERT INTO [CampaignProduct] " +
                 "(campaign_id, variant_id, sale_price, quantity_limit, sold_quantity, purchase_limit_per_user) " +
-                "VALUES (?, ?, NULL, NULL, 0, 1)";
+                "VALUES (?, ?, ?, NULL, 0, 1)";
 
         try (PreparedStatement ps = con.prepareStatement(insertSql)) {
             Set<Integer> uniqueIds = new LinkedHashSet<>();
@@ -417,7 +490,12 @@ public class CampaignFormDAO extends CampaignDAO {
             for (Integer variantId : uniqueIds) {
                 ps.setInt(1, campaignId);
                 ps.setInt(2, variantId);
-                ps.addBatch();
+               if(giftIds.contains(variantId)){
+               ps.setBigDecimal(3, BigDecimal.ZERO);
+               }else{
+               ps.setNull(3, java.sql.Types.DECIMAL);
+               }
+               ps.addBatch();
             }
 
             ps.executeBatch();

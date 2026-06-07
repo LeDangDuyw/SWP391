@@ -380,7 +380,7 @@ public class CampaignDetailDAO extends CampaignDAO {
 
         BigDecimal salePrice;
 
-        if (type.contains("percentage") || type.contains("bundle_discount")) {
+        if (type.contains("percentage") || type.contains("bundle_discount") || type.contains("flash")) {
             salePrice = original
                     .multiply(BigDecimal.valueOf(100).subtract(discount))
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);

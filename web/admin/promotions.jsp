@@ -142,7 +142,7 @@
                         <small>
                             <%=h(c.getCampaignType())%>
                             <% if (c.getDiscountValue() != null) { %>
-                                <br>Val: <b><%= "percentage".equals(c.getCampaignType()) ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : money(c.getDiscountValue()) %></b>
+                                <br>Val: <b><%= ("percentage".equals(c.getCampaignType()) || "flash".equals(c.getCampaignType()) || "bundle_discount".equals(c.getCampaignType())) ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : money(c.getDiscountValue()) %></b>
                             <% } %>
                             <% if (c.getMinOrderValue() != null && c.getMinOrderValue().compareTo(BigDecimal.ZERO) > 0) { %>
                                 <br>Min: <%= money(c.getMinOrderValue()) %>

@@ -150,12 +150,14 @@ public class CampaignFormController extends PromotionServlet {
         campaign.setEndDate(parseDateEnd(request.getParameter("endDate")));
 
         int[] variantIds = parseIds(request.getParameterValues("variantIds"));
+        int[] giftVariantIds = parseIds(request.getParameterValues("giftVariantIds"));
+        
 
         if (id > 0) {
-            formDao.updateCampaign(campaign, variantIds);
+            formDao.updateCampaign(campaign, variantIds, giftVariantIds);
             redirectToCampaignDetail(response, request, "?id=" + id + "&msg=" + enc("Đã lưu thay đổi"));
         } else {
-            int newId = formDao.insertCampaign(campaign, variantIds);
+            int newId = formDao.insertCampaign(campaign, variantIds , giftVariantIds);
             redirectToCampaignDetail(response, request, "?id=" + newId + "&msg=" + enc("Đã tạo chiến dịch mới"));
         }
     }
@@ -171,7 +173,13 @@ public class CampaignFormController extends PromotionServlet {
      */
     private void productJson(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException {
-        List<ProductSearchItem> products = formDao.searchProducts(request.getParameter("keyword"), 0);
+        String keyword = request.getParameter("keyword");
+        String optionType = request.getParameter("optionType");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        int campaignId = parseInt(request.getParameter("campaignId"), 0);
+
+        List<ProductSearchItem> products = formDao.searchProducts(keyword, campaignId, optionType, startDate, endDate);
         response.setContentType("application/json; charset=UTF-8");
 
         try (PrintWriter out = response.getWriter()) {
@@ -192,7 +200,10 @@ public class CampaignFormController extends PromotionServlet {
                         + ",\"sku\":\"" + json(p.getSku()) + "\""
                         + ",\"category\":\"" + json(p.getCategoryName()) + "\""
                         + ",\"price\":" + price
-                        + ",\"stock\":" + p.getStock() + "}");
+                        + ",\"stock\":" + p.getStock()
+                        + ",\"selected\":" + p.isSelected()
+                        + ",\"soldQty\":" + p.getSoldQty()
+                        + ",\"gift\":" + p.isGift() + "}");
             }
 
             out.print("]");
