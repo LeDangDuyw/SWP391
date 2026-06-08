@@ -169,6 +169,10 @@ if (c.getUsageLimit() != null) {
             outline: none;
             border-radius: 6px;
         }
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
     </style>
 </head>
 
@@ -231,9 +235,11 @@ if (c.getUsageLimit() != null) {
 
                         <label>Campaign Name</label>
                         <input name="campaignName"
+                               id="campaignName"
                                required
                                value="<%= h(c.getCampaignName()) %>"
                                placeholder="e.g. Summer Tech Extravaganza 2026">
+                        <span class="validation-error" id="campaignNameError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
 
                         <label>Campaign Description</label>
                         <textarea name="campaignDescription"
@@ -298,6 +304,7 @@ if (c.getUsageLimit() != null) {
                                     ↻ Generate
                                 </button>
                             </div>
+                            <span class="validation-error" id="promoCodeError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                         </div>
 
                         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -310,6 +317,7 @@ if (c.getUsageLimit() != null) {
                                        min="0"
                                        value="<%= numberValue(c.getDiscountValue()) %>"
                                        style="width: 100%; box-sizing: border-box;">
+                                <span class="validation-error" id="discountValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
 
                             <div id="usageLimitGroup" style="flex: 1; min-width: 200px;">
@@ -321,6 +329,7 @@ if (c.getUsageLimit() != null) {
                                        value="<%= numberValue(c.getUsageLimit()) %>"
                                        placeholder="1000"
                                        style="width: 100%; box-sizing: border-box;">
+                                <span class="validation-error" id="usageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
                         </div>
                     </section>
@@ -462,6 +471,7 @@ if (c.getUsageLimit() != null) {
                                    min="0"
                                    value="<%= numberValue(c.getMinOrderValue()) %>"
                                    placeholder="500000 Đ">
+                            <span class="validation-error" id="minOrderValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                         </div>
 
                         <label>Status</label>
@@ -551,25 +561,176 @@ if (c.getUsageLimit() != null) {
             });
         }
 
+        // Live validation for Campaign Name uniqueness
+        var campaignNameInput = document.getElementById("campaignName");
+        var campaignNameError = document.getElementById("campaignNameError");
+        var isNameValid = true;
+
+        function validateCampaignName() {
+            var name = campaignNameInput.value.trim();
+            if (!name) {
+                campaignNameError.textContent = "Tên chiến dịch không được để trống!";
+                campaignNameError.style.display = "block";
+                campaignNameInput.classList.add("input-error");
+                isNameValid = false;
+                return;
+            }
+            var campaignId = "<%= c.getCampaignId() %>";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "<%= base %>?action=check-name&name=" + encodeURIComponent(name) + "&id=" + campaignId, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        var res = JSON.parse(xhr.responseText);
+                        if (res.exists) {
+                            campaignNameError.textContent = "Tên chiến dịch '" + name + "' đã được sử dụng!";
+                            campaignNameError.style.display = "block";
+                            campaignNameInput.classList.add("input-error");
+                            isNameValid = false;
+                        } else {
+                            campaignNameError.style.display = "none";
+                            campaignNameInput.classList.remove("input-error");
+                            isNameValid = true;
+                        }
+                    } catch (e) {}
+                }
+            };
+            xhr.send();
+        }
+
+        if (campaignNameInput) {
+            campaignNameInput.addEventListener("blur", validateCampaignName);
+            campaignNameInput.addEventListener("input", function() {
+                campaignNameError.style.display = "none";
+                campaignNameInput.classList.remove("input-error");
+                isNameValid = true;
+            });
+        }
+
         var form = document.getElementById("campaignForm");
         if (form && startDateInput && endDateInput) {
             form.addEventListener("submit", function(e) {
+                var isValid = true;
+
+                // 1. Campaign Name validation
+                var name = campaignNameInput ? campaignNameInput.value.trim() : "";
+                if (!name) {
+                    campaignNameError.textContent = "Tên chiến dịch không được để trống!";
+                    campaignNameError.style.display = "block";
+                    campaignNameInput.classList.add("input-error");
+                    isValid = false;
+                } else if (!isNameValid) {
+                    campaignNameError.style.display = "block";
+                    campaignNameInput.classList.add("input-error");
+                    isValid = false;
+                }
+
+                // 2. Promo Code validation
+                var campaignTypeSelect = document.getElementById("campaignType");
+                var type = campaignTypeSelect ? campaignTypeSelect.value : "";
+                var promoCodeInput = document.getElementById("promoCode");
+                var promoCodeError = document.getElementById("promoCodeError");
+                if (promoCodeInput && promoCodeError) {
+                    promoCodeError.style.display = "none";
+                    promoCodeInput.classList.remove("input-error");
+
+                    if (type === "percentage" || type === "fixed") {
+                        var code = promoCodeInput.value.trim();
+                        if (!code) {
+                            promoCodeError.textContent = "Mã khuyến mãi không được để trống!";
+                            promoCodeError.style.display = "block";
+                            promoCodeInput.classList.add("input-error");
+                            isValid = false;
+                        } else if (code.length !== 9) {
+                            promoCodeError.textContent = "Mã khuyến mãi phải nhập đủ 9 ký tự!";
+                            promoCodeError.style.display = "block";
+                            promoCodeInput.classList.add("input-error");
+                            isValid = false;
+                        }
+                    }
+                }
+
+                // 3. Discount Value validation
+                var discountValueInput = document.getElementById("discountValue");
+                var discountValueError = document.getElementById("discountValueError");
+                if (discountValueInput && discountValueError) {
+                    discountValueError.style.display = "none";
+                    discountValueInput.classList.remove("input-error");
+
+                    var discVal = parseFloat(discountValueInput.value);
+                    if (!isNaN(discVal)) {
+                        if (discVal < 0) {
+                            discountValueError.textContent = "Giá trị giảm giá không được nhập số âm!";
+                            discountValueError.style.display = "block";
+                            discountValueInput.classList.add("input-error");
+                            isValid = false;
+                        } else if ((type === "percentage" || type === "flash") && discVal > 99) {
+                            discountValueError.textContent = "Đối với phần trăm (%), giá trị giảm giá chỉ được nhập tối đa là 99%!";
+                            discountValueError.style.display = "block";
+                            discountValueInput.classList.add("input-error");
+                            isValid = false;
+                        } else if ((type === "fixed" || type === "bundle_discount") && discVal > 10000000) {
+                            discountValueError.textContent = "Đối với tiền mặt (VND), giá trị giảm giá chỉ được nhập tối đa là 10,000,000 VND!";
+                            discountValueError.style.display = "block";
+                            discountValueInput.classList.add("input-error");
+                            isValid = false;
+                        }
+                    }
+                }
+
+                // 4. Min Order Value validation
+                var minOrderInput = document.getElementById("minOrderValue");
+                var minOrderError = document.getElementById("minOrderValueError");
+                if (minOrderInput && minOrderError) {
+                    minOrderError.style.display = "none";
+                    minOrderInput.classList.remove("input-error");
+
+                    var minVal = parseFloat(minOrderInput.value);
+                    if (!isNaN(minVal) && minVal < 0) {
+                        minOrderError.textContent = "Giá trị đơn hàng tối thiểu không được nhập số âm!";
+                        minOrderError.style.display = "block";
+                        minOrderInput.classList.add("input-error");
+                        isValid = false;
+                    }
+                }
+
+                // 5. Usage Limit validation
+                var usageLimitInput = document.getElementById("usageLimit");
+                var usageLimitError = document.getElementById("usageLimitError");
+                if (usageLimitInput && usageLimitError) {
+                    usageLimitError.style.display = "none";
+                    usageLimitInput.classList.remove("input-error");
+
+                    var limitVal = parseFloat(usageLimitInput.value);
+                    if (!isNaN(limitVal) && limitVal < 0) {
+                        usageLimitError.textContent = "Giới hạn sử dụng không được nhập số âm!";
+                        usageLimitError.style.display = "block";
+                        usageLimitInput.classList.add("input-error");
+                        isValid = false;
+                    }
+                }
+
+                // 6. Dates validation
                 var startVal = startDateInput.value;
                 var endVal = endDateInput.value;
-                
                 if (startVal < todayStr) {
                     alert("Ngày bắt đầu chiến dịch phải từ ngày hôm nay trở đi!");
-                    e.preventDefault();
-                    return false;
-                }
-                if (endVal > maxDateStr) {
+                    isValid = false;
+                } else if (endVal > maxDateStr) {
                     alert("Thời gian kết thúc không được vượt quá 6 tháng kể từ hôm nay!");
-                    e.preventDefault();
-                    return false;
-                }
-                if (startVal > endVal) {
+                    isValid = false;
+                } else if (startVal > endVal) {
                     alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu!");
+                    isValid = false;
+                }
+
+                if (!isValid) {
                     e.preventDefault();
+                    var firstError = document.querySelector(".input-error");
+                    if (firstError) {
+                        firstError.focus();
+                        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
                     return false;
                 }
             });
@@ -927,6 +1088,27 @@ if (c.getUsageLimit() != null) {
         if (!campTypeSelect) return;
         
         var val = campTypeSelect.value;
+        
+        // Dynamic limits setup
+        if (discountValueInput) {
+            if (val === "percentage" || val === "flash") {
+                discountValueInput.setAttribute("max", "99");
+                discountValueInput.setAttribute("placeholder", "e.g. 10 (%)");
+            } else {
+                discountValueInput.setAttribute("max", "10000000");
+                discountValueInput.setAttribute("placeholder", "e.g. 500000 (VND)");
+            }
+        }
+
+        if (promoCodeInput) {
+            if (val === "percentage" || val === "fixed") {
+                promoCodeInput.setAttribute("minlength", "9");
+                promoCodeInput.setAttribute("maxlength", "9");
+            } else {
+                promoCodeInput.removeAttribute("minlength");
+                promoCodeInput.removeAttribute("maxlength");
+            }
+        }
         
         if (val === "percentage" || val === "fixed") {
             // Show Voucher Configuration and Minimum Order Value Condition

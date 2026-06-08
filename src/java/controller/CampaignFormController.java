@@ -55,6 +55,11 @@ public class CampaignFormController extends PromotionServlet {
                 return;
             }
 
+            if ("check-name".equals(action)) {
+                checkName(request, response);
+                return;
+            }
+
             if ("generate".equals(action)) {
                 generateCode(response);
                 return;
@@ -80,7 +85,7 @@ public class CampaignFormController extends PromotionServlet {
 
         try {
             saveCampaign(request, response);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             forwardError(request, response, e);
         }
     }
@@ -151,7 +156,44 @@ public class CampaignFormController extends PromotionServlet {
 
         int[] variantIds = parseIds(request.getParameterValues("variantIds"));
         int[] giftVariantIds = parseIds(request.getParameterValues("giftVariantIds"));
-        
+
+        // Backend Validations
+        if (campaign.getCampaignName().isEmpty()) {
+            throw new IllegalArgumentException("Tên chiến dịch không được để trống!");
+        }
+        if (formDao.isCampaignNameExists(campaign.getCampaignName(), campaign.getCampaignId())) {
+            throw new IllegalArgumentException("Tên chiến dịch '" + campaign.getCampaignName() + "' đã được sử dụng!");
+        }
+
+        String type = campaign.getCampaignType();
+        if ("percentage".equals(type) || "fixed".equals(type)) {
+            if (campaign.getPromoCode().length() != 9) {
+                throw new IllegalArgumentException("Mã khuyến mãi phải nhập đủ 9 ký tự!");
+            }
+        }
+
+        // Check negative values
+        if (campaign.getDiscountValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Giá trị giảm giá không được nhập số âm!");
+        }
+        if (campaign.getMinOrderValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Giá trị đơn hàng tối thiểu không được nhập số âm!");
+        }
+        if (campaign.getUsageLimit() != null && campaign.getUsageLimit() < 0) {
+            throw new IllegalArgumentException("Giới hạn sử dụng không được nhập số âm!");
+        }
+
+        // Limit values
+        if ("percentage".equals(type) || "flash".equals(type)) {
+            if (campaign.getDiscountValue().compareTo(new BigDecimal("99")) > 0) {
+                throw new IllegalArgumentException("Đối với phần trăm (%), giá trị giảm giá chỉ được nhập tối đa là 99%!");
+            }
+        } else if ("fixed".equals(type) || "bundle_discount".equals(type)) {
+            if (campaign.getDiscountValue().compareTo(new BigDecimal("10000000")) > 0) {
+                throw new IllegalArgumentException("Đối với tiền mặt (VND), giá trị giảm giá chỉ được nhập tối đa là 10,000,000 VND!");
+            }
+        }
+
 
         if (id > 0) {
             formDao.updateCampaign(campaign, variantIds, giftVariantIds);
@@ -221,4 +263,17 @@ public class CampaignFormController extends PromotionServlet {
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().print("{\"code\":\"" + generateCampaignCode() + "\"}");
     }
+
+    /**
+     * Chức năng: Kiểm tra xem tên chiến dịch đã tồn tại trong CSDL chưa (trả về JSON phục vụ AJAX).
+     */
+    private void checkName(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        String name = req(request, "name");
+        int id = parseInt(request.getParameter("id"), 0);
+        boolean exists = formDao.isCampaignNameExists(name, id);
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().print("{\"exists\":" + exists + "}");
+    }
 }
+
