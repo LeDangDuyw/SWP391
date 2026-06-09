@@ -60,7 +60,11 @@ public class AdminPolicy extends HttpServlet {
 
                 totalRecords = dao.countSearchPolicies(keyword);
 
-                policies = dao.searchPoliciesPaging(keyword, (page - 1) * pageSize, pageSize);
+                policies = dao.searchPoliciesPaging(
+                        keyword,
+                        (page - 1) * pageSize,
+                        pageSize
+                );
 
                 request.setAttribute("keyword", keyword);
 
@@ -68,7 +72,10 @@ public class AdminPolicy extends HttpServlet {
 
                 totalRecords = dao.countPolicies();
 
-                policies = dao.getPoliciesPaging((page - 1) * pageSize, pageSize);
+                policies = dao.getPoliciesPaging(
+                        (page - 1) * pageSize,
+                        pageSize
+                );
             }
 
             request.setAttribute("policies", policies);
@@ -107,7 +114,6 @@ public class AdminPolicy extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         String contextPath = request.getContextPath();
-        String pageParam = request.getParameter("page");
 
         try {
             switch (action == null ? "" : action) {
@@ -119,27 +125,8 @@ public class AdminPolicy extends HttpServlet {
                         request.setAttribute("error", "Policy name has already existed");
                         request.setAttribute("formData", p);
 
-                        int page;
-
-                        if (pageParam != null && !pageParam.trim().isEmpty()) {
-                            page = Integer.parseInt(pageParam);
-                        } else {
-                            page = 1;
-                        }
-                        int pageSize = 5;
-                        int offset = (page - 1) * pageSize;
-
-                        List<WarrantyPolicy> policies = dao.getPoliciesPaging(offset, pageSize);
-                        int totalPolicies = dao.countPolicies();
-                        int totalPages = (int) Math.ceil((double) totalPolicies / pageSize);
-
+                        List<WarrantyPolicy> policies = dao.getAllPolicies();
                         request.setAttribute("policies", policies);
-                        request.setAttribute("currentPage", page);
-                        request.setAttribute("totalPages", totalPages);
-
-                        request.setAttribute("policies", policies);
-                        request.setAttribute("currentPage", page);
-                        request.setAttribute("totalPages", totalPages);
 
                         request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
                         return;
@@ -150,7 +137,7 @@ public class AdminPolicy extends HttpServlet {
                     p.setCreatedAt(now);
                     p.setUpdatedAt(now);
                     dao.insertPolicy(p);
-                    response.sendRedirect(contextPath + "/admin/policy?page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy");
                     break;
                 }
 
@@ -173,35 +160,35 @@ public class AdminPolicy extends HttpServlet {
                         }
                         dao.updatePolicy(p);
                     }
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 
                 case "delete": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.deletePolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy?page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy");
                     break;
                 }
 
                 case "publish": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.publishPolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 
                 case "saveDraft": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.saveDraft(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 
                 case "disable": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     dao.disablePolicy(id);
-                    response.sendRedirect(contextPath + "/admin/policy?id=" + id + "&page=" + pageParam);
+                    response.sendRedirect(contextPath + "/admin/policy?id=" + id);
                     break;
                 }
 

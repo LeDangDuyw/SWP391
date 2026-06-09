@@ -8,15 +8,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>UNILAP Admin — Console</title>
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
             *, *::before, *::after {
                 margin:0;
                 padding:0;
                 box-sizing:border-box;
-                font-family:'Segoe UI',system-ui,sans-serif;
+                font-family: Inter, Arial, sans-serif;
             }
             body {
-                background:#f0f2f5;
-                color:#111;
+                background:#f5f7fb;
+                color:#171a22;
+                letter-spacing: .04em;
             }
             a {
                 text-decoration:none;
@@ -29,75 +31,62 @@
 
             /* Sidebar */
             .sidebar {
-                width:240px;
-                flex-shrink:0;
-                background:#fff;
-                border-right:1px solid #e5e7eb;
-                display:flex;
-                flex-direction:column;
+                width: 280px;
+                background: #eef2f7;
+                border-right: 1px solid #e1e6ef;
+                padding: 28px 16px;
+                display: flex;
+                flex-direction: column;
+                position: sticky;
+                top: 0;
+                height: 100vh;
             }
-            .sidebar-brand {
-                padding:24px 20px 16px;
-                display:flex;
-                align-items:center;
-                gap:12px;
+            .sidebar .brand { margin: 6px 10px 44px; display: grid; gap: 6px; }
+            .sidebar .brand span { color: #0b39d1; font-size: 24px; font-weight: 800; letter-spacing: .05em; display: block; }
+            .sidebar .brand small { color: #343a46; font-size: 14px; display: block; }
+            .sidebar nav { display: grid; gap: 10px; }
+            .sidebar nav a {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 14px 14px;
+                border-radius: 10px;
+                color: #242a38;
+                font-weight: 600;
+                text-decoration: none;
+                font-size: 14px;
             }
-            .brand-avatar {
-                width:42px;
-                height:42px;
-                border-radius:50%;
-                background:#2563eb;
-                color:#fff;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-weight:700;
-                font-size:15px;
+            .sidebar nav a span { min-width: 20px; color: #1f2937; font-size: 16px; }
+            .sidebar nav a:hover { background: #f3f4f6; }
+            .sidebar nav a.active { background: #d8e8ff; color: #0b39d1; }
+            .sidebar .profile {
+                margin-top: auto;
+                border-top: 1px solid #d4dae6;
+                padding: 18px 10px 0;
+                display: grid;
+                gap: 12px;
+                font-weight: 700;
             }
-            .brand-text .brand-name {
-                font-weight:700;
-                font-size:15px;
-                color:#2563eb;
+            .logout-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #ef4444 !important;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                width: fit-content;
+                text-decoration: none;
             }
-            .brand-text .brand-role {
-                font-size:12px;
-                color:#6b7280;
-                margin-top:2px;
-            }
-            .sidebar-nav {
-                list-style:none;
-                flex:1;
-                padding:8px 0;
-            }
-            .sidebar-nav li a {
-                display:flex;
-                align-items:center;
-                gap:10px;
-                padding:11px 20px;
-                font-size:14px;
-                color:#374151;
-                border-radius:6px;
-                margin:2px 8px;
-                transition:background .15s;
-            }
-            .sidebar-nav li a:hover {
-                background:#f3f4f6;
-            }
-            .sidebar-nav li.active a {
-                background:#dbeafe;
-                color:#1d4ed8;
-                font-weight:600;
-            }
-            .sidebar-footer {
-                padding:16px 20px;
-                border-top:1px solid #e5e7eb;
-            }
-            .sidebar-footer a {
-                display:flex;
-                align-items:center;
-                gap:10px;
-                font-size:14px;
-                color:#6b7280;
+            .logout-btn:hover {
+                background: #fee2e2;
+                border-color: #fca5a5;
+                color: #dc2626 !important;
             }
 
             /* Main */
@@ -262,13 +251,14 @@
                 padding:40px;
             }
 
-            @media(max-width:900px){
-                .kpi-grid{
-                    grid-template-columns:repeat(2,1fr);
-                }
-                .sidebar{
-                    display:none;
-                }
+            @media (max-width: 1100px) {
+                .sidebar { width: 220px; }
+                .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            }
+            @media (max-width: 760px) {
+                .layout { display: block; }
+                .sidebar { position: static; width: 100%; height: auto; }
+                .kpi-grid { grid-template-columns: 1fr; }
             }
         </style>
     </head>
@@ -276,24 +266,19 @@
         <div class="layout">
 
             <aside class="sidebar">
-                <div class="sidebar-brand">
-                    <div class="brand-avatar">UA</div>
-                    <div class="brand-text">
-                        <div class="brand-name">UNILAP Admin</div>
-                        <div class="brand-role">System Controller</div>
-                    </div>
+                <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
+                <nav>
+                    <a class="active" href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+                    <a href="#"><span>▣</span>Orders</a>
+                    <a href="#"><span>♚</span>Users</a>
+                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="#"><span>⚙</span>Settings</a>
+                </nav>
+                <div class="profile">
+                    <div>♙ <span>Admin User Profile</span></div>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
                 </div>
-                <ul class="sidebar-nav">
-                    <li class="active"><a href="${pageContext.request.contextPath}/admin/dashboard">&#8862; Dashboard</a></li>
-                    <li><a href="#">&#128230; Orders</a></li>
-                    <li><a href="#">&#9636; Inventory</a></li>
-                    <li><a href="#">&#128101; Users</a></li>
-                    <li><a href="#">&#128202; Analytics</a></li>
-                    <li><a href="${pageContext.request.contextPath}/admin/policy">&#128220; Policies</a></li>
-                    <li><a href="#">&#9881; Settings</a></li>
-
-                </ul>
-                <div class="sidebar-footer"><a href="#">&#8617; Logout</a></div>
             </aside>
 
             <div class="main">

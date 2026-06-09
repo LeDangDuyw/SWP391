@@ -236,7 +236,9 @@ public class PolicyDAO extends DBContext {
     /*
      * Norma; paging
      */
-    public List<WarrantyPolicy> getPoliciesPaging(int offset, int pageSize) throws Exception {
+    public List<WarrantyPolicy> getPoliciesPaging(
+            int offset,
+            int pageSize) throws Exception {
 
         List<WarrantyPolicy> list = new ArrayList<>();
 
@@ -266,7 +268,10 @@ public class PolicyDAO extends DBContext {
     /*
      * Paging by search 
      */
-    public List<WarrantyPolicy> searchPoliciesPaging(String keyword, int offset, int pageSize) throws Exception {
+    public List<WarrantyPolicy> searchPoliciesPaging(
+            String keyword,
+            int offset,
+            int pageSize) throws Exception {
 
         List<WarrantyPolicy> list = new ArrayList<>();
 
@@ -299,7 +304,7 @@ public class PolicyDAO extends DBContext {
      * Publishes a warranty policy by setting its status to LIVE.
      */
     public void publishPolicy(int id) throws Exception {
-        updateStatus(id, "PUBLISHED");
+        updateStatus(id, "LIVE");
     }
 
     /*
