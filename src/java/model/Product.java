@@ -12,6 +12,7 @@ public class Product {
     private String description;
     private int warrantyPeriod;
     private int categoryId;
+    
     private long originalPrice;
     private int discountPercent;
 
@@ -60,11 +61,22 @@ public class Product {
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 
-    public long getOriginalPrice() { return originalPrice; }
-    public void setOriginalPrice(long originalPrice) { this.originalPrice = originalPrice; }
+    public long getOriginalPrice() {
+        return originalPrice;
+    }
 
-    public int getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(int discountPercent) { this.discountPercent = discountPercent; }
+    public void setOriginalPrice(long originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+    
 
     // Default getters for subclass properties to avoid PropertyNotFoundException in JSP EL
     public String getCpu() { return null; }
@@ -138,3 +150,7 @@ public class Product {
         public void setSwitchType(String switchType) { this.switchType = switchType; }
     }
 }
+
+    
+    
+

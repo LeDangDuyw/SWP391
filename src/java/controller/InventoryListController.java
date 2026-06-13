@@ -24,7 +24,9 @@ import viewmodel.ProductInventory;
  */
 @WebServlet("/staff/inventory")
 public class InventoryListController extends HttpServlet {
-   
+       private final ProductDAO productDAO = new ProductDAO();
+    private static final int PAGE_SIZE = 10;
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -74,41 +76,55 @@ public class InventoryListController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        ProductDAO dao = new ProductDAO();
-        List<ProductInventory> products = new ArrayList<ProductInventory>();
-        
-        // Lấy từ khóa tìm kiếm và tiêu chí sắp xếp từ request
-        String searchInput = request.getParameter("searchInput");
-        String sortBy = request.getParameter("sortBy");
-        
-        // Khởi tạo các biến dùng cho chức năng phân trang
-        int page = 1;
-        int pageSize = 10;
-        String pageParam = request.getParameter("page");
-        if (pageParam != null && !pageParam.isEmpty()) {
-            try {
-                // Ép kiểu số trang hiện tại
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+         // 1. Đọc tab hiện tại (mặc định là "products")
+        String tab = request.getParameter("tab");
+        if (tab == null || (!tab.equals("products") && !tab.equals("variants"))) {
+            tab = "products";
         }
-        
-        // Tính toán vị trí bắt đầu lấy dữ liệu (offset) và tổng số trang
-        int offset = (page - 1) * pageSize;
-        int totalRecords = dao.getTotalInventoryCount(searchInput);
-        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-        
-        // Lấy danh sách sản phẩm đã được phân trang và lọc từ CSDL
-        products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
-        
-        // Đưa các thông số phân trang và dữ liệu sản phẩm lên view (JSP)
-        request.setAttribute("products", products);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("totalRecords", totalRecords);
-        request.setAttribute("pageSize", pageSize);
-        
+
+        // 2. Đọc các param chung
+        String search = request.getParameter("searchInput");
+        if (search == null) search = "";
+        String sortBy = request.getParameter("sortBy");
+        if (sortBy == null) sortBy = "all";
+
+        // 3. Đọc số trang
+        int page = 1;
+        try {
+            page = Integer.parseInt(request.getParameter("page"));
+            if (page < 1) page = 1;
+        } catch (NumberFormatException ignored) {}
+
+        int offset = (page - 1) * PAGE_SIZE;
+
+        if (tab.equals("products")) {
+            // --- Tab Products ---
+            List<Product> productList = productDAO.GetProductPaginated(
+                    search, sortBy, offset, PAGE_SIZE);
+            int total      = productDAO.getTotalProductCount(search);
+            int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+            if (totalPages < 1) totalPages = 1;
+
+            request.setAttribute("product",             productList);
+            request.setAttribute("currentPageProduct",  page);
+            request.setAttribute("totalPagesProduct",   totalPages);
+
+        } else {
+            // --- Tab Variants ---
+            List<ProductInventory> variantList = productDAO.GetProductInventoryPaginated(
+                    search, sortBy, offset, PAGE_SIZE);
+            int total      = productDAO.getTotalInventoryCount(search);
+            int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+            if (totalPages < 1) totalPages = 1;
+
+            request.setAttribute("products",     variantList);
+            request.setAttribute("currentPage",  page);
+            request.setAttribute("totalPages",   totalPages);
+        }
+
+        // 4. Truyền tab xuống JSP để render đúng trạng thái
+        request.setAttribute("activeTab", tab);
+
         // Chuyển tiếp request sang trang InventoryManagement.jsp để hiển thị
         RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
@@ -131,26 +147,19 @@ public class InventoryListController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        ProductDAO dao = new ProductDAO();
-        // Kiểm tra xem hành động người dùng gửi lên là gì (xóa hay khôi phục)
-        String action = request.getParameter("action");
-        
-        if ("delete".equals(action)) {
-            // Xử lý ẩn (xóa mềm) sản phẩm
-            String variantIdToHide = request.getParameter("variantIdToDelete");
-            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
-                int v = Integer.parseInt(variantIdToHide);
-                dao.hideProduct(v);
+         String action          = request.getParameter("action");
+        String variantIdStr    = request.getParameter("variantIdToDelete");
+        String redirectTab     = request.getParameter("currentTab");
+        if (redirectTab == null) redirectTab = "variants";
+
+        if (variantIdStr != null) {
+            int variantId = Integer.parseInt(variantIdStr);
+            if ("delete".equals(action)) {
+                productDAO.hideProduct(variantId);
+            } else if ("restore".equals(action)) {
+                productDAO.unhideProduct(variantId);
             }
-        }else if("restore".equals(action)) {
-            // Xử lý khôi phục lại sản phẩm đã ẩn
-            String variantIdToHide = request.getParameter("variantIdToDelete");
-            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
-                int v = Integer.parseInt(variantIdToHide);
-                dao.unhideProduct(v);
-            }
-        }
-        
+        }        
         // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
         response.sendRedirect(request.getContextPath() + "/staff/inventory");
     }

@@ -10,9 +10,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Product;
+import model.ProductVariant;
+import viewmodel.ProductInventory;
+/**
+ *
+ * @author huy
+ */
 public class ProductDAO extends DBContext {
     Connection cnn;
     PreparedStatement ps;
+
+    PreparedStatement stm;
     ResultSet rs;
 
     public ProductDAO() {
@@ -911,4 +920,164 @@ public List<Product> GetAllProducts() {
             System.out.println(e.getMessage());
         }
     }
+    public Product getProductByVariantId(int variantId) {
+        try {
+            String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, p.thumbnail, " +
+                         "p.category_id, p.brand_id, c.category_name, b.brand_name " +
+                         "from Product p " +
+                         "join ProductVariant pv on p.product_id = pv.product_id " +
+                         "join Category c on p.category_id = c.category_id " +
+                         "join Brand b on p.brand_id = b.brand_id " +
+                         "where pv.variant_id = ?";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, variantId);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                Product p = new Product(
+                        rs.getInt("product_id"),
+                        rs.getString("product_name"),
+                        rs.getString("description"),
+                        rs.getInt("warranty_period"),
+                        rs.getString("thumbnail"),
+                        rs.getInt("category_id"),
+                        rs.getInt("brand_id"));
+                p.setCategoryName(rs.getString("category_name"));
+                p.setBrandName(rs.getString("brand_name"));
+                return p;
+            }
+        } catch (Exception e) {
+            System.out.println("getProductByVariantId: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<ProductVariant> getProductVariantsByProductId(int productId) {
+        List<ProductVariant> variants = new ArrayList<>();
+        try {
+            String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
+                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity " +
+                         "from ProductVariant pv " +
+                         "left join Inventory i on pv.variant_id = i.variant_id " +
+                         "where pv.product_id = ? and pv.status = 'active' " +
+                         "order by pv.variant_id";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, productId);
+            rs = stm.executeQuery();
+            while (rs.next()) {
+                ProductVariant variant = new ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status"),
+                        rs.getInt("available_quantity"));
+                variants.add(variant);
+            }
+        } catch (Exception e) {
+            System.out.println("getProductVariantsByProductId: " + e.getMessage());
+        }
+        return variants;
+    }
+
+    public int getTotalProductCount(String search) {
+        int count = 0;
+        try {
+            String sql = "select count(*) from Product p " +
+                         "join Category c on p.category_id = c.category_id " +
+                         "join Brand b on p.brand_id = b.brand_id " +
+                         "join ProductVariant pv on p.product_id = pv.product_id " +
+                         "join Inventory i on pv.variant_id = i.variant_id " +
+                         "where pv.status = 'active'";
+
+            if (search != null && !search.trim().isEmpty()) {
+                sql += " and (p.product_name like '%' + ? + '%' " +
+                       "     or c.category_name like '%' + ? + '%')";
+            }
+
+            stm = connection.prepareStatement(sql);
+
+            if (search != null && !search.trim().isEmpty()) {
+                stm.setString(1, search);
+                stm.setString(2, search);
+            }
+
+            rs = stm.executeQuery();
+            if (rs.next()) count = rs.getInt(1);
+
+        } catch (Exception e) {
+            System.out.println("getTotalProductCount: " + e.getMessage());
+        }
+        return count;
+    }
+    /*
+     * Name: GetProductInventoryPaginated
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Lấy danh sách sản phẩm chi tiết có phân trang, hỗ trợ lọc theo từ khóa và sắp xếp theo giá.
+     */
+    public List<Product> GetProductPaginated(String search, String sortBy, int offset, int fetchSize) {
+    List<Product> products = new ArrayList<>();
+    
+    // 1. Xử lý hướng sắp xếp (Mặc định giảm dần, nếu truyền lowToHigh thì tăng dần)
+    String order = (sortBy != null && !sortBy.equals("all") && sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
+    
+    // 2. Thêm lại MIN(pv.selling_price) để có giá hiển thị và để SẮP XẾP
+    String strSQL = "select p.product_id, p.product_name, b.brand_name, c.category_name, p.thumbnail, " +
+                    "       MIN(pv.selling_price) as min_price, " + 
+                    "       SUM(i.available_quantity) as total_quantity, " +
+                    "       case " +
+                    "           when SUM(i.available_quantity) > 0 then N'In Stock' " +
+                    "           else N'Sold Out' " +
+                    "       end as status " +
+                    "from Product p " +
+                    "join Category c on p.category_id = c.category_id " +
+                    "join Brand b on p.brand_id = b.brand_id " +
+                    "join ProductVariant pv on p.product_id = pv.product_id " +
+                    "join Inventory i on pv.variant_id = i.variant_id " +
+                    "where pv.status = 'active' "; 
+
+    if (search != null && !search.trim().isEmpty()) {
+        strSQL += "and (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%') ";
+    }
+
+    strSQL += "group by p.product_id, p.product_name, b.brand_name, c.category_name, p.thumbnail ";
+    
+    // 3. BẮT BUỘC phải có ORDER BY trước OFFSET
+    strSQL += "order by min_price " + order + " " +
+              "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+    try (PreparedStatement stm = connection.prepareStatement(strSQL)) {
+        int paramIndex = 1;
+        
+        if (search != null && !search.trim().isEmpty()) {
+            stm.setString(paramIndex++, search);
+            stm.setString(paramIndex++, search);
+        }
+        stm.setInt(paramIndex++, offset);
+        stm.setInt(paramIndex++, fetchSize);
+        
+        try (ResultSet rs = stm.executeQuery()) {
+            while (rs.next()) {
+                Product p = new Product();
+                
+                p.setProductId(rs.getInt("product_id"));
+                p.setProductName(rs.getString("product_name"));
+                p.setBrandName(rs.getString("brand_name"));
+                p.setCategoryName(rs.getString("category_name"));
+                p.setThumbnail(rs.getString("thumbnail"));
+                
+                
+                products.add(p);
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Error in GetProductPaginated: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return products;
 }
+    }
