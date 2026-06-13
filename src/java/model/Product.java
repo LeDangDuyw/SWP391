@@ -16,7 +16,8 @@ public class Product {
     private String thumbnail;
     private int categoryId;
     private int brandId;
-
+    private String categoryName;
+    private String brandName;
     /*
      * Name: Product
      * @Author: HUYDQHE204239
@@ -196,6 +197,22 @@ public class Product {
      */
     public void setBrandId(int brandId) {
         this.brandId = brandId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
     
 }
