@@ -52,24 +52,45 @@
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
-
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen flex">
     <!-- Sidebar -->
-        <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            
-        </nav>
-        <div class="profile">♙ <span>Admin User Profile</span></div>
-    </aside>
+    <nav class="fixed left-0 top-0 h-full w-64 bg-surface border-r border-outline-variant/20 flex flex-col py-2 z-40">
+        <div class="px-6 py-4 mb-4">
+            <h1 class="font-headline-md text-[24px] font-bold text-primary">UNILAP</h1>
+            <p class="font-body-sm text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mt-1">Admin Portal</p>
+        </div>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+            <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span> Dashboard
+        </a>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+            <span class="material-symbols-outlined mr-3 text-[20px]">shopping_cart</span> Orders
+        </a>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-label-md text-sm font-medium border-l-4 border-primary" href="${pageContext.request.contextPath}/staff/inventory">
+            <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">inventory_2</span> Inventory
+        </a>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+            <span class="material-symbols-outlined mr-3 text-[20px]">group</span> Users
+        </a>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+            <span class="material-symbols-outlined mr-3 text-[20px]">analytics</span> Analytics
+        </a>
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+            <span class="material-symbols-outlined mr-3 text-[20px]">settings</span> Settings
+        </a>
+        
+        <div class="mt-auto mb-4 border-t border-outline-variant/20 pt-4">
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="#">
+                <span class="material-symbols-outlined mr-3 text-[20px]">help</span> Support
+            </a>
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium" href="#">
+                <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
+            </a>
+        </div>
+    </nav>
 
     <!-- Main Content -->
-    <div class="flex-1 ml-72 flex flex-col min-h-screen bg-background">
+    <div class="flex-1 ml-64 flex flex-col min-h-screen bg-background">
         <main class="flex-1 p-8">
             <!-- Header Section -->
             <form action="${pageContext.request.contextPath}/staff/inventory/add" method="post" enctype="multipart/form-data">

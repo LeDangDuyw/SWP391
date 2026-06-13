@@ -8,176 +8,144 @@ package controller;
 import dal.ProductDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 import model.Product;
 import viewmodel.ProductInventory;
+
 /**
  *
  * @author huy
  */
 @WebServlet("/staff/inventory")
 public class InventoryListController extends HttpServlet {
-       private final ProductDAO productDAO = new ProductDAO();
-    private static final int PAGE_SIZE = 10;
 
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    /*
-     * Name: processRequest
-     * @Author: HUYDQHE204239
-     * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý chung các yêu cầu HTTP (GET và POST), trả về mã HTML hiển thị thông tin mặc định của servlet.
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet InventoryListController</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet InventoryListController at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     /*
      * Name: doGet
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý yêu cầu GET để hiển thị danh sách hàng tồn kho, hỗ trợ tìm kiếm, sắp xếp và phân trang.
+     * Version: 3.0
+     * Description: Xử lý GET — load dữ liệu cho cả hai tab (Products và Variants),
+     *              hỗ trợ tìm kiếm, sắp xếp, lọc stock status và phân trang độc lập cho từng tab.
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-         // 1. Đọc tab hiện tại (mặc định là "products")
-        String tab = request.getParameter("tab");
-        if (tab == null || (!tab.equals("products") && !tab.equals("variants"))) {
-            tab = "products";
+            throws ServletException, IOException {
+
+        ProductDAO dao = new ProductDAO();
+
+        // ── Các tham số chung ────────────────────────────────────────────────
+        String tab         = request.getParameter("tab");
+        String searchInput = request.getParameter("searchInput");
+        String sortBy      = request.getParameter("sortBy");
+        String category    = request.getParameter("category");
+        String stockStatus = request.getParameter("stockStatus");
+
+        if (tab == null || tab.isEmpty()) tab = "products";
+
+        int pageSize = 10;
+
+        // ════════════════════════════════════════════════════════════════════
+        // Tab PRODUCTS — phân trang riêng
+        // ════════════════════════════════════════════════════════════════════
+        int pageP = 1;
+        String pageParamP = request.getParameter("page");
+        // Chỉ đọc ?page khi đang ở tab products, hoặc khi param không rõ nguồn
+        if (pageParamP != null && !pageParamP.isEmpty()) {
+            try {
+                pageP = Integer.parseInt(pageParamP);
+                if (pageP < 1) pageP = 1;
+            } catch (NumberFormatException e) {
+                pageP = 1;
+            }
         }
 
-        // 2. Đọc các param chung
-        String search = request.getParameter("searchInput");
-        if (search == null) search = "";
-        String sortBy = request.getParameter("sortBy");
-        if (sortBy == null) sortBy = "all";
+        int offsetP        = (pageP - 1) * pageSize;
+        int totalRecordsP  = dao.getTotalProductCount(searchInput, category);
+        int totalPagesP    = (int) Math.ceil((double) totalRecordsP / pageSize);
+        if (totalPagesP == 0) totalPagesP = 1;
 
-        // 3. Đọc số trang
-        int page = 1;
-        try {
-            page = Integer.parseInt(request.getParameter("page"));
-            if (page < 1) page = 1;
-        } catch (NumberFormatException ignored) {}
+        List<Product> product = dao.GetProductsPaginated(searchInput, category, sortBy, offsetP, pageSize);
 
-        int offset = (page - 1) * PAGE_SIZE;
+        request.setAttribute("product",             product);
+        request.setAttribute("currentPageProduct",  pageP);
+        request.setAttribute("totalPagesProduct",   totalPagesP);
+        request.setAttribute("totalRecordsProduct", totalRecordsP);
 
-        if (tab.equals("products")) {
-            // --- Tab Products ---
-            List<Product> productList = productDAO.GetProductPaginated(
-                    search, sortBy, offset, PAGE_SIZE);
-            int total      = productDAO.getTotalProductCount(search);
-            int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
-            if (totalPages < 1) totalPages = 1;
-
-            request.setAttribute("product",             productList);
-            request.setAttribute("currentPageProduct",  page);
-            request.setAttribute("totalPagesProduct",   totalPages);
-
-        } else {
-            // --- Tab Variants ---
-            List<ProductInventory> variantList = productDAO.GetProductInventoryPaginated(
-                    search, sortBy, offset, PAGE_SIZE);
-            int total      = productDAO.getTotalInventoryCount(search);
-            int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
-            if (totalPages < 1) totalPages = 1;
-
-            request.setAttribute("products",     variantList);
-            request.setAttribute("currentPage",  page);
-            request.setAttribute("totalPages",   totalPages);
+        // ════════════════════════════════════════════════════════════════════
+        // Tab VARIANTS — phân trang riêng
+        // ════════════════════════════════════════════════════════════════════
+        int pageV = 1;
+        String pageParamV = request.getParameter("page");
+        if (pageParamV != null && !pageParamV.isEmpty()) {
+            try {
+                pageV = Integer.parseInt(pageParamV);
+                if (pageV < 1) pageV = 1;
+            } catch (NumberFormatException e) {
+                pageV = 1;
+            }
         }
 
-        // 4. Truyền tab xuống JSP để render đúng trạng thái
-        request.setAttribute("activeTab", tab);
+        int offsetV       = (pageV - 1) * pageSize;
+        int totalRecordsV = dao.getTotalInventoryCount(searchInput, category, stockStatus);
+        int totalPagesV   = (int) Math.ceil((double) totalRecordsV / pageSize);
+        if (totalPagesV == 0) totalPagesV = 1;
 
-        // Chuyển tiếp request sang trang InventoryManagement.jsp để hiển thị
+        List<ProductInventory> products = dao.GetProductInventoryPaginated(
+                searchInput, category, sortBy, stockStatus, offsetV, pageSize);
+
+        request.setAttribute("products",      products);
+        request.setAttribute("currentPage",   pageV);
+        request.setAttribute("totalPages",    totalPagesV);
+        request.setAttribute("totalRecords",  totalRecordsV);
+        request.setAttribute("pageSize",      pageSize);
+
+        // Chuyển sang JSP
         RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
-    } 
+    }
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     /*
      * Name: doPost
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý yêu cầu POST để thực hiện các thao tác ẩn (xóa mềm) hoặc khôi phục sản phẩm trong kho.
+     * Version: 3.0
+     * Description: Xử lý POST — ẩn (xóa mềm) hoặc khôi phục một biến thể sản phẩm,
+     *              sau đó redirect về trang danh sách giữ nguyên tab đang active.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-         String action          = request.getParameter("action");
-        String variantIdStr    = request.getParameter("variantIdToDelete");
-        String redirectTab     = request.getParameter("currentTab");
-        if (redirectTab == null) redirectTab = "variants";
+            throws ServletException, IOException {
 
-        if (variantIdStr != null) {
-            int variantId = Integer.parseInt(variantIdStr);
-            if ("delete".equals(action)) {
-                productDAO.hideProduct(variantId);
-            } else if ("restore".equals(action)) {
-                productDAO.unhideProduct(variantId);
+        ProductDAO dao  = new ProductDAO();
+        String action   = request.getParameter("action");
+        String idParam  = request.getParameter("variantIdToDelete");
+        String tab      = request.getParameter("tab");
+        if (tab == null || tab.isEmpty()) tab = "products";
+
+        if (idParam != null && !idParam.isEmpty()) {
+            try {
+                int variantId = Integer.parseInt(idParam);
+                if ("delete".equals(action)) {
+                    dao.hideProduct(variantId);
+                } else if ("restore".equals(action)) {
+                    dao.unhideProduct(variantId);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid variantId: " + idParam);
             }
-        }        
-        // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
-        response.sendRedirect(request.getContextPath() + "/staff/inventory");
+        }
+
+        // Redirect về đúng tab sau khi thao tác
+        response.sendRedirect(request.getContextPath() + "/staff/inventory?tab=" + tab);
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
-    /*
-     * Name: getServletInfo
-     * @Author: HUYDQHE204239
-     * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Trả về thông tin ngắn gọn mô tả về servlet này.
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Inventory List Controller v3.0";
+    }
 }
