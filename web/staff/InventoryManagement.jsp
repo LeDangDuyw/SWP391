@@ -159,18 +159,47 @@
 
 <body class="bg-background text-on-surface font-body-md min-h-screen flex">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+    <!-- Sidebar Navigation -->
+    <aside class="fixed h-full left-0 top-0 w-64 bg-surface border-r border-outline-variant/20 flex flex-col py-4 z-40">
+        <div class="px-6 py-4 mb-4">
+            <h1 class="font-headline-md text-[24px] font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-[28px]">laptop_mac</span>
+                UNILAP Staff
+            </h1>
+            <p class="font-body-sm text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mt-1">System Controller</p>
+        </div>
+        
+        <nav class="flex-1 flex flex-col gap-1 px-2">
+            <!-- Dashboard -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/admin/dashboard">
+                <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span> Dashboard
+            </a>
+            
+            <!-- Inventory -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-bold border-l-4 border-primary font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/inventory">
+                <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">inventory_2</span> Inventory
+            </a>
+            
+            <!-- Category -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/staff/category">
+                <span class="material-symbols-outlined mr-3 text-[20px]">category</span> Category
+            </a>
+            
+            <!-- IMEI -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/imei">
+                <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
+            </a>
         </nav>
-        <div class="profile">♙ <span>Admin User Profile</span></div>
+        
+        <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
+            <!-- Logout -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium" href="#">
+                <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
+            </a>
+        </div>
     </aside>
 
-    <div class="flex-1 ml-72 flex flex-col min-h-screen">
+    <div class="flex-1 ml-64 flex flex-col min-h-screen">
 
         <!-- Top Header -->
         <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
