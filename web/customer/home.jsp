@@ -14,7 +14,6 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=2">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/chat.css?v=1">
     </head>
     <body>
         <!-- Header -->
@@ -376,61 +375,6 @@
                 </div>
             </div>
         </footer>
-        <!-- Chatbot AI Floating Widget -->
-        <!-- Floating Chat Button (Nút chat nổi) -->
-        <button id="unilap-chat-launcher" class="unilap-chat-launcher" title="Nhắn tin với AI">
-            <i class="fas fa-comments"></i>
-        </button>
-
-        <!-- Chat Popup Container (Khung chat nhỏ) -->
-        <div id="unilap-chat-popup" class="unilap-chat-popup">
-            <!-- Header -->
-            <div class="unilap-chat-header">
-                <div class="unilap-chat-header-info">
-                    <div class="unilap-chat-avatar">
-                        <i class="fas fa-robot"></i>
-                        <div class="unilap-chat-status-dot"></div>
-                    </div>
-                    <div class="unilap-chat-title-wrapper">
-                        <h3>Trợ lý ảo UniLap AI</h3>
-                        <span><i class="fas fa-circle" style="color: #10b981; font-size: 6px; display: inline-block;"></i> Hoạt động 24/7</span>
-                    </div>
-                </div>
-                <div class="unilap-chat-controls">
-                    <button id="unilap-chat-expand" class="unilap-chat-btn-control" title="Mở rộng toàn màn hình">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </button>
-                    <button id="unilap-chat-close" class="unilap-chat-btn-control" title="Thu gọn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Messages Body -->
-            <div id="unilap-chat-messages" class="unilap-chat-messages">
-                <!-- Tin nhắn sẽ tự động được render từ JS -->
-            </div>
-
-            <!-- Suggestions / Quick replies -->
-            <div id="unilap-chat-suggestions" class="unilap-chat-suggestions">
-                <button class="unilap-suggestion-chip" data-prompt="Tư vấn laptop gaming dưới 25 triệu">Laptop Gaming</button>
-                <button class="unilap-suggestion-chip" data-prompt="Chính sách bảo hành tại UniLap thế nào?">Chính sách bảo hành</button>
-                <button class="unilap-suggestion-chip" data-prompt="UniLap có hỗ trợ mua trả góp không?">Mua trả góp</button>
-            </div>
-
-            <!-- Input Field -->
-            <div class="unilap-chat-input-area">
-                <input type="text" id="unilap-chat-input" class="unilap-chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
-                <button id="unilap-chat-send" class="unilap-chat-btn-send" title="Gửi">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-
-        <script>
-            window.contextPath = "${pageContext.request.contextPath}";
-        </script>
-        <script src="${pageContext.request.contextPath}/js/chat.js?v=1"></script>
         <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
     </body>
 </html>
