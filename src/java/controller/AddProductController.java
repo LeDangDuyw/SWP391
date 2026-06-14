@@ -1,6 +1,6 @@
 package controller;
 
-import dal.BrandDAO;
+import dal.BrandDao;
 import dal.CategoryDAO;
 import dal.ProductDAO;
 import java.io.File;
@@ -39,7 +39,7 @@ public class AddProductController extends HttpServlet {
             throws ServletException, IOException {
         // Khởi tạo các DAO để lấy dữ liệu từ database
         CategoryDAO categoryDAO = new CategoryDAO();
-        BrandDAO brandDAO = new BrandDAO();
+        BrandDao brandDAO = new BrandDao();
 
         // Lấy danh sách tất cả danh mục và thương hiệu
         List<Category> categories = categoryDAO.getAllCategories();
