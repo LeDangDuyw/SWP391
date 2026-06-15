@@ -161,13 +161,17 @@
                                     -${p.discountPercent}%
                                 </div>
 
-                                <div class="product-img-wrapper">
-                                    <img src="images/${p.thumbnail}" alt="${p.productName}">
-                                </div>
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                    <div class="product-img-wrapper">
+                                        <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}">
+                                    </div>
+                                </a>
 
                                 <div class="product-info">
 
-                                    <h3>${p.productName}</h3>
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                        <h3>${p.productName}</h3>
+                                    </a>
 
                                     <div class="product-price">
 
@@ -246,11 +250,18 @@
                     <c:forEach items="${products}" var="p">
                         <div class="product-card">
                             <div class="product-badge best-seller">Bán chạy</div>
-                            <div class="product-img-wrapper">
-                                <img src="images/${p.thumbnail}" alt="${p.productName}">
-                            </div>
+                            <c:if test="${p.discountPercent > 0}">
+                                <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                            </c:if>
+                            <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                <div class="product-img-wrapper">
+                                    <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}">
+                                </div>
+                            </a>
                             <div class="product-info">
-                                <h3>${p.productName}</h3>
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                    <h3>${p.productName}</h3>
+                                </a>
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>
@@ -294,11 +305,18 @@
                     <c:forEach items="${new_products}" var="p">
                         <div class="product-card">
                             <div class="product-badge new">Mới</div>
-                            <div class="product-img-wrapper">
-                                <img src="images/${p.thumbnail}" alt="${p.productName}">
-                            </div>
+                            <c:if test="${p.discountPercent > 0}">
+                                <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                            </c:if>
+                            <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                <div class="product-img-wrapper">
+                                    <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}">
+                                </div>
+                            </a>
                             <div class="product-info">
-                                <h3>${p.productName}</h3>
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                    <h3>${p.productName}</h3>
+                                </a>
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>

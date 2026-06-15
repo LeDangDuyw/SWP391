@@ -1524,3 +1524,16 @@ h1, h2, h3, h4 {
         gap: 10px !important;
     }
 }
+
+.product-card-link {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    text-decoration: none;
+    color: inherit;
+}
+.product-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+

@@ -118,11 +118,16 @@
                 <c:forEach items="${products}" var="p">
                     <div class="product-card">
                         <div class="product-badge category-badge">${p.categoryName}</div>
-                        <div class="product-img-wrap">
-                            <img src="images/${p.thumbnail}" alt="${p.productName}" class="product-img">
-                        </div>
-                        <div class="product-meta">${p.brandName}</div>
-                        <h3 class="product-title">${p.productName}</h3>
+                        <c:if test="${p.discountPercent > 0}">
+                            <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                        </c:if>
+                        <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                            <div class="product-img-wrap">
+                                <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}" class="product-img">
+                            </div>
+                            <div class="product-meta">${p.brandName}</div>
+                            <h3 class="product-title">${p.productName}</h3>
+                        </a>
                         <div class="price-row">
                             <div class="price"><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</div>
                             <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
@@ -335,11 +340,16 @@
                     <div class="product-grid">
                         <c:forEach items="${products}" var="p">
                             <div class="product-card">
-                                <div class="product-img-wrap">
-                                    <img src="images/${p.thumbnail}" alt="${p.productName}" class="product-img" data-fallback-src="https://via.placeholder.com/200x150?text=Laptop">
-                                </div>
-                                <div class="product-meta">${empty p.brandName ? p.categoryName : p.brandName}</div>
-                                <h3 class="product-title">${p.productName}</h3>
+                                <c:if test="${p.discountPercent > 0}">
+                                    <div class="product-badge discount">-${p.discountPercent}%</div>
+                                </c:if>
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
+                                    <div class="product-img-wrap">
+                                        <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}" class="product-img" data-fallback-src="https://via.placeholder.com/200x150?text=Laptop">
+                                    </div>
+                                    <div class="product-meta">${empty p.brandName ? p.categoryName : p.brandName}</div>
+                                    <h3 class="product-title">${p.productName}</h3>
+                                </a>
 
                                 <div class="specs">
                                     <c:if test="${not empty p.cpu}"><span class="spec-chip">${p.cpu}</span></c:if>
