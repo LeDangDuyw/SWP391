@@ -176,6 +176,12 @@
                         href="${pageContext.request.contextPath}/staff/imei">
                         <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
                     </a>
+
+                    <!-- Tickets -->
+                    <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all"
+                        href="${pageContext.request.contextPath}/staff/ticket/list">
+                        <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
+                    </a>
                 </nav>
 
                 <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">

@@ -99,6 +99,12 @@
                             href="${pageContext.request.contextPath}/staff/imei">
                             <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
                         </a>
+
+                        <!-- Tickets -->
+                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all"
+                            href="${pageContext.request.contextPath}/staff/ticket/list">
+                            <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
+                        </a>
                     </nav>
 
                     <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
@@ -251,11 +257,11 @@
                                         <thead class="bg-[#2d3133] text-white text-xs font-bold tracking-wider">
                                             <tr>
                                                 <th class="px-6 py-4 uppercase">SKU</th>
-                                                <th class="px-6 py-4 uppercase">PRICE</th>
+                                                <th class="px-6 py-4 uppercase">IMPORT PRICE</th>
+                                                <th class="px-6 py-4 uppercase">SELLING PRICE</th>
                                                 <th class="px-6 py-4 uppercase">ATTRIBUTES<br><span
                                                         class="text-[10px] font-normal text-gray-300">(RAM/COLOR)</span>
                                                 </th>
-                                                <th class="px-6 py-4 uppercase text-center">STOCK<br>QUANTITY</th>
                                                 <th class="px-6 py-4 uppercase text-right">ACTIONS</th>
                                             </tr>
                                         </thead>
@@ -321,8 +327,14 @@
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-surface-container-lowest/50';
                         tr.innerHTML = `
-                <td class="px-6 py-5 w-1/4">
+                <td class="px-6 py-5 w-1/5">
                     <input type="text" name="sku[]" placeholder="SKU-\${variantCount}" class="w-full px-3 py-2 border border-outline-variant/50 rounded bg-surface-container-low text-on-surface-variant font-mono text-sm focus:outline-none focus:border-primary" required>
+                </td>
+                <td class="px-6 py-5 w-1/5">
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+                        <input type="number" step="0.01" name="importPrice[]" placeholder="0.00" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
+                    </div>
                 </td>
                 <td class="px-6 py-5 w-1/5">
                     <div class="relative">
@@ -335,9 +347,6 @@
                         <button type="button" onclick="addAttribute(this)" class="text-[#003ec7] hover:bg-blue-100 rounded-full flex items-center justify-center p-1"><span class="material-symbols-outlined text-[18px]">add</span></button>
                     </div>
                     <input type="hidden" name="variantName[]" value="" class="variant-name-hidden">
-                </td>
-                <td class="px-6 py-5 w-32 text-center">
-                    <input type="number" name="stock[]" value="0" class="w-16 px-2 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary text-center mx-auto" required>
                 </td>
                 <td class="px-6 py-5 text-right">
                     <button type="button" onclick="this.closest('tr').remove()" class="text-on-surface-variant hover:text-error transition-colors p-2"><span class="material-symbols-outlined">delete</span></button>

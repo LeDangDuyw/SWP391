@@ -44,6 +44,7 @@ public class InventoryListController extends HttpServlet {
         String sortBy      = request.getParameter("sortBy");
         String category    = request.getParameter("category");
         String stockStatus = request.getParameter("stockStatus");
+        String itemStatus  = request.getParameter("itemStatus");
 
         if (tab == null || tab.isEmpty()) tab = "products";
 
@@ -91,12 +92,12 @@ public class InventoryListController extends HttpServlet {
         }
 
         int offsetV       = (pageV - 1) * pageSize;
-        int totalRecordsV = dao.getTotalInventoryCount(searchInput, category, stockStatus);
+        int totalRecordsV = dao.getTotalInventoryCount(searchInput, category, stockStatus, itemStatus);
         int totalPagesV   = (int) Math.ceil((double) totalRecordsV / pageSize);
         if (totalPagesV == 0) totalPagesV = 1;
 
         List<ProductInventory> products = dao.GetProductInventoryPaginated(
-                searchInput, category, sortBy, stockStatus, offsetV, pageSize);
+                searchInput, category, sortBy, stockStatus, itemStatus, offsetV, pageSize);
 
         request.setAttribute("products",      products);
         request.setAttribute("currentPage",   pageV);

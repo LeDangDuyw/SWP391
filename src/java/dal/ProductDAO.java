@@ -60,6 +60,63 @@ public class ProductDAO extends DBContext {
         return products;
     }
 
+    /*
+     * Name: getAllVariants
+     * Description: Lấy danh sách tất cả các biến thể của sản phẩm.
+     */
+    public List<model.ProductVariant> getAllVariants() {
+        List<model.ProductVariant> variants = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM ProductVariant";
+            stm = connection.prepareStatement(sql);
+            rs  = stm.executeQuery();
+            while (rs.next()) {
+                model.ProductVariant pv = new model.ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status")
+                );
+                variants.add(pv);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllVariants Error: " + e.getMessage());
+        }
+        return variants;
+    }
+
+    /*
+     * Name: getVariantById
+     * Description: Lấy thông tin chi tiết của biến thể theo ID.
+     */
+    public model.ProductVariant getVariantById(int variantId) {
+        try {
+            String sql = "SELECT * FROM ProductVariant WHERE variant_id = ?";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, variantId);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                return new model.ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status")
+                );
+            }
+        } catch (Exception e) {
+            System.out.println("getVariantById Error: " + e.getMessage());
+        }
+        return null;
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // TAB PRODUCTS — đếm và phân trang
     // ══════════════════════════════════════════════════════════════════════════
@@ -178,7 +235,7 @@ public class ProductDAO extends DBContext {
      * Description: Đếm tổng số biến thể sản phẩm đang active, hỗ trợ lọc theo
      *              từ khóa tìm kiếm, danh mục và trạng thái tồn kho.
      */
-    public int getTotalInventoryCount(String search, String category, String stockStatus) {
+    public int getTotalInventoryCount(String search, String category, String stockStatus, String itemStatus) {
         int count = 0;
         try {
             String sql = "SELECT COUNT(*) FROM Product p " +
@@ -186,7 +243,15 @@ public class ProductDAO extends DBContext {
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
                          "JOIN Inventory i ON pv.variant_id = i.variant_id " +
-                         "WHERE pv.status = 'active'";
+                         "WHERE 1=1";
+
+            if (itemStatus != null && itemStatus.equals("hidden")) {
+                sql += " AND pv.status = 'inactive'";
+            } else if (itemStatus != null && itemStatus.equals("all")) {
+                // do nothing, show all
+            } else {
+                sql += " AND pv.status = 'active'";
+            }
 
             if (search != null && !search.trim().isEmpty()) {
                 sql += " AND (p.product_name LIKE '%' + ? + '%'" +
@@ -235,7 +300,7 @@ public class ProductDAO extends DBContext {
      *              từ khóa, danh mục, stock status và sắp xếp theo giá.
      */
     public List<ProductInventory> GetProductInventoryPaginated(
-            String search, String category, String sortBy, String stockStatus,
+            String search, String category, String sortBy, String stockStatus, String itemStatus,
             int offset, int fetchSize) {
 
         List<ProductInventory> products = new ArrayList<>();
@@ -248,13 +313,21 @@ public class ProductDAO extends DBContext {
                          "  WHEN i.available_quantity > 5  THEN N'In Stock' " +
                          "  WHEN i.available_quantity > 0  THEN N'Low Stock' " +
                          "  ELSE N'Sold Out' " +
-                         "END AS status, p.thumbnail " +
+                         "END AS status, p.thumbnail, pv.status as variant_status " +
                          "FROM Product p " +
                          "JOIN Category c ON p.category_id = c.category_id " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
                          "JOIN Inventory i ON pv.variant_id = i.variant_id " +
-                         "WHERE pv.status = 'active'";
+                         "WHERE 1=1";
+
+            if (itemStatus != null && itemStatus.equals("hidden")) {
+                sql += " AND pv.status = 'inactive'";
+            } else if (itemStatus != null && itemStatus.equals("all")) {
+                // do nothing, show all
+            } else {
+                sql += " AND pv.status = 'active'";
+            }
 
             if (search != null && !search.trim().isEmpty()) {
                 sql += " AND (p.product_name LIKE '%' + ? + '%'" +
@@ -303,6 +376,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("available_quantity"),
                         rs.getString("status"),
                         rs.getString("thumbnail"));
+                p.setVariantStatus(rs.getString("variant_status"));
                 products.add(p);
             }
         } catch (Exception e) {
@@ -351,7 +425,7 @@ public class ProductDAO extends DBContext {
      * Description: Thêm mới ProductVariant và khởi tạo bản ghi Inventory tương ứng.
      */
     public void insertProductVariant(int productId, String sku, String variantName,
-                                     java.math.BigDecimal price, int stock) {
+                                     java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
         try {
             String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -359,8 +433,8 @@ public class ProductDAO extends DBContext {
             stm.setInt(1, productId);
             stm.setString(2, sku);
             stm.setString(3, variantName);
-            stm.setBigDecimal(4, price);
-            stm.setBigDecimal(5, price);
+            stm.setBigDecimal(4, importPrice);
+            stm.setBigDecimal(5, sellingPrice);               // selling_price = from form
             stm.setBoolean(6, false);
             stm.setString(7, "active");
             stm.executeUpdate();

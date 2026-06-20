@@ -45,6 +45,26 @@ public class InventoryItem {
         this.itemId = itemId;
     }
 
+    private int ticketId;
+
+    public int getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(int ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    private int variantId;
+
+    public int getVariantId() {
+        return variantId;
+    }
+
+    public void setVariantId(int variantId) {
+        this.variantId = variantId;
+    }
+
     public String getSerialNumber() {
         return serialNumber;
     }

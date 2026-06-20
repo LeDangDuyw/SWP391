@@ -170,6 +170,11 @@
         <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-bold border-l-4 border-primary font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/imei">
             <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">barcode_scanner</span> IMEI
         </a>
+        
+        <!-- Tickets -->
+        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/ticket/list">
+            <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
+        </a>
     </nav>
     
     <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
@@ -229,9 +234,7 @@
 <button class="bg-surface-container-high text-on-surface-variant px-4 py-2.5 rounded-lg border border-outline-variant flex items-center gap-2 hover:bg-surface-variant transition-colors font-label-md text-label-md">
 <span class="material-symbols-outlined" data-icon="file_upload">file_upload</span> Bulk Import
                     </button>
-    <a class="bg-primary text-on-primary px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity font-label-md text-label-md" href="/UniLap/staff/imei/add">
-<span class="material-symbols-outlined" data-icon="add">add</span> Add New Serial
-                    </a>
+
 </div>
 </div>
 <!-- Inventory Stats Grid -->

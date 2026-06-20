@@ -189,6 +189,11 @@
             <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/imei">
                 <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
             </a>
+            
+            <!-- Tickets -->
+            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/ticket/list">
+                <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
+            </a>
         </nav>
         
         <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
@@ -312,6 +317,17 @@
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
+                    <div class="relative">
+                        <select name="itemStatus" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                                border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
+                                focus:ring-0 focus:border-primary outline-none">
+                            <option value="active" ${param.itemStatus == 'active' || empty param.itemStatus ? 'selected' : ''}>Active Items</option>
+                            <option value="hidden" ${param.itemStatus == 'hidden' ? 'selected' : ''}>Hidden Items</option>
+                            <option value="all"    ${param.itemStatus == 'all' ? 'selected' : ''}>All Items</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
+                                     pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                    </div>
                     <% } %>
                 </form>
             </div>
@@ -341,16 +357,7 @@
                                         <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                     </td>
                                     <td class="py-2 px-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-surface-container rounded border border-outline-variant/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                                <img src="${pageContext.request.contextPath}/images/<%= p.getThumbnail() %>"
-                                                     alt="Product Image"
-                                                     class="w-full h-full object-cover">
-                                            </div>
-                                            <div>
-                                                <div class="font-bold text-on-surface"><%= p.getProductName() %></div>
-                                            </div>
-                                        </div>
+                                        <div class="font-bold text-on-surface"><%= p.getProductName() %></div>
                                     </td>
                                     <td class="py-2 px-4"><%= p.getCategoryName() %></td>
                                     <td class="py-2 px-4"><%= p.getBrandName() %></td>
@@ -449,7 +456,12 @@
                                                      class="w-full h-full object-cover">
                                             </div>
                                             <div>
-                                                <div class="font-bold text-on-surface"><%= p.getProductName() %></div>
+                                                <div class="font-bold text-on-surface flex items-center gap-2">
+                                                    <%= p.getProductName() %>
+                                                    <% if ("inactive".equals(p.getVariantStatus())) { %>
+                                                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Hidden</span>
+                                                    <% } %>
+                                                </div>
                                                 <div class="text-on-surface-variant text-[12px]"><%= p.getVariantName() %></div>
                                             </div>
                                         </div>
@@ -470,16 +482,19 @@
                                         </a>
                                         <form action="${pageContext.request.contextPath}/staff/inventory" method="post" class="inline">
                                             <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
-                                            <button class="p-1 text-on-surface-variant hover:text-error transition-colors"
-                                                    name="action" value="delete"
-                                                    onclick="return confirm('Bạn có chắc chắn muốn ẩn biến thể này không?');">
-                                                <span class="material-symbols-outlined text-[20px]">block</span>
-                                            </button>
+                                            <% if ("inactive".equals(p.getVariantStatus())) { %>
                                             <button class="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                                                    name="action" value="restore"
+                                                    name="action" value="restore" title="Restore"
                                                     onclick="return confirm('Bạn có chắc chắn muốn hiển thị lại biến thể này không?');">
                                                 <span class="material-symbols-outlined text-[20px]">settings_backup_restore</span>
                                             </button>
+                                            <% } else { %>
+                                            <button class="p-1 text-on-surface-variant hover:text-error transition-colors"
+                                                    name="action" value="delete" title="Hide"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn ẩn biến thể này không?');">
+                                                <span class="material-symbols-outlined text-[20px]">block</span>
+                                            </button>
+                                            <% } %>
                                         </form>
                                     </td>
                                 </tr>

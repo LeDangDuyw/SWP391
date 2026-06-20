@@ -68,7 +68,6 @@ public class ImeiDAO extends DBContext {
                 java.sql.Date updatedAtSql = rs.getDate("updated_at");
                 if(updatedAtSql != null) item.setUpdatedAt(updatedAtSql.toLocalDate());
                 
-                // Add product details
                 item.setSku(rs.getString("sku"));
                 item.setVariantName(rs.getString("variant_name"));
                 item.setProductName(rs.getString("product_name"));
@@ -139,5 +138,55 @@ public class ImeiDAO extends DBContext {
             System.out.println("getCountByStatus Error: " + e.getMessage());
         }
         return count;
+    }
+    
+    public void insertInventoryItems(List<InventoryItem> items) {
+        if (items == null || items.isEmpty()) return;
+        try {
+            connection.setAutoCommit(false);
+            String sql = "INSERT INTO InventoryItem (variant_id, serial_number, imei, barcode, status, import_date, warranty_expired_date, warehouse_location, note, ticket_id) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement stm = connection.prepareStatement(sql);
+            for (InventoryItem item : items) {
+                stm.setInt(1, item.getVariantId());
+                stm.setString(2, item.getSerialNumber());
+                stm.setString(3, item.getImei());
+                stm.setString(4, item.getBarcode());
+                stm.setString(5, item.getStatus());
+                
+                if (item.getImportDate() != null && !item.getImportDate().isEmpty()) {
+                    stm.setString(6, item.getImportDate());
+                } else {
+                    stm.setNull(6, java.sql.Types.VARCHAR);
+                }
+                
+                if (item.getWarrantyExpiredDate() != null) {
+                    stm.setDate(7, java.sql.Date.valueOf(item.getWarrantyExpiredDate()));
+                } else {
+                    stm.setNull(7, java.sql.Types.DATE);
+                }
+                
+                stm.setString(8, item.getWarehouseLocation());
+                stm.setString(9, item.getNote());
+                
+                if (item.getTicketId() > 0) {
+                    stm.setInt(10, item.getTicketId());
+                } else {
+                    stm.setNull(10, java.sql.Types.INTEGER);
+                }
+                
+                stm.addBatch();
+            }
+            stm.executeBatch();
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.out.println("insertInventoryItems Error: " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Rollback Error: " + ex.getMessage());
+            }
+        }
     }
 }
