@@ -477,6 +477,36 @@ public class ProductDAO extends DBContext {
     }
 }
 
+ // Lấy thông tin chi tiết 1 sản phẩm theo product_id (cho trang chi tiết)
+public Product getProductById(int productId) {
+    try {
+        String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, "
+                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name "
+                   + "from Product p "
+                   + "join Category c on p.category_id = c.category_id "
+                   + "join Brand b on p.brand_id = b.brand_id "
+                   + "where p.product_id = ?";
+        ps = cnn.prepareStatement(sql);
+        ps.setInt(1, productId);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            Product p = new Product(
+                    rs.getInt("product_id"),
+                    rs.getString("product_name"),
+                    rs.getString("description"),
+                    rs.getInt("warranty_period"),
+                    rs.getString("thumbnail"),
+                    rs.getInt("category_id"),
+                    rs.getInt("brand_id"));
+            p.setCategoryName(rs.getString("category_name"));
+            p.setBrandName(rs.getString("brand_name"));
+            return p;
+        }
+    } catch (Exception e) {
+        System.out.println("getProductById: " + e.getMessage());
+    }
+    return null;
+}
 
     // === WAREHOUSE / INVENTORY MANAGEMENT METHODS ===
 

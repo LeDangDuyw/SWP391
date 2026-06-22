@@ -129,6 +129,19 @@
                         <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
                             <div class="product-img-wrap">
                                 <img src="${pageContext.request.contextPath}/images/${p.thumbnail}" alt="${p.productName}" class="product-img">
+<<<<<<< Updated upstream
+=======
+                            </div>
+                            <div class="product-meta">${p.brandName}</div>
+                            <h3 class="product-title">${p.productName}</h3>
+                        </a>
+                        <div class="price-row">
+                            <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                <c:if test="${p.discountPercent > 0}">
+                                    <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                </c:if>
+>>>>>>> Stashed changes
                             </div>
                             <div class="product-meta">${p.brandName}</div>
                             <h3 class="product-title">${p.productName}</h3>
