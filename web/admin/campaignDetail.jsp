@@ -57,6 +57,7 @@
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
+            <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">
