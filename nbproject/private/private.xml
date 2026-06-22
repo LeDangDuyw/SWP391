@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/BrandDao.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/customer/home.jsp</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/customer/product_list.jsp</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/DBContext.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/ProductSeriesDao.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/ProductListFilterDAO.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/Brand.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/Category.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/FlashSaleProduct.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/ProductSeries.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/css/home.css</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/css/product_list.css</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/js/home.js</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/web/js/product_list.js</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/Controller/HomeServlet.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/ProductDAO.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/Controller/ProductListServlet.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/CampaignBanner.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/PageContent.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/PageContentDAO.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/CampaignBannerDAO.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/model/Product.java</file>
+            <file>file:/E:/OneDrive/Documents/NetBeansProjects/UniLap_1/src/java/dal/FlashSaleProductDAO.java</file>
+        </group>
+    </open-files>
+</project-private>

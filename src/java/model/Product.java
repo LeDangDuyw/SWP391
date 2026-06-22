@@ -94,23 +94,18 @@ public class Product {
         public String getSeriesName() { return seriesName; }
         public void setSeriesName(String seriesName) { this.seriesName = seriesName; }
 
-        @Override
         public String getCpu() { return cpu; }
         public void setCpu(String cpu) { this.cpu = cpu; }
 
-        @Override
         public String getRam() { return ram; }
         public void setRam(String ram) { this.ram = ram; }
 
-        @Override
         public String getSsd() { return ssd; }
         public void setSsd(String ssd) { this.ssd = ssd; }
 
-        @Override
         public String getGpu() { return gpu; }
         public void setGpu(String gpu) { this.gpu = gpu; }
 
-        @Override
         public String getScreen() { return screen; }
         public void setScreen(String screen) { this.screen = screen; }
     }
