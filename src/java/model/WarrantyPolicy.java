@@ -23,6 +23,7 @@ public class WarrantyPolicy {
     private Timestamp updatedAt;
     private String policyContent;
     private String applicableRegions;
+    private Date expiryDate;
 
     /**
      * Creates a new WarrantyPolicy instance with default values.
@@ -36,7 +37,7 @@ public class WarrantyPolicy {
     public WarrantyPolicy(int policyId, String policyName, String description,
             int warrantyMonths, String status, String version,
             Date effectiveDate, Timestamp createdAt, Timestamp updatedAt,
-            String policyContent, String applicableRegions) {
+            String policyContent, String applicableRegions, Date expiryDate) {
         this.policyId = policyId;
         this.policyName = policyName;
         this.description = description;
@@ -48,6 +49,7 @@ public class WarrantyPolicy {
         this.updatedAt = updatedAt;
         this.policyContent = policyContent;
         this.applicableRegions = applicableRegions;
+        this.expiryDate = expiryDate;
     }
 
     public int getPolicyId() {
@@ -136,5 +138,13 @@ public class WarrantyPolicy {
 
     public void setApplicableRegions(String r) {
         this.applicableRegions = r;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }

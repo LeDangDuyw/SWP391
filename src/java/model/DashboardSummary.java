@@ -1,86 +1,167 @@
 package model;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * DashboardSummary represents aggregated KPI data displayed on the admin
- * dashboard.
+ * DashboardSummary represents aggregated KPI data displayed on admin dashboard.
  *
- * Version 1.4
+ * Version 2.0
  *
+ * Date: 18/06/2026
+ * 
  * Author DuyLD
  */
 public class DashboardSummary {
 
-    private int totalUsers;
-    private int totalOrders;
-    private int totalProducts;
-    private int totalPolicies;
-    private double totalRevenue;
-    private String systemStatus;
 
-    /**
-     * Creates a new DashboardSummary instance with default values.
-     */
+    // KPI Cards
+    private double todayRevenue;
+    private int todayOrders;
+    private int newCustomersToday;
+    private int pendingAlerts;
+
+
+    // Revenue Chart
+    private Map<String, Double> monthlyRevenue;
+
+
+    // Orders Chart
+    private Map<String, Integer> ordersByStatus;
+
+
+    // Product Category Chart
+    private Map<String, Integer> productsByCategory;
+
+
+    // Low Stock Table
+    private List<Product> lowStockProducts;
+
+
+    // Top Products Chart
+    private Map<String, Integer> topProducts;
+
+
+    // Top Customers Chart
+    private Map<String, Double> topCustomers;
+
+
+    // Recent Activities
+    private List<String[]> recentActivities;
+
+
+
     public DashboardSummary() {
     }
 
-    /**
-     * Creates a new DashboardSummary instance with all KPI fields initialized.
-     */
-    public DashboardSummary(int totalUsers, int totalOrders, int totalProducts,
-            int totalPolicies, double totalRevenue, String systemStatus) {
-        this.totalUsers = totalUsers;
-        this.totalOrders = totalOrders;
-        this.totalProducts = totalProducts;
-        this.totalPolicies = totalPolicies;
-        this.totalRevenue = totalRevenue;
-        this.systemStatus = systemStatus;
+
+
+    public double getTodayRevenue() {
+        return todayRevenue;
     }
 
-    public int getTotalUsers() {
-        return totalUsers;
+    public void setTodayRevenue(double todayRevenue) {
+        this.todayRevenue = todayRevenue;
     }
 
-    public void setTotalUsers(int totalUsers) {
-        this.totalUsers = totalUsers;
+
+
+    public int getTodayOrders() {
+        return todayOrders;
     }
 
-    public int getTotalOrders() {
-        return totalOrders;
+    public void setTodayOrders(int todayOrders) {
+        this.todayOrders = todayOrders;
     }
 
-    public void setTotalOrders(int totalOrders) {
-        this.totalOrders = totalOrders;
+
+
+    public int getNewCustomersToday() {
+        return newCustomersToday;
     }
 
-    public int getTotalProducts() {
-        return totalProducts;
+    public void setNewCustomersToday(int newCustomersToday) {
+        this.newCustomersToday = newCustomersToday;
     }
 
-    public void setTotalProducts(int totalProducts) {
-        this.totalProducts = totalProducts;
+
+
+    public int getPendingAlerts() {
+        return pendingAlerts;
     }
 
-    public int getTotalPolicies() {
-        return totalPolicies;
+    public void setPendingAlerts(int pendingAlerts) {
+        this.pendingAlerts = pendingAlerts;
     }
 
-    public void setTotalPolicies(int totalPolicies) {
-        this.totalPolicies = totalPolicies;
+
+
+    public Map<String, Double> getMonthlyRevenue() {
+        return monthlyRevenue;
     }
 
-    public double getTotalRevenue() {
-        return totalRevenue;
+    public void setMonthlyRevenue(Map<String, Double> monthlyRevenue) {
+        this.monthlyRevenue = monthlyRevenue;
     }
 
-    public void setTotalRevenue(double totalRevenue) {
-        this.totalRevenue = totalRevenue;
+
+
+    public Map<String, Integer> getOrdersByStatus() {
+        return ordersByStatus;
     }
 
-    public String getSystemStatus() {
-        return systemStatus;
+    public void setOrdersByStatus(Map<String, Integer> ordersByStatus) {
+        this.ordersByStatus = ordersByStatus;
     }
 
-    public void setSystemStatus(String systemStatus) {
-        this.systemStatus = systemStatus;
+
+
+    public Map<String, Integer> getProductsByCategory() {
+        return productsByCategory;
     }
+
+    public void setProductsByCategory(Map<String, Integer> productsByCategory) {
+        this.productsByCategory = productsByCategory;
+    }
+
+
+
+    public List<Product> getLowStockProducts() {
+        return lowStockProducts;
+    }
+
+    public void setLowStockProducts(List<Product> lowStockProducts) {
+        this.lowStockProducts = lowStockProducts;
+    }
+
+
+
+    public Map<String, Integer> getTopProducts() {
+        return topProducts;
+    }
+
+    public void setTopProducts(Map<String, Integer> topProducts) {
+        this.topProducts = topProducts;
+    }
+
+
+
+    public Map<String, Double> getTopCustomers() {
+        return topCustomers;
+    }
+
+    public void setTopCustomers(Map<String, Double> topCustomers) {
+        this.topCustomers = topCustomers;
+    }
+
+
+
+    public List<String[]> getRecentActivities() {
+        return recentActivities;
+    }
+
+    public void setRecentActivities(List<String[]> recentActivities) {
+        this.recentActivities = recentActivities;
+    }
+
 }

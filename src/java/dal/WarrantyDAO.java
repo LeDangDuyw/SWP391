@@ -1,0 +1,490 @@
+package dal;
+
+import model.WarrantyClaim;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * WarrantyDAO handles all CRUD operations for the WarrantyClaims table.
+ *
+ * Extends DBContext to reuse the existing connection factory.
+ *
+ * Version 1.0 Author DuyLD
+ */
+public class WarrantyDAO extends DBContext {
+
+    // ── INSERT ───────────────────────────────────────────────────────────────
+    /**
+     * Inserts a new warranty claim and returns the generated claim ID.
+     *
+     * @param claim the WarrantyClaim to persist
+     * @return generated claimId, or -1 on failure
+     * @throws Exception on SQL error
+     */
+    public int insertClaim(WarrantyClaim claim) throws Exception {
+        String sql = "INSERT INTO WarrantyClaims "
+                + "(order_id, order_detail_id, customer_id, serial_number, "
+                + " title, description, status, created_at, updated_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, 'PENDING', GETDATE(), GETDATE())";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, claim.getOrderId());
+            ps.setInt(2, claim.getOrderDetailId());
+            ps.setInt(3, claim.getCustomerId());
+            ps.setString(4, claim.getSerialNumber());
+            ps.setString(5, claim.getTitle());
+            ps.setString(6, claim.getDescription());
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
+        }
+        return -1;
+    }
+
+    // ── UPDATE STATUS ─────────────────────────────────────────────────────────
+    /**
+     * Updates the status (and optionally completed_at) of an existing claim.
+     *
+     * @param claimId ID of the claim to update
+     * @param newStatus the target status string
+     * @throws Exception on SQL error
+     */
+    public void updateStatus(int claimId, String newStatus) throws Exception {
+        boolean isCompleted = "COMPLETED".equals(newStatus);
+
+        String sql = isCompleted
+                ? "UPDATE WarrantyClaims SET status = ?, updated_at = GETDATE(), completed_at = GETDATE() WHERE claim_id = ?"
+                : "UPDATE WarrantyClaims SET status = ?, updated_at = GETDATE() WHERE claim_id = ?";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, claimId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Atomically assigns staff and transitions status PENDING → PROCESSING.
+     * Uses optimistic locking (WHERE status = 'PENDING') to prevent race
+     * condition when multiple staff click "Accept" on the same claim.
+     *
+     * @return number of rows affected (0 = claim was already taken by someone
+     * else)
+     */
+    public int assignStaffAndProcess(int claimId, int staffId) throws Exception {
+        String sql = "UPDATE WarrantyClaims "
+                + "SET staff_id = ?, status = 'PROCESSING', updated_at = GETDATE() "
+                + "WHERE claim_id = ? AND status = 'PENDING'";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            ps.setInt(2, claimId);
+            return ps.executeUpdate();
+        }
+    }
+
+    // ── FIND BY ID ────────────────────────────────────────────────────────────
+    /**
+     * Retrieves a single WarrantyClaim by its ID, joining customer and product
+     * names.
+     *
+     * @param claimId the claim's primary key
+     * @return WarrantyClaim or null if not found
+     * @throws Exception on SQL error
+     */
+    public WarrantyClaim findById(int claimId) throws Exception {
+        String sql
+                = "SELECT wc.*, "
+                + "u.full_name AS customer_name, "
+                + "p.product_name "
+                + "FROM WarrantyClaims wc "
+                + "JOIN [User] u ON wc.customer_id = u.user_id "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN Product p ON od.product_id = p.product_id "
+                + "WHERE wc.claim_id = ?";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, claimId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapClaimWithJoin(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    // ── FIND BY CUSTOMER ─────────────────────────────────────────────────────
+    /**
+     * Returns all warranty claims for a specific customer, newest first.
+     *
+     * @param customerId ID of the customer
+     * @return list of WarrantyClaim (may be empty)
+     * @throws Exception on SQL error
+     */
+    public List<WarrantyClaim> findByCustomer(int customerId) throws Exception {
+        String sql = "SELECT wc.*, "
+                + "u.full_name AS customer_name, "
+                + "p.product_name "
+                + "FROM WarrantyClaims wc "
+                + "JOIN [User] u ON wc.customer_id = u.user_id "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "WHERE wc.customer_id = ? "
+                + "ORDER BY wc.created_at DESC";
+
+        List<WarrantyClaim> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapClaimWithJoin(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    // ── FIND ALL (paged) ─────────────────────────────────────────────────────
+    /**
+     * Returns a page of all warranty claims, newest first.
+     *
+     * @param offset zero-based row offset
+     * @param limit max rows to return
+     * @return list of WarrantyClaim
+     * @throws Exception on SQL error
+     */
+    public List<WarrantyClaim> findAll(int offset, int limit) throws Exception {
+        String sql = "SELECT wc.*, "
+                + "u.full_name AS customer_name, "
+                + "p.product_name "
+                + "FROM WarrantyClaims wc "
+                + "JOIN [User] u ON wc.customer_id = u.user_id "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "ORDER BY wc.created_at DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        List<WarrantyClaim> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapClaimWithJoin(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    // ── COUNT ─────────────────────────────────────────────────────────────────
+    /**
+     * Returns the total number of warranty claims, optionally filtered by
+     * status.
+     *
+     * @param status status filter, or null/empty for all
+     * @return row count
+     * @throws Exception on SQL error
+     */
+    public int count(String status) throws Exception {
+        boolean hasStatus = (status != null && !status.trim().isEmpty());
+        String sql = hasStatus
+                ? "SELECT COUNT(*) FROM WarrantyClaims WHERE status = ?"
+                : "SELECT COUNT(*) FROM WarrantyClaims";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            if (hasStatus) {
+                ps.setString(1, status);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    // ── SEARCH ────────────────────────────────────────────────────────────────
+    /**
+     * Searches warranty claims by keyword (matches title, description, serial
+     * number).
+     *
+     * @param keyword search keyword
+     * @param offset zero-based row offset
+     * @param limit max rows to return
+     * @return matching claims
+     * @throws Exception on SQL error
+     */
+    public List<WarrantyClaim> search(String keyword, int offset, int limit) throws Exception {
+        String pattern = "%" + keyword.trim() + "%";
+        String sql = "SELECT wc.*, "
+                + "u.full_name AS customer_name, "
+                + "p.product_name "
+                + "FROM WarrantyClaims wc "
+                + "JOIN [User] u ON wc.customer_id = u.user_id "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "WHERE wc.title LIKE ? "
+                + "OR wc.description LIKE ? "
+                + "OR wc.serial_number LIKE ? "
+                + "ORDER BY wc.created_at DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<WarrantyClaim> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setString(3, pattern);
+            ps.setInt(4, offset);
+            ps.setInt(5, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapClaimWithJoin(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Returns the count of claims matching the search keyword.
+     *
+     * @param keyword search keyword
+     * @return matching row count
+     * @throws Exception on SQL error
+     */
+    public int countSearch(String keyword) throws Exception {
+        String pattern = "%" + keyword.trim() + "%";
+        String sql = "SELECT COUNT(*) FROM WarrantyClaims wc "
+                + "WHERE wc.title LIKE ? OR wc.description LIKE ? OR wc.serial_number LIKE ?";
+
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setString(3, pattern);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    // ── FILTER ────────────────────────────────────────────────────────────────
+    /**
+     * Returns warranty claims filtered by status (paged).
+     *
+     * @param status status to filter by
+     * @param offset zero-based row offset
+     * @param limit max rows to return
+     * @return matching claims
+     * @throws Exception on SQL error
+     */
+    public List<WarrantyClaim> filter(String status, int offset, int limit) throws Exception {
+        String sql = "SELECT wc.*, "
+                + "u.full_name AS customer_name, "
+                + "p.product_name "
+                + "FROM WarrantyClaims wc "
+                + "JOIN [User] u ON wc.customer_id = u.user_id "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "WHERE wc.status = ? "
+                + "ORDER BY wc.created_at DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<WarrantyClaim> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, offset);
+            ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapClaimWithJoin(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    // ── VALIDATION HELPERS ────────────────────────────────────────────────────
+    /**
+     * Checks whether a serial number exists in the ProductSerials table.
+     *
+     * @param serialNumber the serial number to check
+     * @return true if the serial exists
+     * @throws Exception on SQL error
+     */
+    public boolean serialExists(String serialNumber) throws Exception {
+        String sql = "SELECT 1 FROM ProductSerials WHERE serial_number = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Checks whether a serial number belongs to the given customer via a
+     * completed order.
+     *
+     * @param serialNumber the serial number
+     * @param customerId the customer to verify ownership
+     * @return true if the customer owns the product
+     * @throws Exception on SQL error
+     */
+    public boolean productBelongsToCustomer(String serialNumber, int customerId) throws Exception {
+        String sql = "SELECT 1 "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "JOIN [Order] o ON od.order_id = o.order_id "
+                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.status = 'COMPLETED'";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            ps.setInt(2, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Checks whether the product identified by serial number is still under
+     * warranty. Warranty expiry is computed as: order completion date +
+     * warranty months from policy.
+     *
+     * @param serialNumber the serial number to check
+     * @return true if warranty is still active
+     * @throws Exception on SQL error
+     */
+    public boolean isUnderWarranty(String serialNumber) throws Exception {
+        String sql = "SELECT 1 "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN [Order] o ON od.order_id = o.order_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
+                + "WHERE ps.serial_number = ? "
+                + "  AND DATEADD(MONTH, wp.WarrantyMonths, o.completed_at) >= GETDATE()";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Checks whether an open (unfinished) claim already exists for the serial
+     * number. Unfinished statuses: PENDING, PROCESSING, APPROVED.
+     *
+     * @param serialNumber the serial number to check
+     * @return true if an active claim exists
+     * @throws Exception on SQL error
+     */
+    public boolean hasActiveClaim(String serialNumber) throws Exception {
+        String sql = "SELECT 1 FROM WarrantyClaims "
+                + "WHERE serial_number = ? AND status IN ('PENDING','PROCESSING','APPROVED')";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Retrieves the order_detail_id for a given serial number.
+     *
+     * @param serialNumber the serial number
+     * @return order_detail_id, or -1 if not found
+     * @throws Exception on SQL error
+     */
+    public int getOrderDetailIdBySerial(String serialNumber) throws Exception {
+        String sql = "SELECT od.order_detail_id, od.order_id "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "WHERE ps.serial_number = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("order_detail_id");
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Retrieves the order_id for a given serial number.
+     *
+     * @param serialNumber the serial number
+     * @return order_id, or -1 if not found
+     * @throws Exception on SQL error
+     */
+    public int getOrderIdBySerial(String serialNumber) throws Exception {
+        String sql = "SELECT od.order_id "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "WHERE ps.serial_number = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("order_id");
+                }
+            }
+        }
+        return -1;
+    }
+
+    // ── PRIVATE MAPPING ───────────────────────────────────────────────────────
+    /**
+     * Maps base fields from a ResultSet row to a WarrantyClaim object. Dùng làm
+     * helper nội bộ cho mapClaimWithJoin(). Tất cả query hiện tại đều có JOIN
+     * nên không gọi method này trực tiếp.
+     */
+    private WarrantyClaim mapClaim(ResultSet rs) throws SQLException {
+        WarrantyClaim c = new WarrantyClaim();
+        c.setClaimId(rs.getInt("claim_id"));
+        c.setOrderId(rs.getInt("order_id"));
+        c.setOrderDetailId(rs.getInt("order_detail_id"));
+        c.setCustomerId(rs.getInt("customer_id"));
+
+        int sid = rs.getInt("staff_id");
+        c.setStaffId(rs.wasNull() ? null : sid);
+
+        c.setSerialNumber(rs.getString("serial_number"));
+        c.setTitle(rs.getString("title"));
+        c.setDescription(rs.getString("description"));
+        c.setStatus(rs.getString("status"));
+        c.setCreatedAt(rs.getTimestamp("created_at"));
+        c.setUpdatedAt(rs.getTimestamp("updated_at"));
+        c.setCompletedAt(rs.getTimestamp("completed_at"));
+        return c;
+    }
+
+    /**
+     * Map base fields + joined fields — dùng cho query có JOIN với Users và
+     * Products. Nếu column name bị typo, lỗi sẽ nổi lên ngay thay vì bị nuốt.
+     */
+    private WarrantyClaim mapClaimWithJoin(ResultSet rs) throws SQLException {
+        WarrantyClaim c = mapClaim(rs);
+        c.setCustomerName(rs.getString("customer_name"));
+        c.setProductName(rs.getString("product_name"));
+        return c;
+    }
+}

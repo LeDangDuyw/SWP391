@@ -91,7 +91,7 @@ public class PolicyDAO extends DBContext {
     public List<WarrantyPolicy> searchPolicies(String keyword) throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies "
-                + "WHERE PolicyName LIKE ?"
+                + "WHERE PolicyName LIKE ? "
                 + "ORDER BY PolicyID DESC";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";

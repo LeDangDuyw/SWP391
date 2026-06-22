@@ -2,64 +2,85 @@ package controller;
 
 import dal.AdminDashboardDAO;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import model.DashboardSummary;
+import model.Users;
+import service.MockAnalyticsService;
 
 /**
- * AdminDashboardServlet loads and forwards KPI summary data to the admin dashboard view.
+ * AdminDashboardServlet loads dashboard data.
  *
  * URL: /admin/dashboard
  *
- * Version 1.5
+ * Version 2.1
  *
- * Author DuyLD
+ * Date: 18/06/2026
+ *
+ * Author: DuyLD
  */
 public class AdminDashboardServlet extends HttpServlet {
 
-    private AdminDashboardDAO dao;
+    private AdminDashboardDAO dashboardDAO;
+    private MockAnalyticsService mockService;
 
-    /**
-     * Initializes the AdminDashboardDAO instance used by this servlet.
-     */
     @Override
     public void init() {
-        dao = new AdminDashboardDAO();
+        dashboardDAO = new AdminDashboardDAO();
+        mockService = new MockAnalyticsService();
     }
 
-    /**
-     * Handles GET requests by loading the dashboard summary and forwarding to the dashboard JSP.
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
+
             HttpSession session = request.getSession(false);
 
-            String role = null;
+            Users user = null;
+
             if (session != null) {
-                role = (String) session.getAttribute("role");
+                user = (Users) session.getAttribute("user");
             }
 
-            DashboardSummary summary;
-
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                summary = dao.getDashboardSummary();
-            } else {
-                summary = dao.getDashboardSummary();
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
             }
 
-            request.setAttribute("summary", summary);
+            // REAL DATA FROM DATABASE
+            request.setAttribute("totalUsers", dashboardDAO.getTotalUsers());
+            request.setAttribute("totalProducts", dashboardDAO.getTotalProducts());
+            request.setAttribute("totalCategories", dashboardDAO.getTotalCategories());
+            request.setAttribute("totalWarrantyClaims", dashboardDAO.getTotalWarrantyClaims());
+
+            request.setAttribute("productsByCategory", dashboardDAO.getProductsByCategory());
+            request.setAttribute("lowStockProducts", dashboardDAO.getLowStockProducts());
+            request.setAttribute("recentProducts", dashboardDAO.getRecentProducts());
+
+            // ===============================
+            // MOCK ANALYTICS DATA
+            // Replace later with Order DAO
+            // ===============================
+            request.setAttribute("todayRevenue", mockService.getTodayRevenue());
+            request.setAttribute("todayOrders", mockService.getTodayOrders());
+            request.setAttribute("newCustomersToday", mockService.getNewCustomersToday());
+            request.setAttribute("pendingAlerts", mockService.getPendingAlerts());
+
+            request.setAttribute("monthlyRevenue", mockService.getMonthlyRevenue());
+            request.setAttribute("ordersByStatus", mockService.getOrdersByStatus());
+            request.setAttribute("topProducts", mockService.getTopProducts());
+            request.setAttribute("topCustomers", mockService.getTopCustomers());
+            request.setAttribute("recentActivities", mockService.getRecentActivities());
+
             request.getRequestDispatcher("/admin/AdminDashboard.jsp")
-                   .forward(request, response);
+                    .forward(request, response);
 
         } catch (Exception e) {
-            throw new ServletException("Cannot load dashboard", e);
+            throw new ServletException("Cannot load admin dashboard", e);
         }
     }
 }

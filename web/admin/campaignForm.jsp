@@ -182,7 +182,7 @@ if (c.getUsageLimit() != null) {
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
         <nav>
-            <a href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
