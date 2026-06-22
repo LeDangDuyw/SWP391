@@ -479,26 +479,56 @@ public class ProductDAO extends DBContext {
  // Lấy thông tin chi tiết 1 sản phẩm theo product_id (cho trang chi tiết)
 public Product getProductById(int productId) {
     try {
-        String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, "
-                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name "
-                   + "from Product p "
-                   + "join Category c on p.category_id = c.category_id "
-                   + "join Brand b on p.brand_id = b.brand_id "
-                   + "where p.product_id = ?";
+        String sql = "SELECT p.product_id, p.product_name, p.description, p.warranty_period, "
+                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name, "
+                   + "v.purpose, v.min_price, v.original_price, v.discount_percent, "
+                   + "v.cpu, v.ram, v.ssd, v.gpu, v.screen, v.connectivity, v.switch_type, v.dpi "
+                   + "FROM Product p "
+                   + "JOIN Category c ON p.category_id = c.category_id "
+                   + "JOIN Brand b ON p.brand_id = b.brand_id "
+                   + "LEFT JOIN vw_ProductSpec v ON p.product_id = v.product_id "
+                   + "WHERE p.product_id = ?";
         ps = cnn.prepareStatement(sql);
         ps.setInt(1, productId);
         rs = ps.executeQuery();
         if (rs.next()) {
-            Product p = new Product(
-                    rs.getInt("product_id"),
-                    rs.getString("product_name"),
-                    rs.getString("description"),
-                    rs.getInt("warranty_period"),
-                    rs.getString("thumbnail"),
-                    rs.getInt("category_id"),
-                    rs.getInt("brand_id"));
+            int catId = rs.getInt("category_id");
+            Product p;
+            if (catId == 1) {
+                Product.Laptop l = new Product.Laptop();
+                l.setCpu(rs.getString("cpu"));
+                l.setRam(rs.getString("ram"));
+                l.setSsd(rs.getString("ssd"));
+                l.setGpu(rs.getString("gpu"));
+                l.setScreen(rs.getString("screen"));
+                p = l;
+            } else if (catId == 4) {
+                Product.Mouse m = new Product.Mouse();
+                m.setConnectivity(rs.getString("connectivity"));
+                m.setDpi(rs.getString("dpi"));
+                p = m;
+            } else if (catId == 3) {
+                Product.Keyboard k = new Product.Keyboard();
+                k.setConnectivity(rs.getString("connectivity"));
+                k.setSwitchType(rs.getString("switch_type"));
+                p = k;
+            } else {
+                p = new Product();
+            }
+            
+            p.setProductId(rs.getInt("product_id"));
+            p.setProductName(rs.getString("product_name"));
+            p.setDescription(rs.getString("description"));
+            p.setWarrantyPeriod(rs.getInt("warranty_period"));
+            p.setThumbnail(rs.getString("thumbnail"));
+            p.setCategoryId(catId);
+            p.setBrandId(rs.getInt("brand_id"));
             p.setCategoryName(rs.getString("category_name"));
             p.setBrandName(rs.getString("brand_name"));
+            p.setPurpose(rs.getString("purpose"));
+            p.setMinPrice(rs.getLong("min_price"));
+            p.setOriginalPrice(rs.getLong("original_price"));
+            p.setDiscountPercent(rs.getInt("discount_percent"));
             return p;
         }
     } catch (Exception e) {
@@ -507,6 +537,36 @@ public Product getProductById(int productId) {
     return null;
 }
 
+//Lấy sản phẩm theo id hiển thị trong page cart 
+public model.CartItem getCartItemByVariantId(int variantId) {
+    try {
+        String sql = "SELECT pv.variant_id, pv.product_id, pv.variant_name, pv.selling_price, "
+                   + "ISNULL(i.available_quantity, 0) AS available_quantity, "
+                   + "p.product_name, p.thumbnail "
+                   + "FROM ProductVariant pv "
+                   + "JOIN Product p ON pv.product_id = p.product_id "
+                   + "LEFT JOIN Inventory i ON pv.variant_id = i.variant_id "
+                   + "WHERE pv.variant_id = ? AND pv.status = 'active'";
+        ps = cnn.prepareStatement(sql);
+        ps.setInt(1, variantId);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            model.CartItem item = new model.CartItem();
+            item.setVariantId(rs.getInt("variant_id"));
+            item.setProductId(rs.getInt("product_id"));
+            item.setProductName(rs.getString("product_name"));
+            item.setVariantName(rs.getString("variant_name"));
+            item.setThumbnail(rs.getString("thumbnail"));
+            item.setUnitPrice(rs.getBigDecimal("selling_price"));
+            item.setAvailableQuantity(rs.getInt("available_quantity"));
+            item.setQuantity(1);
+            return item;
+        }
+    } catch (Exception e) {
+        System.out.println("getCartItemByVariantId: " + e.getMessage());
+    }
+    return null;
+}
     // === WAREHOUSE / INVENTORY MANAGEMENT METHODS ===
 
 public List<Product> GetAllProducts() {
@@ -517,7 +577,7 @@ public List<Product> GetAllProducts() {
             ps = cnn.prepareStatement(sql);
             rs = ps.executeQuery();
             while(rs.next()) {
-            Product p = new Product(rs.getInt("variant_id"),rs.getString("product_name"), rs.getString("description"),rs.getInt("warranty_period"),
+            Product p = new Product(rs.getInt("product_id"),rs.getString("product_name"), rs.getString("description"),rs.getInt("warranty_period"),
                                     rs.getString("thumbnail"), rs.getInt("category_id"), rs.getInt("brand_id"));
             products.add(p);
         }
@@ -940,5 +1000,49 @@ public List<Product> GetAllProducts() {
         }catch(Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public ArrayList<Product> getSimilarProducts(int categoryId, int currentProductId, int limit) {
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String sql = "SELECT TOP (?) p.product_id, p.product_name, p.thumbnail, b.brand_name, "
+                       + "MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, "
+                       + "MIN(v.selling_price) AS original_price, "
+                       + "CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent "
+                       + "FROM Product p "
+                       + "JOIN Brand b ON p.brand_id = b.brand_id "
+                       + "JOIN ProductVariant v ON p.product_id = v.product_id "
+                       + "LEFT JOIN ( "
+                       + "    SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price "
+                       + "    FROM FlashSaleItem fsi "
+                       + "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id "
+                       + "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time "
+                       + "    GROUP BY fsi.variant_id "
+                       + ") fs_active ON v.variant_id = fs_active.variant_id "
+                       + "WHERE v.status = 'active' "
+                       + "AND p.category_id = ? "
+                       + "AND p.product_id != ? "
+                       + "GROUP BY p.product_id, p.product_name, p.thumbnail, b.brand_name "
+                       + "ORDER BY p.product_id DESC";
+            PreparedStatement localPs = cnn.prepareStatement(sql);
+            localPs.setInt(1, limit);
+            localPs.setInt(2, categoryId);
+            localPs.setInt(3, currentProductId);
+            ResultSet localRs = localPs.executeQuery();
+            while (localRs.next()) {
+                Product p = new Product();
+                p.setProductId(localRs.getInt(1));
+                p.setProductName(localRs.getString(2));
+                p.setThumbnail(localRs.getString(3));
+                p.setBrandName(localRs.getString(4));
+                p.setMinPrice(localRs.getLong(5));
+                p.setOriginalPrice(localRs.getLong(6));
+                p.setDiscountPercent(localRs.getInt(7));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getSimilarProducts: " + e.getMessage());
+        }
+        return data;
     }
 }

@@ -1162,8 +1162,8 @@ h1, h2, h3, h4 {
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid #f1f5f9;
+    padding-top: 0;
+    margin-bottom: 10px;
 }
 
 .price {
@@ -1172,27 +1172,48 @@ h1, h2, h3, h4 {
     color: var(--primary);
 }
 
-.price-row .btn-add-cart {
-    width: auto;
-    padding: 8px 14px;
-    font-size: 12px;
-    margin-top: 0;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: var(--primary);
-    color: white;
-    font-weight: 600;
+.actions {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: var(--transition);
+    gap: 10px;
+    margin-top: 5px;
+    width: 100%;
+    align-items: stretch;
 }
 
-.price-row .btn-add-cart:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25);
+.actions .btn-add-cart, .actions .btn-buy-now {
+    margin: 0;
+    height: 38px;
+    box-sizing: border-box;
+    border: none;
+    padding: 0 5px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+}
+
+.actions .btn-add-cart {
+    background: #0b4bcc;
+    color: #fff;
+}
+
+.actions .btn-add-cart:hover {
+    background: #093da5;
+}
+
+.actions .btn-buy-now {
+    background: #eef2ff;
+    color: #0b4bcc;
+}
+
+.actions .btn-buy-now:hover {
+    background: #e1e7ff;
 }
 
 

@@ -60,7 +60,7 @@ public class ProductListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ProductListFilterDAO ProductListFilterDAO = new ProductListFilterDAO();
+        ProductListFilterDAO productListFilterDAO = new ProductListFilterDAO();
         ProductDAO productDAO = new ProductDAO();
         BrandDao brandDao = new BrandDao();
         CategoryDAO categoryDAO = new CategoryDAO();
@@ -182,27 +182,27 @@ public class ProductListServlet extends HttpServlet {
 
                 // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc 
                 totalProducts = productDAO.countFilteredLaptop(categoryId, brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, search, null, null, null);
-                request.setAttribute("products", ProductListFilterDAO.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search));
+                request.setAttribute("products", productListFilterDAO.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search));
             }
             case 3 -> {
                 // Keyboard
                 String switchType = request.getParameter("switch");
 
                 // Sử dụng thông số kỹ thuật  cho bộ lọc
-                totalProducts = ProductListFilterDAO.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search));
+                totalProducts = productListFilterDAO.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
+                request.setAttribute("products", productListFilterDAO.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search));
             }
             case 4 -> {
                 // Mouse
                 String dpi = request.getParameter("dpi");
 
                 // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc 
-                totalProducts = ProductListFilterDAO.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search));
+                totalProducts = productListFilterDAO.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
+                request.setAttribute("products", productListFilterDAO.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search));
             }
             default -> {
-                totalProducts = ProductListFilterDAO.countFilteredGeneral(categoryId, brandId, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterGeneral(categoryId, brandId, price, sort, page, pageSize, search));
+                totalProducts = productListFilterDAO.countFilteredGeneral(categoryId, brandId, price, search);
+                request.setAttribute("products", productListFilterDAO.filterGeneral(categoryId, brandId, price, sort, page, pageSize, search));
             }
         }
 

@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <fmt:setLocale value="vi_VN"/>
 
 <!DOCTYPE html>
@@ -13,7 +14,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=2">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=10">
     </head>
     <body>
         <!-- Header -->
@@ -46,7 +47,12 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
-                    <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
+                            <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
+                        </c:if>
+                    </a>
                     <a href="#"><i class="fas fa-bell"></i></a>
                         <c:choose>
                             <c:when test="${not empty sessionScope.user}">
@@ -102,37 +108,39 @@
 
         <!-- phần quảng cáo -->
         <section class="hero">
-            <div class="hero-slider-wrapper">
-                <div class="hero-slides">
-                    <c:forEach items="${banners}" var="b" varStatus="status">
-                        <div class="hero-slide ${status.first ? 'active' : ''}">
-                            <a href="#">
-                                <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner">
-                            </a>
-                        </div>
-                    </c:forEach>
-                    <c:if test="${empty banners}">
-                        <div class="hero-slide active">
-                            <a href="#">
-                                <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Laptop AI">
-                            </a>
-                        </div>
-                    </c:if>
+            <div class="container">
+                <div class="hero-slider-wrapper">
+                    <div class="hero-slides">
+                        <c:forEach items="${banners}" var="b" varStatus="status">
+                            <div class="hero-slide ${status.first ? 'active' : ''}">
+                                <a href="#">
+                                    <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner">
+                                </a>
+                            </div>
+                        </c:forEach>
+                        <c:if test="${empty banners}">
+                            <div class="hero-slide active">
+                                <a href="#">
+                                    <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Laptop AI">
+                                </a>
+                            </div>
+                        </c:if>
+                    </div>
+                   <!--có banner-->
+                    <div class="hero-indicators">
+                        <c:forEach items="${banners}" var="b" varStatus="status">
+                            <span class="hero-dot ${status.first ? 'active' : ''}" data-index="${status.index}"></span>
+                        </c:forEach>
+                            
+                            <!--Không có banner-->
+                        <c:if test="${empty banners}">
+                            <span class="hero-dot active" data-index="0"></span>
+                        </c:if>
+                    </div>
+                   
+                    <button class="hero-arrow hero-prev"><i class="fas fa-chevron-left"></i></button>
+                    <button class="hero-arrow hero-next"><i class="fas fa-chevron-right"></i></button>
                 </div>
-               <!--có banner-->
-                <div class="hero-indicators">
-                    <c:forEach items="${banners}" var="b" varStatus="status">
-                        <span class="hero-dot ${status.first ? 'active' : ''}" data-index="${status.index}"></span>
-                    </c:forEach>
-                        
-                        <!--Không có banner-->
-                    <c:if test="${empty banners}">
-                        <span class="hero-dot active" data-index="0"></span>
-                    </c:if>
-                </div>
-               
-                <button class="hero-arrow hero-prev"><i class="fas fa-chevron-left"></i></button>
-                <button class="hero-arrow hero-next"><i class="fas fa-chevron-right"></i></button>
             </div>
         </section>
         <!-- Flash Sale -->
@@ -210,10 +218,10 @@
 
                                     </div>
                                     <!--nút mua hoặc để thêm vào trong giỏ hàng--> 
-                                    <div class="actions">
-                                        <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
-                                        <button type="button" class="btn-buy-now">Mua ngay</button>
-                                    </div>
+                                     <div class="actions">
+                                         <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                                         <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
+                                     </div>
                                 </div>
                             </div>
                         </c:forEach>
@@ -265,11 +273,11 @@
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>
-                                <div class="actions">
-                                    <!--nút mua bán sản phẩm và nút thêm vào giỏ hàng-->
-                                    <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
-                                    <button type="button" class="btn-buy-now">Mua ngay</button>
-                                </div>
+                                 <div class="actions">
+                                     <!--nút mua bán sản phẩm và nút thêm vào giỏ hàng-->
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
+                                 </div>
                             </div>
                         </div>
                     </c:forEach>
@@ -320,10 +328,10 @@
                                 <div class="product-price">
                                     <span class="current-price"><fmt:formatNumber value="${p.minPrice}" type="number" pattern="###,###"/>₫</span>
                                 </div>
-                                <div class="actions">
-                                    <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
-                                    <button type="button" class="btn-buy-now">Mua ngay</button>
-                                </div>
+                                 <div class="actions">
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
+                                 </div>
                             </div>
                         </div>
                     </c:forEach>

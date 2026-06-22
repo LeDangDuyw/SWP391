@@ -6,22 +6,21 @@ package controller;
  */
 
 import dal.ProductDAO;
+import dal.ProductReviewDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.List;
 import model.Product;
 import model.ProductVariant;
+import model.ProductReview;
 
 /**
- *
  * @author ASUS
  */
-@WebServlet(urlPatterns = {"/ProductDetailServlet"})
 public class ProductDetailServlet extends HttpServlet {
 
     /**
@@ -77,21 +76,43 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         ProductDAO productDAO = new ProductDAO();
+        dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
 
         // 2) Lấy thông tin sản phẩm
         Product product = productDAO.getProductById(productId);
         if (product == null) {
             // EF1: sản phẩm không tồn tại / đã bị gỡ
             request.setAttribute("errorMessage", "Sản phẩm không tồn tại.");
+            request.setAttribute("categories", categoryDAO.getAllCategories());
             request.getRequestDispatcher("customer/product_detail.jsp").forward(request, response);
             return;
         }
 
         // 3) Lấy các biến thể (RAM/SSD) kèm tồn kho
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(productId);
+        List<Product> similarProducts = productDAO.getSimilarProducts(product.getCategoryId(), product.getProductId(), 4);
+
+        // 4) Lấy đánh giá & bình luận sản phẩm
+        ProductReviewDAO reviewDAO = new ProductReviewDAO();
+        List<ProductReview> reviews = reviewDAO.getApprovedReviewsByProductId(productId);
+        
+        double averageRating = 5.0; // Mặc định là 5 sao nếu chưa có đánh giá
+        if (reviews != null && !reviews.isEmpty()) {
+            double totalStars = 0;
+            for (ProductReview r : reviews) {
+                totalStars += r.getRating();
+            }
+            averageRating = totalStars / reviews.size();
+        }
+        int reviewsCount = (reviews != null) ? reviews.size() : 0;
 
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
+        request.setAttribute("categories", categoryDAO.getAllCategories());
+        request.setAttribute("similarProducts", similarProducts);
+        request.setAttribute("reviews", reviews);
+        request.setAttribute("averageRating", averageRating);
+        request.setAttribute("reviewsCount", reviewsCount);
         request.getRequestDispatcher("customer/product_detail.jsp").forward(request, response);
     }
 
@@ -106,7 +127,60 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        request.setCharacterEncoding("UTF-8");
+        String productIdParam = request.getParameter("productId");
+        String ratingParam = request.getParameter("rating");
+        String comment = request.getParameter("comment");
+        
+        if (productIdParam == null || ratingParam == null || comment == null || comment.trim().isEmpty()) {
+            response.sendRedirect("HomeServlet");
+            return;
+        }
+
+        int productId;
+        int rating;
+        try {
+            productId = Integer.parseInt(productIdParam);
+            rating = Integer.parseInt(ratingParam);
+        } catch (NumberFormatException e) {
+            response.sendRedirect("HomeServlet");
+            return;
+        }
+
+        jakarta.servlet.http.HttpSession session = request.getSession();
+        Object userObj = session.getAttribute("user");
+        
+        if (userObj == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        // Trích xuất user_id động từ session "user" bằng reflection
+        Integer userId = null;
+        try {
+            java.lang.reflect.Method getUserIdMethod = userObj.getClass().getMethod("getUserId");
+            userId = (Integer) getUserIdMethod.invoke(userObj);
+        } catch (Exception e1) {
+            try {
+                java.lang.reflect.Method getIdMethod = userObj.getClass().getMethod("getId");
+                userId = (Integer) getIdMethod.invoke(userObj);
+            } catch (Exception e2) {
+                try {
+                    java.lang.reflect.Field field = userObj.getClass().getDeclaredField("userId");
+                    field.setAccessible(true);
+                    userId = (Integer) field.get(userObj);
+                } catch (Exception e3) {
+                    // ignore
+                }
+            }
+        }
+
+        if (userId != null) {
+            ProductReviewDAO reviewDAO = new ProductReviewDAO();
+            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "approved");
+        }
+
+        response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");
     }
 
     /**

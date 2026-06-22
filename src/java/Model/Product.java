@@ -9,8 +9,23 @@ public class Product {
     private String categoryName;
     private long minPrice;
     private String purpose;
+    private String description;
+    private int warrantyPeriod;
+    private int categoryId;
+    private long originalPrice;
+    private int discountPercent;
 
     public Product() {}
+
+    public Product(int productId, String productName, String description, int warrantyPeriod, String thumbnail, int categoryId, int brandId) {
+        this.productId = productId;
+        this.productName = productName;
+        this.description = description;
+        this.warrantyPeriod = warrantyPeriod;
+        this.thumbnail = thumbnail;
+        this.categoryId = categoryId;
+        this.brandId = brandId;
+    }
 
     public int getProductId() { return productId; }
     public void setProductId(int productId) { this.productId = productId; }
@@ -35,6 +50,21 @@ public class Product {
 
     public String getPurpose() { return purpose; }
     public void setPurpose(String purpose) { this.purpose = purpose; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public int getWarrantyPeriod() { return warrantyPeriod; }
+    public void setWarrantyPeriod(int warrantyPeriod) { this.warrantyPeriod = warrantyPeriod; }
+
+    public int getCategoryId() { return categoryId; }
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+
+    public long getOriginalPrice() { return originalPrice; }
+    public void setOriginalPrice(long originalPrice) { this.originalPrice = originalPrice; }
+
+    public int getDiscountPercent() { return discountPercent; }
+    public void setDiscountPercent(int discountPercent) { this.discountPercent = discountPercent; }
 
     // Default getters for subclass properties to avoid PropertyNotFoundException in JSP EL
     public String getCpu() { return null; }

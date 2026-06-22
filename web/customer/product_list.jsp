@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=2">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=10">
 </head>
 <body class="product-list-page">
     <header class="header">
@@ -47,7 +47,12 @@
                     <input type="text" name="search" value="${param.search}" placeholder="Tìm kiếm sản phẩm..." class="product-search-input">
                     <button type="submit" class="product-search-btn"><i class="fas fa-search"></i></button>
                 </form>
-                <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative; color: inherit;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
+                        <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
+                    </c:if>
+                </a>
                 <a href="#"><i class="fas fa-bell"></i></a>
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
@@ -130,7 +135,10 @@
                         </a>
                         <div class="price-row">
                             <div class="price"><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</div>
-                            <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
+                        </div>
+                        <div class="actions">
+                            <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                            <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
                         </div>
                     </div>
                 </c:forEach>
@@ -361,11 +369,14 @@
                                 </div>
 
                                 <div class="price-row">
-                                    <div class="price">
-                                        <fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫
-                                    </div>
-                                    <button type="button" class="btn-add-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </div>
+                                     <div class="price">
+                                         <fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫
+                                     </div>
+                                 </div>
+                                 <div class="actions">
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                                     <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
+                                 </div>
                             </div>
                         </c:forEach>
                     </div>
