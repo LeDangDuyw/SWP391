@@ -75,8 +75,8 @@ public class AddProductController extends HttpServlet {
         
         // Lấy danh sách các thuộc tính của variant từ mảng input
         String[] skus = request.getParameterValues("sku[]");
+        String[] importPrices = request.getParameterValues("importPrice[]");
         String[] prices = request.getParameterValues("price[]");
-        String[] stocks = request.getParameterValues("stock[]");
         String[] variantNames = request.getParameterValues("variantName[]");
 
         // --- Bắt lỗi không nhập input ---
@@ -97,9 +97,9 @@ public class AddProductController extends HttpServlet {
 
         for (int i = 0; i < skus.length; i++) {
             if (skus[i] == null || skus[i].trim().isEmpty() ||
-                prices[i] == null || prices[i].trim().isEmpty() ||
-                stocks[i] == null || stocks[i].trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin cho các biến thể (SKU, Giá, Tồn kho)!");
+                importPrices == null || importPrices.length <= i || importPrices[i] == null || importPrices[i].trim().isEmpty() ||
+                prices[i] == null || prices[i].trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin cho các biến thể (SKU, Giá Nhập, Giá Bán)!");
                 doGet(request, response);
                 return;
             }
@@ -147,22 +147,22 @@ public class AddProductController extends HttpServlet {
             if (skus != null) {
                 for (int j = 0; j < skus.length; j++) {
                     String sku = skus[j];
+                    String importPriceStr = importPrices[j];
                     String priceStr = prices[j];
-                    String stockStr = stocks[j];
                     String variantName = variantNames != null && variantNames.length > j ? variantNames[j] : "";
                     
-                    BigDecimal price = new BigDecimal(0);
-                    int stock = 0;
+                    BigDecimal importPrice = BigDecimal.ZERO;
+                    BigDecimal price = BigDecimal.ZERO;
+                    int stock = 0; // Stock always starts at 0, updated by Ticket Workflow
                     try {
-                        // Ép kiểu giá tiền và số lượng tồn kho
+                        importPrice = new BigDecimal(importPriceStr);
                         price = new BigDecimal(priceStr);
-                        stock = Integer.parseInt(stockStr);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     
                     // Thêm biến thể của sản phẩm vào database
-                    productDAO.insertProductVariant(productId, sku, variantName, price, stock);
+                    productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock);
                 }
             }
         }

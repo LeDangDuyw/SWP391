@@ -529,6 +529,18 @@ public List<Product> GetAllProducts() {
         return null;
     }
 
+    /*
+     * Name: getAllVariants
+     * Description: Lấy danh sách tất cả các biến thể của sản phẩm.
+     */
+    public List<model.ProductVariant> getAllVariants() {
+        List<model.ProductVariant> variants = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM ProductVariant";
+            stm = connection.prepareStatement(sql);
+            rs  = stm.executeQuery();
+            while (rs.next()) {
+                model.ProductVariant pv = new model.ProductVariant(
     public List<ProductVariant> getProductVariantsByProductId(int productId) {
         List<ProductVariant> variants = new ArrayList<>();
         try {
@@ -550,6 +562,48 @@ public List<Product> GetAllProducts() {
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
                         rs.getBoolean("is_serialized"),
+                        rs.getString("status")
+                );
+                variants.add(pv);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllVariants Error: " + e.getMessage());
+        }
+        return variants;
+    }
+
+    /*
+     * Name: getVariantById
+     * Description: Lấy thông tin chi tiết của biến thể theo ID.
+     */
+    public model.ProductVariant getVariantById(int variantId) {
+        try {
+            String sql = "SELECT * FROM ProductVariant WHERE variant_id = ?";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, variantId);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                return new model.ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status")
+                );
+            }
+        } catch (Exception e) {
+            System.out.println("getVariantById Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // TAB PRODUCTS — đếm và phân trang
+    // ══════════════════════════════════════════════════════════════════════════
+
                         rs.getString("status"),
                         rs.getInt("available_quantity"));
                 variants.add(variant);
@@ -680,6 +734,24 @@ public List<Product> GetAllProducts() {
      * Version: 2.0
      * Description: Đếm tổng số lượng biến thể sản phẩm đang hoạt động, có hỗ trợ lọc theo từ khóa tìm kiếm.
      */
+    public int getTotalInventoryCount(String search, String category, String stockStatus, String itemStatus) {
+        int count = 0;
+        try {
+            String sql = "SELECT COUNT(*) FROM Product p " +
+                         "JOIN Category c ON p.category_id = c.category_id " +
+                         "JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
+                         "JOIN Inventory i ON pv.variant_id = i.variant_id " +
+                         "WHERE 1=1";
+
+            if (itemStatus != null && itemStatus.equals("hidden")) {
+                sql += " AND pv.status = 'inactive'";
+            } else if (itemStatus != null && itemStatus.equals("all")) {
+                // do nothing, show all
+            } else {
+                sql += " AND pv.status = 'active'";
+            }
+
     public int getTotalInventoryCount(String search) {
         // Đếm tổng số lượng sản phẩm (phục vụ cho việc phân trang)
         int count = 0;
@@ -717,6 +789,36 @@ public List<Product> GetAllProducts() {
      * Version: 2.0
      * Description: Lấy danh sách sản phẩm chi tiết có phân trang, hỗ trợ lọc theo từ khóa và sắp xếp theo giá.
      */
+    public List<ProductInventory> GetProductInventoryPaginated(
+            String search, String category, String sortBy, String stockStatus, String itemStatus,
+            int offset, int fetchSize) {
+
+        List<ProductInventory> products = new ArrayList<>();
+        try {
+            String order = (sortBy != null && sortBy.equals("lowToHigh")) ? "ASC" : "DESC";
+
+            String sql = "SELECT pv.variant_id, p.product_name, pv.sku, pv.variant_name, " +
+                         "b.brand_name, c.category_name, pv.selling_price, i.available_quantity, " +
+                         "CASE " +
+                         "  WHEN i.available_quantity > 5  THEN N'In Stock' " +
+                         "  WHEN i.available_quantity > 0  THEN N'Low Stock' " +
+                         "  ELSE N'Sold Out' " +
+                         "END AS status, p.thumbnail, pv.status as variant_status " +
+                         "FROM Product p " +
+                         "JOIN Category c ON p.category_id = c.category_id " +
+                         "JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
+                         "JOIN Inventory i ON pv.variant_id = i.variant_id " +
+                         "WHERE 1=1";
+
+            if (itemStatus != null && itemStatus.equals("hidden")) {
+                sql += " AND pv.status = 'inactive'";
+            } else if (itemStatus != null && itemStatus.equals("all")) {
+                // do nothing, show all
+            } else {
+                sql += " AND pv.status = 'active'";
+            }
+
     public List<ProductInventory> GetProductInventoryPaginated(String search, String sortBy, int offset, int fetchSize){
         // Lấy danh sách sản phẩm có phân trang (dùng OFFSET và FETCH NEXT của SQL Server)
         List<ProductInventory> products = new ArrayList<>();
@@ -747,6 +849,23 @@ public List<Product> GetAllProducts() {
                 ps.setString(paramIndex++, search);
                 ps.setString(paramIndex++, search);
             }
+            stm.setInt(idx++, offset);
+            stm.setInt(idx++, fetchSize);
+
+            rs = stm.executeQuery();
+            while (rs.next()) {
+                ProductInventory p = new ProductInventory(
+                        rs.getInt("variant_id"),
+                        rs.getString("product_name"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getString("brand_name"),
+                        rs.getString("category_name"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getInt("available_quantity"),
+                        rs.getString("status"),
+                        rs.getString("thumbnail"));
+                p.setVariantStatus(rs.getString("variant_status"));
             ps.setInt(paramIndex++, offset);
             ps.setInt(paramIndex++, fetchSize);
             
@@ -809,6 +928,22 @@ public List<Product> GetAllProducts() {
      * Version: 2.0
      * Description: Thêm mới một biến thể của sản phẩm (ProductVariant) và khởi tạo bản ghi tồn kho (Inventory) tương ứng.
      */
+    public void insertProductVariant(int productId, String sku, String variantName,
+                                     java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
+        try {
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            stm = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            stm.setInt(1, productId);
+            stm.setString(2, sku);
+            stm.setString(3, variantName);
+            stm.setBigDecimal(4, importPrice);
+            stm.setBigDecimal(5, sellingPrice);               // selling_price = from form
+            stm.setBoolean(6, false);
+            stm.setString(7, "active");
+            stm.executeUpdate();
+
+            rs = stm.getGeneratedKeys();
     public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
         // Thêm biến thể của sản phẩm vào bảng ProductVariant và cập nhật kho Inventory
         try {
