@@ -3,6 +3,7 @@ import dal.DBContext;
 import java.sql.Connection;
 import model.Product;
 import model.ProductVariant;
+import model.ProductCompareDTO;
 import viewmodel.ProductInventory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -910,5 +911,53 @@ public List<Product> GetAllProducts() {
         }catch(Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public ProductCompareDTO getProductCompareDetail(int productId) {
+        ProductCompareDTO p = null;
+        try {
+            String sql = """
+                         SELECT v.product_id, v.product_name, v.thumbnail, v.brand_name, v.category_name, v.category_id,
+                                v.original_price, v.discount_percent, v.min_price, v.warranty_period, v.description,
+                                v.cpu, v.ram, v.ssd, v.gpu, v.screen, v.connectivity, v.switch_type, v.dpi,
+                                (SELECT ISNULL(SUM(inv.available_quantity), 0)
+                                 FROM ProductVariant pv
+                                 LEFT JOIN Inventory inv ON pv.variant_id = inv.variant_id
+                                 WHERE pv.product_id = v.product_id AND pv.status = 'active') AS total_stock
+                         FROM vw_ProductSpec v
+                         WHERE v.product_id = ?
+                         """;
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, productId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                p = new ProductCompareDTO();
+                p.setProductId(rs.getInt("product_id"));
+                p.setProductName(rs.getString("product_name"));
+                p.setThumbnail(rs.getString("thumbnail"));
+                p.setBrandName(rs.getString("brand_name"));
+                p.setCategoryName(rs.getString("category_name"));
+                p.setCategoryId(rs.getInt("category_id"));
+                p.setOriginalPrice(rs.getLong("original_price"));
+                p.setDiscountPercent(rs.getInt("discount_percent"));
+                p.setMinPrice(rs.getLong("min_price"));
+                p.setWarrantyPeriod(rs.getInt("warranty_period"));
+                p.setDescription(rs.getString("description"));
+                p.setTotalStock(rs.getInt("total_stock"));
+                
+                // specs
+                p.setCpu(rs.getString("cpu"));
+                p.setRam(rs.getString("ram"));
+                p.setSsd(rs.getString("ssd"));
+                p.setGpu(rs.getString("gpu"));
+                p.setScreen(rs.getString("screen"));
+                p.setConnectivity(rs.getString("connectivity"));
+                p.setSwitchType(rs.getString("switch_type"));
+                p.setDpi(rs.getString("dpi"));
+            }
+        } catch (Exception e) {
+            System.out.println("getProductCompareDetail: " + e.getMessage());
+        }
+        return p;
     }
 }

@@ -61,6 +61,7 @@
             <a href="#"><span>♚</span>Users</a>
             <a class="active" href="<%=base%>"><span>▥</span>Analytics</a>
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
+            <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">
