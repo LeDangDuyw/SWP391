@@ -155,32 +155,5 @@ public class AdminDashboardDAO extends DBContext {
         return list;
     }
 
-    /**
-     * Retrieves a staff-level KPI summary including total orders, products, and
-     * system status.
-     */
-    public DashboardSummary getStaffDashboard() throws Exception {
-
-        DashboardSummary summary = new DashboardSummary();
-
-        try (Connection con = getConnection()) {
-
-            PreparedStatement ps1 = con.prepareStatement("SELECT COUNT(*) FROM [Order]");
-            PreparedStatement ps2 = con.prepareStatement("SELECT COUNT(*) FROM Product");
-
-            ResultSet rs1 = ps1.executeQuery();
-            if (rs1.next()) {
-                summary.setTotalOrders(rs1.getInt(1));
-            }
-
-            ResultSet rs2 = ps2.executeQuery();
-            if (rs2.next()) {
-                summary.setTotalProducts(rs2.getInt(1));
-            }
-
-            summary.setSystemStatus("ONLINE");
-        }
-
-        return summary;
-    }
+    
 }

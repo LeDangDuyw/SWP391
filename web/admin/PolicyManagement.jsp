@@ -2,6 +2,8 @@
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="fn"  uri="http://java.sun.com/jsp/jstl/functions"%>
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -43,10 +45,27 @@
                 top: 0;
                 height: 100vh;
             }
-            .sidebar .brand { margin: 6px 10px 44px; display: grid; gap: 6px; }
-            .sidebar .brand span { color: #0b39d1; font-size: 24px; font-weight: 800; letter-spacing: .05em; display: block; }
-            .sidebar .brand small { color: #343a46; font-size: 14px; display: block; }
-            .sidebar nav { display: grid; gap: 10px; }
+            .sidebar .brand {
+                margin: 6px 10px 44px;
+                display: grid;
+                gap: 6px;
+            }
+            .sidebar .brand span {
+                color: #0b39d1;
+                font-size: 24px;
+                font-weight: 800;
+                letter-spacing: .05em;
+                display: block;
+            }
+            .sidebar .brand small {
+                color: #343a46;
+                font-size: 14px;
+                display: block;
+            }
+            .sidebar nav {
+                display: grid;
+                gap: 10px;
+            }
             .sidebar nav a {
                 display: flex;
                 align-items: center;
@@ -58,9 +77,18 @@
                 text-decoration: none;
                 font-size: 14px;
             }
-            .sidebar nav a span { min-width: 20px; color: #1f2937; font-size: 16px; }
-            .sidebar nav a:hover { background: #f3f4f6; }
-            .sidebar nav a.active { background: #d8e8ff; color: #0b39d1; }
+            .sidebar nav a span {
+                min-width: 20px;
+                color: #1f2937;
+                font-size: 16px;
+            }
+            .sidebar nav a:hover {
+                background: #f3f4f6;
+            }
+            .sidebar nav a.active {
+                background: #d8e8ff;
+                color: #0b39d1;
+            }
             .sidebar .profile {
                 margin-top: auto;
                 border-top: 1px solid #d4dae6;
@@ -732,9 +760,6 @@
                                 <button class="tool-btn" style="font-weight:700;" title="Bold">B</button>
                                 <button class="tool-btn" style="font-style:italic;" title="Italic">I</button>
                                 <button class="tool-btn" style="text-decoration:underline;" title="Underline">U</button>
-                                <div class="tool-sep"></div>
-                                <button class="tool-btn" title="Link">&#128279;</button>
-                                <button class="tool-btn" title="Image">&#128444;</button>
                             </div>
                             <div class="status-indicator">
                                 <c:if test="${selectedPolicy != null}">
@@ -746,7 +771,7 @@
                                         <span id="statusLabel">
                                             <c:choose>
                                                 <c:when test="${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED'}">Live</c:when>
-                                                <c:otherwise>Draft</c:otherwise>
+                                                <c:otherwise>Draft/Disabled</c:otherwise>
                                             </c:choose>
                                         </span>
                                     </div>
@@ -766,11 +791,31 @@
                                             <label>VERSION</label>
                                             <span class="meta-chip">${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}</span>
                                         </div>
+                                        <!--                                        <div class="meta-item">
+                                                                                    <label>EFFECTIVE DATE</label>
+                                                                                    <span class="meta-chip">
+                                        <c:choose>
+                                            <c:when test="${selectedPolicy.effectiveDate != null}"><fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="MM/dd/yyyy"/></c:when>
+                                            <c:otherwise>—</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </div>-->
                                         <div class="meta-item">
-                                            <label>EFFECTIVE DATE</label>
+                                            <label>ACTIVE PERIOD</label>
                                             <span class="meta-chip">
                                                 <c:choose>
-                                                    <c:when test="${selectedPolicy.effectiveDate != null}"><fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="MM/dd/yyyy"/></c:when>
+                                                    <c:when test="${selectedPolicy.effectiveDate != null}">
+                                                        <fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="dd/MM/yyyy"/>
+                                                        →
+                                                        <c:choose>
+                                                            <c:when test="${selectedPolicy.expiryDate != null}">
+                                                                <fmt:formatDate value="${selectedPolicy.expiryDate}" pattern="dd/MM/yyyy"/>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ∞
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
                                                     <c:otherwise>—</c:otherwise>
                                                 </c:choose>
                                             </span>
@@ -853,10 +898,11 @@
                         <div class="form-group"><label>Policy Content</label><textarea name="policyContent" rows="5" placeholder="Full policy body text...">${formData.policyContent}</textarea></div>
                         <div class="form-group"><label>Applicable Regions <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="e.g. NA, EU, APAC"></div>
                         <div class="form-row">
-                            <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" value="${formData.applicableRegions}" placeholder="e.g. 24"></div>
+                            <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" 
+                                                                                         value="${formData.warrantyMonths}" placeholder="e.g. 24" step="1" required=""></div>
                             <div class="form-group"><label>Version</label><input type="text" name="version" value="${formData.applicableRegions}" placeholder="e.g. v1.0" value="v1.0"></div>
                         </div>
-                        <div class="form-group"><label>Effective Date</label><input type="date" name="effectiveDate"  value="${formData.applicableRegions}"></div>
+                        <div class="form-group"><label>Effective Date</label><input type="date" name="effectiveDate"  value="${formData.effectiveDate}"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline" onclick="closeModal('createModal')">Cancel</button>
@@ -888,7 +934,7 @@
                             <div class="form-group"><label>Policy Content</label><textarea name="policyContent" rows="5">${selectedPolicy.policyContent}</textarea></div>
                             <div class="form-group"><label>Applicable Regions</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
                             <div class="form-row">
-                                <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="0" value="${selectedPolicy.warrantyMonths}"></div>
+                                <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
                                 <div class="form-group"><label>Version</label><input type="text" name="version" value="${selectedPolicy.version}"></div>
                             </div>
                             <div class="form-row">
@@ -967,51 +1013,63 @@
 
         <script>
             function openModal(id) {
-                document.getElementById(id).classList.add('open');
+            document.getElementById(id).classList.add('open');
             }
             function closeModal(id) {
-                document.getElementById(id).classList.remove('open');
+            document.getElementById(id).classList.remove('open');
             }
 
             function openDeleteConfirm(id) {
-                document.getElementById('deletePolicyId').value = id;
-                openModal('deleteModal');
+            document.getElementById('deletePolicyId').value = id;
+            openModal('deleteModal');
             }
 
             document.querySelectorAll('.modal-overlay').forEach(function (el) {
-                el.addEventListener('click', function (e) {
-                    if (e.target === el)
-                        el.classList.remove('open');
-                });
+            el.addEventListener('click', function (e) {
+            if (e.target === el)
+                    el.classList.remove('open');
             });
-
+            });
             function toggleStatus(policyId, currentStatus) {
-                var isLive = (currentStatus === 'LIVE' || currentStatus === 'PUBLISHED');
-                var newAction = isLive ? 'disable' : 'publish';
-                if (!confirm(isLive ? 'Set this policy to Disabled?' : 'Publish this policy as Live?'))
+            var isLive = (currentStatus === 'LIVE' || currentStatus === 'PUBLISHED');
+            var newAction = isLive ? 'disable' : 'publish';
+            if (!confirm(isLive ? 'Set this policy to Disabled?' : 'Publish this policy as Live?'))
                     return;
-                var form = document.createElement('form');
-                form.method = 'post';
-                form.action = '${pageContext.request.contextPath}/admin/policy';
-                var a = document.createElement('input');
-                a.type = 'hidden';
-                a.name = 'action';
-                a.value = newAction;
-                form.appendChild(a);
-                var i = document.createElement('input');
-                i.type = 'hidden';
-                i.name = 'policyId';
-                i.value = policyId;
-                form.appendChild(i);
-                document.body.appendChild(form);
-                form.submit();
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = '${pageContext.request.contextPath}/admin/policy';
+            var a = document.createElement('input');
+            a.type = 'hidden';
+            a.name = 'action';
+            a.value = newAction;
+            form.appendChild(a);
+            var i = document.createElement('input');
+            i.type = 'hidden';
+            i.name = 'policyId';
+            i.value = policyId;
+            form.appendChild(i);
+            document.body.appendChild(form);
+            form.submit();
             }
 
             (function () {
-                var params = new URLSearchParams(window.location.search);
-                if (params.get('edit') === '1')
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('edit') === '1')
                     openModal('editModal');
             })();
+            <script>
+                var quill = new Quill('#editor', {
+                    theme: 'snow',
+                    modules: {                 toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'header': [1, 2, 3, false] }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'clean']
+                    ]
+                    }
+            });
         </script>
-    </body>
+    </script>
+</body>
 </html>
