@@ -304,7 +304,7 @@
                             <input type="hidden" name="action" id="cartAction" value="add">
                             <input type="hidden" name="variantId" id="selectedVariantId" value="${variants[0].variantId}">
                             <input type="hidden" name="quantity" id="formQty" value="1">
-                            <button type="submit" class="pd-add-cart" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
+                            <button type="submit" class="pd-add-cart" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
                         </form>
                         <button type="button" id="btnBuyNow" class="pd-btn-buy" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>
                             Mua ngay
@@ -547,9 +547,12 @@
                                         <h3 style="font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${sp.productName}</h3>
                                     </div>
                                 </a>
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto;">
-                                    <div class="current-price" style="font-size: 15px;"><fmt:formatNumber value="${sp.minPrice}" pattern="#,##0"/>₫</div>
-                                    <button type="button" style="width: 32px; height: 32px; border-radius: 50%; border: none; background-color: var(--secondary); color: var(--secondary-text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition);"><i class="fas fa-shopping-cart" style="font-size: 12px;"></i></button>
+                                <div class="product-price" style="margin-top: auto;">
+                                    <span class="current-price" style="font-size: 15px; font-weight: 700; color: var(--primary);"><fmt:formatNumber value="${sp.minPrice}" pattern="#,##0"/>₫</span>
+                                </div>
+                                <div class="actions">
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${sp.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${sp.productId}" class="btn-buy-now" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;">Mua ngay</a>
                                 </div>
                             </div>
                         </c:forEach>
