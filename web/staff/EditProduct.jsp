@@ -188,7 +188,23 @@
             <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
-        <div class="profile">♙ <span>Admin User Profile</span></div>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
+                <span>↪</span> Logout
+            </a>
+        </div>
     </aside>
 <!-- Main Content Area -->
 <main class="flex-1 ml-0 md:ml-72 p-gutter max-w-container-max mx-auto">
