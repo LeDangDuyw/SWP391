@@ -35,6 +35,34 @@
                                 </c:if>
                             </c:forEach>
 
+                    <a href="#">Khuyến mãi</a>
+                </nav>
+                <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
+                    <form action="ProductListServlet" method="GET" class="search-form" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
+                        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
+                        <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
+                    </form>
+                    <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="#"><i class="fas fa-bell"></i></a>
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user}">
+                            <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
+                                <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                            <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
+                                                 alt="Avatar" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="fas fa-user"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                                </a>
+                                <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
+                                    <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                    <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
+                                    <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
                             <div class="nav-dropdown">
                                 <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down"
                                         style="font-size: 11px;"></i></span>

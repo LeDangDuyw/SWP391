@@ -270,14 +270,25 @@
                 <nav>
                     <a class="active" href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
                     <a href="#"><span>▣</span>Orders</a>
-                    <a href="#"><span>♚</span>Users</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
-                    <div>♙ <span>Admin User Profile</span></div>
+                    <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                        <%
+                            model.Users u = (model.Users) session.getAttribute("user");
+                            if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                        %>
+                            <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                                 alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                        <% } else { %>
+                            <span>♙</span>
+                        <% } %>
+                        <span>Admin User Profile</span>
+                    </div>
                     <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
                 </div>
             </aside>

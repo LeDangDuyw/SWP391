@@ -1,3 +1,135 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniLap - Laptop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=2">
+</head>
+<body class="product-list-page">
+    <header class="header">
+        <div class="container header-container">
+            <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>
+            <nav class="main-nav">
+                <a href="${pageContext.request.contextPath}/HomeServlet">Trang chủ</a>
+                <c:forEach items="${categories}" var="cat">
+                    <c:if test="${cat.categoryId == 1 || cat.categoryId == 3 || cat.categoryId == 4}">
+                        <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
+                    </c:if>
+                </c:forEach>
+
+                <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
+                    <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down dropdown-chevron"></i></span>
+                    <div class="dropdown-content">
+                        <c:forEach items="${categories}" var="cat">
+                            <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
+                                <a href="ProductListServlet?category=${cat.categoryId}" class="${categoryId == cat.categoryId ? 'active' : ''}">${cat.categoryName}</a>
+                            </c:if>
+                        </c:forEach>
+                    </div>
+                </div>
+
+                <a href="#">Khuyến mãi</a>
+            </nav>
+            <div class="header-icons header-icons-inline">
+                <form action="ProductListServlet" method="GET" class="search-form product-search-form">
+                    <c:if test="${not empty categoryId}">
+                        <input type="hidden" name="category" value="${categoryId}">
+                    </c:if>
+                    <input type="text" name="search" value="${param.search}" placeholder="Tìm kiếm sản phẩm..." class="product-search-input">
+                    <button type="submit" class="product-search-btn"><i class="fas fa-search"></i></button>
+                </form>
+                <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                <a href="#"><i class="fas fa-bell"></i></a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
+                            <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                        <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
+                                             alt="Avatar" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <i class="fas fa-user"></i>
+                                    </c:otherwise>
+                                </c:choose>
+                                <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                            </a>
+                            <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
+                                <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
+                                <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
+                            </div>
+                        </div>
+                        <script>
+                            (function() {
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    var triggers = document.querySelectorAll('.user-menu-trigger');
+                                    triggers.forEach(function(trigger) {
+                                        trigger.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            var dropdown = this.nextElementSibling;
+                                            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                        });
+                                    });
+                                    document.addEventListener('click', function() {
+                                        document.querySelectorAll('.user-menu-dropdown-content').forEach(function(dropdown) {
+                                            dropdown.style.display = 'none';
+                                        });
+                                    });
+                                });
+                            })();
+                        </script>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/login"><i class="fas fa-user"></i></a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <c:if test="${globalSearch}">
+            <!-- Chế độ tìm kiếm toàn bộ -->
+            <div class="global-search-header">
+                <div class="search-result-info">
+                    <h2><i class="fas fa-search"></i> Kết quả tìm kiếm cho: "<span class="search-keyword">${searchKeyword}</span>"</h2>
+                    <p>${empty products ? 0 : fn:length(products)} sản phẩm được tìm thấy</p>
+                </div>
+                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-back-home">
+                    <i class="fas fa-arrow-left"></i> Về trang chủ
+                </a>
+            </div>
+
+            <div class="product-grid global-search-grid">
+                <c:forEach items="${products}" var="p">
+                    <div class="product-card">
+                        <div class="product-badge category-badge">${p.categoryName}</div>
+                        <c:if test="${p.discountPercent > 0}">
+                            <div class="product-badge discount" style="left: auto; right: 16px;">-${p.discountPercent}%</div>
+                        </c:if>
+                        <div class="product-img-wrap">
+                            <img src="images/${p.thumbnail}" alt="${p.productName}" class="product-img">
+                        </div>
+                        <div class="product-meta">${p.brandName}</div>
+                        <h3 class="product-title">${p.productName}</h3>
+                        <div class="price-row">
+                            <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                <c:if test="${p.discountPercent > 0}">
+                                    <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                </c:if>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
     <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
         <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
