@@ -945,17 +945,16 @@ h1, h2, h3, h4 {
 .hero {
     padding: 0 !important;
     position: relative;
-    overflow: hidden;
-    max-width: 1200px;
-    margin: 24px auto;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
+    overflow: visible;
 }
 .hero-slider-wrapper {
     position: relative;
     width: 100%;
     height: 420px;
     overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    margin-top: 24px;
 }
 .hero-slides {
     width: 100%;
@@ -1225,3 +1224,14 @@ h1, h2, h3, h4 {
         display: none !important;
     }
 }
+
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.product-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
