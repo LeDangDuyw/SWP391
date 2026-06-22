@@ -59,6 +59,69 @@
                     }
                 </style>
             </head>
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+    <!-- Sidebar -->
+        <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
+                <span>↪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-72 flex flex-col min-h-screen bg-background">
+        <main class="flex-1 p-8">
+            <!-- Header Section -->
+            <form action="${pageContext.request.contextPath}/staff/inventory/add" method="post" enctype="multipart/form-data">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <div class="flex items-center text-sm text-on-surface-variant mb-2">
+                            <a href="${pageContext.request.contextPath}/staff/inventory" class="hover:text-primary transition-colors">Inventory</a>
+                            <span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
+                            <span class="text-primary font-medium">Add Product</span>
+                        </div>
+                        <h2 class="font-headline-lg text-3xl font-bold text-on-surface">Add New Product</h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Cancel</a>
+                        <button type="submit" class="px-6 py-2 bg-[#003ec7] text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">Save Product</button>
+                    </div>
+                </div>
 
             <body class="bg-background text-on-surface font-body-md min-h-screen flex">
                 <!-- Sidebar Navigation -->

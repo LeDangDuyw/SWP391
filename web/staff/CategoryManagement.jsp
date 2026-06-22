@@ -163,11 +163,35 @@
             <!-- Logout -->
             <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium" href="#">
                 <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
+        <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
+                <span>↪</span> Logout
             </a>
         </div>
     </aside>
 
     <div class="flex-1 ml-64 flex flex-col min-h-screen">
+    <div class="flex-1 ml-72 flex flex-col min-h-screen">
         
         <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
             <div class="flex items-center gap-4 w-1/3"></div>
@@ -180,6 +204,15 @@
                 </button>
                 <div class="h-8 w-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md ml-2 border border-outline-variant/50">
                     <span class="material-symbols-outlined">person</span>
+                <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container" style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                    <%
+                        if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                    %>
+                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                             alt="Avatar" class="h-full w-full object-cover">
+                    <% } else { %>
+                        <span class="material-symbols-outlined text-on-primary-container">person</span>
+                    <% } %>
                 </div>
             </div>
         </header>
