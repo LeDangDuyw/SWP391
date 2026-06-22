@@ -6,17 +6,20 @@ package model;
 
 /**
  *
+ * @author LUCTVHE201874
  * @author AI One
  */
 public class Users {
     public int userId;
     public String userName,email,phone,password;
+    public String status;
     public boolean status;
     public int roleId;
 
     public Users() {
     }
 
+    public Users(int userId, String userName, String email, String phone, String password, String status, int roleId) {
     public Users(int userId, String userName, String email, String phone, String password, boolean status, int roleId) {
         this.userId = userId;
         this.userName = userName;
@@ -68,6 +71,14 @@ public class Users {
     }
 
     public boolean isStatus() {
+        return "active".equalsIgnoreCase(status);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
         return status;
     }
 
