@@ -1,7 +1,6 @@
 package controller;
 
 import dal.UserDAO;
-import dao.UserDAO;
 import model.Users;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -105,20 +104,6 @@ public class LoginController extends HttpServlet {
             }else{
                 response.sendRedirect("HomeServlet");
             } 
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-        } else if (!user.isStatus()) {
-            request.setAttribute("error", "Tài khoản của bạn đã bị khóa!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-        } else {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            if (user.roleId == 1) {
-                response.sendRedirect("admin.jsp");
-            } else if (user.roleId == 2) {
-                response.sendRedirect("user.jsp");
-            } else {
-                response.sendRedirect("staff.jsp");
-            }
         }
     }
 }

@@ -2,28 +2,17 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/AdminDashboard.jsp</file>
-<?xml version="1.0" encoding="UTF-8"?>
-<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="luyentap_prj">
-            <file>file:/D:/ky5/swp/duan/SWP391/src/java/dao/UserDAO.java</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/css/auth.css</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/register.jsp</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/src/java/util/hashPasswordUtil.java</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/src/java/dal/DBContext.java</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/admin.jsp</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/WEB-INF/web.xml</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/staff.jsp</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/src/java/controller/LoginController.java</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/login.jsp</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/src/java/controller/RegisterController.java</file>
-            <file>file:/D:/ky5/swp/duan/SWP391/web/META-INF/context.xml</file>
-        </group>
-    </open-files>
-</project-private>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ProfileController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/manage-users.jsp</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CategoryManagementController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/dal/ProductDAO.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CartServlet.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AdminPolicy.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/ReviewsManagement.jsp</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AddProductController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/auth/profile.jsp</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/AdminDashboard.jsp</file>
         </group>
     </open-files>
 </project-private>

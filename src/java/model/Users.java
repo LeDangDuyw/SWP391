@@ -11,9 +11,8 @@ package model;
  */
 public class Users {
     public int userId;
-    public String userName,email,phone,password;
+    public String userName, email, phone, password;
     public String status;
-    public boolean status;
     public int roleId;
     public String avatarUrl;
 
@@ -21,13 +20,22 @@ public class Users {
     }
 
     public Users(int userId, String userName, String email, String phone, String password, String status, int roleId) {
-    public Users(int userId, String userName, String email, String phone, String password, boolean status, int roleId) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.phone = phone;
         this.password = password;
         this.status = status;
+        this.roleId = roleId;
+    }
+
+    public Users(int userId, String userName, String email, String phone, String password, boolean status, int roleId) {
+        this.userId = userId;
+        this.userName = userName;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.status = status ? "active" : "inactive";
         this.roleId = roleId;
     }
 
@@ -91,15 +99,19 @@ public class Users {
     }
 
     public void setStatus(String status) {
-        return status;
+        this.status = status;
     }
 
     public void setStatus(boolean status) {
-        this.status = status;
+        this.status = status ? "active" : "inactive";
     }
 
     public int getRoleId() {
         return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
     public String getAvatarUrl() {
