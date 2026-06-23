@@ -660,6 +660,7 @@
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">

@@ -35,41 +35,6 @@
 %>
 <!doctype html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Campaign Performance</title>
-        <!doctype html>
-    <html lang="vi">
-        <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Campaign Performance</title>
-            <link rel="stylesheet" href="<%=request.getContextPath()%>/css/promotion.css" />
-        </head>
-        <body>
-            <div class="layout detail-layout">
-                <aside class="sidebar">
-                    <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
-                    <nav>
-                        <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                        <a href="#"><span>▣</span>Orders</a>
-                        <a href="#"><span>♚</span>Users</a>
-                        <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
-                        <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
-                        <a href="#"><span>⚙</span>Settings</a>
-                    </nav>
-                    <div class="profile">
-                        <div>♙ <span>Admin User Profile</span></div>
-                        <a href="<%=request.getContextPath()%>/logout" class="logout-btn">Logout</a>
-                    </div>
-                </aside>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Performance</title>
-<!doctype html>
-<html lang="vi">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -81,12 +46,13 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
         <nav>
-            <a href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
             <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">

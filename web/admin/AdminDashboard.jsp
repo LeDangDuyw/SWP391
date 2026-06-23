@@ -624,41 +624,13 @@
                     <small>System Controller</small>
                 </div>
                 <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard">
-                        <span class="nav-icon">▦</span>Dashboard
-                    </a>
-                    <a href="#">
-                        <span class="nav-icon">▣</span>Orders
-                    </a>
-                    <a href="#">
-                        <span class="nav-icon">♚</span>Inventory
-                    </a>
-                    <a href="#">
-                        <span class="nav-icon">♟</span>Users
-                    </a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions">
-                        <span class="nav-icon">▥</span>Analytics
-                    </a>
-                    <a href="${pageContext.request.contextPath}/admin/policy">
-                        <span class="nav-icon">📜</span>Policies
-                    </a>
-                    <a href="#">
-                        <span class="nav-icon">⚙</span>Settings
-                    </a>
-                </nav>
-                <div class="profile">
-                    <a href="#" class="profile-link">
-                        <span class="nav-icon">●</span>Admin User Profile
-                    </a>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-link">
-                        Logout
-                    </a>
-                    <a class="active" href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="#"><span>▣</span>Orders</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">

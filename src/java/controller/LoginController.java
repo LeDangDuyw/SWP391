@@ -18,7 +18,6 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", error);
         }
         request.getRequestDispatcher("auth/login.jsp").forward(request, response);
-        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 /*
  * Name: doPost
