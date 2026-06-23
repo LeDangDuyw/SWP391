@@ -74,15 +74,18 @@
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
-<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<div class="layout">
     <!-- Sidebar -->
-        <aside class="sidebar">
+    <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -97,14 +100,12 @@
                 <% } %>
                 <span>Staff Profile</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
-                <span>↪</span> Logout
-            </a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 ml-72 flex flex-col min-h-screen bg-background">
+    <div class="main">
         <main class="flex-1 p-8">
             <!-- Header Section -->
             <form action="${pageContext.request.contextPath}/staff/inventory/add" method="post" enctype="multipart/form-data">
@@ -123,93 +124,12 @@
                     </div>
                 </div>
 
-            <body class="bg-background text-on-surface font-body-md min-h-screen flex">
-                <!-- Sidebar Navigation -->
-                <aside
-                    class="fixed h-full left-0 top-0 w-64 bg-surface border-r border-outline-variant/20 flex flex-col py-4 z-40">
-                    <div class="px-6 py-4 mb-4">
-                        <h1 class="font-headline-md text-[24px] font-bold text-primary flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[28px]">laptop_mac</span>
-                            UNILAP Staff
-                        </h1>
-                        <p
-                            class="font-body-sm text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mt-1">
-                            System Controller</p>
+                <c:if test="${not empty errorMessage}">
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6"
+                        role="alert">
+                        <span class="block sm:inline font-medium">${errorMessage}</span>
                     </div>
-
-                    <nav class="flex-1 flex flex-col gap-1 px-2">
-                        <!-- Dashboard -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium"
-                            href="${pageContext.request.contextPath}/admin/dashboard">
-                            <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span> Dashboard
-                        </a>
-
-                        <!-- Inventory -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-bold border-l-4 border-primary font-label-md text-sm font-medium transition-all"
-                            href="${pageContext.request.contextPath}/staff/inventory">
-                            <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">inventory_2</span>
-                            Inventory
-                        </a>
-
-                        <!-- Category -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium"
-                            href="${pageContext.request.contextPath}/staff/category">
-                            <span class="material-symbols-outlined mr-3 text-[20px]">category</span> Category
-                        </a>
-
-                        <!-- IMEI -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all"
-                            href="${pageContext.request.contextPath}/staff/imei">
-                            <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
-                        </a>
-
-                        <!-- Tickets -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all"
-                            href="${pageContext.request.contextPath}/staff/ticket/list">
-                            <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
-                        </a>
-                    </nav>
-
-                    <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
-                        <!-- Logout -->
-                        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium"
-                            href="#">
-                            <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
-                        </a>
-                    </div>
-                </aside>
-
-                <!-- Main Content -->
-                <div class="flex-1 ml-64 flex flex-col min-h-screen bg-background">
-                    <main class="flex-1 p-8">
-                        <!-- Header Section -->
-                        <form action="${pageContext.request.contextPath}/staff/inventory/add" method="post"
-                            enctype="multipart/form-data">
-                            <div class="flex justify-between items-end mb-6">
-                                <div>
-                                    <div class="flex items-center text-sm text-on-surface-variant mb-2">
-                                        <a href="${pageContext.request.contextPath}/staff/inventory"
-                                            class="hover:text-primary transition-colors">Inventory</a>
-                                        <span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
-                                        <span class="text-primary font-medium">Add Product</span>
-                                    </div>
-                                    <h2 class="font-headline-lg text-3xl font-bold text-on-surface">Add New Product</h2>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <a href="${pageContext.request.contextPath}/staff/inventory"
-                                        class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Cancel</a>
-                                    <button type="submit"
-                                        class="px-6 py-2 bg-[#003ec7] text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">Save
-                                        Product</button>
-                                </div>
-                            </div>
-
-                            <c:if test="${not empty errorMessage}">
-                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6"
-                                    role="alert">
-                                    <span class="block sm:inline font-medium">${errorMessage}</span>
-                                </div>
-                            </c:if>
+                </c:if>
 
                             <!-- General Information -->
                             <div class="bg-surface border border-outline-variant/30 rounded-xl mb-6 shadow-sm">
@@ -342,6 +262,7 @@
                         </form>
                     </main>
                 </div>
+            </div>
 
                 <!-- Scripts for dynamic functionality -->
                 <script>

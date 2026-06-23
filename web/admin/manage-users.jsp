@@ -577,26 +577,21 @@
                     <a class="active" href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
                     <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                        <c:choose>
-                            <c:when test="${not empty sessionScope.user.avatarUrl}">
-                                 <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
-                                      alt="Avatar" 
-                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                      style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                                 <span style="display: none; width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0; align-items: center; justify-content: center; border: 1px solid #cbd5e1;">
-                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: #64748b;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                 </span>
-                            </c:when>
-                            <c:otherwise>
-                                <span style="width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: #64748b;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                </span>
-                            </c:otherwise>
-                        </c:choose>
+                        <%
+                            model.Users u = (model.Users) session.getAttribute("user");
+                            if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                        %>
+                            <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                                 alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                        <% } else { %>
+                            <span>♙</span>
+                        <% } %>
                         <span>Admin User Profile</span>
                     </div>
                     <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>

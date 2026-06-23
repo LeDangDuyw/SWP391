@@ -226,5 +226,42 @@ public class ProductReviewDAO extends DBContext {
         }
         return list;
     }
-    
+
+    public List<ProductReview> getApprovedReviewsByProductId(int productId) {
+        List<ProductReview> list = new ArrayList<>();
+        String sql = "SELECT pr.*, u.full_name AS reviewer_name, p.product_name, mu.full_name AS moderator_name, ru.full_name AS replier_name " +
+                     "FROM ProductReview pr " +
+                     "JOIN [User] u ON pr.user_id = u.user_id " +
+                     "JOIN Product p ON pr.product_id = p.product_id " +
+                     "LEFT JOIN [User] mu ON pr.moderated_by = mu.user_id " +
+                     "LEFT JOIN [User] ru ON pr.replied_by = ru.user_id " +
+                     "WHERE pr.product_id = ? AND pr.status = 'approved' " +
+                     "ORDER BY pr.created_at DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean insertReview(int productId, int userId, int rating, String comment, String status) {
+        String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setInt(2, userId);
+            ps.setInt(3, rating);
+            ps.setString(4, comment);
+            ps.setString(5, status);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -298,25 +298,55 @@
         </div>
     </div>
     <nav class="sidebar-nav">
-        <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item">
-            <span class="nav-icon">⊞</span> Dashboard
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">📦</span> Orders
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">🖥</span> Inventory
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">👤</span> Users
-        </a>
-        <a href="${pageContext.request.contextPath}/warranty?action=list" class="nav-item active">
-            <span class="nav-icon">🛠</span> Warranty
-        </a>
-        <a href="${pageContext.request.contextPath}/admin/policy" class="nav-item">
-            <span class="nav-icon">📋</span> Policies
-        </a>
-        <a href="${pageContext.request.contextPath}/LogoutController" class="nav-item" style="margin-top:auto;color:#ef4444;">
+        <c:choose>
+            <c:when test="${sessionScope.user.roleId == 1}">
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item">
+                    <span class="nav-icon">⊞</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📦</span> Orders
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/users" class="nav-item">
+                    <span class="nav-icon">👤</span> Users
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/promotions" class="nav-item">
+                    <span class="nav-icon">▥</span> Analytics
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/policy" class="nav-item">
+                    <span class="nav-icon">📋</span> Policies
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/reviews" class="nav-item">
+                    <span class="nav-icon">★</span> Manage Reviews
+                </a>
+                <a href="${pageContext.request.contextPath}/warranty?action=list" class="nav-item active">
+                    <span class="nav-icon">🛠</span> Warranty
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙</span> Settings
+                </a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/staff/inventory" class="nav-item">
+                    <span class="nav-icon">▤</span> Inventory
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/category" class="nav-item">
+                    <span class="nav-icon">📁</span> Category
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/imei" class="nav-item">
+                    <span class="nav-icon">🏷</span> IMEI
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/ticket/list" class="nav-item">
+                    <span class="nav-icon">🎫</span> Tickets
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/reviews" class="nav-item">
+                    <span class="nav-icon">★</span> Manage Reviews
+                </a>
+                <a href="${pageContext.request.contextPath}/warranty?action=list" class="nav-item active">
+                    <span class="nav-icon">🛠</span> Warranty
+                </a>
+            </c:otherwise>
+        </c:choose>
+        <a href="${pageContext.request.contextPath}/logout" class="nav-item" style="margin-top:auto;color:#ef4444;">
             <span class="nav-icon">🚪</span> Logout
         </a>
     </nav>

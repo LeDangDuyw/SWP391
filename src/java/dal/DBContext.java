@@ -59,29 +59,6 @@ public class DBContext {
         }
     }
 
-<<<<<<< Updated upstream
-    
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package dal;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-/**
- *
- * @author AI One
- */
-public class DBContext {
-
-    protected Connection connection;
-
-    public DBContext() {
-
-=======
     public Connection getConnection() {
         try {
             Connection conn = threadConnection.get();
@@ -112,18 +89,16 @@ public class DBContext {
     }
 
     public static String md5(String input) {
->>>>>>> Stashed changes
         try {
-            
-            String url = "jdbc:sqlserver://localhost:1433;databaseName=UniLap;encrypt=false;trustServerCertificate=true";
-            String username = "sa";
-            String password = "123";
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            connection = DriverManager.getConnection(url, username, password);
-        } catch (ClassNotFoundException | SQLException ex) {
-            System.out.println("❌ LOI KET NOI DATABASE: " + ex.getMessage());
-            ex.printStackTrace();
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] hash = md.digest(input.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("MD5 error", e);
         }
     }
-  
 }

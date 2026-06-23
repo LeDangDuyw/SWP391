@@ -6,23 +6,7 @@ package controller;
  */
 
 import dal.ProductDAO;
-<<<<<<< Updated upstream
 import dal.ProductReviewDAO;
-import java.io.IOException;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.util.List;
-import model.Product;
-import model.ProductVariant;
-import model.ProductReview;
-
-/**
- * @author ASUS
- */
-=======
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -33,13 +17,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Product;
 import model.ProductVariant;
+import model.ProductReview;
 
 /**
- *
  * @author ASUS
  */
 @WebServlet(urlPatterns = {"/ProductDetailServlet"})
->>>>>>> Stashed changes
 public class ProductDetailServlet extends HttpServlet {
 
     /**
@@ -95,27 +78,20 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         ProductDAO productDAO = new ProductDAO();
-<<<<<<< Updated upstream
         dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
-=======
->>>>>>> Stashed changes
 
         // 2) Lấy thông tin sản phẩm
         Product product = productDAO.getProductById(productId);
         if (product == null) {
             // EF1: sản phẩm không tồn tại / đã bị gỡ
             request.setAttribute("errorMessage", "Sản phẩm không tồn tại.");
-<<<<<<< Updated upstream
             request.setAttribute("categories", categoryDAO.getAllCategories());
-=======
->>>>>>> Stashed changes
             request.getRequestDispatcher("customer/product_detail.jsp").forward(request, response);
             return;
         }
 
         // 3) Lấy các biến thể (RAM/SSD) kèm tồn kho
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(productId);
-<<<<<<< Updated upstream
         List<Product> similarProducts = productDAO.getSimilarProducts(product.getCategoryId(), product.getProductId(), 4);
 
         // 4) Lấy đánh giá & bình luận sản phẩm
@@ -139,11 +115,6 @@ public class ProductDetailServlet extends HttpServlet {
         request.setAttribute("reviews", reviews);
         request.setAttribute("averageRating", averageRating);
         request.setAttribute("reviewsCount", reviewsCount);
-=======
-
-        request.setAttribute("product", product);
-        request.setAttribute("variants", variants);
->>>>>>> Stashed changes
         request.getRequestDispatcher("customer/product_detail.jsp").forward(request, response);
     }
 
@@ -158,7 +129,6 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-<<<<<<< Updated upstream
         request.setCharacterEncoding("UTF-8");
         String productIdParam = request.getParameter("productId");
         String ratingParam = request.getParameter("rating");
@@ -213,9 +183,6 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");
-=======
-        processRequest(request, response);
->>>>>>> Stashed changes
     }
 
     /**
