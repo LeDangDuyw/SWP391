@@ -68,18 +68,4 @@
     nbproject/build-impl.xml file. 
 
     -->
-
-    <!-- Override -init-taskdefs to bypass missing CopyLibs and define copyfiles macro -->
-    <target name="-init-taskdefs">
-        <macrodef name="copyfiles">
-            <attribute name="files"/>
-            <attribute name="todir"/>
-            <attribute name="iftldtodir" default=""/>
-            <sequential>
-                <copy todir="@{todir}" flatten="true">
-                    <filelist dir="." files="@{files}"/>
-                </copy>
-            </sequential>
-        </macrodef>
-    </target>
 </project>
