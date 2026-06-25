@@ -7,7 +7,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<!DOCTYPE html>
 
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -300,7 +299,6 @@
             </div>
         </c:forEach>
     </div>
-    </c:if>
 </div>
 <!-- Section 3: Storage & Status -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
