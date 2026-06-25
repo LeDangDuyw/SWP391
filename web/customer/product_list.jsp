@@ -27,7 +27,7 @@
                 </c:forEach>
 
                 <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
-                    <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down dropdown-chevron"></i></span>
+                    <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down dropdown-chevron"></i></span>
                     <div class="dropdown-content">
                         <c:forEach items="${categories}" var="cat">
                             <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -134,7 +134,12 @@
                             <h3 class="product-title">${p.productName}</h3>
                         </a>
                         <div class="price-row">
-                            <div class="price"><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</div>
+                            <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                <c:if test="${p.discountPercent > 0}">
+                                    <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                </c:if>
+                            </div>
                         </div>
                         <div class="actions">
                             <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="btn-add-cart" style="text-align: center; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-shopping-cart" style="margin-right: 5px;"></i> Giỏ hàng</a>

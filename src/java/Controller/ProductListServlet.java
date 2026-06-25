@@ -60,7 +60,7 @@ public class ProductListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ProductListFilterDAO productListFilterDAO = new ProductListFilterDAO();
+        ProductListFilterDAO ProductListFilterDAO = new ProductListFilterDAO();
         ProductDAO productDAO = new ProductDAO();
         BrandDao brandDao = new BrandDao();
         CategoryDAO categoryDAO = new CategoryDAO();
@@ -77,7 +77,7 @@ public class ProductListServlet extends HttpServlet {
             }
         }
 
-        // lấy sản phẩm  và từ khóa 
+        // Detect category từ keyword search
         if (search != null && !search.trim().isEmpty()) {
             String cleanSearch = search.trim().toLowerCase();
             Integer detectedCategoryId = categoryDAO.getCategoryIdByName(cleanSearch);
@@ -102,7 +102,7 @@ public class ProductListServlet extends HttpServlet {
             }
         }
 
-        //không xác định được category
+        // ── Global search — không xác định được category ────────────────────
         if (categoryId == null && search != null && !search.trim().isEmpty()) {
             int page = 1, pageSize = 12;
             try {
@@ -126,11 +126,13 @@ public class ProductListServlet extends HttpServlet {
             return;
         }
 
-        // Không có category → về Home 
+        // ── Không có category → về Home ─────────────────────────────────────
         if (categoryId == null) {
             response.sendRedirect("HomeServlet");
             return;
         }
+
+        // ── Đọc params chung ─────────────────────────────────────────────────
         String brand = request.getParameter("brand");
         String price = request.getParameter("price");
         String sort = request.getParameter("sort");
@@ -154,7 +156,7 @@ public class ProductListServlet extends HttpServlet {
             }
         }
 
-        // Lọc theo danh mục 
+        // ── Filter theo category ─────────────────────────────────────────────
         int totalProducts;
 
         switch (categoryId) {
@@ -175,38 +177,38 @@ public class ProductListServlet extends HttpServlet {
                     }
                 }
 
-                // Lấy series theo brand 
+                // Lấy series theo brand để hiển thị sidebar
                 if (brandId != null) {
                     request.setAttribute("serieses", new ProductSeriesDAO().getSeriesByBrand(brandId));
                 }
 
-                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc 
+                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
                 totalProducts = productDAO.countFilteredLaptop(categoryId, brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, search, null, null, null);
-                request.setAttribute("products", productListFilterDAO.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search));
+                request.setAttribute("products", ProductListFilterDAO.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search));
             }
             case 3 -> {
                 // Keyboard
                 String switchType = request.getParameter("switch");
 
-                // Sử dụng thông số kỹ thuật  cho bộ lọc
-                totalProducts = productListFilterDAO.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
-                request.setAttribute("products", productListFilterDAO.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search));
+                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
+                totalProducts = ProductListFilterDAO.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
+                request.setAttribute("products", ProductListFilterDAO.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search));
             }
             case 4 -> {
                 // Mouse
                 String dpi = request.getParameter("dpi");
 
-                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc 
-                totalProducts = productListFilterDAO.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
-                request.setAttribute("products", productListFilterDAO.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search));
+                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
+                totalProducts = ProductListFilterDAO.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
+                request.setAttribute("products", ProductListFilterDAO.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search));
             }
             default -> {
-                totalProducts = productListFilterDAO.countFilteredGeneral(categoryId, brandId, price, search);
-                request.setAttribute("products", productListFilterDAO.filterGeneral(categoryId, brandId, price, sort, page, pageSize, search));
+                totalProducts = ProductListFilterDAO.countFilteredGeneral(categoryId, brandId, price, search);
+                request.setAttribute("products", ProductListFilterDAO.filterGeneral(categoryId, brandId, price, sort, page, pageSize, search));
             }
         }
 
-        //  Phân trang 
+        // ── Phân trang & attributes chung ────────────────────────────────────
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

@@ -21,6 +21,7 @@ public class ProductInventory {
     private int availableQuantity;
     private String status;
     private String thumbnail;
+    private String variantStatus;
 
     /*
      * Name: ProductInventory
@@ -262,4 +263,11 @@ public class ProductInventory {
         this.thumbnail = thumbnail;
     }
     
+    public String getVariantStatus() {
+        return variantStatus;
+    }
+    
+    public void setVariantStatus(String variantStatus) {
+        this.variantStatus = variantStatus;
+    }
 }

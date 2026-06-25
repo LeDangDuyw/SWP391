@@ -75,7 +75,7 @@ public class ProductListFilterDAO extends DBContext {
         };
     }
 
-    // lấy thông tin sản phẩm 
+    // ─── HELPER: map ResultSet → Product ─────────────────────────────────────
     private void mapBase(Product p, ResultSet rs) throws SQLException {
         p.setProductId(rs.getInt("product_id"));
         p.setProductName(rs.getString("product_name"));
@@ -85,8 +85,10 @@ public class ProductListFilterDAO extends DBContext {
         p.setCategoryName(rs.getString("category_name"));
         p.setPurpose(rs.getString("purpose"));
         p.setMinPrice(rs.getLong("min_price"));
+        p.setOriginalPrice(rs.getLong("original_price"));
+        p.setDiscountPercent(rs.getInt("discount_percent"));
     }
-//   lọc máy tính 
+// 
 
     public ArrayList<Product.Laptop> filterLaptop(
             Integer brandId, Integer seriesId, String purpose,
@@ -180,7 +182,7 @@ public class ProductListFilterDAO extends DBContext {
         }
         return data;
     }
-  // đếm số lượng máy tính 
+
     public int countFilteredLaptop(
             Integer brandId, Integer seriesId, String purpose,
             String cpu, String ram, String ssd, String gpu, String screen,
@@ -258,7 +260,7 @@ public class ProductListFilterDAO extends DBContext {
         }
         return 0;
     }
-    // lấy thông tin về chuột 
+    // chuột 
     
     public ArrayList<Product.Mouse> filterMouse(
             Integer brandId, String purpose, String connectivity, String dpi,
@@ -340,7 +342,7 @@ public class ProductListFilterDAO extends DBContext {
         }
         return data;
     }
-      // điếm số lượng chuột lấy ra  
+
     public int countFilteredMouse(
             Integer brandId, String purpose, String connectivity, String dpi,
             String price, String search) {
@@ -493,7 +495,7 @@ public class ProductListFilterDAO extends DBContext {
         }
         return data;
     }
-    // số lượng bàn phím 
+
     public int countFilteredKeyboard(
             Integer brandId, String purpose, String connectivity, String switchType,
             String price, String search) {
@@ -565,7 +567,7 @@ public class ProductListFilterDAO extends DBContext {
         return 0;
     }
 
-    // Lọc sản phẩm cho danh mục phụ 
+    // Lọc sản phẩm cho danh mục phụ kiện chung (Category 2, 5, 6, 7)
     public ArrayList<Product> filterGeneral(int categoryId, Integer brandId,
             String price, String sort, int page, int pageSize, String search) {
         ArrayList<Product> data = new ArrayList<>();
@@ -643,13 +645,13 @@ public class ProductListFilterDAO extends DBContext {
         return 0;
     }
 
-    // Lấy danh sách thông số kỹ thuật 
+    // Lấy danh sách thông số kỹ thuật duy nhất từ DB
     public ArrayList<String> getDistinctSpecs(int categoryId, String columnName) {
         ArrayList<String> list = new ArrayList<>();
         if (cnn == null) {
             return list;
         }
-        
+        // Kiểm tra an toàn cho tên cột để tránh SQL Injection
         if (!columnName.equals("cpu") && !columnName.equals("ram") && !columnName.equals("ssd") 
             && !columnName.equals("gpu") && !columnName.equals("screen") && !columnName.equals("connectivity") 
             && !columnName.equals("switch_type") && !columnName.equals("dpi")) {

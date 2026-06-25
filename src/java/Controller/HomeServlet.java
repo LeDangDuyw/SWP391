@@ -4,7 +4,6 @@
  */
 package controller;
 
-
 import dal.CampaignBannerDAO;
 import dal.CategoryDAO;
 import dal.ProductDAO;
@@ -69,7 +68,7 @@ public class HomeServlet extends HttpServlet {
         ProductDAO p = new ProductDAO();
         CategoryDAO c = new CategoryDAO();
         FlashSaleProductDAO fl = new FlashSaleProductDAO();
-        CampaignBannerDAO bannerDAO = new CampaignBannerDAO();         
+       CampaignBannerDAO bannerDAO = new CampaignBannerDAO();         
         PageContentDAO pg = new PageContentDAO();
         // hiển thị banner
         List<CampaignBanner> banners = bannerDAO.getHomeBanners();

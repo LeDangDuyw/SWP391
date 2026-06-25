@@ -68,4 +68,20 @@ public class BrandDao extends DBContext{
     }
     return data;
 }
+
+    public List<Brand> getAllBrands() {
+        List<Brand> brands = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Brand";
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Brand b = new Brand(rs.getInt("brand_id"), rs.getString("brand_name"));
+                brands.add(b);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllBrands Error: " + e.getMessage());
+        }
+        return brands;
+    }
 }

@@ -1,15 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author huy
- */
 public class ProductVariant {
     private int variantId;
     private int productId;
@@ -17,6 +9,7 @@ public class ProductVariant {
     private String variantName;
     private BigDecimal importPrice;
     private BigDecimal sellingPrice;
+    private boolean isSerialized;
     private boolean serialized;
     private String status;
     private int availableQuantity;
@@ -24,16 +17,27 @@ public class ProductVariant {
     public ProductVariant() {
     }
 
-    public ProductVariant(int variantId, int productId, String sku, String variantName,
-            BigDecimal importPrice, BigDecimal sellingPrice, boolean serialized,
-            String status, int availableQuantity) {
+    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status) {
         this.variantId = variantId;
         this.productId = productId;
         this.sku = sku;
         this.variantName = variantName;
         this.importPrice = importPrice;
         this.sellingPrice = sellingPrice;
-        this.serialized = serialized;
+        this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
+        this.status = status;
+    }
+
+    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status, int availableQuantity) {
+        this.variantId = variantId;
+        this.productId = productId;
+        this.sku = sku;
+        this.variantName = variantName;
+        this.importPrice = importPrice;
+        this.sellingPrice = sellingPrice;
+        this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
         this.status = status;
         this.availableQuantity = availableQuantity;
     }
@@ -86,12 +90,22 @@ public class ProductVariant {
         this.sellingPrice = sellingPrice;
     }
 
+    public boolean isIsSerialized() {
+        return isSerialized;
+    }
+
+    public void setIsSerialized(boolean isSerialized) {
+        this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
+    }
+
     public boolean isSerialized() {
         return serialized;
     }
 
     public void setSerialized(boolean serialized) {
         this.serialized = serialized;
+        this.isSerialized = serialized;
     }
 
     public String getStatus() {

@@ -1,58 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+<web-app version="6.0" 
+         xmlns="https://jakarta.ee/xml/ns/jakartaee" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         metadata-complete="false">
+         
+    <welcome-file-list>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
 
-    <filter>
-        <filter-name>AuthFilter</filter-name>
-        <filter-class>filter.AuthFilter</filter-class>
-    </filter>
-    
-    <filter-mapping>
-        <filter-name>AuthFilter</filter-name>
-        <url-pattern>/customer/checkout.jsp</url-pattern>
-        <url-pattern>/customer/order_success.jsp</url-pattern>
-        <url-pattern>/CheckoutServlet</url-pattern>
-    </filter-mapping>
+    <servlet>
+        <servlet-name>ImeiManagement</servlet-name>
+        <servlet-class>controller.ImeiManagement</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ImeiManagement</servlet-name>
+        <url-pattern>/imeimanage</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>HomeServlet</servlet-name>
         <servlet-class>controller.HomeServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>ProductListServlet</servlet-name>
-        <servlet-class>controller.ProductListServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ProductDetailServlet</servlet-name>
-        <servlet-class>controller.ProductDetailServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>CartServlet</servlet-name>
-        <servlet-class>controller.CartServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>CheckoutServlet</servlet-name>
-        <servlet-class>controller.CheckoutServlet</servlet-class>
-    </servlet>
-
     <servlet-mapping>
         <servlet-name>HomeServlet</servlet-name>
         <url-pattern>/HomeServlet</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProductListServlet</servlet-name>
+        <servlet-class>controller.ProductListServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ProductListServlet</servlet-name>
         <url-pattern>/ProductListServlet</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminDashboard</servlet-name>
+        <servlet-class>controller.AdminDashboardServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
-        <servlet-name>ProductDetailServlet</servlet-name>
-        <url-pattern>/ProductDetailServlet</url-pattern>
+        <servlet-name>AdminDashboard</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminPolicy</servlet-name>
+        <servlet-class>controller.AdminPolicy</servlet-class>
+    </servlet>
     <servlet-mapping>
-        <servlet-name>CartServlet</servlet-name>
-        <url-pattern>/CartServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>CheckoutServlet</servlet-name>
-        <url-pattern>/CheckoutServlet</url-pattern>
+        <servlet-name>AdminPolicy</servlet-name>
+        <url-pattern>/admin/policy</url-pattern>
     </servlet-mapping>
 
 </web-app>
