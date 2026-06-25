@@ -1,4 +1,4 @@
-package controller.ticket;
+package controller;
 
 import dal.TicketDAO;
 import jakarta.servlet.ServletException;
