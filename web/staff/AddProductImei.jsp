@@ -209,6 +209,9 @@
             <c:when test="${param.error == 'MismatchLists'}">
                 Lỗi: Số lượng IMEI, Serial Number và Barcode nhập vào không khớp nhau. Vui lòng kiểm tra lại.
             </c:when>
+            <c:when test="${param.error == 'InvalidImportDate'}">
+                Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.
+            </c:when>
             <c:otherwise>
                 Đã xảy ra lỗi: ${param.error}
             </c:otherwise>
@@ -413,6 +416,25 @@
             alert("Số lượng sản phẩm nhập vào (" + filledRowsCount + ") vượt quá số lượng yêu cầu trong ticket (" + expectedQty + ").");
             event.preventDefault();
             return false;
+        }
+        
+        const dateInput = document.querySelector('input[name="receivedDate"]');
+        if (dateInput) {
+            const selectedDateStr = dateInput.value;
+            if (selectedDateStr) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const [year, month, day] = selectedDateStr.split('-').map(Number);
+                const selectedDate = new Date(year, month - 1, day);
+                selectedDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate <= today) {
+                    alert("Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.");
+                    event.preventDefault();
+                    return false;
+                }
+            }
         }
         
         return true;
