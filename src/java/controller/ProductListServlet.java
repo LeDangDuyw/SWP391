@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller;
+package Controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,11 +10,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dal.ProductDAO;
-import dal.BrandDao;
-import dal.CategoryDAO;
-import dal.ProductListFilterDAO;
-import dal.ProductSeriesDAO;
+import Dao.ProductDAO;
+import Dao.BrandDao;
+import Dao.ProductSeriesDao;
 
 /**
  *
@@ -60,28 +58,30 @@ public class ProductListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ProductListFilterDAO ProductListFilterDAO = new ProductListFilterDAO();
-        ProductDAO productDAO = new ProductDAO();
-        BrandDao brandDao = new BrandDao();
-        CategoryDAO categoryDAO = new CategoryDAO();
-
-        // xác định danh mục tìm kiếm 
-        String search = request.getParameter("search");
+        ProductDAO p = new ProductDAO();
+        BrandDao b = new BrandDao();
+        
+        String search = request.getParameter("search"); // Lấy tham số tìm kiếm trước để xử lý tự động điều hướng
         String category = request.getParameter("category");
-
+        
         Integer categoryId = null;
         if (category != null && !category.isEmpty()) {
             try {
                 categoryId = Integer.parseInt(category);
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                // Bỏ qua lỗi parse
             }
         }
-
-        // Detect category từ keyword search
+        
+        // Tự động nhận diện danh mục từ từ khóa tìm kiếm (Backend Java Servlet + SQL)
         if (search != null && !search.trim().isEmpty()) {
+            Dao.CategoryDAO categoryDAO = new Dao.CategoryDAO();
             String cleanSearch = search.trim().toLowerCase();
+            
+            // 1. Truy vấn SQL xem từ khóa tìm kiếm có khớp với tên danh mục nào không
             Integer detectedCategoryId = categoryDAO.getCategoryIdByName(cleanSearch);
-
+            
+            // 2. Dự phòng thông minh: Ánh xạ từ khóa tiếng Anh/tiếng Việt phổ biến nếu tìm kiếm tương đối
             if (detectedCategoryId == null) {
                 if (cleanSearch.contains("mouse") || cleanSearch.contains("chuột")) {
                     detectedCategoryId = categoryDAO.getCategoryIdByName("Chuột");
@@ -91,132 +91,74 @@ public class ProductListServlet extends HttpServlet {
                     detectedCategoryId = categoryDAO.getCategoryIdByName("Laptop");
                 }
             }
-            if (detectedCategoryId == null) {
-                Integer prodCategoryId = productDAO.getCategoryIdByProductSearch(search.trim());
-                if (prodCategoryId != null) {
-                    detectedCategoryId = prodCategoryId;
-                }
-            }
+            
+            // Nếu tìm thấy danh mục phù hợp từ từ khóa, tự động chuyển hướng tìm kiếm sang danh mục đó!
             if (detectedCategoryId != null) {
                 categoryId = detectedCategoryId;
             }
         }
-
-        // ── Global search — không xác định được category ────────────────────
-        if (categoryId == null && search != null && !search.trim().isEmpty()) {
-            int page = 1, pageSize = 12;
-            try {
-                String pageStr = request.getParameter("page");
-                if (pageStr != null && !pageStr.isEmpty()) {
-                    page = Integer.parseInt(pageStr);
-                }
-            } catch (Exception ignored) {
-            }
-
-            int totalProducts = productDAO.countSearchAllProducts(search.trim());
-            int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
-
-            request.setAttribute("products", productDAO.searchAllProducts(search.trim(), page, pageSize));
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("globalSearch", true);
-            request.setAttribute("searchKeyword", search.trim());
-            request.setAttribute("categories", categoryDAO.getAllCategories());
-            request.getRequestDispatcher("customer/product_list.jsp").forward(request, response);
-            return;
-        }
-
-        // ── Không có category → về Home ─────────────────────────────────────
+        
         if (categoryId == null) {
             response.sendRedirect("HomeServlet");
             return;
         }
-
-        // ── Đọc params chung ─────────────────────────────────────────────────
+        
         String brand = request.getParameter("brand");
-        String price = request.getParameter("price");
-        String sort = request.getParameter("sort");
+        String series = request.getParameter("series");
         String purpose = request.getParameter("purpose");
+        String cpu = request.getParameter("cpu");
+        String ram = request.getParameter("ram");
+        String ssd = request.getParameter("ssd");
+        String gpu = request.getParameter("gpu");
+        String screen = request.getParameter("screen");
+        String price = request.getParameter("price");
+        String sort = request.getParameter("sort"); //  thêm lấy sort
+        
+        // Thêm các tham số cho chuột và bàn phím
         String connectivity = request.getParameter("connectivity");
-
-        int page = 1, pageSize = 9;
-        try {
-            String pageStr = request.getParameter("page");
-            if (pageStr != null && !pageStr.isEmpty()) {
-                page = Integer.parseInt(pageStr);
-            }
-        } catch (Exception ignored) {
-        }
-
-        Integer brandId = null;
-        if (brand != null && !brand.isEmpty()) {
+        String switchType = request.getParameter("switch");
+        String dpi = request.getParameter("dpi");
+        
+        //  Thêm xử lý phân trang
+        int page = 1;
+        int pageSize = 6; // Số sản phẩm trang tối đa là 6
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
             try {
-                brandId = Integer.parseInt(brand);
-            } catch (NumberFormatException ignored) {
-            }
+                page = Integer.parseInt(pageStr);
+            } catch (Exception e) {}
         }
-
-        // ── Filter theo category ─────────────────────────────────────────────
-        int totalProducts;
-
-        switch (categoryId) {
-            case 1 -> {
-                // Laptop
-                String series = request.getParameter("series");
-                String cpu = request.getParameter("cpu");
-                String ram = request.getParameter("ram");
-                String ssd = request.getParameter("ssd");
-                String gpu = request.getParameter("gpu");
-                String screen = request.getParameter("screen");
-
-                Integer seriesId = null;
-                if (series != null && !series.isEmpty()) {
-                    try {
-                        seriesId = Integer.parseInt(series);
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-
-                // Lấy series theo brand để hiển thị sidebar
-                if (brandId != null) {
-                    request.setAttribute("serieses", new ProductSeriesDAO().getSeriesByBrand(brandId));
-                }
-
-                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
-                totalProducts = productDAO.countFilteredLaptop(categoryId, brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, search, null, null, null);
-                request.setAttribute("products", ProductListFilterDAO.filterLaptop(brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search));
-            }
-            case 3 -> {
-                // Keyboard
-                String switchType = request.getParameter("switch");
-
-                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
-                totalProducts = ProductListFilterDAO.countFilteredKeyboard(brandId, purpose, connectivity, switchType, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterKeyboard(brandId, purpose, connectivity, switchType, price, sort, page, pageSize, search));
-            }
-            case 4 -> {
-                // Mouse
-                String dpi = request.getParameter("dpi");
-
-                // Sử dụng thông số kỹ thuật tĩnh cho bộ lọc tổng quát
-                totalProducts = ProductListFilterDAO.countFilteredMouse(brandId, purpose, connectivity, dpi, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterMouse(brandId, purpose, connectivity, dpi, price, sort, page, pageSize, search));
-            }
-            default -> {
-                totalProducts = ProductListFilterDAO.countFilteredGeneral(categoryId, brandId, price, search);
-                request.setAttribute("products", ProductListFilterDAO.filterGeneral(categoryId, brandId, price, sort, page, pageSize, search));
-            }
+        
+        Integer brandId = null;
+        Integer seriesId = null;
+        
+        //
+        if (brand != null && !brand.isEmpty()) {
+            brandId = Integer.parseInt(brand);
         }
-
-        // ── Phân trang & attributes chung ────────────────────────────────────
+        if (series != null && !series.isEmpty()) {
+            seriesId = Integer.parseInt(series);
+        }
+        // lấy series laptop
+        if (categoryId == 1) { // Laptop
+            ProductSeriesDao s = new ProductSeriesDao();
+            if (brandId != null) {
+                request.setAttribute("serieses",s.getSeriesByBrand(brandId) );
+           }
+        }
+        // Lấy danh sách sản phẩm và lọc 
+        //  Dùng chung 1 logic lấy count và list 
+        int totalProducts = p.countFilteredLaptop(categoryId, brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, search, connectivity, switchType, dpi);
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
-        request.setAttribute("brands", brandDao.getBrandsByCategory(categoryId));
-        request.setAttribute("categoryId", categoryId);
-        request.setAttribute("categories", categoryDAO.getAllCategories());
+        request.setAttribute("products", p.filterLaptop(categoryId, brandId, seriesId, purpose, cpu, ram, ssd, gpu, screen, price, sort, page, pageSize, search, connectivity, switchType, dpi));
 
-        request.getRequestDispatcher("customer/product_list.jsp").forward(request, response);
+        // hiển thị brand
+        request.setAttribute("brands", b.getBrandsByCategory(categoryId));
+        // hiển thị danh mục 
+        request.setAttribute("categoryId", categoryId);
+        request.getRequestDispatcher("product_list.jsp").forward(request, response);
     }
 
     /**

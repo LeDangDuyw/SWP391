@@ -1,35 +1,31 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package Model;
+package model;
 
-/**
- *
- * @author Cao Tuấn Minh
- */
 public class Product {
-     private int productId;
+
+    private int productId;
     private String productName;
     private String thumbnail;
+    private int brandId;
     private String brandName;
     private String categoryName;
     private long minPrice;
-    private int seriesId;
-    private String seriesName;
-    private int brandId;
+    private String purpose;
+    private String description;
+    private int warrantyPeriod;
+    private int categoryId;
+    private long originalPrice;
+    private int discountPercent;
+
     public Product() {
     }
 
-    public Product(int productId, String productName, String thumbnail, String brandName, String categoryName, long minPrice, int seriesId, String seriesName, int brandId) {
+    public Product(int productId, String productName, String description, int warrantyPeriod, String thumbnail, int categoryId, int brandId) {
         this.productId = productId;
         this.productName = productName;
+        this.description = description;
+        this.warrantyPeriod = warrantyPeriod;
         this.thumbnail = thumbnail;
-        this.brandName = brandName;
-        this.categoryName = categoryName;
-        this.minPrice = minPrice;
-        this.seriesId = seriesId;
-        this.seriesName = seriesName;
+        this.categoryId = categoryId;
         this.brandId = brandId;
     }
 
@@ -57,6 +53,14 @@ public class Product {
         this.thumbnail = thumbnail;
     }
 
+    public int getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(int brandId) {
+        this.brandId = brandId;
+    }
+
     public String getBrandName() {
         return brandName;
     }
@@ -81,85 +85,226 @@ public class Product {
         this.minPrice = minPrice;
     }
 
-    public int getSeriesId() {
-        return seriesId;
+    public String getPurpose() {
+        return purpose;
     }
 
-    public void setSeriesId(int seriesId) {
-        this.seriesId = seriesId;
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
-    public String getSeriesName() {
-        return seriesName;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSeriesName(String seriesName) {
-        this.seriesName = seriesName;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public int getBrandId() {
-        return brandId;
+    public int getWarrantyPeriod() {
+        return warrantyPeriod;
     }
 
-    public void setBrandId(int brandId) {
-        this.brandId = brandId;
+    public void setWarrantyPeriod(int warrantyPeriod) {
+        this.warrantyPeriod = warrantyPeriod;
     }
-    
-    //Thêm các thuộc tính cpu, ram, gpu để hiển thị trên UI
-    private String cpu;
-    private String ram;
-    private String gpu;
-    
-    //Thêm các thuộc tính cho chuột và bàn phím
-    private String connectivity;
-    private String switchType;
-    private String dpi;
 
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public long getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(long originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    // Default getters for subclass properties to avoid PropertyNotFoundException in JSP EL
     public String getCpu() {
-        return cpu;
-    }
-
-    public void setCpu(String cpu) {
-        this.cpu = cpu;
+        return null;
     }
 
     public String getRam() {
-        return ram;
+        return null;
     }
 
-    public void setRam(String ram) {
-        this.ram = ram;
+    public String getSsd() {
+        return null;
     }
 
     public String getGpu() {
-        return gpu;
+        return null;
     }
 
-    public void setGpu(String gpu) {
-        this.gpu = gpu;
+    public String getScreen() {
+        return null;
     }
 
     public String getConnectivity() {
-        return connectivity;
-    }
-
-    public void setConnectivity(String connectivity) {
-        this.connectivity = connectivity;
+        return null;
     }
 
     public String getSwitchType() {
-        return switchType;
-    }
-
-    public void setSwitchType(String switchType) {
-        this.switchType = switchType;
+        return null;
     }
 
     public String getDpi() {
-        return dpi;
+        return null;
     }
 
-    public void setDpi(String dpi) {
-        this.dpi = dpi;
+    // lớp con laptop 
+    public static class Laptop extends Product {
+
+        private int seriesId;
+        private String seriesName;
+        private String cpu;
+        private String ram;
+        private String ssd;
+        private String gpu;
+        private String screen;
+
+        public Laptop() {
+        }
+
+        public int getSeriesId() {
+            return seriesId;
+        }
+
+        public void setSeriesId(int seriesId) {
+            this.seriesId = seriesId;
+        }
+
+        public String getSeriesName() {
+            return seriesName;
+        }
+
+        public void setSeriesName(String seriesName) {
+            this.seriesName = seriesName;
+        }
+
+        public String getCpu() {
+            return cpu;
+        }
+
+        public void setCpu(String cpu) {
+            this.cpu = cpu;
+        }
+
+        public String getRam() {
+            return ram;
+        }
+
+        public void setRam(String ram) {
+            this.ram = ram;
+        }
+
+        public String getSsd() {
+            return ssd;
+        }
+
+        public void setSsd(String ssd) {
+            this.ssd = ssd;
+        }
+
+        public String getGpu() {
+            return gpu;
+        }
+
+        public void setGpu(String gpu) {
+            this.gpu = gpu;
+        }
+
+        public String getScreen() {
+            return screen;
+        }
+
+        public void setScreen(String screen) {
+            this.screen = screen;
+        }
+        @Override
+        public String getCpu() { return cpu; }
+        public void setCpu(String cpu) { this.cpu = cpu; }
+
+        @Override
+        public String getRam() { return ram; }
+        public void setRam(String ram) { this.ram = ram; }
+
+        @Override
+        public String getSsd() { return ssd; }
+        public void setSsd(String ssd) { this.ssd = ssd; }
+
+        @Override
+        public String getGpu() { return gpu; }
+        public void setGpu(String gpu) { this.gpu = gpu; }
+
+        @Override
+        public String getScreen() { return screen; }
+        public void setScreen(String screen) { this.screen = screen; }
+    }
+
+    // lớp con chuột 
+    public static class Mouse extends Product {
+
+        private String connectivity;
+        private String dpi;
+
+        public Mouse() {
+        }
+
+        public String getConnectivity() {
+            return connectivity;
+        }
+
+        public void setConnectivity(String connectivity) {
+            this.connectivity = connectivity;
+        }
+
+        public String getDpi() {
+            return dpi;
+        }
+
+        public void setDpi(String dpi) {
+            this.dpi = dpi;
+        }
+    }
+
+    // lớp con bàn phím 
+    public static class Keyboard extends Product {
+
+        private String connectivity;
+        private String switchType;
+
+        public Keyboard() {
+        }
+
+        public String getConnectivity() {
+            return connectivity;
+        }
+
+        public void setConnectivity(String connectivity) {
+            this.connectivity = connectivity;
+        }
+
+        public String getSwitchType() {
+            return switchType;
+        }
+
+        public void setSwitchType(String switchType) {
+            this.switchType = switchType;
+        }
     }
 }
