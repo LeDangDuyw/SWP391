@@ -32,7 +32,9 @@
                 <p class="card-subtitle">Access your precision engineering dashboard.</p>
                 <% if ("1".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Đăng ký thành công! Hãy đăng nhập.</div>
-                <% }%>
+                <% } else if ("2".equals(request.getParameter("success"))) { %>
+                <div class="success-message">Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.</div>
+                <% } %>
                 <div class="error-message">${error}</div>
                 <form action="login" method="post">
                     <div class="form-group">
@@ -44,7 +46,7 @@
                     <div class="form-group">
                         <div class="label-row">
                             <label>Password</label>
-                            <a href="#" class="forgot-link">Forgot password?</a>
+                            <a href="forgot-password" class="forgot-link">Forgot password?</a>
                         </div>
                         <input type="password" name="password" 
                                placeholder="••••••••" 

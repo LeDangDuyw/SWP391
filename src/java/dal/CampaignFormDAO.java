@@ -501,4 +501,26 @@ public class CampaignFormDAO extends CampaignDAO {
             ps.executeBatch();
         }
     }
+
+    /**
+     * Chức năng: Kiểm tra xem tên chiến dịch đã tồn tại trong CSDL chưa (loại trừ chiến dịch hiện tại đang sửa).
+     * Tác nhân liên quan: Admin / Hệ thống.
+     * Nhận dữ liệu từ: Tên chiến dịch name, ID chiến dịch hiện tại excludeId.
+     * Đẩy/Gửi dữ liệu đi: Trả về true nếu tên chiến dịch đã tồn tại, ngược lại trả về false.
+     */
+    public boolean isCampaignNameExists(String name, int excludeId) throws SQLException {
+        checkConnection();
+        String sql = "SELECT COUNT(*) FROM [Campaign] WHERE campaign_name = ? AND campaign_id != ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setInt(2, excludeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
 }
+
