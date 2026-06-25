@@ -89,7 +89,7 @@
                                     <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                    <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                 </c:otherwise>
                             </c:choose>
                             <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
