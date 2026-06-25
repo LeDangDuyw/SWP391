@@ -225,24 +225,39 @@
 <h3 class="font-headline-md text-headline-md">Product Information</h3>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
-<select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Product</option>
-<c:forEach var="p" items="${products}">
-    <option value="${p.productId}">${p.productName}</option>
-</c:forEach>
-</select>
-</div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
-<select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Variant</option>
-<c:forEach var="v" items="${variants}">
-    <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
-</c:forEach>
-</select>
-</div>
+<c:choose>
+    <c:when test="${not empty selectedProduct and not empty selectedVariant}">
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <input type="text" readonly value="${selectedProduct.productName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <input type="text" readonly value="${selectedVariant.sku} - ${selectedVariant.variantName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+            <input type="hidden" name="variantId" value="${selectedVariant.variantId}">
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Product</option>
+            <c:forEach var="p" items="${products}">
+                <option value="${p.productId}">${p.productName}</option>
+            </c:forEach>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Variant</option>
+            <c:forEach var="v" items="${variants}">
+                <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
+            </c:forEach>
+            </select>
+        </div>
+    </c:otherwise>
+</c:choose>
 </div>
 </div>
 <!-- Section 2: Unit Details -->
@@ -252,21 +267,44 @@
 <span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
 <h3 class="font-headline-md text-headline-md">Unit Details</h3>
 </div>
+<div class="flex items-center gap-4">
+<c:if test="${not empty expectedQuantity}">
+<span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required Quantity: ${expectedQuantity}</span>
+</c:if>
 <span class="font-label-md text-label-md px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Bulk Entry Mode</span>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">IMEI Numbers (one per line)</label>
-<textarea name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Serial Numbers (one per line)</label>
-<textarea name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
-</div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Barcodes (one per line)</label>
-<textarea name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
-</div>
+<div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
+        <label>IMEI Number</label>
+        <label>Serial Number</label>
+        <label>Barcode</label>
+    </div>
+    
+    <div id="unitRowsContainer" class="space-y-3">
+        <c:set var="rowCount" value="${not empty expectedQuantity ? expectedQuantity : 1}" />
+        <c:forEach begin="1" end="${rowCount}" varStatus="status">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
+                </div>
+            </div>
+        </c:forEach>
+    </div>
+    <c:if test="${empty expectedQuantity}">
+        <button type="button" onclick="addUnitRow()" class="px-4 py-2 text-primary font-label-md text-label-md hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Add Another Unit
+        </button>
+    </c:if>
 </div>
 </div>
 <!-- Section 3: Storage & Status -->
@@ -316,19 +354,27 @@
     </div>
 </div>
 <script>
-        // Simple micro-interaction for unit counter
-        const textarea = document.querySelector('textarea');
-        const unitCount = document.getElementById('unitCount');
-
-        textarea.addEventListener('input', () => {
-            const lines = textarea.value.split('\n').filter(line => line.trim() !== '');
-            unitCount.textContent = lines.length;
-            
-            if (lines.length > 0) {
-                unitCount.classList.add('scale-125');
-                setTimeout(() => unitCount.classList.remove('scale-125'), 200);
-            }
-        });
+        function addUnitRow() {
+            const container = document.getElementById('unitRowsContainer');
+            const rowCount = container.children.length + 1;
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
+            row.innerHTML = `
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
+                </div>
+            `;
+            container.appendChild(row);
+        }
 
         function filterVariants() {
             filterVariantsWithoutReset();

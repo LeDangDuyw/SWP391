@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.InventoryItem;
 import model.Product;
 import model.ProductVariant;
+import model.TicketDetail;
 
 @WebServlet(name = "AddProductImeiController", urlPatterns = {"/staff/imei/add"})
 public class AddProductImeiController extends HttpServlet {
@@ -28,6 +29,38 @@ public class AddProductImeiController extends HttpServlet {
         
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
+        
+        String ticketIdStr = request.getParameter("ticketId");
+        String variantIdStr = request.getParameter("variantId");
+        if (ticketIdStr != null && !ticketIdStr.trim().isEmpty() && variantIdStr != null && !variantIdStr.trim().isEmpty()) {
+            try {
+                int ticketId = Integer.parseInt(ticketIdStr.trim());
+                int variantId = Integer.parseInt(variantIdStr.trim());
+                TicketDAO ticketDao = new TicketDAO();
+                List<TicketDetail> details = ticketDao.getTicketDetails(ticketId);
+                for (TicketDetail td : details) {
+                    if (td.getVariantId() == variantId) {
+                        request.setAttribute("expectedQuantity", td.getQuantity());
+                        break;
+                    }
+                }
+                
+                for (ProductVariant v : variants) {
+                    if (v.getVariantId() == variantId) {
+                        request.setAttribute("selectedVariant", v);
+                        for (Product p : products) {
+                            if (p.getProductId() == v.getProductId()) {
+                                request.setAttribute("selectedProduct", p);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         
         request.getRequestDispatcher("/staff/AddProductImei.jsp").forward(request, response);
     }
