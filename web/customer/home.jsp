@@ -57,10 +57,19 @@
                         <c:choose>
                             <c:when test="${not empty sessionScope.user}">
                             <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
-                                <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: inherit;">
-                                    <i class="fas fa-user"></i>
-                                    <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
-                                </a>
+                                 <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                            <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}"
+                                                 alt="avatar"
+                                                 style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="fas fa-user"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                     <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                                 </a>
                                 <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
                                     <c:choose>
                                         <c:when test="${sessionScope.user.roleId == 1}">

@@ -118,24 +118,40 @@
             object-fit: cover;
         }
 
-        .btn-header-back {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.9);
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition);
+        .btn-back-bar {
+            max-width: 1100px;
+            margin: 16px auto 0;
+            width: 100%;
+            padding: 0 20px;
         }
 
-        .btn-header-back:hover {
-            background: rgba(255,255,255,0.22);
-            color: #fff;
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: 9px;
+            background: var(--white);
+            border: 1.5px solid var(--gray-300);
+            color: var(--gray-700);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .btn-back:hover {
+            background: var(--blue-50);
+            border-color: var(--blue-400);
+            color: var(--blue-700);
+            transform: translateX(-2px);
+            box-shadow: 0 2px 8px rgba(59,130,246,0.12);
+        }
+
+        .btn-back i {
+            font-size: 11px;
         }
 
         /* ── PAGE LAYOUT ─────────────────────────────────────────────── */
@@ -813,25 +829,29 @@
                 <span>${profileUser.userName}</span>
             </div>
 
-            <c:choose>
-                <c:when test="${profileUser.roleId == 1}">
-                    <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn-header-back">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </a>
-                </c:when>
-                <c:when test="${profileUser.roleId == 2}">
-                    <a href="${pageContext.request.contextPath}/staff/inventory" class="btn-header-back">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </a>
-                </c:when>
-                <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-header-back">
-                        <i class="fas fa-arrow-left"></i> Trang chủ
-                    </a>
-                </c:otherwise>
-            </c:choose>
         </div>
     </header>
+
+    <!-- ── NÚT QUAY LẠI (dưới header, bên trái) ──────────────────────── -->
+    <div class="btn-back-bar">
+        <c:choose>
+            <c:when test="${profileUser.roleId == 1}">
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+                </a>
+            </c:when>
+            <c:when test="${profileUser.roleId == 2}">
+                <a href="${pageContext.request.contextPath}/staff/inventory" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+                </a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Trang chủ
+                </a>
+            </c:otherwise>
+        </c:choose>
+    </div>
 
     <!-- ── PAGE BODY ─────────────────────────────────────────────────── -->
     <div class="page-wrap">
@@ -839,7 +859,7 @@
         <!-- ── SIDEBAR ────────────────────────────────────────────────── -->
         <aside class="sidebar">
             <div class="sidebar-profile">
-                <div class="sidebar-avatar" onclick="document.getElementById('avatarInputSidebar').click()">
+                <div class="sidebar-avatar" onclick="document.getElementById('avatarInput').click()">
                     <c:choose>
                         <c:when test="${not empty profileUser.avatarUrl}">
                             <img src="${pageContext.request.contextPath}/images/${profileUser.avatarUrl}" alt="Avatar" id="sidebarAvatarImg">
@@ -959,9 +979,8 @@
 
                     <!-- Form -->
                     <form action="${pageContext.request.contextPath}/profile" method="post" enctype="multipart/form-data" id="profileForm">
+                        <!-- Single file input — dùng chung cho cả sidebar avatar và nút tải ảnh -->
                         <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none;">
-                        <!-- Reuse sidebar avatar preview -->
-                        <input type="file" name="avatar" id="avatarInputSidebar" accept="image/*" style="display:none;">
 
                         <div class="form-grid">
                             <div class="form-group">
@@ -1321,7 +1340,6 @@
         }
 
         setupAvatarPreview('avatarInput');
-        setupAvatarPreview('avatarInputSidebar');
 
         // ── PASSWORD HELPERS ───────────────────────────────────────────
         function togglePw(fieldId, btn) {
