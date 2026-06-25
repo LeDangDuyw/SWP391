@@ -29,8 +29,19 @@ public class UserDAO extends DBContext {
                 String hashedPassword = rs.getString("password");
 
                 if (hashPasswordUtil.checkPassword(password, hashedPassword)) {
+                    int userId = rs.getInt("user_id");
+                    
+                    // Update last_login_at in database on successful login
+                    String updateSql = "UPDATE [User] SET last_login_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+                    try (PreparedStatement updatePs = connection.prepareStatement(updateSql)) {
+                        updatePs.setInt(1, userId);
+                        updatePs.executeUpdate();
+                    } catch (SQLException ex) {
+                        System.out.println("Error updating last_login_at: " + ex);
+                    }
+                    
                     return new Users(
-                            rs.getInt("user_id"),
+                            userId,
                             rs.getString("full_name"),
                             rs.getString("email"),
                             rs.getString("phone"),
