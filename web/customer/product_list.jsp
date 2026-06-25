@@ -379,8 +379,11 @@
                                     <c:if test="${not empty p.dpi}"><span class="spec-chip">${p.dpi}</span></c:if>
                                 </div>
                                  <div class="price-row">
-                                     <div class="price">
-                                         <fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫
+                                     <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                         <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                         <c:if test="${p.discountPercent > 0}">
+                                             <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                         </c:if>
                                      </div>
                                  </div>
                                  <div class="actions">
