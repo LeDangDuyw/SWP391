@@ -6,7 +6,7 @@
          metadata-complete="false">
          
     <welcome-file-list>
-        <welcome-file>login.jsp</welcome-file>
+         <welcome-file>HomeServlet</welcome-file>
     </welcome-file-list>
 
     <servlet>
