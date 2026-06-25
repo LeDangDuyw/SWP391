@@ -20,7 +20,6 @@ import java.util.UUID;
  * Supports updating Full Name, Phone Number, uploading an Avatar image,
  * and changing the account password (UC05 – Change Password per SRS spec).
  */
-@WebServlet("/profile")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2, // 2MB
     maxFileSize = 1024 * 1024 * 10,      // 10MB
@@ -49,7 +48,7 @@ public class ProfileController extends HttpServlet {
         }
 
         request.setAttribute("profileUser", freshUser);
-        request.getRequestDispatcher("auth/profile.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/profile.jsp").forward(request, response);
     }
 
     @Override
