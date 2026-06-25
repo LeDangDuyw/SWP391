@@ -19,7 +19,7 @@ import model.ProductCompareDTO;
 
 /**
  *
- * @author NC
+ * @author MINHBQ
  */
 @WebServlet("/compare")
 public class CompareServlet extends HttpServlet {
