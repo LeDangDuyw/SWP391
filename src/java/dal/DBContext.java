@@ -15,25 +15,19 @@ import java.util.logging.Logger;
  */
 
 public class DBContext {
+    private static final ThreadLocal<Connection> threadConnection = new ThreadLocal<>();
     protected Connection connection;
     public static String lastError = "";
 
     public DBContext() {
         try {
-            Properties properties = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("../ConnectDB.properties");
-            try {
-                properties.load(inputStream);
-            } catch (IOException ex) {
-                Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-                lastError = ex.getMessage();
+            Connection conn = threadConnection.get();
+            if (conn == null || conn.isClosed()) {
+                conn = createConnection();
+                threadConnection.set(conn);
             }
-            String user = properties.getProperty("userID");
-            String pass = properties.getProperty("password");
-            String url = properties.getProperty("url");
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            connection = DriverManager.getConnection(url, user, pass);
-        } catch (ClassNotFoundException | SQLException ex) {
+            this.connection = conn;
+        } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             lastError = ex.getMessage();
         }
@@ -43,10 +37,13 @@ public class DBContext {
         this();
     }
 
-    public Connection getConnection() {
+    private static Connection createConnection() {
         try {
             Properties properties = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("../ConnectDB.properties");
+            InputStream inputStream = DBContext.class.getClassLoader().getResourceAsStream("ConnectDB.properties");
+            if (inputStream == null) {
+                inputStream = DBContext.class.getClassLoader().getResourceAsStream("../ConnectDB.properties");
+            }
             if (inputStream != null) {
                 properties.load(inputStream);
             }
@@ -57,7 +54,37 @@ public class DBContext {
             return DriverManager.getConnection(url, user, pass);
         } catch (Exception ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            lastError = ex.getMessage();
             return null;
+        }
+    }
+
+    public Connection getConnection() {
+        try {
+            Connection conn = threadConnection.get();
+            if (conn == null || conn.isClosed()) {
+                conn = createConnection();
+                threadConnection.set(conn);
+            }
+            return conn;
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            return createConnection();
+        }
+    }
+
+    public static void closeThreadConnection() {
+        Connection conn = threadConnection.get();
+        if (conn != null) {
+            try {
+                if (!conn.isClosed()) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                threadConnection.remove();
+            }
         }
     }
 

@@ -24,6 +24,8 @@ public class LoginController extends HttpServlet {
  * @Author: LUCTVHE201874
  * Date: [04/06/2026]
  * Version: 2.0
+ * Date: [01/06/2026]
+ * Version: 1.0
  * Description: Hàm này xử lý đăng nhập: xác thực tài khoản, kiểm tra trạng thái khóa, 
     và điều hướng người dùng đến trang phù hợp (admin/user/staff) dựa theo vai trò nếu thành công.
  */

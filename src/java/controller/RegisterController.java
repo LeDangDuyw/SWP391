@@ -14,18 +14,12 @@ public class RegisterController extends HttpServlet {
             throws ServletException, IOException {
         request.getRequestDispatcher("auth/register.jsp").forward(request, response);
     }
-    /*
- * Name: doPost
- * @Author: LUCTVHE201874
- * Date: [01/06/2026]
- * Version: 2.0
- * Description: Hàm này xử lý đăng ký tài khoản: kiểm tra tính hợp lệ của dữ liệu đầu vào (mật khẩu, định dạng email, 
-    số điện thoại, trùng email) và lưu thông tin vào cơ sở dữ liệu nếu hợp lệ.
- */
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        request.setCharacterEncoding("UTF-8");
         String userName = request.getParameter("fullname");
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");

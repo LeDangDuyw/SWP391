@@ -1,4 +1,4 @@
-package controller.ticket;
+package controller;
 
 import dal.TicketDAO;
 import jakarta.servlet.ServletException;
@@ -11,8 +11,8 @@ import model.Ticket;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "TicketListController", urlPatterns = {"/staff/ticket/list"})
-public class TicketListController extends HttpServlet {
+@WebServlet(name = "AdminTicketListController", urlPatterns = {"/admin/ticket/list"})
+public class AdminTicketListController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -21,6 +21,6 @@ public class TicketListController extends HttpServlet {
         List<Ticket> tickets = ticketDao.getAllTickets();
         
         request.setAttribute("tickets", tickets);
-        request.getRequestDispatcher("/staff/ticket/TicketList.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin/ticket/AdminTicketList.jsp").forward(request, response);
     }
 }

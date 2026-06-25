@@ -56,12 +56,14 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
         <nav>
-            <a href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a class="active" href="<%=base%>"><span>▥</span>Analytics</a>
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
             <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">

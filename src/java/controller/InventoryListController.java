@@ -75,41 +75,51 @@ public class InventoryListController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         ProductDAO dao = new ProductDAO();
-        List<ProductInventory> products = new ArrayList<ProductInventory>();
         
-        // Lấy từ khóa tìm kiếm và tiêu chí sắp xếp từ request
+        String activeTab = request.getParameter("tab");
+        if (activeTab == null || activeTab.isEmpty()) {
+            activeTab = "variants";
+        }
+        
         String searchInput = request.getParameter("searchInput");
+        if (searchInput == null) searchInput = "";
         String sortBy = request.getParameter("sortBy");
         
-        // Khởi tạo các biến dùng cho chức năng phân trang
         int page = 1;
         int pageSize = 10;
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.isEmpty()) {
             try {
-                // Ép kiểu số trang hiện tại
                 page = Integer.parseInt(pageParam);
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
         
-        // Tính toán vị trí bắt đầu lấy dữ liệu (offset) và tổng số trang
-        int offset = (page - 1) * pageSize;
-        int totalRecords = dao.getTotalInventoryCount(searchInput);
-        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if ("products".equals(activeTab)) {
+            int totalRecords = dao.countSearchAllProducts(searchInput);
+            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+            List<Product> product = dao.searchAllProducts(searchInput, page, pageSize);
+            
+            request.setAttribute("product", product);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalRecords", totalRecords);
+            request.setAttribute("pageSize", pageSize);
+        } else {
+            int offset = (page - 1) * pageSize;
+            int totalRecords = dao.getTotalInventoryCount(searchInput);
+            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+            
+            List<ProductInventory> products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
+            
+            request.setAttribute("products", products);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalRecords", totalRecords);
+            request.setAttribute("pageSize", pageSize);
+        }
         
-        // Lấy danh sách sản phẩm đã được phân trang và lọc từ CSDL
-        products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
-        
-        // Đưa các thông số phân trang và dữ liệu sản phẩm lên view (JSP)
-        request.setAttribute("products", products);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("totalRecords", totalRecords);
-        request.setAttribute("pageSize", pageSize);
-        
-        // Chuyển tiếp request sang trang InventoryManagement.jsp để hiển thị
         RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
     } 

@@ -138,57 +138,42 @@
             border-radius: 10px;
         }
     </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
-<body class="min-h-screen overflow-x-hidden">
-<!-- Sidebar Navigation -->
-<aside class="fixed h-full left-0 top-0 w-64 bg-surface border-r border-outline-variant/20 flex flex-col py-4 z-40">
-    <div class="px-6 py-4 mb-4">
-        <h1 class="font-headline-md text-[24px] font-bold text-primary flex items-center gap-2">
-            <span class="material-symbols-outlined text-[28px]">laptop_mac</span>
-            UNILAP Staff
-        </h1>
-        <p class="font-body-sm text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mt-1">System Controller</p>
-    </div>
-    
-    <nav class="flex-1 flex flex-col gap-1 px-2">
-        <!-- Dashboard -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/admin/dashboard">
-            <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span> Dashboard
-        </a>
-        
-        <!-- Inventory -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/inventory">
-            <span class="material-symbols-outlined mr-3 text-[20px]">inventory_2</span> Inventory
-        </a>
-        
-        <!-- Category -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/staff/category">
-            <span class="material-symbols-outlined mr-3 text-[20px]">category</span> Category
-        </a>
-        
-        <!-- IMEI -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-bold border-l-4 border-primary font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/imei">
-            <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">barcode_scanner</span> IMEI
-        </a>
-        
-        <!-- Tickets -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/ticket/list">
-            <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
-        </a>
-    </nav>
-    
-    <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
-        <!-- Logout -->
-        <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium" href="#">
-            <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
-        </a>
-    </div>
-</aside>
-<!-- Main Content Wrapper -->
-<div class="md:ml-64 flex flex-col min-h-screen">
-<!-- Top Navigation Bar -->
-<header class="sticky top-0 z-50 flex justify-between items-center px-gutter w-full h-16 bg-surface-container-lowest border-b border-outline-variant">
-<div class="flex items-center gap-4">
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<div class="layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <!-- Top Navigation Bar -->
+        <header class="sticky top-0 z-50 flex justify-between items-center px-gutter w-full h-16 bg-surface-container-lowest border-b border-outline-variant">
+            <div class="flex items-center gap-4">
 <div class="md:hidden">
 <span class="material-symbols-outlined text-primary cursor-pointer" data-icon="menu">menu</span>
 </div>
@@ -238,7 +223,7 @@
 </div>
 </div>
 <!-- Inventory Stats Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
 <div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
 <div class="p-3 bg-primary-fixed text-on-primary-fixed rounded-lg">
 <span class="material-symbols-outlined text-[32px]" data-icon="inventory">inventory</span>
@@ -253,8 +238,8 @@
 <span class="material-symbols-outlined text-[32px]" data-icon="check_circle">check_circle</span>
 </div>
 <div>
-<p class="text-label-md font-label-md text-on-surface-variant">Available</p>
-<p class="text-headline-md font-headline-md">${availableUnits != null ? availableUnits : 0}</p>
+<p class="text-label-md font-label-md text-on-surface-variant">In Stock</p>
+<p class="text-headline-md font-headline-md">${inStockUnits != null ? inStockUnits : 0}</p>
 </div>
 </div>
 <div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
@@ -264,16 +249,6 @@
 <div>
 <p class="text-label-md font-label-md text-on-surface-variant">Sold / Active</p>
 <p class="text-headline-md font-headline-md">${soldUnits != null ? soldUnits : 0}</p>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
-<div class="p-3 bg-secondary-fixed text-on-secondary-fixed rounded-lg" style="background-color: #ffebee; color: #c62828;">
-<span class="material-symbols-outlined text-[32px]" data-icon="warning">warning</span>
-</div>
-<div>
-<p class="text-label-md font-label-md text-on-surface-variant">Faulty / RMA</p>
-<p class="text-headline-md font-headline-md">${faultyUnits != null ? faultyUnits : 0}</p>
-</div>
 </div>
 </div>
 <!-- Table Controls -->
@@ -292,10 +267,8 @@
 <div class="flex items-center gap-3 w-full lg:w-auto">
 <select name="status" onchange="this.form.submit()" class="bg-surface-container-lowest border border-outline-variant rounded-lg text-sm px-4 py-2 focus:ring-primary-container">
 <option value="All" ${statusFilter == 'All' ? 'selected' : ''}>Status: All</option>
-<option value="Available" ${statusFilter == 'Available' ? 'selected' : ''}>Available</option>
-<option value="Sold" ${statusFilter == 'Sold' ? 'selected' : ''}>Sold</option>
-<option value="Reserved" ${statusFilter == 'Reserved' ? 'selected' : ''}>Reserved</option>
-<option value="Damaged" ${statusFilter == 'Damaged' ? 'selected' : ''}>Damaged</option>
+<option value="in_stock" ${statusFilter == 'in_stock' ? 'selected' : ''}>in_stock</option>
+<option value="sold" ${statusFilter == 'sold' ? 'selected' : ''}>sold</option>
 </select>
 </div>
 </div>
@@ -325,14 +298,11 @@
             </td>
             <td class="px-6 py-4">
             <c:choose>
-                <c:when test="${item.status == 'Available'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]">Available</span>
+                <c:when test="${item.status == 'in_stock'}">
+                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]">in_stock</span>
                 </c:when>
-                <c:when test="${item.status == 'Sold'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#fff3e0] text-[#ef6c00] border border-[#ffcc80]">Sold</span>
-                </c:when>
-                <c:when test="${item.status == 'Damaged'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#ffebee] text-[#c62828] border border-[#ef9a9a]">Damaged</span>
+                <c:when test="${item.status == 'sold'}">
+                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#fff3e0] text-[#ef6c00] border border-[#ffcc80]">sold</span>
                 </c:when>
                 <c:otherwise>
                     <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8]">${item.status}</span>
@@ -414,6 +384,7 @@
 </div>
 </div>
 </footer>
+    </div>
 </div>
 <!-- Micro-interaction Script -->
 <script>

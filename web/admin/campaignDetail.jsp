@@ -36,12 +36,6 @@
 <!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Performance</title>
-<!doctype html>
-<html lang="vi">
-<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campaign Performance</title>
@@ -52,12 +46,14 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
         <nav>
-            <a href="AdminDashboard.jsp"><span>▦</span>Dashboard</a>
+            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
             <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">
@@ -77,139 +73,139 @@
         </div>
     </aside>
 
-    <main class="main performance-page">
-        <header class="topbar slim">
-            <form action="<%=listBase%>" method="get" class="top-search wide">
-                <input name="keyword" placeholder="Search campaign data...">
-            </form>
-            <div class="top-icons">⚑ &nbsp; ? &nbsp; <b>Console</b></div>
-        </header>
+                <main class="main performance-page">
+                    <header class="topbar slim">
+                        <form action="<%=listBase%>" method="get" class="top-search wide">
+                            <input name="keyword" placeholder="Search campaign data...">
+                        </form>
+                        <div class="top-icons">⚑ &nbsp; ? &nbsp; <b>Console</b></div>
+                    </header>
 
-        <section class="page-head">
-            <div>
-                <div class="date-range">▣ <%=date(c.getStartDate())%> - <%=date(c.getEndDate())%></div>
-                <h2>Campaign Performance: <%=h(c.getCampaignName())%></h2>
-                <p><%=h(c.getCampaignDescription())%></p>
-            </div>
-            <div class="head-actions">
-                <a class="btn ghost" target="_blank" href="<%=detailBase%>?action=exportPdf&id=<%=c.getCampaignId()%>">⇩ Export PDF</a>
-                <a class="btn primary" href="<%=detailBase%>?id=<%=c.getCampaignId()%>">⟳ Live Sync</a>
-                <a class="btn ghost" href="<%=formBase%>?id=<%=c.getCampaignId()%>">Edit</a>
-            </div>
-        </section>
+                    <section class="page-head">
+                        <div>
+                            <div class="date-range">▣ <%=date(c.getStartDate())%> - <%=date(c.getEndDate())%></div>
+                            <h2>Campaign Performance: <%=h(c.getCampaignName())%></h2>
+                            <p><%=h(c.getCampaignDescription())%></p>
+                        </div>
+                        <div class="head-actions">
+                            <a class="btn ghost" target="_blank" href="<%=detailBase%>?action=exportPdf&id=<%=c.getCampaignId()%>">⇩ Export PDF</a>
+                            <a class="btn primary" href="<%=detailBase%>?id=<%=c.getCampaignId()%>">⟳ Live Sync</a>
+                            <a class="btn ghost" href="<%=formBase%>?id=<%=c.getCampaignId()%>">Edit</a>
+                        </div>
+                    </section>
 
-        <% if ("pending_approval".equals(c.getStatus())) { %>
-        <div class="review-bar">
-            <b>Campaign đang chờ duyệt.</b>
-            <form method="post" action="<%=detailBase%>">
-                <input type="hidden" name="id" value="<%=c.getCampaignId()%>">
-                <button class="btn primary" name="action" value="approve">Approve</button>
-                <button class="btn danger-fill" name="action" value="reject">Reject</button>
-            </form>
-        </div>
-        <% } %>
-
-        <div class="campaign-summary-bar" style="background: white; border: 1px solid var(--line); border-radius: 7px; padding: 18px; margin-bottom: 24px; display: flex; gap: 40px; box-shadow: var(--shadow); flex-wrap: wrap;">
-            <div>
-                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Promo Code</small>
-                <code style="font-size: 16px; font-weight: 700; color: var(--blue);"><%=h(c.getPromoCode())%></code>
-            </div>
-            <div>
-                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Campaign Type</small>
-                <span style="font-weight: 600;"><%=h(c.getCampaignType())%></span>
-            </div>
-            <div>
-                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Discount Value</small>
-                <span style="font-weight: 700; color: #111827;">
-                    <% if ("percentage".equals(c.getCampaignType()) || "flash".equals(c.getCampaignType()) || "bundle_discount".equals(c.getCampaignType())) { %>
-                        <%= c.getDiscountValue() != null ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : "0%" %>
-                    <% } else { %>
-                        <%= money(c.getDiscountValue()) %>
+                    <% if ("pending_approval".equals(c.getStatus())) { %>
+                    <div class="review-bar">
+                        <b>Campaign đang chờ duyệt.</b>
+                        <form method="post" action="<%=detailBase%>">
+                            <input type="hidden" name="id" value="<%=c.getCampaignId()%>">
+                            <button class="btn primary" name="action" value="approve">Approve</button>
+                            <button class="btn danger-fill" name="action" value="reject">Reject</button>
+                        </form>
+                    </div>
                     <% } %>
-                </span>
-            </div>
-            <div>
-                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Min Order (Condition)</small>
-                <span style="font-weight: 600;"><%= money(c.getMinOrderValue()) %></span>
-            </div>
-            <div>
-                <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Status</small>
-                <span class="badge <%=statusClass(c.getStatus())%>" style="padding: 2px 8px; font-size: 12px;"><%=c.getStatus()%></span>
-            </div>
-        </div>
 
-        <section class="metric-grid four">
-            <article class="metric-card"><span class="icon">▭</span><small>TOTAL UNITS SOLD</small><b><%=NumberFormat.getNumberInstance(Locale.US).format(totalUnits)%></b><div class="bar"><i style="width:<%=totalUnitsProgress%>%"></i></div></article>
-            <article class="metric-card"><span class="icon">▣</span><small>TOTAL REVENUE</small><b><%=shortMoney(revenue)%></b><div class="bar"><i style="width:<%=revenueProgress%>%"></i></div></article>
-            <article class="metric-card"><span class="icon">◉</span><small>CONVERSION RATE</small><b><%=String.format(Locale.US, "%.1f", conversion)%>%</b><div class="bar"><i style="width:<%=conversionProgress%>%"></i></div></article>
-            <article class="metric-card"><span class="icon">♙</span><small>CUSTOMER GROWTH</small><b><%=customerGrowth > 0 ? "+" : ""%><%=NumberFormat.getNumberInstance(Locale.US).format(customerGrowth)%></b><div class="bar"><i style="width:<%=customerGrowthProgress%>%"></i></div></article>
-        </section>
+                    <div class="campaign-summary-bar" style="background: white; border: 1px solid var(--line); border-radius: 7px; padding: 18px; margin-bottom: 24px; display: flex; gap: 40px; box-shadow: var(--shadow); flex-wrap: wrap;">
+                        <div>
+                            <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Promo Code</small>
+                            <code style="font-size: 16px; font-weight: 700; color: var(--blue);"><%=h(c.getPromoCode())%></code>
+                        </div>
+                        <div>
+                            <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Campaign Type</small>
+                            <span style="font-weight: 600;"><%=h(c.getCampaignType())%></span>
+                        </div>
+                        <div>
+                            <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Discount Value</small>
+                            <span style="font-weight: 700; color: #111827;">
+                                <% if ("percentage".equals(c.getCampaignType()) || "flash".equals(c.getCampaignType()) || "bundle_discount".equals(c.getCampaignType())) { %>
+                                <%= c.getDiscountValue() != null ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : "0%" %>
+                                <% } else { %>
+                                <%= money(c.getDiscountValue()) %>
+                                <% } %>
+                            </span>
+                        </div>
+                        <div>
+                            <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Min Order (Condition)</small>
+                            <span style="font-weight: 600;"><%= money(c.getMinOrderValue()) %></span>
+                        </div>
+                        <div>
+                            <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Status</small>
+                            <span class="badge <%=statusClass(c.getStatus())%>" style="padding: 2px 8px; font-size: 12px;"><%=c.getStatus()%></span>
+                        </div>
+                    </div>
 
-        <div class="analytics-grid">
-            <section class="chart-card">
-                <div class="inline-title"><div><b>Sales Volume Over Time</b><small>Units sold by assignment date from real order serial data.</small></div><span class="pill"><%=h(salesRangeLabel)%></span></div>
-                <% if (salesVolume.isEmpty()) { %>
-                <div class="chart-empty">No sales volume data for this campaign.</div>
-                <% } else { %>
-                <div class="bar-chart">
-                    <% for (CampaignSalesVolume point : salesVolume) { %>
-                    <span style="height:<%=point.getHeightPercent()%>%"
-                          title="<%=point.getSaleDate()%>: <%=point.getUnitsSold()%> units"></span>
-                    <% } %>
-                </div>
-                <div class="axis">
-                    <% for (String label : salesAxisLabels) { %>
-                    <span><%=h(label)%></span>
-                    <% } %>
-                </div>
-                <% } %>
-            </section>
-                  </div>
+                    <section class="metric-grid four">
+                        <article class="metric-card"><span class="icon">▭</span><small>TOTAL UNITS SOLD</small><b><%=NumberFormat.getNumberInstance(Locale.US).format(totalUnits)%></b><div class="bar"><i style="width:<%=totalUnitsProgress%>%"></i></div></article>
+                        <article class="metric-card"><span class="icon">▣</span><small>TOTAL REVENUE</small><b><%=shortMoney(revenue)%></b><div class="bar"><i style="width:<%=revenueProgress%>%"></i></div></article>
+                        <article class="metric-card"><span class="icon">◉</span><small>CONVERSION RATE</small><b><%=String.format(Locale.US, "%.1f", conversion)%>%</b><div class="bar"><i style="width:<%=conversionProgress%>%"></i></div></article>
+                        <article class="metric-card"><span class="icon">♙</span><small>CUSTOMER GROWTH</small><b><%=customerGrowth > 0 ? "+" : ""%><%=NumberFormat.getNumberInstance(Locale.US).format(customerGrowth)%></b><div class="bar"><i style="width:<%=customerGrowthProgress%>%"></i></div></article>
+                    </section>
 
-        <section class="panel performance-table">
-            <div class="panel-title">
-                <h2>Product Performance Breakdown</h2>
-                <input id="tableFilter" class="mini-search" placeholder="Filter product...">
+                    <div class="analytics-grid">
+                        <section class="chart-card">
+                            <div class="inline-title"><div><b>Sales Volume Over Time</b><small>Units sold by assignment date from real order serial data.</small></div><span class="pill"><%=h(salesRangeLabel)%></span></div>
+                                        <% if (salesVolume.isEmpty()) { %>
+                            <div class="chart-empty">No sales volume data for this campaign.</div>
+                            <% } else { %>
+                            <div class="bar-chart">
+                                <% for (CampaignSalesVolume point : salesVolume) { %>
+                                <span style="height:<%=point.getHeightPercent()%>%"
+                                      title="<%=point.getSaleDate()%>: <%=point.getUnitsSold()%> units"></span>
+                                <% } %>
+                            </div>
+                            <div class="axis">
+                                <% for (String label : salesAxisLabels) { %>
+                                <span><%=h(label)%></span>
+                                <% } %>
+                            </div>
+                            <% } %>
+                        </section>
+                    </div>
+
+                    <section class="panel performance-table">
+                        <div class="panel-title">
+                            <h2>Product Performance Breakdown</h2>
+                            <input id="tableFilter" class="mini-search" placeholder="Filter product...">
+                        </div>
+                        <table class="data-table" id="productTable">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Original Price</th>
+                                    <th>Sale Price</th>
+                                    <th>Units Sold</th>
+                                    <th>Revenue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (products.isEmpty()) { %>
+                                <tr><td colspan="6" class="empty">Campaign này chưa chọn sản phẩm nào.</td></tr>
+                                <% } %>
+                                <% for (CampaignProduct p : products) { %>
+                                <tr data-row="<%=h((p.getProductName()+" "+p.getSku()).toLowerCase())%>">
+                                    <td><b><%=h(p.getProductName())%></b><small><%=h(p.getSku())%> · <%=h(p.getCategoryName())%></small></td>
+                                    <td><%=money(p.getOriginalPrice())%></td>
+                                    <td class="blue-text strong"><%=money(p.getSalePrice())%></td>
+                                    <td><%=NumberFormat.getNumberInstance(Locale.US).format(p.getUnitsSold())%></td>
+                                    <td class="strong"><%=money(p.getRevenue())%></td>
+                                    <td><span class="stock <%=statusClass(p.getStatus())%>"><%=h(p.getStatus())%></span></td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                        <div class="table-footer"><span>Showing <%=products.size()%> promotion items</span><a class="btn ghost" href="<%=listBase%>">Back to Campaigns</a></div>
+                    </section>
+                </main>
             </div>
-            <table class="data-table" id="productTable">
-                <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Original Price</th>
-                    <th>Sale Price</th>
-                    <th>Units Sold</th>
-                    <th>Revenue</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% if (products.isEmpty()) { %>
-                <tr><td colspan="6" class="empty">Campaign này chưa chọn sản phẩm nào.</td></tr>
-                <% } %>
-                <% for (CampaignProduct p : products) { %>
-                <tr data-row="<%=h((p.getProductName()+" "+p.getSku()).toLowerCase())%>">
-                    <td><b><%=h(p.getProductName())%></b><small><%=h(p.getSku())%> · <%=h(p.getCategoryName())%></small></td>
-                    <td><%=money(p.getOriginalPrice())%></td>
-                    <td class="blue-text strong"><%=money(p.getSalePrice())%></td>
-                    <td><%=NumberFormat.getNumberInstance(Locale.US).format(p.getUnitsSold())%></td>
-                    <td class="strong"><%=money(p.getRevenue())%></td>
-                    <td><span class="stock <%=statusClass(p.getStatus())%>"><%=h(p.getStatus())%></span></td>
-                </tr>
-                <% } %>
-                </tbody>
-            </table>
-            <div class="table-footer"><span>Showing <%=products.size()%> promotion items</span><a class="btn ghost" href="<%=listBase%>">Back to Campaigns</a></div>
-        </section>
-    </main>
-</div>
-<script>
-    const input = document.getElementById('tableFilter');
-    input?.addEventListener('input', () => {
-        const key = input.value.toLowerCase();
-        document.querySelectorAll('#productTable tbody tr[data-row]').forEach(row => {
-            row.style.display = row.dataset.row.includes(key) ? '' : 'none';
-        });
-    });
-</script>
-</body>
-</html>
+            <script>
+                const input = document.getElementById('tableFilter');
+                input?.addEventListener('input', () => {
+                    const key = input.value.toLowerCase();
+                    document.querySelectorAll('#productTable tbody tr[data-row]').forEach(row => {
+                        row.style.display = row.dataset.row.includes(key) ? '' : 'none';
+                    });
+                });
+            </script>
+        </body>
+    </html>
