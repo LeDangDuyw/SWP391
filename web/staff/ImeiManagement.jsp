@@ -223,7 +223,7 @@
 </div>
 </div>
 <!-- Inventory Stats Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
 <div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
 <div class="p-3 bg-primary-fixed text-on-primary-fixed rounded-lg">
 <span class="material-symbols-outlined text-[32px]" data-icon="inventory">inventory</span>
@@ -238,8 +238,8 @@
 <span class="material-symbols-outlined text-[32px]" data-icon="check_circle">check_circle</span>
 </div>
 <div>
-<p class="text-label-md font-label-md text-on-surface-variant">Available</p>
-<p class="text-headline-md font-headline-md">${availableUnits != null ? availableUnits : 0}</p>
+<p class="text-label-md font-label-md text-on-surface-variant">In Stock</p>
+<p class="text-headline-md font-headline-md">${inStockUnits != null ? inStockUnits : 0}</p>
 </div>
 </div>
 <div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
@@ -249,16 +249,6 @@
 <div>
 <p class="text-label-md font-label-md text-on-surface-variant">Sold / Active</p>
 <p class="text-headline-md font-headline-md">${soldUnits != null ? soldUnits : 0}</p>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-6 border border-outline-variant rounded-xl flex items-center gap-4">
-<div class="p-3 bg-secondary-fixed text-on-secondary-fixed rounded-lg" style="background-color: #ffebee; color: #c62828;">
-<span class="material-symbols-outlined text-[32px]" data-icon="warning">warning</span>
-</div>
-<div>
-<p class="text-label-md font-label-md text-on-surface-variant">Faulty / RMA</p>
-<p class="text-headline-md font-headline-md">${faultyUnits != null ? faultyUnits : 0}</p>
-</div>
 </div>
 </div>
 <!-- Table Controls -->
@@ -277,10 +267,8 @@
 <div class="flex items-center gap-3 w-full lg:w-auto">
 <select name="status" onchange="this.form.submit()" class="bg-surface-container-lowest border border-outline-variant rounded-lg text-sm px-4 py-2 focus:ring-primary-container">
 <option value="All" ${statusFilter == 'All' ? 'selected' : ''}>Status: All</option>
-<option value="Available" ${statusFilter == 'Available' ? 'selected' : ''}>Available</option>
-<option value="Sold" ${statusFilter == 'Sold' ? 'selected' : ''}>Sold</option>
-<option value="Reserved" ${statusFilter == 'Reserved' ? 'selected' : ''}>Reserved</option>
-<option value="Damaged" ${statusFilter == 'Damaged' ? 'selected' : ''}>Damaged</option>
+<option value="in_stock" ${statusFilter == 'in_stock' ? 'selected' : ''}>in_stock</option>
+<option value="sold" ${statusFilter == 'sold' ? 'selected' : ''}>sold</option>
 </select>
 </div>
 </div>
@@ -310,14 +298,11 @@
             </td>
             <td class="px-6 py-4">
             <c:choose>
-                <c:when test="${item.status == 'Available'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]">Available</span>
+                <c:when test="${item.status == 'in_stock'}">
+                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]">in_stock</span>
                 </c:when>
-                <c:when test="${item.status == 'Sold'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#fff3e0] text-[#ef6c00] border border-[#ffcc80]">Sold</span>
-                </c:when>
-                <c:when test="${item.status == 'Damaged'}">
-                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#ffebee] text-[#c62828] border border-[#ef9a9a]">Damaged</span>
+                <c:when test="${item.status == 'sold'}">
+                    <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#fff3e0] text-[#ef6c00] border border-[#ffcc80]">sold</span>
                 </c:when>
                 <c:otherwise>
                     <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8]">${item.status}</span>

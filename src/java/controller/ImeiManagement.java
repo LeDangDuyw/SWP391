@@ -44,9 +44,8 @@ public class ImeiManagement extends HttpServlet {
         
         // Get Statistics
         int totalUnits = dao.getCountByStatus(null);
-        int availableUnits = dao.getCountByStatus("Available");
-        int soldUnits = dao.getCountByStatus("Sold");
-        int faultyUnits = dao.getCountByStatus("Damaged"); // Assuming "Damaged" is faulty
+        int inStockUnits = dao.getCountByStatus("in_stock");
+        int soldUnits = dao.getCountByStatus("sold");
         
         request.setAttribute("items", items);
         request.setAttribute("currentPage", page);
@@ -56,9 +55,8 @@ public class ImeiManagement extends HttpServlet {
         request.setAttribute("statusFilter", statusFilter);
         
         request.setAttribute("totalUnits", totalUnits);
-        request.setAttribute("availableUnits", availableUnits);
+        request.setAttribute("inStockUnits", inStockUnits);
         request.setAttribute("soldUnits", soldUnits);
-        request.setAttribute("faultyUnits", faultyUnits);
         
         request.getRequestDispatcher("/staff/ImeiManagement.jsp").forward(request, response);
     }

@@ -288,9 +288,8 @@
 <label class="font-label-md text-label-md text-on-surface-variant">Initial Status</label>
 <div class="relative">
 <select name="initialStatus" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-<option value="Available">Available</option>
-<option value="Reserved">Reserved</option>
-<option value="QC Pending">QC Pending</option>
+<option value="in_stock">in_stock</option>
+<option value="sold">sold</option>
 </select>
 <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
 <span class="w-2.5 h-2.5 rounded-full bg-green-500 mr-2"></span>

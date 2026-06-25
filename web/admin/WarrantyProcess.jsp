@@ -321,6 +321,9 @@
                 <a href="${pageContext.request.contextPath}/warranty?action=list" class="nav-item active">
                     <span class="nav-icon">🛠</span> Warranty
                 </a>
+                <a href="${pageContext.request.contextPath}/admin/ticket/list" class="nav-item">
+                    <span class="nav-icon">🎫</span> Ticket Review
+                </a>
                 <a href="#" class="nav-item">
                     <span class="nav-icon">⚙</span> Settings
                 </a>
