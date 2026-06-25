@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import dal.CategoryDAO;
 import model.CartItem;
 
+@WebServlet(name = "CheckoutServlet", urlPatterns = {"/CheckoutServlet"})
 public class CheckoutServlet extends HttpServlet {
 
     @SuppressWarnings("unchecked")
@@ -37,6 +39,19 @@ public class CheckoutServlet extends HttpServlet {
             request.setAttribute("orderId", orderId);
             request.setAttribute("paymentMethod", paymentMethod);
             request.setAttribute("total", totalStr);
+            
+            try {
+                dal.OrderDAO orderDAO = new dal.OrderDAO();
+                model.Order orderObj = orderDAO.getOrderByCode(orderId);
+                if (orderObj != null) {
+                    request.setAttribute("shippingFee", orderObj.getShippingFee());
+                } else {
+                    request.setAttribute("shippingFee", BigDecimal.ZERO);
+                }
+            } catch (Exception ex) {
+                request.setAttribute("shippingFee", BigDecimal.ZERO);
+            }
+            
             request.getRequestDispatcher("customer/order_success.jsp").forward(request, response);
             return;
         }
@@ -65,7 +80,15 @@ public class CheckoutServlet extends HttpServlet {
             discountAmount = BigDecimal.ZERO;
         }
 
-        BigDecimal finalTotal = total.subtract(discountAmount);
+        // Calculate shipping fee on first load:
+        // Default shippingMethod is HOME_DELIVERY.
+        // If subtotal (total) < 500,000, then shippingFee = 15,000, else 0.
+        BigDecimal shippingFee = BigDecimal.ZERO;
+        if (total.compareTo(new BigDecimal("500000")) < 0) {
+            shippingFee = new BigDecimal("15000");
+        }
+
+        BigDecimal finalTotal = total.subtract(discountAmount).add(shippingFee);
         if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
             finalTotal = BigDecimal.ZERO;
         }
@@ -73,6 +96,7 @@ public class CheckoutServlet extends HttpServlet {
         request.setAttribute("cart", cart);
         request.setAttribute("total", total);
         request.setAttribute("discountAmount", discountAmount);
+        request.setAttribute("shippingFee", shippingFee);
         request.setAttribute("finalTotal", finalTotal);
 
         request.getRequestDispatcher("customer/checkout.jsp").forward(request, response);
@@ -103,6 +127,7 @@ public class CheckoutServlet extends HttpServlet {
         String address = request.getParameter("address");
         String paymentMethod = request.getParameter("paymentMethod");
         String notes = request.getParameter("notes");
+        String shippingMethod = request.getParameter("shippingMethod");
 
         // Calculate totals
         BigDecimal total = BigDecimal.ZERO;
@@ -111,8 +136,30 @@ public class CheckoutServlet extends HttpServlet {
         }
         BigDecimal discountAmount = (BigDecimal) session.getAttribute("discountAmount");
         if (discountAmount == null) discountAmount = BigDecimal.ZERO;
-        BigDecimal finalTotal = total.subtract(discountAmount);
+
+        // Calculate shipping fee based on subtotal (before voucher discount)
+        BigDecimal shippingFee = BigDecimal.ZERO;
+        if (!"STORE_PICKUP".equals(shippingMethod)) {
+            // Home delivery
+            if (total.compareTo(new BigDecimal("500000")) < 0) {
+                shippingFee = new BigDecimal("15000");
+            }
+        }
+
+        BigDecimal finalTotal = total.subtract(discountAmount).add(shippingFee);
         if (finalTotal.compareTo(BigDecimal.ZERO) < 0) finalTotal = BigDecimal.ZERO;
+
+        // Validate phone number (10 digits starting with 0)
+        if (phone == null || !phone.matches("^0[0-9]{9}$")) {
+            request.setAttribute("error", "Số điện thoại không hợp lệ. Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0!");
+            request.setAttribute("cart", cart);
+            request.setAttribute("total", total);
+            request.setAttribute("discountAmount", discountAmount);
+            request.setAttribute("shippingFee", shippingFee);
+            request.setAttribute("finalTotal", finalTotal);
+            request.getRequestDispatcher("customer/checkout.jsp").forward(request, response);
+            return;
+        }
 
         // Try extracting user_id dynamically from session "user" using reflection to avoid compile dependency issues
         Integer userId = null;
@@ -136,15 +183,39 @@ public class CheckoutServlet extends HttpServlet {
             }
         }
 
+        // Retrieve coupon info from session
+        Integer couponId = (Integer) session.getAttribute("couponId");
+        Boolean isCampaignObj = (Boolean) session.getAttribute("isCampaign");
+        boolean isCampaign = (isCampaignObj != null) ? isCampaignObj : false;
+
         // Insert Order and OrderDetails into Database
         dal.OrderDAO orderDAO = new dal.OrderDAO();
-        model.Order dbOrder = orderDAO.insertOrder(finalTotal, fullName, phone, address, userId);
-        String orderCode = (dbOrder != null) ? dbOrder.getOrderCode() : ("UNILAP-" + (100000 + new java.util.Random().nextInt(900000)));
+        model.Order dbOrder = orderDAO.insertOrder(finalTotal, shippingFee, fullName, phone, address, userId, couponId);
 
-        if (dbOrder != null) {
-            for (CartItem item : cart) {
-                orderDAO.insertOrderDetail(dbOrder.getOrderId(), item.getVariantId(), item.getQuantity(), item.getUnitPrice());
-            }
+        if (dbOrder == null) {
+            request.setAttribute("error", "Đã xảy ra lỗi hệ thống khi tạo đơn hàng (có thể do tổng tiền vượt quá giới hạn hoặc lỗi kết nối). Vui lòng thử lại hoặc giảm bớt số lượng!");
+            request.setAttribute("cart", cart);
+            request.setAttribute("total", total);
+            request.setAttribute("discountAmount", discountAmount);
+            request.setAttribute("shippingFee", shippingFee);
+            request.setAttribute("finalTotal", finalTotal);
+            request.getRequestDispatcher("customer/checkout.jsp").forward(request, response);
+            return;
+        }
+
+        String orderCode = dbOrder.getOrderCode();
+        for (CartItem item : cart) {
+            orderDAO.insertOrderDetail(dbOrder.getOrderId(), item.getVariantId(), item.getQuantity(), item.getUnitPrice());
+        }
+        
+        // Increment campaign used count
+        if (couponId != null) {
+            new dal.VoucherDAO().incrementUsedCount(couponId, isCampaign);
+        }
+        
+        // Clear cart in Database if logged in
+        if (userId != null) {
+            new dal.CartDAO().clearCart(userId);
         }
 
         // Simulation logs
@@ -161,6 +232,8 @@ public class CheckoutServlet extends HttpServlet {
         session.removeAttribute("discountAmount");
         session.removeAttribute("couponMessage");
         session.removeAttribute("couponSuccess");
+        session.removeAttribute("couponId");
+        session.removeAttribute("isCampaign");
 
         // Redirect to success page
         response.sendRedirect(request.getContextPath() + "/CheckoutServlet?action=success&orderCode=" + orderCode + "&paymentMethod=" + paymentMethod + "&total=" + finalTotal);

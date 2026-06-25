@@ -184,7 +184,10 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(res => res.json())
         .then(data => {
-            showCouponMessage(data.message, data.success);
+            showCouponMessage(
+                data.couponMessage || data.message || "Không phản hồi từ máy chủ.", 
+                data.couponSuccess !== undefined ? data.couponSuccess : (data.successCoupon !== undefined ? data.successCoupon : data.success)
+            );
             updateSummary(data);
         })
         .catch(err => console.error("Error applying coupon:", err));

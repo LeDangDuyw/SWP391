@@ -505,6 +505,7 @@ public Product getProductById(int productId) {
         }
     } catch (Exception e) {
         System.out.println("getProductById: " + e.getMessage());
+        e.printStackTrace();
     }
     return null;
 }

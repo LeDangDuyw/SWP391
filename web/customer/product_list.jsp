@@ -27,7 +27,7 @@
                 </c:forEach>
 
                 <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
-                    <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down dropdown-chevron"></i></span>
+                    <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down dropdown-chevron"></i></span>
                     <div class="dropdown-content">
                         <c:forEach items="${categories}" var="cat">
                             <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
