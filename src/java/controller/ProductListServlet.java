@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package Controller;
+package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,9 +10,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import Dao.ProductDAO;
-import Dao.BrandDao;
-import Dao.ProductSeriesDao;
+import dal.ProductDAO;
+import dal.BrandDao;
+import dal.ProductSeriesDAO;
 
 /**
  *
@@ -75,7 +75,7 @@ public class ProductListServlet extends HttpServlet {
         
         // Tự động nhận diện danh mục từ từ khóa tìm kiếm (Backend Java Servlet + SQL)
         if (search != null && !search.trim().isEmpty()) {
-            Dao.CategoryDAO categoryDAO = new Dao.CategoryDAO();
+            dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
             String cleanSearch = search.trim().toLowerCase();
             
             // 1. Truy vấn SQL xem từ khóa tìm kiếm có khớp với tên danh mục nào không
@@ -141,7 +141,7 @@ public class ProductListServlet extends HttpServlet {
         }
         // lấy series laptop
         if (categoryId == 1) { // Laptop
-            ProductSeriesDao s = new ProductSeriesDao();
+            ProductSeriesDAO s = new ProductSeriesDAO();
             if (brandId != null) {
                 request.setAttribute("serieses",s.getSeriesByBrand(brandId) );
            }

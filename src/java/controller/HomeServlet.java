@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package Controller;
+package controller;
 
-import Dao.CategoryDAO;
-import Dao.ProductDAO;
-import Model.Product;
+import dal.CategoryDAO;
+import dal.ProductDAO;
+import model.Product;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import Dao.FlashSaleProductDao;
+import dal.FlashSaleProductDAO;
 
 /**
  *
@@ -62,7 +62,7 @@ public class HomeServlet extends HttpServlet {
             throws ServletException, IOException {
         ProductDAO p = new ProductDAO();
         CategoryDAO c = new CategoryDAO();
-        FlashSaleProductDao fl = new FlashSaleProductDao();
+        FlashSaleProductDAO fl = new FlashSaleProductDAO();
        
         // Sản phẩm bán chạy
         String bsTab = request.getParameter("bsTab");

@@ -92,7 +92,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         // 3) Lấy các biến thể (RAM/SSD) kèm tồn kho
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(productId);
-        List<Product> similarProducts = productDAO.getSimilarProducts(product.getPurpose(), product.getCategoryId(), product.getProductId(), 4);
+        List<Product> similarProducts = productDAO.getSimilarProducts(product.getCategoryId(), product.getProductId(), 4);
 
         // 4) Lấy đánh giá & bình luận sản phẩm
         ProductReviewDAO reviewDAO = new ProductReviewDAO();
@@ -110,7 +110,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         String productBadge = product.getPurpose();
         if (productBadge == null || productBadge.trim().isEmpty()) {
-            productBadge = productDAO.getProductBadge(product.getProductId(), product.getCategoryId());
+            productBadge = product.getCategoryName();
         }
 
         request.setAttribute("productBadge", productBadge);
