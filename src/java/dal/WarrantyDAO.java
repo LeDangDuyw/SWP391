@@ -105,7 +105,8 @@ public class WarrantyDAO extends DBContext {
                 + "FROM WarrantyClaims wc "
                 + "JOIN [User] u ON wc.customer_id = u.user_id "
                 + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
-                + "JOIN Product p ON od.product_id = p.product_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
                 + "WHERE wc.claim_id = ?";
 
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -349,7 +350,7 @@ public class WarrantyDAO extends DBContext {
                 + "FROM ProductSerials ps "
                 + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
-                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.status = 'COMPLETED'";
+                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.order_status = 'COMPLETED'";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             ps.setInt(2, customerId);
@@ -371,13 +372,13 @@ public class WarrantyDAO extends DBContext {
     public boolean isUnderWarranty(String serialNumber) throws Exception {
         String sql = "SELECT 1 "
                 + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON wc.order_detail_id = od.order_detail_id "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
                 + "WHERE ps.serial_number = ? "
-                + "  AND DATEADD(MONTH, wp.WarrantyMonths, o.completed_at) >= GETDATE()";
+                + "AND DATEADD(MONTH, wp.WarrantyMonths, o.completed_at) >= GETDATE()";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {

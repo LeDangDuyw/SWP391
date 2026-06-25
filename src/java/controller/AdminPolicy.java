@@ -85,9 +85,6 @@ public class AdminPolicy extends HttpServlet {
                 try {
                     int id = Integer.parseInt(idParam.trim());
                     WarrantyPolicy selected = dao.getPolicyById(id);
-                    if (selected != null) {
-                        selected.setExpiryDate(calculateExpiryDate(selected.getEffectiveDate(),selected.getWarrantyMonths()));
-                    }
                     request.setAttribute("selectedPolicy", selected);
                 } catch (Exception ignored) {
                 }
@@ -280,17 +277,6 @@ public class AdminPolicy extends HttpServlet {
         if (effDate != null && !effDate.isEmpty()) {
             p.setEffectiveDate(java.sql.Date.valueOf(effDate));
         }
-    }
-
-    private java.sql.Date calculateExpiryDate(java.sql.Date start, int months) {
-        if (start == null) {
-            return null;
-        }
-
-        java.time.LocalDate ld = start.toLocalDate();
-        ld = ld.plusMonths(months);
-
-        return java.sql.Date.valueOf(ld);
     }
 
     /**
