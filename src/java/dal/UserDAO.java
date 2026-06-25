@@ -249,12 +249,33 @@ public class UserDAO extends DBContext {
      * Description: Trả về tổng số lượng người dùng khớp với từ khóa tìm kiếm (họ tên hoặc email).
      */
     public int getTotalUsers(String search) {
-        String sql = "SELECT COUNT(*) FROM [User] WHERE (full_name LIKE ? OR email LIKE ?)";
+        return getTotalUsers(search, null, null);
+    }
+
+    /*
+     * Name: getTotalUsers (Overloaded)
+     * Description: Trả về tổng số lượng người dùng khớp với từ khóa tìm kiếm, vai trò và trạng thái lọc.
+     */
+    public int getTotalUsers(String search, Integer roleFilter, String statusFilter) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM [User] WHERE (full_name LIKE ? OR email LIKE ?)");
+        if (roleFilter != null) {
+            sql.append(" AND role_id = ?");
+        }
+        if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+            sql.append(" AND status = ?");
+        }
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql.toString());
             String keyword = "%" + (search == null ? "" : search.trim()) + "%";
             ps.setString(1, keyword);
             ps.setString(2, keyword);
+            int index = 3;
+            if (roleFilter != null) {
+                ps.setInt(index++, roleFilter);
+            }
+            if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+                ps.setString(index++, statusFilter.trim());
+            }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -270,17 +291,37 @@ public class UserDAO extends DBContext {
      * Description: Trả về danh sách người dùng được phân trang và lọc theo từ khóa tìm kiếm.
      */
     public ArrayList<Users> getUsers(String search, int offset, int limit) {
+        return getUsers(search, null, null, offset, limit);
+    }
+
+    /*
+     * Name: getUsers (Overloaded)
+     * Description: Trả về danh sách người dùng được phân trang và lọc theo từ khóa tìm kiếm, vai trò và trạng thái.
+     */
+    public ArrayList<Users> getUsers(String search, Integer roleFilter, String statusFilter, int offset, int limit) {
         ArrayList<Users> list = new ArrayList<>();
-        String sql = "SELECT * FROM [User] WHERE (full_name LIKE ? OR email LIKE ?) "
-                   + "ORDER BY user_id ASC "
-                   + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        StringBuilder sql = new StringBuilder("SELECT * FROM [User] WHERE (full_name LIKE ? OR email LIKE ?)");
+        if (roleFilter != null) {
+            sql.append(" AND role_id = ?");
+        }
+        if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+            sql.append(" AND status = ?");
+        }
+        sql.append(" ORDER BY user_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql.toString());
             String keyword = "%" + (search == null ? "" : search.trim()) + "%";
             ps.setString(1, keyword);
             ps.setString(2, keyword);
-            ps.setInt(3, offset);
-            ps.setInt(4, limit);
+            int index = 3;
+            if (roleFilter != null) {
+                ps.setInt(index++, roleFilter);
+            }
+            if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+                ps.setString(index++, statusFilter.trim());
+            }
+            ps.setInt(index++, offset);
+            ps.setInt(index++, limit);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Users u = new Users(
@@ -336,4 +377,26 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    /*
+     * Name: createUserByAdmin
+     * Description: Admin tạo tài khoản mới trực tiếp với họ tên, email, sđt, mật khẩu và vai trò cụ thể.
+     */
+    public boolean createUserByAdmin(String fullName, String email, String phone, String password, int roleId) {
+        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'active', ?)";
+        try {
+            String hashedPassword = hashPasswordUtil.hashPassword(password);
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, fullName);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+            ps.setString(4, hashedPassword);
+            ps.setInt(5, roleId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return false;
+    }
 }
+
