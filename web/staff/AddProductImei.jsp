@@ -309,7 +309,7 @@
 <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
 <h3 class="font-headline-md text-headline-md">Storage & Status</h3>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant">Warehouse Location</label>
 <input name="warehouseLocation" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="text" placeholder="e.g. Shelf A1"/>
@@ -317,19 +317,6 @@
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant">Import Date</label>
 <input name="receivedDate" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="date"/>
-</div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Initial Status</label>
-<div class="relative">
-<select name="initialStatus" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-<option value="in_stock">in_stock</option>
-<option value="sold">sold</option>
-</select>
-<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-<span class="w-2.5 h-2.5 rounded-full bg-green-500 mr-2"></span>
-<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
-</div>
-</div>
 </div>
 </div>
 </div>

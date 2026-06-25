@@ -79,7 +79,6 @@ public class AddProductImeiController extends HttpServlet {
         String[] barcodes = request.getParameterValues("barcodes");
         String warehouseLocation = request.getParameter("warehouseLocation");
         String receivedDate = request.getParameter("receivedDate");
-        String initialStatus = request.getParameter("initialStatus");
         String ticketIdStr = request.getParameter("ticketId");
         
         if (variantIdStr == null || variantIdStr.trim().isEmpty() ||
@@ -176,7 +175,7 @@ public class AddProductImeiController extends HttpServlet {
             item.setImei(validImeis.get(i));
             item.setSerialNumber(validSerials.get(i));
             item.setBarcode(validBarcodes.get(i));
-            item.setStatus(initialStatus);
+            item.setStatus("in_stock");
             item.setImportDate(receivedDate);
             item.setWarrantyExpiredDate(warrantyExpiredDate);
             item.setWarehouseLocation(warehouseLocation);
