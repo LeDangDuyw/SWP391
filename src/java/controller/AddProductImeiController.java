@@ -67,38 +67,6 @@ public class AddProductImeiController extends HttpServlet {
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
         
-        String ticketIdStr = request.getParameter("ticketId");
-        String variantIdStr = request.getParameter("variantId");
-        if (ticketIdStr != null && !ticketIdStr.trim().isEmpty() && variantIdStr != null && !variantIdStr.trim().isEmpty()) {
-            try {
-                int ticketId = Integer.parseInt(ticketIdStr.trim());
-                int variantId = Integer.parseInt(variantIdStr.trim());
-                TicketDAO ticketDao = new TicketDAO();
-                List<TicketDetail> details = ticketDao.getTicketDetails(ticketId);
-                for (TicketDetail td : details) {
-                    if (td.getVariantId() == variantId) {
-                        request.setAttribute("expectedQuantity", td.getQuantity());
-                        break;
-                    }
-                }
-                
-                for (ProductVariant v : variants) {
-                    if (v.getVariantId() == variantId) {
-                        request.setAttribute("selectedVariant", v);
-                        for (Product p : products) {
-                            if (p.getProductId() == v.getProductId()) {
-                                request.setAttribute("selectedProduct", p);
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        
         request.getRequestDispatcher("/staff/AddProductImei.jsp").forward(request, response);
     }
 
@@ -106,7 +74,7 @@ public class AddProductImeiController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String variantIdStr = request.getParameter("variantId");
-        String[] imeis = request.getParameterValues("imeis");
+        String[] imeis = request.getParameterValues("serials");
         String[] serialNumbers = request.getParameterValues("serialNumbers");
         String[] barcodes = request.getParameterValues("barcodes");
         String warehouseLocation = request.getParameter("warehouseLocation");
