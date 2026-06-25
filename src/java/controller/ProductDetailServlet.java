@@ -179,7 +179,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         if (userId != null) {
             ProductReviewDAO reviewDAO = new ProductReviewDAO();
-            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "approved");
+            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "pending");
         }
 
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");

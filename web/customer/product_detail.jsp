@@ -311,6 +311,14 @@
                         </button>
                     </div>
 
+                    <!-- Compare button -->
+                    <button type="button" onclick="addProductToCompare(${product.productId})"
+                        style="width: 100%; margin-top: 12px; border: 1.5px solid #e2e8f0; background: white; color: #334155; font-weight: 500; font-size: 14px; padding: 11px 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-family: inherit;"
+                        onmouseover="this.style.borderColor='#2563eb'; this.style.color='#2563eb'; this.style.background='#eff6ff';"
+                        onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#334155'; this.style.background='white';">
+                        So sánh sản phẩm
+                    </button>
+
                     <!-- Trust signals row -->
                     <div class="pd-trust-row">
                         <div class="pd-trust-item">
@@ -506,6 +514,21 @@
                                                 </span>
                                             </div>
                                             <p style="color: var(--text-muted); font-size: 14px; margin: 0; white-space: pre-line;">${r.comment}</p>
+
+                                            <%-- Hiển thị reply của admin/staff nếu có --%>
+                                            <c:if test="${not empty r.replyContent}">
+                                                <div style="margin-top: 12px; padding: 12px 14px; background: #f0f9ff; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0;">
+                                                    <div style="font-size: 12px; font-weight: 600; color: #2563eb; margin-bottom: 4px;">
+                                                        <i class="fas fa-store"></i> Phản hồi từ UniLap
+                                                        <c:if test="${not empty r.repliedAt}">
+                                                            <span style="font-weight: 400; color: #64748b; margin-left: 8px;">
+                                                                <fmt:formatDate value="${r.repliedAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                                            </span>
+                                                        </c:if>
+                                                    </div>
+                                                    <p style="font-size: 13px; color: #334155; margin: 0; white-space: pre-line;">${r.replyContent}</p>
+                                                </div>
+                                            </c:if>
                                         </div>
                                     </div>
                                 </c:forEach>
@@ -613,6 +636,9 @@
         </footer>
 
         <!-- Scripts -->
+        <%@include file="floatingCompareBar.jsp" %>
+        <script>window.contextPath = '${pageContext.request.contextPath}';</script>
+        <script src="${pageContext.request.contextPath}/js/compare.js?v=2"></script>
         <script src="${pageContext.request.contextPath}/js/product_detail.js?v=2" defer></script>
     </body>
 </html>
