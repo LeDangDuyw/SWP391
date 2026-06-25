@@ -1,3 +1,5 @@
+//minhbq
+
 // Lấy contextPath của Web Application (được định nghĩa ở JSP)
 const contextPath = window.contextPath || '/SWP391';
 
@@ -7,23 +9,25 @@ const contextPath = window.contextPath || '/SWP391';
  */
 function addProductToCompare(productId) {
     const url = `${contextPath}/compare?action=add&id=${productId}&isFetch=true`;
+    console.log("[Compare] Fetching URL:", url);
 
     fetch(url)
         .then(response => {
+            console.log("[Compare] HTTP Status:", response.status, response.ok);
             if (!response.ok) throw new Error("Lỗi kết nối máy chủ");
-            return response.text(); // Đọc kết quả dạng text thuần
+            return response.text();
         })
         .then(result => {
             const status = result.trim();
-            if (status.includes("thành công")) {
-                window.location.reload(); // Reload lại trang để cập nhật danh sách
+            console.log("[Compare] Server returned:", JSON.stringify(status));
+            if (status === "success") {
+                window.location.reload();
             } else {
-                // Hiển thị thông báo lỗi trả về từ Servlet (Ví dụ: "chi duoc so sanh cac san pham cung loai")
                 alert("Thông báo: " + status);
             }
         })
         .catch(error => {
-            console.error("Lỗi fetch:", error);
+            console.error("[Compare] Lỗi fetch:", error);
             alert("Không thể kết nối tới máy chủ.");
         });
 }

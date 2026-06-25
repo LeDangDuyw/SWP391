@@ -4,6 +4,7 @@ import java.sql.Connection;
 import model.Product;
 import model.ProductVariant;
 import model.ProductCompareDTO;
+import model.CartItem;
 import viewmodel.ProductInventory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -477,6 +478,88 @@ public class ProductDAO extends DBContext {
     }
 }
 
+ // Lấy thông tin chi tiết 1 sản phẩm theo product_id (cho trang chi tiết)
+public Product getProductById(int productId) {
+    try {
+        String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, "
+                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name "
+                   + "from Product p "
+                   + "join Category c on p.category_id = c.category_id "
+                   + "join Brand b on p.brand_id = b.brand_id "
+                   + "where p.product_id = ?";
+        ps = cnn.prepareStatement(sql);
+        ps.setInt(1, productId);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            Product p = new Product(
+                    rs.getInt("product_id"),
+                    rs.getString("product_name"),
+                    rs.getString("description"),
+                    rs.getInt("warranty_period"),
+                    rs.getString("thumbnail"),
+                    rs.getInt("category_id"),
+                    rs.getInt("brand_id"));
+            p.setCategoryName(rs.getString("category_name"));
+            p.setBrandName(rs.getString("brand_name"));
+            return p;
+        }
+    } catch (Exception e) {
+        System.out.println("getProductById: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return null;
+}
+
+    public List<Product> getSimilarProducts(int categoryId, int productId, int limit) {
+        List<Product> list = new ArrayList<>();
+        try {
+            String sql = "SELECT TOP (" + limit + ") " +
+                         "p.product_id, " +
+                         "p.product_name, " +
+                         "p.thumbnail, " +
+                         "b.brand_name, " +
+                         "MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
+                         "MIN(v.selling_price) AS original_price, " +
+                         "CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
+                         "FROM Product p " +
+                         "JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "JOIN ProductVariant v ON p.product_id = v.product_id " +
+                         "LEFT JOIN ( " +
+                         "    SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price " +
+                         "    FROM FlashSaleItem fsi " +
+                         "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id " +
+                         "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
+                         "    GROUP BY fsi.variant_id " +
+                         ") fs_active ON v.variant_id = fs_active.variant_id " +
+                         "WHERE v.status = 'active' " +
+                         "AND p.category_id = ? " +
+                         "AND p.product_id != ? " +
+                         "GROUP BY " +
+                         "    p.product_id, " +
+                         "    p.product_name, " +
+                         "    p.thumbnail, " +
+                         "    b.brand_name " +
+                         "ORDER BY p.product_id DESC";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, categoryId);
+            ps.setInt(2, productId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt(1));
+                p.setProductName(rs.getString(2));
+                p.setThumbnail(rs.getString(3));
+                p.setBrandName(rs.getString(4));
+                p.setMinPrice(rs.getLong(5));
+                p.setOriginalPrice(rs.getLong(6));
+                p.setDiscountPercent(rs.getInt(7));
+                list.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getSimilarProducts Error: " + e.getMessage());
+        }
+        return list;
+    }
 
     // === WAREHOUSE / INVENTORY MANAGEMENT METHODS ===
 
@@ -537,10 +620,27 @@ public List<Product> GetAllProducts() {
         List<model.ProductVariant> variants = new ArrayList<>();
         try {
             String sql = "SELECT * FROM ProductVariant";
-            stm = connection.prepareStatement(sql);
-            rs  = stm.executeQuery();
+            ps = cnn.prepareStatement(sql);
+            rs  = ps.executeQuery();
             while (rs.next()) {
                 model.ProductVariant pv = new model.ProductVariant(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("sku"),
+                        rs.getString("variant_name"),
+                        rs.getBigDecimal("import_price"),
+                        rs.getBigDecimal("selling_price"),
+                        rs.getBoolean("is_serialized"),
+                        rs.getString("status")
+                );
+                variants.add(pv);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllVariants Error: " + e.getMessage());
+        }
+        return variants;
+    }
+
     public List<ProductVariant> getProductVariantsByProductId(int productId) {
         List<ProductVariant> variants = new ArrayList<>();
         try {
@@ -562,12 +662,13 @@ public List<Product> GetAllProducts() {
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
                         rs.getBoolean("is_serialized"),
-                        rs.getString("status")
+                        rs.getString("status"),
+                        rs.getInt("available_quantity")
                 );
-                variants.add(pv);
+                variants.add(variant);
             }
         } catch (Exception e) {
-            System.out.println("getAllVariants Error: " + e.getMessage());
+            System.out.println("getProductVariantsByProductId Error: " + e.getMessage());
         }
         return variants;
     }
@@ -579,9 +680,9 @@ public List<Product> GetAllProducts() {
     public model.ProductVariant getVariantById(int variantId) {
         try {
             String sql = "SELECT * FROM ProductVariant WHERE variant_id = ?";
-            stm = connection.prepareStatement(sql);
-            stm.setInt(1, variantId);
-            rs = stm.executeQuery();
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, variantId);
+            rs = ps.executeQuery();
             if (rs.next()) {
                 return new model.ProductVariant(
                         rs.getInt("variant_id"),
@@ -600,19 +701,34 @@ public List<Product> GetAllProducts() {
         return null;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // TAB PRODUCTS — đếm và phân trang
-    // ══════════════════════════════════════════════════════════════════════════
-
-                        rs.getString("status"),
-                        rs.getInt("available_quantity"));
-                variants.add(variant);
+    public CartItem getCartItemByVariantId(int variantId) {
+        try {
+            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, pv.selling_price, isnull(inv.available_quantity, 0) AS available_quantity " +
+                         "FROM ProductVariant pv " +
+                         "JOIN Product p ON pv.product_id = p.product_id " +
+                         "LEFT JOIN Inventory inv ON pv.variant_id = inv.variant_id " +
+                         "WHERE pv.variant_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, variantId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return new CartItem(
+                        rs.getInt("variant_id"),
+                        rs.getInt("product_id"),
+                        rs.getString("product_name"),
+                        rs.getString("variant_name"),
+                        rs.getString("thumbnail"),
+                        rs.getBigDecimal("selling_price"),
+                        1,
+                        rs.getInt("available_quantity")
+                );
             }
         } catch (Exception e) {
-            System.out.println("getProductVariantsByProductId: " + e.getMessage());
+            System.out.println("getCartItemByVariantId Error: " + e.getMessage());
         }
-        return variants;
+        return null;
     }
+
     
     /*
      * Name: GetAllProductInventory
@@ -752,34 +868,49 @@ public List<Product> GetAllProducts() {
                 sql += " AND pv.status = 'active'";
             }
 
-    public int getTotalInventoryCount(String search) {
-        // Đếm tổng số lượng sản phẩm (phục vụ cho việc phân trang)
-        int count = 0;
-        try {
-            String sql = "select count(*) from Product p " +
-                         "join Category c on p.category_id = c.category_id " +
-                         "join Brand b on p.brand_id = b.brand_id " +
-                         "join ProductVariant pv on p.product_id = pv.product_id " +
-                         "join Inventory i on pv.variant_id = i.variant_id " +
-                    "where pv.status = 'active'";
-            // Nếu có tham số tìm kiếm, nối thêm điều kiện WHERE vào câu query
-            if (search != null && !search.trim().isEmpty()) {
-                sql += " and (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%')";
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                sql += " AND c.category_name = ?";
             }
+
+            if (stockStatus != null && !stockStatus.trim().isEmpty() && !stockStatus.equals("all")) {
+                if (stockStatus.equals("inStock")) {
+                    sql += " AND i.available_quantity > 5";
+                } else if (stockStatus.equals("lowStock")) {
+                    sql += " AND i.available_quantity > 0 AND i.available_quantity <= 5";
+                } else if (stockStatus.equals("outOfStock")) {
+                    sql += " AND i.available_quantity = 0";
+                }
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                sql += " and (p.product_name like ? or c.category_name like ? or pv.sku like ?)";
+            }
+
             ps = cnn.prepareStatement(sql);
-            if (search != null && !search.trim().isEmpty()) {
-                ps.setString(1, search);
-                ps.setString(2, search);
-                ps.setString(3, search);
+            int idx = 1;
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                ps.setString(idx++, category);
             }
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(idx++, "%" + search + "%");
+                ps.setString(idx++, "%" + search + "%");
+                ps.setString(idx++, "%" + search + "%");
+            }
+
             rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("getTotalInventoryCount Error: " + e.getMessage());
         }
         return count;
+    }
+
+    public int getTotalInventoryCount(String search) {
+        return getTotalInventoryCount(search, null, null, null);
     }
 
     /*
@@ -819,40 +950,44 @@ public List<Product> GetAllProducts() {
                 sql += " AND pv.status = 'active'";
             }
 
-    public List<ProductInventory> GetProductInventoryPaginated(String search, String sortBy, int offset, int fetchSize){
-        // Lấy danh sách sản phẩm có phân trang (dùng OFFSET và FETCH NEXT của SQL Server)
-        List<ProductInventory> products = new ArrayList<>();
-        try {
-            // Sắp xếp: Mặc định là DESC, nếu truyền lowToHigh thì là ASC
-            String order = (sortBy != null && !sortBy.equals("all") && sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
-            String strSQL = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, " +
-                        "case " +
-                        "	when i.available_quantity > 0 then N'In Stock' " +
-                        "	else N'Sold Out' " +
-                        "end as status, p.thumbnail " +
-                        "from Product p join Category c on p.category_id = c.category_id " +
-                        "	join Brand b on p.brand_id = b.brand_id " +
-                        "	join ProductVariant pv on p.product_id = pv.product_id " +
-                        "	join Inventory i on pv.variant_id = i.variant_id " +
-                        "where pv.status = 'active'";
-                        
-            if (search != null && !search.trim().isEmpty()) {
-                strSQL += " and (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%') ";
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                sql += " AND c.category_name = ?";
             }
-            strSQL += "order by pv.selling_price " + order + " " +
-                      "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-            
-            ps = cnn.prepareStatement(strSQL);
-            int paramIndex = 1;
-            if (search != null && !search.trim().isEmpty()) {
-                ps.setString(paramIndex++, search);
-                ps.setString(paramIndex++, search);
-                ps.setString(paramIndex++, search);
-            }
-            stm.setInt(idx++, offset);
-            stm.setInt(idx++, fetchSize);
 
-            rs = stm.executeQuery();
+            if (stockStatus != null && !stockStatus.trim().isEmpty() && !stockStatus.equals("all")) {
+                if (stockStatus.equals("inStock")) {
+                    sql += " AND i.available_quantity > 5";
+                } else if (stockStatus.equals("lowStock")) {
+                    sql += " AND i.available_quantity > 0 AND i.available_quantity <= 5";
+                } else if (stockStatus.equals("outOfStock")) {
+                    sql += " AND i.available_quantity = 0";
+                }
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                sql += " and (p.product_name like ? or c.category_name like ? or pv.sku like ?)";
+            }
+
+            sql += " ORDER BY pv.selling_price " + order + " " +
+                   "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+            ps = cnn.prepareStatement(sql);
+            int idx = 1;
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                ps.setString(idx++, category);
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(idx++, "%" + search + "%");
+                ps.setString(idx++, "%" + search + "%");
+                ps.setString(idx++, "%" + search + "%");
+            }
+
+            ps.setInt(idx++, offset);
+            ps.setInt(idx++, fetchSize);
+
+            rs = ps.executeQuery();
             while (rs.next()) {
                 ProductInventory p = new ProductInventory(
                         rs.getInt("variant_id"),
@@ -866,29 +1001,18 @@ public List<Product> GetAllProducts() {
                         rs.getString("status"),
                         rs.getString("thumbnail"));
                 p.setVariantStatus(rs.getString("variant_status"));
-            ps.setInt(paramIndex++, offset);
-            ps.setInt(paramIndex++, fetchSize);
-            
-            rs = ps.executeQuery();
-            
-            while(rs.next()) {
-                ProductInventory p = new ProductInventory(rs.getInt("variant_id"),
-                                                    rs.getString("product_name"), 
-                                                    rs.getString("sku"),
-                                                    rs.getString("variant_name"),
-                                                    rs.getString("brand_name"),
-                                                    rs.getString("category_name"),
-                                                    rs.getBigDecimal("selling_price"),
-                                                    rs.getInt("available_quantity"),
-                                                    rs.getString("status"),
-                                                    rs.getString("thumbnail"));
                 products.add(p);
             }
-        } catch(Exception e ){
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("GetProductInventoryPaginated Error: " + e.getMessage());
         }
         return products;
     }
+
+    public List<ProductInventory> GetProductInventoryPaginated(String search, String sortBy, int offset, int fetchSize) {
+        return GetProductInventoryPaginated(search, null, sortBy, null, null, offset, fetchSize);
+    }
+
     /*
      * Name: insertProduct
      * @Author: HUYDQHE204239
@@ -897,12 +1021,10 @@ public List<Product> GetAllProducts() {
      * Description: Thêm mới một sản phẩm (Product) vào cơ sở dữ liệu và trả về ID tự tăng của sản phẩm vừa thêm.
      */
     public int insertProduct(Product p) {
-        // Thêm mới một sản phẩm vào bảng Product và trả về ID vừa được sinh ra
         int productId = -1;
         try {
             String sql = "INSERT INTO Product (product_name, description, warranty_period, thumbnail, category_id, brand_id) " +
                          "VALUES (?, ?, ?, ?, ?, ?)";
-            // Dùng Statement.RETURN_GENERATED_KEYS để lấy ID tự tăng
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, p.getProductName());
             ps.setString(2, p.getDescription());
@@ -933,50 +1055,36 @@ public List<Product> GetAllProducts() {
         try {
             String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
-            stm = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            stm.setInt(1, productId);
-            stm.setString(2, sku);
-            stm.setString(3, variantName);
-            stm.setBigDecimal(4, importPrice);
-            stm.setBigDecimal(5, sellingPrice);               // selling_price = from form
-            stm.setBoolean(6, false);
-            stm.setString(7, "active");
-            stm.executeUpdate();
-
-            rs = stm.getGeneratedKeys();
-    public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
-        // Thêm biến thể của sản phẩm vào bảng ProductVariant và cập nhật kho Inventory
-        try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
             ps.setString(3, variantName);
-            ps.setBigDecimal(4, price);
-            ps.setBigDecimal(5, price);
+            ps.setBigDecimal(4, importPrice);
+            ps.setBigDecimal(5, sellingPrice);
             ps.setBoolean(6, false);
-            ps.setString(7, "active"); // Mặc định trạng thái là active
+            ps.setString(7, "active");
             ps.executeUpdate();
-            
+
             rs = ps.getGeneratedKeys();
             int variantId = -1;
             if (rs.next()) {
-                variantId = rs.getInt(1); // Lấy variant_id vừa được tạo
+                variantId = rs.getInt(1);
             }
-            
-            // Nếu lưu biến thể thành công, tiếp tục tạo bản ghi tồn kho
             if (variantId != -1) {
                 String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
                 PreparedStatement psInv = cnn.prepareStatement(sqlInv);
                 psInv.setInt(1, variantId);
-                psInv.setInt(2, 0); // reserved_quantity mặc định là 0
+                psInv.setInt(2, 0);
                 psInv.setInt(3, stock);
                 psInv.executeUpdate();
             }
         } catch (Exception e) {
             System.out.println("Insert ProductVariant Error: " + e.getMessage());
         }
+    }
+
+    public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
+        insertProductVariant(productId, sku, variantName, price, price, stock);
     }
     
     /*

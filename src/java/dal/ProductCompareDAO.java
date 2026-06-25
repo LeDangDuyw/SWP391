@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  *
- * @author NC
+ * @author minhbq
  */
 public class ProductCompareDAO extends DBContext {
     private Connection con ; 

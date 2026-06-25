@@ -2,10 +2,6 @@ package model;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author huy
- */
 public class ProductVariant {
     private int variantId;
     private int productId;
@@ -14,7 +10,6 @@ public class ProductVariant {
     private BigDecimal importPrice;
     private BigDecimal sellingPrice;
     private boolean isSerialized;
-    private String status;
     private boolean serialized;
     private String status;
     private int availableQuantity;
@@ -23,9 +18,6 @@ public class ProductVariant {
     }
 
     public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status) {
-    public ProductVariant(int variantId, int productId, String sku, String variantName,
-            BigDecimal importPrice, BigDecimal sellingPrice, boolean serialized,
-            String status, int availableQuantity) {
         this.variantId = variantId;
         this.productId = productId;
         this.sku = sku;
@@ -33,8 +25,19 @@ public class ProductVariant {
         this.importPrice = importPrice;
         this.sellingPrice = sellingPrice;
         this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
         this.status = status;
-        this.serialized = serialized;
+    }
+
+    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status, int availableQuantity) {
+        this.variantId = variantId;
+        this.productId = productId;
+        this.sku = sku;
+        this.variantName = variantName;
+        this.importPrice = importPrice;
+        this.sellingPrice = sellingPrice;
+        this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
         this.status = status;
         this.availableQuantity = availableQuantity;
     }
@@ -93,12 +96,16 @@ public class ProductVariant {
 
     public void setIsSerialized(boolean isSerialized) {
         this.isSerialized = isSerialized;
+        this.serialized = isSerialized;
+    }
+
     public boolean isSerialized() {
         return serialized;
     }
 
     public void setSerialized(boolean serialized) {
         this.serialized = serialized;
+        this.isSerialized = serialized;
     }
 
     public String getStatus() {

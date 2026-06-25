@@ -129,57 +129,37 @@
         // Nếu không có dữ liệu thì khởi tạo danh sách rỗng để tránh lỗi NullPointerException
         products = new ArrayList<ProductInventory>(); 
     }
+    
+    List<Product> product = (List<Product>) request.getAttribute("product");
+    if (product == null) {
+        product = new ArrayList<Product>();
+    }
+    
+    String activeTab = request.getParameter("tab");
+    if (activeTab == null) activeTab = "variants";
+    
+    // Pagination variables
+    Integer currentPage = (Integer) request.getAttribute("currentPage");
+    Integer totalPages = (Integer) request.getAttribute("totalPages");
+    if (currentPage == null) currentPage = 1;
+    if (totalPages == null) totalPages = 1;
+    
+    String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
+    String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
+    String queryStr = "&tab=" + activeTab + searchInputAttr + sortByAttr;
 %>
-<body class="bg-background text-on-surface font-body-md min-h-screen flex">
-
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<div class="layout">
     <!-- Sidebar Navigation -->
-    <aside class="fixed h-full left-0 top-0 w-64 bg-surface border-r border-outline-variant/20 flex flex-col py-4 z-40">
-        <div class="px-6 py-4 mb-4">
-            <h1 class="font-headline-md text-[24px] font-bold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-[28px]">laptop_mac</span>
-                UNILAP Staff
-            </h1>
-            <p class="font-body-sm text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mt-1">System Controller</p>
-        </div>
-        
-        <nav class="flex-1 flex flex-col gap-1 px-2">
-            <!-- Dashboard -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/admin/dashboard">
-                <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span> Dashboard
-            </a>
-            
-            <!-- Inventory -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg bg-surface-container-low text-primary font-bold border-l-4 border-primary font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/inventory">
-                <span class="material-symbols-outlined icon-fill mr-3 text-[20px]">inventory_2</span> Inventory
-            </a>
-            
-            <!-- Category -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium" href="${pageContext.request.contextPath}/staff/category">
-                <span class="material-symbols-outlined mr-3 text-[20px]">category</span> Category
-            </a>
-            
-            <!-- IMEI -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/imei">
-                <span class="material-symbols-outlined mr-3 text-[20px]">barcode_scanner</span> IMEI
-            </a>
-            
-            <!-- Tickets -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-sm font-medium transition-all" href="${pageContext.request.contextPath}/staff/ticket/list">
-                <span class="material-symbols-outlined mr-3 text-[20px]">receipt_long</span> Tickets
-            </a>
-        </nav>
-        
-        <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1 px-2">
-            <!-- Logout -->
-            <a class="flex items-center px-4 py-3 mx-2 rounded-lg text-error hover:bg-error/10 transition-colors font-label-md text-sm font-medium" href="#">
-                <span class="material-symbols-outlined mr-3 text-[20px]">logout</span> Logout
-        <aside class="sidebar">
+    <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -194,16 +174,11 @@
                 <% } %>
                 <span>Staff Profile</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
-                <span>↪</span> Logout
-            </a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
         </div>
     </aside>
 
-    <div class="flex-1 ml-64 flex flex-col min-h-screen">
-
-        <!-- Top Header -->
-    <div class="flex-1 ml-72 flex flex-col min-h-screen">
+    <div class="main">
         
         <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
             <div class="flex items-center gap-4 w-1/3"></div>
@@ -234,11 +209,33 @@
                     <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Inventory Management</h2>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">Manage product listings, monitor stock levels, and audit adjustments.</p>
                 </div>
+                <div class="flex items-center gap-2">
+                    <button class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">download</span> Export
+                    </button>
+                    <a href="${pageContext.request.contextPath}/staff/inventory/add" class="px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">add</span> Add Product
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="mb-6 border-b border-outline-variant/30">
+                <div class="flex gap-8">
+                    <a href="?tab=products"
+                       class="pb-3 border-b-2 <%= activeTab.equals("products") ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-on-surface" %> font-label-md text-label-md transition-all">
+                        Products
+                    </a>
+                    <a href="?tab=variants"
+                       class="pb-3 border-b-2 <%= activeTab.equals("variants") ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-on-surface" %> font-label-md text-label-md transition-all">
+                        Product Variants
+                    </a>
+                </div>
             </div>
 
             <div class="flex flex-col gap-4 mb-8">
-                <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
-                    <form action="${pageContext.request.contextPath}/staff/inventory" method="get">
+                <form action="${pageContext.request.contextPath}/staff/inventory" method="get" class="w-full">
+                    <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                         <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Search inventory by product name, SKU, or category..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
@@ -299,8 +296,8 @@
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
                     <% } %>
+                    </div>
                 </form>
-            </div>
 
             <!-- ===================== -->
             <!-- TAB: PRODUCTS         -->
@@ -363,31 +360,28 @@
                                 <% } %>
                             </tbody>
                         </table>
-                    <div class="flex items-center gap-2">
-                        
-                        <div class="relative">
-                            <select name="sortBy" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none">
-                                <option value="all" ${param.sortBy == 'all' ? 'selected' : ''}>All</option>
-                                <option value="highToLow" ${param.sortBy == 'highToLow' ? 'selected' : ''}>Price: High to Low</option>
-                                <option value="lowToHigh" ${param.sortBy == 'lowToHigh' ? 'selected' : ''}>Price: Low to High</option>
-                            </select>
-                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                    </div> <!-- close overflow-x-auto -->
+                    
+                    <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
+                        <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
+                           class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
+                           Previous
+                        </a>
+                        <div class="flex gap-1">
+                        <% for(int i = 1; i <= totalPages; i++) { %>
+                            <a href="?page=<%= i %><%= queryStr %>" 
+                               class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
+                               <%= i %>
+                            </a>
+                        <% } %>
                         </div>
-                    </div>
-                    </form>
-
-                    <div class="flex items-center gap-2 ml-auto">
-                        <button class="px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">download</span> Export
-                        </button>
-                        <a href="${pageContext.request.contextPath}/staff/inventory/add" class="px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
-                            <span class="material-symbols-outlined text-[20px]">add</span> Add Product
+                        <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
+                           class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">
+                           Next
                         </a>
                     </div>
-                </div>
-
-                
-            </div>
+                </div> <!-- close bg-surface -->
+            </div> <!-- close tab-products -->
 
             <!-- ========================= -->
             <!-- TAB: PRODUCT VARIANTS     -->
@@ -466,88 +460,11 @@
                                     </td>
                                 </tr>
                                 <% } %>
-            <div class="bg-surface border border-outline-variant/50 rounded-lg overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-12"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Product details</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">SKU</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Category</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Price(VND)</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Stock Status</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="font-body-sm text-body-sm">
-                            <% 
-                               // Duyệt qua từng sản phẩm để render ra các dòng trong bảng
-                               for(ProductInventory p: products) { 
-                            %>
-                            <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest">
-                                <td class="py-2 px-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></td>
-                                <td class="py-2 px-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-surface-container rounded border border-outline-variant/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                            <img src="${pageContext.request.contextPath}/images/<%= p.getThumbnail() %>" 
-                                                    alt="Product Image" 
-                                                    class="w-full h-full object-cover">
-                                        </div>
-                                        <div>
-                                            <div class="font-bold text-on-surface"><%= p.getProductName() %></div>
-                                            <div class="text-on-surface-variant text-[12px]"><%= p.getVariantName() %></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-2 px-4 font-code-sm text-code-sm text-on-surface-variant"><%= p.getSku() %></td>
-                                <td class="py-2 px-4"><%= p.getCategoryName() %></td>
-                                <% BigInteger priceInt = p.getSellingPrice().toBigInteger(); %>
-                                <td class="py-2 px-4 font-bold"><%= priceInt %></td>
-                                <td class="py-2 px-4">
-                                    <span class="inline-flex items-center px-2 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
-                                        <%= p.getStatus() %>
-                                    </span>
-                                </td>
-                        
-                                <td class="py-2 px-4 text-right">
-                                    <a class="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                                       href="${pageContext.request.contextPath}/staff/inventory/edit?variantId=<%= p.getProductId() %>"
-                                            ><span class="material-symbols-outlined text-[20px]">edit</span></a>
-                                    <form action="${pageContext.request.contextPath}/staff/inventory" method="post">
-                                        <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
-                                        <button class="p-1 text-on-surface-variant hover:text-error transition-colors" name="action" value="delete" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này không? Lưu ý: Sản phẩm chỉ bị ẩn tạm thời chứ không xóa hoàn toàn?');"><span class="material-symbols-outlined text-[20px]" >block</span></button>
-                                        <button 
-                                            class="p-1 text-on-surface-variant hover:text-success transition-colors"
-                                            name="action" 
-                                            value="restore"
-                                            onclick="return confirm('Bạn có chắc chắn muốn hiển thị lại biến thể này không?');">
-
-                                            <span class="material-symbols-outlined text-[20px]">
-                                                settings_backup_restore
-                                            </span>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <% } %> 
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
                 
                 <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
-<%
-    // Xử lý thanh phân trang (Pagination)
-    Integer currentPage = (Integer) request.getAttribute("currentPage");
-    Integer totalPages = (Integer) request.getAttribute("totalPages");
-    if (currentPage == null) currentPage = 1;
-    if (totalPages == null) totalPages = 1; // Mặc định là trang 1 nếu chưa có dữ liệu
-
-    // Giữ nguyên tham số tìm kiếm và sắp xếp khi người dùng chuyển trang
-    String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
-    String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
-    String queryStr = searchInputAttr + sortByAttr;
-%>
                     <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
                        Previous
@@ -565,9 +482,11 @@
                        Next
                     </a>
                 </div>
-            </div>
+                </div> <!-- close bg-surface -->
+            </div> <!-- close tab-variants -->
             
         </main>
     </div>
+</div>
 </body>
 </html>

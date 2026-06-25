@@ -741,32 +741,68 @@
                 <small>System Controller</small>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/admin/dashboard">
-                    <span class="nav-icon">▦</span>Dashboard
-                </a>
-                <a href="#">
-                    <span class="nav-icon">▣</span>Orders
-                </a>
-                <a href="#">
-                    <span class="nav-icon">♟</span>Users
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/promotions">
-                    <span class="nav-icon">▥</span>Analytics
-                </a>
-                <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
-                    <span class="nav-icon">🛠</span>Warranty
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/policy">
-                    <span class="nav-icon">📜</span>Policies
-                </a>
-                <a href="#">
-                    <span class="nav-icon">⚙</span>Settings
-                </a>
+                <c:choose>
+                    <c:when test="${sessionScope.user.roleId == 1}">
+                        <a href="${pageContext.request.contextPath}/admin/dashboard">
+                            <span class="nav-icon">▦</span>Dashboard
+                        </a>
+                        <a href="#">
+                            <span class="nav-icon">▣</span>Orders
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/users">
+                            <span class="nav-icon">♚</span>Users
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/promotions">
+                            <span class="nav-icon">▥</span>Analytics
+                        </a>
+                        <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
+                            <span class="nav-icon">🛠</span>Warranty
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/policy">
+                            <span class="nav-icon">📜</span>Policies
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/ticket/list">
+                            <span class="nav-icon">🎫</span>Ticket Review
+                        </a>
+                        <a href="#">
+                            <span class="nav-icon">⚙</span>Settings
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/staff/inventory">
+                            <span class="nav-icon">▤</span>Inventory
+                        </a>
+                        <a href="${pageContext.request.contextPath}/staff/category">
+                            <span class="nav-icon">📁</span>Category
+                        </a>
+                        <a href="${pageContext.request.contextPath}/staff/imei">
+                            <span class="nav-icon">🏷</span>IMEI
+                        </a>
+                        <a href="${pageContext.request.contextPath}/staff/ticket/list">
+                            <span class="nav-icon">🎫</span>Tickets
+                        </a>
+                        <a href="${pageContext.request.contextPath}/staff/reviews">
+                            <span class="nav-icon">★</span>Manage Reviews
+                        </a>
+                        <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
+                            <span class="nav-icon">🛠</span>Warranty
+                        </a>
+                    </c:otherwise>
+                </c:choose>
             </nav>
             <div class="profile">
-                <a href="#" class="profile-link">
-                    <span class="nav-icon">●</span>Admin User Profile
-                </a>
+                <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                    <%
+                        model.Users u = (model.Users) session.getAttribute("user");
+                        if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                    %>
+                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                    <% } else { %>
+                        <span>♙</span>
+                    <% } %>
+                    <span>${sessionScope.user.userName} (${sessionScope.user.roleId == 1 ? 'Admin' : 'Staff'})</span>
+                </div>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">
                     Logout
                 </a>

@@ -39,6 +39,7 @@
             background: #cbd5e1;
         }
     </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -133,74 +134,56 @@
         }
     </script>
 </head>
-<body class="bg-background text-on-background font-body-md">
-<!-- SideNavBar Component -->
-<aside class="w-64 h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col p-4 z-50">
-<div class="mb-8 px-2">
-<h1 class="font-headline-md text-headline-md font-bold text-primary">UNILAP Staff</h1>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Admin Portal</p>
-</div>
-<nav class="flex-1 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="${pageContext.request.contextPath}/admin/dashboard">
-<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-                Dashboard
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="${pageContext.request.contextPath}/staff/inventory">
-<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
-                Inventory
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="${pageContext.request.contextPath}/staff/category">
-<span class="material-symbols-outlined" data-icon="category">category</span>
-                Category
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-label-md text-label-md" href="${pageContext.request.contextPath}/staff/imei">
-<span class="material-symbols-outlined" data-icon="barcode_scanner">barcode_scanner</span>
-                IMEI
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="${pageContext.request.contextPath}/staff/ticket/list">
-<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
-                Tickets
-            </a>
-</nav>
-<div class="mt-auto pt-4 border-t border-outline-variant">
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-                Settings
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined" data-icon="logout">logout</span>
-                Logout
-            </a>
-<div class="mt-4 flex items-center gap-3 px-2">
-<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
-<img alt="Staff Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmZ0PhCwJquC1EUCFzkfKPxJBNCYg4O2Zt4fKmR3dgAyEXLUu2jndg3DT7cSuE4CbWJfNqKFUhUQbUt6y3P6Cp-WtRasCisHzKbLxBT80VABuSr3l9Qm_6KfqiLmxbm9Dbqar6L1ue4EkaisdH3ENRJCIbnpqp5ouVIYhGmbC-ejmATQQNT5dN1pfrv6DZIivvjT5AUKtdtuQ8b5_hBfHTcgcbeL_U8I2wTzHkxHuXVFMNwyKli06qVZ_GMHS-0Y2Z0uhiHzdAgOZ6"/>
-</div>
-<div>
-<p class="font-label-md text-label-md text-on-surface">Alex Rivera</p>
-<p class="text-[10px] uppercase tracking-wider text-outline">Warehouse Lead</p>
-</div>
-</div>
-</div>
-</aside>
-<!-- TopNavBar Component -->
-<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-gutter z-40">
-<div class="flex items-center flex-1 max-w-xl">
-<div class="relative w-full">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
-<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search serial numbers, models, or batches..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
-<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
-</button>
-<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
-<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
-</button>
-</div>
-</header>
-<!-- Main Content Area -->
-<main class="ml-64 mt-16 p-gutter min-h-[calc(100vh-4rem)]">
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<div class="layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <!-- TopNavBar Component -->
+        <header class="sticky top-0 z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-gutter h-16 w-full">
+            <div class="flex items-center flex-1 max-w-xl">
+                <div class="relative w-full">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+                    <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search serial numbers, models, or batches..." type="text"/>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
+                    <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+                </button>
+                <button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
+                    <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                </button>
+            </div>
+        </header>
+        <!-- Main Content Area -->
+        <main class="p-gutter flex-1 bg-surface-container-lowest">
 <!-- Breadcrumbs & Header -->
 <nav class="mb-6">
 <ol class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
@@ -305,9 +288,8 @@
 <label class="font-label-md text-label-md text-on-surface-variant">Initial Status</label>
 <div class="relative">
 <select name="initialStatus" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-<option value="Available">Available</option>
-<option value="Reserved">Reserved</option>
-<option value="QC Pending">QC Pending</option>
+<option value="in_stock">in_stock</option>
+<option value="sold">sold</option>
 </select>
 <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
 <span class="w-2.5 h-2.5 rounded-full bg-green-500 mr-2"></span>
@@ -331,6 +313,8 @@
 </div>
 
 </main>
+    </div>
+</div>
 <script>
         // Simple micro-interaction for unit counter
         const textarea = document.querySelector('textarea');
