@@ -216,8 +216,8 @@
         </c:choose>
     </div>
 </c:if>
-<form action="${pageContext.request.contextPath}/staff/imei/add" method="POST" class="space-y-6">
-<input type="hidden" name="ticketId" value="${param.ticketId}">
+<form action="${pageContext.request.contextPath}/staff/imei/add" method="POST" onsubmit="return validateForm(event)" class="space-y-6">
+<input type="hidden" name="ticketId" value="${not empty ticketId ? ticketId : param.ticketId}">
 <!-- Section 1: Product Information -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center gap-2 mb-6 text-primary">
@@ -225,25 +225,81 @@
 <h3 class="font-headline-md text-headline-md">Product Information</h3>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
-<select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Product</option>
-<c:forEach var="p" items="${products}">
-    <option value="${p.productId}">${p.productName}</option>
-</c:forEach>
-</select>
+<c:choose>
+    <c:when test="${not empty selectedProduct and not empty selectedVariant}">
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <input type="text" readonly value="${selectedProduct.productName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <input type="text" readonly value="${selectedVariant.sku} - ${selectedVariant.variantName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+            <input type="hidden" name="variantId" value="${selectedVariant.variantId}">
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Product</option>
+            <c:forEach var="p" items="${products}">
+                <option value="${p.productId}">${p.productName}</option>
+            </c:forEach>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Variant</option>
+            <c:forEach var="v" items="${variants}">
+                <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
+            </c:forEach>
+            </select>
+        </div>
+    </c:otherwise>
+</c:choose>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
-<select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Variant</option>
-<c:forEach var="v" items="${variants}">
-    <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
-</c:forEach>
-</select>
-</div>
-</div>
+<c:choose>
+    <c:when test="${not empty selectedProduct && not empty selectedVariant}">
+        <input type="hidden" name="variantId" value="${selectedVariant.variantId}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant font-bold">Parent Product</label>
+                <div class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface font-semibold">
+                    ${selectedProduct.productName}
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant font-bold">Variant</label>
+                <div class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface font-semibold">
+                    ${selectedVariant.sku} - ${selectedVariant.variantName}
+                </div>
+            </div>
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+                <select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+                    <option value="" disabled selected>Select a Product</option>
+                    <c:forEach var="p" items="${products}">
+                        <option value="${p.productId}">${p.productName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+                <select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+                    <option value="" disabled selected>Select a Variant</option>
+                    <c:forEach var="v" items="${variants}">
+                        <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+    </c:otherwise>
+</c:choose>
 </div>
 <!-- Section 2: Unit Details -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
@@ -252,22 +308,68 @@
 <span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
 <h3 class="font-headline-md text-headline-md">Unit Details</h3>
 </div>
+<div class="flex items-center gap-4">
+<c:if test="${not empty expectedQuantity}">
+<span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required Quantity: ${expectedQuantity}</span>
+</c:if>
 <span class="font-label-md text-label-md px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Bulk Entry Mode</span>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">IMEI Numbers (one per line)</label>
-<textarea name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Serial Numbers (one per line)</label>
-<textarea name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
+<div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
+        <label>IMEI Number</label>
+        <label>Serial Number</label>
+        <label>Barcode</label>
+    </div>
+    
+    <div id="unitRowsContainer" class="space-y-3">
+        <c:set var="rowCount" value="${not empty expectedQuantity ? expectedQuantity : 1}" />
+        <c:forEach begin="1" end="${rowCount}" varStatus="status">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
+                </div>
+            </div>
+        </c:forEach>
+    </div>
+    <c:if test="${empty expectedQuantity}">
+        <button type="button" onclick="addUnitRow()" class="px-4 py-2 text-primary font-label-md text-label-md hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm" data-icon="add">add</span> Add Another Unit
+        </button>
+    </c:if>
+<c:choose>
+    <c:when test="${not empty expectedQuantity && expectedQuantity > 0}">
+        <span class="font-label-md text-label-md px-3 py-1 bg-primary/10 rounded-full text-primary font-bold">
+            Required Quantity: ${expectedQuantity}
+        </span>
+    </c:when>
+    <c:otherwise>
+        <span class="font-label-md text-label-md px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Bulk Entry Mode</span>
+    </c:otherwise>
+</c:choose>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Barcodes (one per line)</label>
-<textarea name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
+
+<div id="unitRowsContainer" class="space-y-4">
+    <!-- Dynamic grid rows of inputs will be appended here via Javascript -->
 </div>
-</div>
+
+<c:if test="${empty expectedQuantity || expectedQuantity <= 0}">
+    <div class="mt-4">
+        <button type="button" onclick="addUnitRow()" class="flex items-center gap-2 text-primary font-label-md hover:text-primary/80 transition-colors">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Add Another Unit
+        </button>
+    </div>
+</c:if>
 </div>
 <!-- Section 3: Storage & Status -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
@@ -316,63 +418,174 @@
     </div>
 </div>
 <script>
-        // Simple micro-interaction for unit counter
-        const textarea = document.querySelector('textarea');
-        const unitCount = document.getElementById('unitCount');
-
-        textarea.addEventListener('input', () => {
-            const lines = textarea.value.split('\n').filter(line => line.trim() !== '');
-            unitCount.textContent = lines.length;
-            
-            if (lines.length > 0) {
-                unitCount.classList.add('scale-125');
-                setTimeout(() => unitCount.classList.remove('scale-125'), 200);
-            }
-        });
-
-        function filterVariants() {
-            filterVariantsWithoutReset();
-            const variantSelect = document.getElementById('variantSelect');
-            variantSelect.selectedIndex = 0;
+        function addUnitRow() {
+            const container = document.getElementById('unitRowsContainer');
+            const rowCount = container.children.length + 1;
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
+            row.innerHTML = `
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
+                </div>
+            `;
+            container.appendChild(row);
         }
+    const expectedQty = parseInt("${expectedQuantity}");
+    const isTicketContext = ${not empty expectedQuantity && expectedQuantity > 0};
 
-        function filterVariantsWithoutReset() {
-            const productSelect = document.getElementById('productSelect');
-            const variantSelect = document.getElementById('variantSelect');
-            const selectedProductId = productSelect.value;
+    let rowCount = 0;
 
-            // Show/Hide options
-            Array.from(variantSelect.options).forEach(option => {
-                if (option.value === "") return; // Skip placeholder
-                if (option.getAttribute('data-product-id') === selectedProductId) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
+    function addUnitRow(imeiVal = "", snVal = "", bcVal = "") {
+        rowCount++;
+        const container = document.getElementById('unitRowsContainer');
+        
+        const rowDiv = document.createElement('div');
+        rowDiv.className = "grid grid-cols-1 md:grid-cols-3 gap-6 items-end border-b border-outline-variant/30 pb-4 relative group";
+        rowDiv.id = "unitRow_" + rowCount;
+        
+        rowDiv.innerHTML = `
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant font-medium">IMEI Number #` + rowCount + `</label>
+                <input type="text" name="imeis" value="` + imeiVal + `" placeholder="IMEI #` + rowCount + `" 
+                       class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+            </div>
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant font-medium">Serial Number #` + rowCount + `</label>
+                <input type="text" name="serialNumbers" value="` + snVal + `" placeholder="Serial #` + rowCount + `" 
+                       class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+            </div>
+            <div class="space-y-2">
+                <label class="font-label-md text-label-md text-on-surface-variant font-medium">Barcode #` + rowCount + `</label>
+                <input type="text" name="barcodes" value="` + bcVal + `" placeholder="Barcode #` + rowCount + `" 
+                       class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+            </div>
+        `;
+        
+        if (!isTicketContext) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.onclick = function() { removeUnitRow(rowDiv.id); };
+            deleteBtn.className = "absolute -right-8 bottom-3.5 p-1 text-error hover:bg-error/10 rounded-full md:opacity-0 group-hover:opacity-100 transition-opacity";
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">delete</span>';
+            rowDiv.appendChild(deleteBtn);
         }
         
-        // Run once on load to auto select variant from URL params if present
-        window.addEventListener('DOMContentLoaded', () => {
+        container.appendChild(rowDiv);
+    }
+
+    function removeUnitRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.remove();
+        }
+    }
+
+    function validateForm(event) {
+        const rows = document.querySelectorAll('#unitRowsContainer > div');
+        let filledRowsCount = 0;
+        let hasPartial = false;
+        
+        rows.forEach(row => {
+            const imei = row.querySelector('input[name="imeis"]').value.trim();
+            const sn = row.querySelector('input[name="serialNumbers"]').value.trim();
+            const bc = row.querySelector('input[name="barcodes"]').value.trim();
+            
+            if (imei || sn || bc) {
+                if (!imei || !sn || !bc) {
+                    hasPartial = true;
+                } else {
+                    filledRowsCount++;
+                }
+            }
+        });
+        
+        if (filledRowsCount === 0) {
+            alert("Vui lòng điền thông tin cho ít nhất 1 dòng sản phẩm.");
+            event.preventDefault();
+            return false;
+        }
+        
+        if (hasPartial) {
+            alert("Vui lòng điền đầy đủ cả 3 thông tin (IMEI, Serial Number, Barcode) cho các dòng đã nhập.");
+            event.preventDefault();
+            return false;
+        }
+        
+        if (isTicketContext && filledRowsCount > expectedQty) {
+            alert("Số lượng sản phẩm nhập vào (" + filledRowsCount + ") vượt quá số lượng yêu cầu trong ticket (" + expectedQty + ").");
+            event.preventDefault();
+            return false;
+        }
+        
+        return true;
+    }
+
+    function filterVariants() {
+        filterVariantsWithoutReset();
+        const variantSelect = document.getElementById('variantSelect');
+        if (variantSelect) {
+            variantSelect.selectedIndex = 0;
+        }
+    }
+
+    function filterVariantsWithoutReset() {
+        const productSelect = document.getElementById('productSelect');
+        const variantSelect = document.getElementById('variantSelect');
+        if (!productSelect || !variantSelect) return;
+        
+        const selectedProductId = productSelect.value;
+
+        Array.from(variantSelect.options).forEach(option => {
+            if (option.value === "") return;
+            if (option.getAttribute('data-product-id') === selectedProductId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        if (isTicketContext) {
+            // Pre-render exactly expectedQty rows
+            for (let i = 0; i < expectedQty; i++) {
+                addUnitRow();
+            }
+        } else {
+            // Pre-render 1 default row for manual context
+            addUnitRow();
+            
+            // Auto select variant from URL params if present
             const urlParams = new URLSearchParams(window.location.search);
             const urlVariantId = urlParams.get('variantId');
             
             if (urlVariantId) {
                 const variantSelect = document.getElementById('variantSelect');
-                const option = Array.from(variantSelect.options).find(opt => opt.value === urlVariantId);
-                if (option) {
-                    const productId = option.getAttribute('data-product-id');
-                    const productSelect = document.getElementById('productSelect');
-                    productSelect.value = productId;
-                    
-                    // Filter variants based on product without resetting choice
-                    filterVariantsWithoutReset();
-                    
-                    variantSelect.value = urlVariantId;
+                if (variantSelect) {
+                    const option = Array.from(variantSelect.options).find(opt => opt.value === urlVariantId);
+                    if (option) {
+                        const productId = option.getAttribute('data-product-id');
+                        const productSelect = document.getElementById('productSelect');
+                        if (productSelect) {
+                            productSelect.value = productId;
+                        }
+                        filterVariantsWithoutReset();
+                        variantSelect.value = urlVariantId;
+                    }
                 }
             } else {
                 filterVariants();
             }
-        });
-    </script>
+        }
+    });
+</script>
 </body></html>
