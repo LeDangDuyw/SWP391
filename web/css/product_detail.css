@@ -170,7 +170,7 @@ a {
     max-width: 90%;
     max-height: 90%;
     object-fit: contain;
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, filter 0.5s ease;
 }
 
 .pd-img-main-wrap:hover .pd-img-main {
@@ -594,8 +594,7 @@ a {
 
 /* Description Tab Inner Layout */
 .pd-desc-layout {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    display: block;
     gap: 40px;
     align-items: center;
 }

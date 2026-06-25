@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
         thumb.addEventListener('click', function () {
             thumbs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            const newSrc = this.querySelector('img').src;
-            mainImg.src = newSrc;
+            const thumbImg = this.querySelector('img');
+            mainImg.src = thumbImg.src;
+            mainImg.style.filter = thumbImg.style.filter || 'none';
         });
     });
 

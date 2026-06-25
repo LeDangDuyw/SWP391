@@ -42,7 +42,7 @@
             </c:forEach>
 
             <div class="nav-dropdown">
-                <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                 <div class="dropdown-content">
                     <c:forEach items="${categories}" var="cat">
                         <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -337,11 +337,16 @@
                         </div>
                         <div class="order-info-row">
                             <span class="order-info-label">Phí vận chuyển:</span>
-                            <span class="order-info-value shipping-badge">Miễn phí</span>
-                        </div>
-                        <div class="order-info-row">
-                            <span class="order-info-label">Dự kiến giao hàng:</span>
-                            <span class="order-info-value">1 - 3 ngày làm việc</span>
+                            <span class="order-info-value shipping-badge">
+                                <c:choose>
+                                    <c:when test="${not empty shippingFee && shippingFee > 0}">
+                                        <fmt:formatNumber value="${shippingFee}" pattern="#,##0"/>₫
+                                    </c:when>
+                                    <c:otherwise>
+                                        Miễn phí
+                                    </c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
                     </div>
                 </c:otherwise>

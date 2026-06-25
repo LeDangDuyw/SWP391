@@ -5,13 +5,18 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import dal.ProductDAO;
+import dal.CartDAO;
+import dal.VoucherDAO;
 import model.CartItem;
+import model.Users;
 
+@WebServlet(name = "CartServlet", urlPatterns = {"/CartServlet"})
 public class CartServlet extends HttpServlet {
 
     @SuppressWarnings("unchecked")
@@ -32,6 +37,11 @@ public class CartServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        Users user = (Users) session.getAttribute("user");
+        if (user != null) {
+            CartDAO cartDAO = new CartDAO();
+            session.setAttribute("cart", cartDAO.getCart(user.getUserId()));
+        }
         List<CartItem> cart = getCart(session);
         BigDecimal total = BigDecimal.ZERO;
         for (CartItem it : cart) total = total.add(it.getSubtotal());
@@ -69,11 +79,12 @@ public class CartServlet extends HttpServlet {
         if (action == null) action = "add";
         HttpSession session = request.getSession();
         List<CartItem> cart = getCart(session);
+        Users user = (Users) session.getAttribute("user");
 
         switch (action) {
-            case "add"    -> addToCart(request, cart);
-            case "update" -> updateQty(request, cart);
-            case "remove" -> removeItem(request, cart);
+            case "add"    -> addToCart(request, cart, user);
+            case "update" -> updateQty(request, cart, user);
+            case "remove" -> removeItem(request, cart, user);
             case "coupon" -> applyCoupon(request);
         }
 
@@ -128,7 +139,9 @@ public class CartServlet extends HttpServlet {
                 + "\"discount\": \"" + String.format("%,.0f", discount) + "\","
                 + "\"finalTotal\": \"" + String.format("%,.0f", finalTotal) + "\","
                 + "\"couponSuccess\": " + couponSuccess + ","
-                + "\"couponMessage\": \"" + couponMessage + "\""
+                + "\"couponMessage\": \"" + couponMessage + "\","
+                + "\"message\": \"" + couponMessage + "\","
+                + "\"successCoupon\": " + couponSuccess
                 + "}");
             return;
         }
@@ -136,41 +149,63 @@ public class CartServlet extends HttpServlet {
         response.sendRedirect("CartServlet");   // redirect to prevent resubmission on refresh
     }
 
-    private void addToCart(HttpServletRequest request, List<CartItem> cart) {
+    private void addToCart(HttpServletRequest request, List<CartItem> cart, Users user) {
         int variantId = parseInt(request.getParameter("variantId"), 0);
         int qty = parseInt(request.getParameter("quantity"), 1);
         if (variantId == 0) return;
         if (qty < 1) qty = 1;
 
-        for (CartItem it : cart) {              // if exists, add quantity and cap at stock
-            if (it.getVariantId() == variantId) {
-                it.setQuantity(Math.min(it.getQuantity() + qty, it.getAvailableQuantity()));
-                return;
+        if (user != null) {
+            CartDAO cartDAO = new CartDAO();
+            cartDAO.addToCart(user.getUserId(), variantId, qty);
+            cart.clear();
+            cart.addAll(cartDAO.getCart(user.getUserId()));
+        } else {
+            for (CartItem it : cart) {              // if exists, add quantity and cap at stock
+                if (it.getVariantId() == variantId) {
+                    it.setQuantity(Math.min(it.getQuantity() + qty, it.getAvailableQuantity()));
+                    return;
+                }
             }
-        }
-        CartItem item = new ProductDAO().getCartItemByVariantId(variantId);
-        if (item != null) {
-            item.setQuantity(Math.min(qty, item.getAvailableQuantity()));
-            cart.add(item);
+            CartItem item = new ProductDAO().getCartItemByVariantId(variantId);
+            if (item != null) {
+                item.setQuantity(Math.min(qty, item.getAvailableQuantity()));
+                cart.add(item);
+            }
         }
     }
 
-    private void updateQty(HttpServletRequest request, List<CartItem> cart) {
+    private void updateQty(HttpServletRequest request, List<CartItem> cart, Users user) {
         int variantId = parseInt(request.getParameter("variantId"), 0);
         int qty = parseInt(request.getParameter("quantity"), 1);
-        for (CartItem it : cart) {
-            if (it.getVariantId() == variantId) {
-                if (qty < 1) qty = 1;
-                if (qty > it.getAvailableQuantity()) qty = it.getAvailableQuantity();
-                it.setQuantity(qty);
-                return;
+        
+        if (user != null) {
+            CartDAO cartDAO = new CartDAO();
+            cartDAO.updateQuantity(user.getUserId(), variantId, qty);
+            cart.clear();
+            cart.addAll(cartDAO.getCart(user.getUserId()));
+        } else {
+            for (CartItem it : cart) {
+                if (it.getVariantId() == variantId) {
+                    if (qty < 1) qty = 1;
+                    if (qty > it.getAvailableQuantity()) qty = it.getAvailableQuantity();
+                    it.setQuantity(qty);
+                    return;
+                }
             }
         }
     }
 
-    private void removeItem(HttpServletRequest request, List<CartItem> cart) {
+    private void removeItem(HttpServletRequest request, List<CartItem> cart, Users user) {
         int variantId = parseInt(request.getParameter("variantId"), 0);
-        cart.removeIf(it -> it.getVariantId() == variantId);
+        if (user != null) {
+            CartDAO cartDAO = new CartDAO();
+            cartDAO.removeItem(user.getUserId(), variantId);
+            cart.clear();
+            cart.addAll(cartDAO.getCart(user.getUserId()));
+        } else {
+            cart.removeIf(it -> it.getVariantId() == variantId);
+        }
     }
 
     private void applyCoupon(HttpServletRequest request) {
@@ -183,23 +218,22 @@ public class CartServlet extends HttpServlet {
         BigDecimal discount = BigDecimal.ZERO;
         String message = "";
         boolean success = false;
+        Integer couponId = null;
+        Boolean isCampaign = false;
 
         if (code != null && !code.trim().isEmpty()) {
-            String upperCode = code.trim().toUpperCase();
-            if (upperCode.equals("UNILAP10")) {
-                discount = total.multiply(new BigDecimal("0.1"));
-                success = true;
-                message = "Áp dụng mã giảm giá 10% thành công!";
-            } else if (upperCode.equals("DISCOUNT100")) {
-                if (total.compareTo(new BigDecimal("500000")) >= 0) {
-                    discount = new BigDecimal("100000");
-                    success = true;
-                    message = "Áp dụng mã giảm giá 100,000₫ thành công!";
+            VoucherDAO voucherDAO = new VoucherDAO();
+            VoucherDAO.VoucherInfo info = voucherDAO.getVoucher(code, total);
+            message = info.message;
+            success = info.isValid;
+            if (success) {
+                if ("percentage".equalsIgnoreCase(info.type)) {
+                    discount = total.multiply(info.discountValue).divide(new BigDecimal("100"));
                 } else {
-                    message = "Mã DISCOUNT100 chỉ áp dụng cho đơn hàng từ 500,000₫ trở lên.";
+                    discount = info.discountValue;
                 }
-            } else {
-                message = "Mã giảm giá không hợp lệ hoặc đã hết hạn.";
+                couponId = info.id;
+                isCampaign = info.isCampaign;
             }
         } else {
             message = "Vui lòng nhập mã giảm giá.";
@@ -208,9 +242,13 @@ public class CartServlet extends HttpServlet {
         if (success) {
             session.setAttribute("couponCode", code.trim().toUpperCase());
             session.setAttribute("discountAmount", discount);
+            session.setAttribute("couponId", couponId);
+            session.setAttribute("isCampaign", isCampaign);
         } else {
             session.removeAttribute("couponCode");
             session.removeAttribute("discountAmount");
+            session.removeAttribute("couponId");
+            session.removeAttribute("isCampaign");
         }
 
         session.setAttribute("couponMessage", message);
@@ -221,16 +259,23 @@ public class CartServlet extends HttpServlet {
         BigDecimal total = BigDecimal.ZERO;
         for (CartItem it : cart) total = total.add(it.getSubtotal());
         BigDecimal discount = BigDecimal.ZERO;
-        if ("UNILAP10".equals(code)) {
-            discount = total.multiply(new BigDecimal("0.1"));
-            session.setAttribute("discountAmount", discount);
-        } else if ("DISCOUNT100".equals(code)) {
-            if (total.compareTo(new BigDecimal("500000")) >= 0) {
-                discount = new BigDecimal("100000");
+        if (code != null && !code.trim().isEmpty()) {
+            VoucherDAO voucherDAO = new VoucherDAO();
+            VoucherDAO.VoucherInfo info = voucherDAO.getVoucher(code, total);
+            if (info.isValid) {
+                if ("percentage".equalsIgnoreCase(info.type)) {
+                    discount = total.multiply(info.discountValue).divide(new BigDecimal("100"));
+                } else {
+                    discount = info.discountValue;
+                }
                 session.setAttribute("discountAmount", discount);
+                session.setAttribute("couponId", info.id);
+                session.setAttribute("isCampaign", info.isCampaign);
             } else {
                 session.removeAttribute("couponCode");
                 session.removeAttribute("discountAmount");
+                session.removeAttribute("couponId");
+                session.removeAttribute("isCampaign");
             }
         }
     }

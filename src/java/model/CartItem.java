@@ -103,6 +103,14 @@ public class CartItem {
     public void setAvailableQuantity(int availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
-   
-    
+
+    private int warrantyPeriod;
+
+    public int getWarrantyPeriod() {
+        return warrantyPeriod;
+    }
+
+    public void setWarrantyPeriod(int warrantyPeriod) {
+        this.warrantyPeriod = warrantyPeriod;
+    }
 }

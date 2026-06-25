@@ -92,7 +92,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         // 3) Lấy các biến thể (RAM/SSD) kèm tồn kho
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(productId);
-        List<Product> similarProducts = productDAO.getSimilarProducts(product.getCategoryId(), product.getProductId(), 4);
+        List<Product> similarProducts = productDAO.getSimilarProducts(product.getPurpose(), product.getCategoryId(), product.getProductId(), 4);
 
         // 4) Lấy đánh giá & bình luận sản phẩm
         ProductReviewDAO reviewDAO = new ProductReviewDAO();
@@ -108,6 +108,12 @@ public class ProductDetailServlet extends HttpServlet {
         }
         int reviewsCount = (reviews != null) ? reviews.size() : 0;
 
+        String productBadge = product.getPurpose();
+        if (productBadge == null || productBadge.trim().isEmpty()) {
+            productBadge = productDAO.getProductBadge(product.getProductId(), product.getCategoryId());
+        }
+
+        request.setAttribute("productBadge", productBadge);
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
         request.setAttribute("categories", categoryDAO.getAllCategories());
@@ -179,7 +185,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         if (userId != null) {
             ProductReviewDAO reviewDAO = new ProductReviewDAO();
-            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "approved");
+            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "pending");
         }
 
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");
