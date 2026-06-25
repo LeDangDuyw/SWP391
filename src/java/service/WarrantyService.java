@@ -2,25 +2,51 @@ package service;
 
 import dal.WarrantyDAO;
 import dal.WarrantyHistoryDAO;
+import dal.WarrantyClaimImageDAO;
 import model.WarrantyClaim;
 import model.WarrantyHistory;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import utils.ValidationException;
 
 public class WarrantyService {
 
     private final WarrantyDAO warrantyDAO;
     private final WarrantyHistoryDAO historyDAO;
+    private final WarrantyClaimImageDAO imageDAO;
+
+    // ── IMAGE UPLOAD CONFIG ───────────────────────────────────────────────────
+
+    private static final int MAX_IMAGES = 5;
+    private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024; // 5MB
+    private static final List<String> ALLOWED_CONTENT_TYPES =
+            List.of("image/jpeg", "image/png", "image/jpg", "image/webp");
+
+    // Thư mục lưu ảnh trên disk, nằm ngoài thư mục build của webapp để không bị
+    // mất khi redeploy. URL trả về cho client sẽ map qua servlet/context riêng
+    // (xem ghi chú ở WarrantyController khi đăng ký static resource mapping).
+    private static final String UPLOAD_DIR = System.getProperty("warranty.upload.dir",
+            System.getProperty("user.home") + File.separator + "uploads" + File.separator + "warranty");
 
     public WarrantyService() {
         this.warrantyDAO = new WarrantyDAO();
         this.historyDAO  = new WarrantyHistoryDAO();
+        this.imageDAO    = new WarrantyClaimImageDAO();
     }
 
     // ── SUBMIT ────────────────────────────────────────────────────────────────
 
     public int submitWarranty(int customerId, String serialNumber,
-            String title, String description)
+            String title, String description, List<Part> images)
             throws ValidationException, Exception {
 
         if (serialNumber == null || serialNumber.trim().isEmpty()) {
@@ -44,6 +70,11 @@ public class WarrantyService {
         if (description.trim().length() > 2000) {
             throw new ValidationException("Mô tả lỗi không được vượt quá 2000 ký tự.");
         }
+
+        // Validate ảnh TRƯỚC khi đụng tới DB hoặc disk, để fail-fast và
+        // không tạo claim "mồ côi" nếu ảnh không hợp lệ.
+        List<Part> validImageParts = filterImageParts(images);
+        validateImages(validImageParts);
 
         serialNumber = serialNumber.trim();
 
@@ -80,7 +111,107 @@ public class WarrantyService {
         insertHistory(claimId, description.trim(), "PENDING",
                 "Yêu cầu bảo hành đã được gửi và đang chờ xử lý.");
 
+        // Lưu ảnh SAU khi claim đã có claimId. Nếu việc ghi file/DB ảnh lỗi,
+        // không rollback claim (claim vẫn hợp lệ, chỉ là thiếu ảnh) — nhưng
+        // ta vẫn throw để staff/customer biết và có thể upload lại qua trang detail.
+        if (!validImageParts.isEmpty()) {
+            saveClaimImages(claimId, validImageParts);
+        }
+
         return claimId;
+    }
+
+    // ── IMAGE UPLOAD HELPERS ──────────────────────────────────────────────────
+
+    /**
+     * Lọc ra các Part thực sự là file ảnh được chọn (bỏ qua các Part rỗng do
+     * trình duyệt gửi khi người dùng không chọn đủ 5 ô input, hoặc các Part
+     * không phải field file).
+     */
+    private List<Part> filterImageParts(List<Part> images) {
+        List<Part> result = new ArrayList<>();
+        if (images == null) {
+            return result;
+        }
+        for (Part p : images) {
+            if (p != null && p.getSize() > 0 && p.getSubmittedFileName() != null
+                    && !p.getSubmittedFileName().trim().isEmpty()) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Validate số lượng, dung lượng và định dạng ảnh.
+     * Ném ValidationException với message tiếng Việt rõ ràng cho từng trường hợp.
+     */
+    private void validateImages(List<Part> images) throws ValidationException {
+        if (images.size() > MAX_IMAGES) {
+            throw new ValidationException(
+                    "Chỉ được tải lên tối đa " + MAX_IMAGES + " ảnh.");
+        }
+
+        for (Part p : images) {
+            if (p.getSize() > MAX_IMAGE_SIZE) {
+                throw new ValidationException(
+                        "Ảnh \"" + p.getSubmittedFileName() + "\" vượt quá 5MB. "
+                        + "Vui lòng chọn ảnh nhỏ hơn.");
+            }
+
+            String contentType = p.getContentType();
+            if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+                throw new ValidationException(
+                        "Ảnh \"" + p.getSubmittedFileName() + "\" không đúng định dạng. "
+                        + "Chỉ chấp nhận JPG, PNG hoặc WEBP.");
+            }
+        }
+    }
+
+    /**
+     * Ghi các Part ảnh xuống disk dưới tên file ngẫu nhiên (UUID) để tránh
+     * trùng lặp/đụng tên cũng như tránh path traversal qua tên file gốc của
+     * người dùng, rồi insert batch các image_url tương ứng vào DB.
+     */
+    private void saveClaimImages(int claimId, List<Part> images) throws Exception {
+        Path uploadPath = Paths.get(UPLOAD_DIR, String.valueOf(claimId));
+        Files.createDirectories(uploadPath);
+
+        List<String> savedUrls = new ArrayList<>();
+
+        for (Part p : images) {
+            String originalName = p.getSubmittedFileName();
+            String ext = "";
+            int dot = originalName.lastIndexOf('.');
+            if (dot >= 0) {
+                ext = originalName.substring(dot).toLowerCase();
+            }
+            // Whitelist phần mở rộng để tránh lưu file thực thi dưới tên giả mạo
+            if (!ext.matches("\\.(jpg|jpeg|png|webp)")) {
+                ext = ".jpg";
+            }
+
+            String storedFileName = UUID.randomUUID().toString() + ext;
+            Path targetFile = uploadPath.resolve(storedFileName);
+
+            try (InputStream in = p.getInputStream()) {
+                Files.copy(in, targetFile);
+            }
+
+            // URL tương đối — controller/servlet phục vụ ảnh tĩnh sẽ map từ
+            // đường dẫn này, ví dụ: /warranty-images/{claimId}/{storedFileName}
+            String relativeUrl = "/warranty-images/" + claimId + "/" + storedFileName;
+            savedUrls.add(relativeUrl);
+        }
+
+        imageDAO.insertBatch(claimId, savedUrls);
+    }
+
+    /**
+     * Lấy danh sách ảnh của một claim — dùng cho gallery trên detail.jsp.
+     */
+    public List<model.WarrantyClaimImage> getClaimImages(int claimId) throws Exception {
+        return imageDAO.findByClaimId(claimId);
     }
 
     // ── CANCEL ────────────────────────────────────────────────────────────────
