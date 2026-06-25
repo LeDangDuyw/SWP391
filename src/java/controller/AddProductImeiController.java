@@ -23,7 +23,44 @@ public class AddProductImeiController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String ticketIdStr = request.getParameter("ticketId");
+        String variantIdStr = request.getParameter("variantId");
+        
         ProductDAO productDao = new ProductDAO();
+        TicketDAO ticketDao = new TicketDAO();
+        
+        if (ticketIdStr != null && !ticketIdStr.trim().isEmpty() &&
+            variantIdStr != null && !variantIdStr.trim().isEmpty()) {
+            
+            try {
+                int ticketId = Integer.parseInt(ticketIdStr.trim());
+                int variantId = Integer.parseInt(variantIdStr.trim());
+                
+                List<model.TicketDetail> details = ticketDao.getTicketDetails(ticketId);
+                int expectedQuantity = -1;
+                for (model.TicketDetail td : details) {
+                    if (td.getVariantId() == variantId) {
+                        expectedQuantity = td.getQuantity();
+                        break;
+                    }
+                }
+                
+                model.ProductVariant selectedVariant = productDao.getVariantById(variantId);
+                model.Product selectedProduct = null;
+                if (selectedVariant != null) {
+                    selectedProduct = productDao.getProductByVariantId(variantId);
+                }
+                
+                request.setAttribute("ticketId", ticketId);
+                request.setAttribute("expectedQuantity", expectedQuantity);
+                request.setAttribute("selectedVariant", selectedVariant);
+                request.setAttribute("selectedProduct", selectedProduct);
+                
+            } catch (NumberFormatException e) {
+                // Ignore parse errors, fall back to normal
+            }
+        }
+        
         List<Product> products = productDao.GetAllProducts();
         List<ProductVariant> variants = productDao.getAllVariants();
         
@@ -69,59 +106,78 @@ public class AddProductImeiController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String variantIdStr = request.getParameter("variantId");
-        String serialsStr = request.getParameter("serials");
-        String serialNumbersStr = request.getParameter("serialNumbers");
-        String barcodesStr = request.getParameter("barcodes");
+        String[] imeis = request.getParameterValues("imeis");
+        String[] serialNumbers = request.getParameterValues("serialNumbers");
+        String[] barcodes = request.getParameterValues("barcodes");
         String warehouseLocation = request.getParameter("warehouseLocation");
         String receivedDate = request.getParameter("receivedDate");
         String initialStatus = request.getParameter("initialStatus");
         String ticketIdStr = request.getParameter("ticketId");
         
         if (variantIdStr == null || variantIdStr.trim().isEmpty() ||
-            serialsStr == null || serialsStr.trim().isEmpty() ||
-            serialNumbersStr == null || serialNumbersStr.trim().isEmpty() ||
-            barcodesStr == null || barcodesStr.trim().isEmpty() ||
-            ticketIdStr == null || ticketIdStr.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields");
+            imeis == null || serialNumbers == null || barcodes == null) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+                (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") + 
+                (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
             return;
         }
         
         int variantId = Integer.parseInt(variantIdStr.trim());
-        int ticketId = Integer.parseInt(ticketIdStr.trim());
-        String[] imeis = serialsStr.split("\\r?\\n");
-        String[] serialNumbers = serialNumbersStr.split("\\r?\\n");
-        String[] barcodes = barcodesStr.split("\\r?\\n");
-        
-        TicketDAO ticketDao = new TicketDAO();
-        List<model.TicketDetail> details = ticketDao.getTicketDetails(ticketId);
-        int expectedQuantity = -1;
-        for (model.TicketDetail td : details) {
-            if (td.getVariantId() == variantId) {
-                expectedQuantity = td.getQuantity();
-                break;
+        Integer ticketId = null;
+        if (ticketIdStr != null && !ticketIdStr.trim().isEmpty()) {
+            try {
+                ticketId = Integer.parseInt(ticketIdStr.trim());
+            } catch (NumberFormatException e) {
+                // Ignore
             }
         }
-
+        
         List<String> validImeis = new ArrayList<>();
-        for (String s : imeis) if (!s.trim().isEmpty()) validImeis.add(s.trim());
-        
         List<String> validSerials = new ArrayList<>();
-        for (String s : serialNumbers) if (!s.trim().isEmpty()) validSerials.add(s.trim());
-        
         List<String> validBarcodes = new ArrayList<>();
-        for (String s : barcodes) if (!s.trim().isEmpty()) validBarcodes.add(s.trim());
-
-        if (validImeis.size() != validSerials.size() || validImeis.size() != validBarcodes.size()) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchLists");
+        
+        for (int i = 0; i < imeis.length; i++) {
+            String imei = imeis[i] != null ? imeis[i].trim() : "";
+            String sn = (serialNumbers.length > i && serialNumbers[i] != null) ? serialNumbers[i].trim() : "";
+            String bc = (barcodes.length > i && barcodes[i] != null) ? barcodes[i].trim() : "";
+            
+            if (imei.isEmpty() && sn.isEmpty() && bc.isEmpty()) {
+                continue; // Skip completely empty rows
+            }
+            
+            if (imei.isEmpty() || sn.isEmpty() || bc.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+                    (ticketId != null ? "&ticketId=" + ticketId : "") + 
+                    "&variantId=" + variantId);
+                return;
+            }
+            
+            validImeis.add(imei);
+            validSerials.add(sn);
+            validBarcodes.add(bc);
+        }
+        
+        if (validImeis.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+                (ticketId != null ? "&ticketId=" + ticketId : "") + 
+                "&variantId=" + variantId);
             return;
         }
-
-        if (expectedQuantity != -1 && validImeis.size() != expectedQuantity) {
-            if (validImeis.size() > expectedQuantity) {
-                response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=TooManyImeis&expected=" + expectedQuantity + "&actual=" + validImeis.size());
-            } else {
-                response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=TooFewImeis&expected=" + expectedQuantity + "&actual=" + validImeis.size());
+        
+        TicketDAO ticketDao = new TicketDAO();
+        int expectedQuantity = -1;
+        if (ticketId != null) {
+            List<model.TicketDetail> details = ticketDao.getTicketDetails(ticketId);
+            for (model.TicketDetail td : details) {
+                if (td.getVariantId() == variantId) {
+                    expectedQuantity = td.getQuantity();
+                    break;
+                }
             }
+        }
+
+        if (expectedQuantity != -1 && validImeis.size() > expectedQuantity) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=TooManyImeis&expected=" + expectedQuantity + "&actual=" + validImeis.size());
             return;
         }
 
@@ -142,17 +198,19 @@ public class AddProductImeiController extends HttpServlet {
             item.setImportDate(receivedDate);
             item.setWarrantyExpiredDate(warrantyExpiredDate);
             item.setWarehouseLocation(warehouseLocation);
-            item.setTicketId(ticketId);
+            item.setTicketId(ticketId != null ? ticketId : 0);
             items.add(item);
         }
         
         ImeiDAO imeiDao = new ImeiDAO();
         imeiDao.insertInventoryItems(items);
         
-        // Update ticket status to COMPLETED and sync import_price
-        ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and IMEIs registered");
-        // ticketDao.updateImportPriceFromTicket(ticketId); // Không tự động cập nhật import_price nữa vì nó là giá cố định
-        
-        response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
+        if (ticketId != null) {
+            // Update ticket status to COMPLETED and sync import_price
+            ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and IMEIs registered");
+            response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
+        } else {
+            response.sendRedirect(request.getContextPath() + "/staff/imei?success=Added");
+        }
     }
 }
