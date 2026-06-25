@@ -3,7 +3,7 @@
  * Handles floating widget popup, full-screen chat interface, 
  * session storage synchronization, and communication with ChatServlet (/chat-ai).
  */
-
+//minhbq
 (function () {
     // Generate or retrieve session ID
     let sessionId = sessionStorage.getItem('unilap_chat_session_id');
