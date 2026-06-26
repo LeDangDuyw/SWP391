@@ -14,6 +14,15 @@ public class ProductVariant {
     private String status;
     private int availableQuantity;
 
+    private String cpu;
+    private String ram;
+    private String ssd;
+    private String gpu;
+    private String screen;
+    private String connectivity;
+    private String switchType;
+    private String dpi;
+
     public ProductVariant() {
     }
 
@@ -122,5 +131,69 @@ public class ProductVariant {
 
     public void setAvailableQuantity(int availableQuantity) {
         this.availableQuantity = availableQuantity;
+    }
+
+    public String getCpu() {
+        return cpu;
+    }
+
+    public void setCpu(String cpu) {
+        this.cpu = cpu;
+    }
+
+    public String getRam() {
+        return ram;
+    }
+
+    public void setRam(String ram) {
+        this.ram = ram;
+    }
+
+    public String getSsd() {
+        return ssd;
+    }
+
+    public void setSsd(String ssd) {
+        this.ssd = ssd;
+    }
+
+    public String getGpu() {
+        return gpu;
+    }
+
+    public void setGpu(String gpu) {
+        this.gpu = gpu;
+    }
+
+    public String getScreen() {
+        return screen;
+    }
+
+    public void setScreen(String screen) {
+        this.screen = screen;
+    }
+
+    public String getConnectivity() {
+        return connectivity;
+    }
+
+    public void setConnectivity(String connectivity) {
+        this.connectivity = connectivity;
+    }
+
+    public String getSwitchType() {
+        return switchType;
+    }
+
+    public void setSwitchType(String switchType) {
+        this.switchType = switchType;
+    }
+
+    public String getDpi() {
+        return dpi;
+    }
+
+    public void setDpi(String dpi) {
+        this.dpi = dpi;
     }
 }

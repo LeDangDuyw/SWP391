@@ -298,6 +298,14 @@
                                             data-variant-id="${v.variantId}"
                                             data-price="<fmt:formatNumber value='${v.sellingPrice}' pattern='#,##0'/>₫"
                                             data-stock="${v.availableQuantity}"
+                                            data-cpu="${v.cpu}"
+                                            data-ram="${v.ram}"
+                                            data-ssd="${v.ssd}"
+                                            data-gpu="${v.gpu}"
+                                            data-screen="${v.screen}"
+                                            data-connectivity="${v.connectivity}"
+                                            data-switch-type="${v.switchType}"
+                                            data-dpi="${v.dpi}"
                                             ${v.availableQuantity == 0 ? 'disabled' : ''}>
                                         ${v.variantName}
                                     </button>

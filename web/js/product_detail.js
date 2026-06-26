@@ -55,6 +55,58 @@ document.addEventListener('DOMContentLoaded', function () {
             if (qtyInput) {
                 qtyInput.value = 1;
             }
+<<<<<<< Updated upstream
+=======
+
+            // Update dynamic specifications based on variant attributes
+            const cpu = this.dataset.cpu || 'N/A';
+            const ram = this.dataset.ram || 'N/A';
+            const ssd = this.dataset.ssd || 'N/A';
+            const gpu = this.dataset.gpu || 'N/A';
+            const screen = this.dataset.screen || 'N/A';
+            const connectivity = this.dataset.connectivity || 'N/A';
+            const switchType = this.dataset.switchType || 'N/A';
+            const dpi = this.dataset.dpi || 'N/A';
+
+            // Quick spec elements at the top
+            const cpuEl = document.getElementById('specCpu');
+            const ramEl = document.getElementById('specRam');
+            const ssdEl = document.getElementById('specSsd');
+            const connEl = document.getElementById('specConnectivity');
+            const switchEl = document.getElementById('specSwitchType');
+            const dpiEl = document.getElementById('specDpi');
+
+            // Specs table elements in the tab
+            const tblCpuEl = document.getElementById('tblSpecCpu');
+            const tblRamEl = document.getElementById('tblSpecRam');
+            const tblSsdEl = document.getElementById('tblSpecSsd');
+            const tblGpuEl = document.getElementById('tblSpecGpu');
+            const tblScreenEl = document.getElementById('tblSpecScreen');
+            const tblConnEl = document.getElementById('tblSpecConnectivity');
+            const tblSwitchEl = document.getElementById('tblSpecSwitchType');
+            const tblDpiEl = document.getElementById('tblSpecDpi');
+
+            if (cpuEl) { cpuEl.textContent = cpu; cpuEl.title = cpu; }
+            if (tblCpuEl) { tblCpuEl.textContent = cpu; }
+
+            if (ramEl) { ramEl.textContent = ram; ramEl.title = ram; }
+            if (tblRamEl) { tblRamEl.textContent = ram; }
+
+            if (ssdEl) { ssdEl.textContent = ssd; ssdEl.title = ssd; }
+            if (tblSsdEl) { tblSsdEl.textContent = ssd; }
+
+            if (tblGpuEl) { tblGpuEl.textContent = gpu; }
+            if (tblScreenEl) { tblScreenEl.textContent = screen; }
+
+            if (connEl) { connEl.textContent = connectivity; connEl.title = connectivity; }
+            if (tblConnEl) { tblConnEl.textContent = connectivity; }
+
+            if (switchEl) { switchEl.textContent = switchType; switchEl.title = switchType; }
+            if (tblSwitchEl) { tblSwitchEl.textContent = switchType; }
+
+            if (dpiEl) { dpiEl.textContent = dpi; dpiEl.title = dpi; }
+            if (tblDpiEl) { tblDpiEl.textContent = dpi; }
+>>>>>>> Stashed changes
         });
     });
 

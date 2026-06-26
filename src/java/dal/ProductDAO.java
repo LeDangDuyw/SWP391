@@ -740,9 +740,44 @@ public List<Product> GetAllProducts() {
         List<ProductVariant> variants = new ArrayList<>();
         try {
             String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
-                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity " +
+                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
+                         "isnull(spec.cpu, prod_spec.cpu) as cpu, " +
+                         "isnull(spec.ram, prod_spec.ram) as ram, " +
+                         "isnull(spec.ssd, prod_spec.ssd) as ssd, " +
+                         "isnull(spec.gpu, prod_spec.gpu) as gpu, " +
+                         "isnull(spec.screen, prod_spec.screen) as screen, " +
+                         "isnull(spec.connectivity, prod_spec.connectivity) as connectivity, " +
+                         "isnull(spec.switch_type, prod_spec.switch_type) as switch_type, " +
+                         "isnull(spec.dpi, prod_spec.dpi) as dpi " +
                          "from ProductVariant pv " +
                          "left join Inventory i on pv.variant_id = i.variant_id " +
+                         "left join ( " +
+                         "    SELECT vs.variant_id, " +
+                         "           MAX(CASE WHEN vs.specification_id = 1  THEN vs.value END) AS cpu, " +
+                         "           MAX(CASE WHEN vs.specification_id = 2  THEN vs.value END) AS ram, " +
+                         "           MAX(CASE WHEN vs.specification_id = 5  THEN vs.value END) AS ssd, " +
+                         "           MAX(CASE WHEN vs.specification_id = 4  THEN vs.value END) AS gpu, " +
+                         "           MAX(CASE WHEN vs.specification_id = 3  THEN vs.value END) AS screen, " +
+                         "           MAX(CASE WHEN vs.specification_id = 18 THEN vs.value END) AS connectivity, " +
+                         "           MAX(CASE WHEN vs.specification_id = 10 THEN vs.value END) AS switch_type, " +
+                         "           MAX(CASE WHEN vs.specification_id = 13 THEN vs.value END) AS dpi " +
+                         "    FROM VariantSpecification vs " +
+                         "    GROUP BY vs.variant_id " +
+                         ") spec on pv.variant_id = spec.variant_id " +
+                         "left join ( " +
+                         "    SELECT pv.product_id, " +
+                         "           MAX(CASE WHEN vs.specification_id = 1  THEN vs.value END) AS cpu, " +
+                         "           MAX(CASE WHEN vs.specification_id = 2  THEN vs.value END) AS ram, " +
+                         "           MAX(CASE WHEN vs.specification_id = 5  THEN vs.value END) AS ssd, " +
+                         "           MAX(CASE WHEN vs.specification_id = 4  THEN vs.value END) AS gpu, " +
+                         "           MAX(CASE WHEN vs.specification_id = 3  THEN vs.value END) AS screen, " +
+                         "           MAX(CASE WHEN vs.specification_id = 18 THEN vs.value END) AS connectivity, " +
+                         "           MAX(CASE WHEN vs.specification_id = 10 THEN vs.value END) AS switch_type, " +
+                         "           MAX(CASE WHEN vs.specification_id = 13 THEN vs.value END) AS dpi " +
+                         "    FROM VariantSpecification vs " +
+                         "    JOIN ProductVariant pv ON vs.variant_id = pv.variant_id " +
+                         "    GROUP BY pv.product_id " +
+                         ") prod_spec on pv.product_id = prod_spec.product_id " +
                          "where pv.product_id = ? and pv.status = 'active' " +
                          "order by pv.variant_id";
             ps = cnn.prepareStatement(sql);
@@ -760,6 +795,14 @@ public List<Product> GetAllProducts() {
                         rs.getString("status"),
                         rs.getInt("available_quantity")
                 );
+                variant.setCpu(rs.getString("cpu"));
+                variant.setRam(rs.getString("ram"));
+                variant.setSsd(rs.getString("ssd"));
+                variant.setGpu(rs.getString("gpu"));
+                variant.setScreen(rs.getString("screen"));
+                variant.setConnectivity(rs.getString("connectivity"));
+                variant.setSwitchType(rs.getString("switch_type"));
+                variant.setDpi(rs.getString("dpi"));
                 variants.add(variant);
             }
         } catch (Exception e) {
