@@ -149,9 +149,14 @@ public class ProfileController extends HttpServlet {
         doGet(request, response);
     }
 
-    // -----------------------------------------------------------------------
-    // Update Profile: Full Name, Phone Number, Avatar image upload.
-    // -----------------------------------------------------------------------
+    /*
+     * Name: handleUpdateProfile
+     * Description: Xử lý cập nhật thông tin cá nhân bao gồm Họ tên, Số điện thoại và tải lên ảnh đại diện.
+     *              Đồng bộ ảnh đại diện sang thư mục nguồn của NetBeans để lưu trữ lâu dài.
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+     */
     private void handleUpdateProfile(HttpServletRequest request, HttpServletResponse response,
             Users sessionUser) throws ServletException, IOException {
 
