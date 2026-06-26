@@ -35,7 +35,9 @@ import utils.ValidationException;
  * WarrantyService (chặn ở tầng business logic) để tránh request vượt giới hạn
  * làm lội ServletException thô thay vì ValidationException thân thiện.
  *
- * Version 1.1 Author DuyLD
+ * Version 1.1 
+ * 
+ * Author DuyLD
  */
 @WebServlet("/warranty")
 @MultipartConfig(
@@ -163,7 +165,6 @@ public class WarrantyController extends HttpServlet {
         }
     }
 
-    // ACTION HANDLERS
     /**
      * GET list: Customer → warranty-center.jsp (loads their own claims)
      * Staff/Admin → warranty-console.jsp (loads all claims, supports
@@ -205,10 +206,8 @@ public class WarrantyController extends HttpServlet {
         request.setAttribute("selectedHistory", warrantyService.getHistory(claimId));
         request.setAttribute("selectedImages", warrantyService.getClaimImages(claimId));
 
-        // 👇 load list để giữ layout
         if (isCustomer(user)) {
-            loadCustomerClaims(request, user);
-            request.getRequestDispatcher("/customer/warranty_center.jsp")
+            request.getRequestDispatcher("/customer/warranty_detail.jsp")
                     .forward(request, response);
         } else {
             loadConsoleClaims(request, String.valueOf(claimId));
@@ -336,7 +335,6 @@ public class WarrantyController extends HttpServlet {
         }
     }
 
-    // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
     /**
      * Loads claims cho customer view (warranty-center.jsp).
      */
