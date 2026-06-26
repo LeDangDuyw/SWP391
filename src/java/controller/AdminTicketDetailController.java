@@ -1,3 +1,10 @@
+/*
+ * Name: AdminTicketDetailController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị thông tin chi tiết của một phiếu nhập kho để Admin phê duyệt hoặc từ chối.
+ */
 package controller;
 
 import dal.TicketDAO;

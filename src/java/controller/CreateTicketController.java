@@ -1,3 +1,10 @@
+/*
+ * Name: CreateTicketController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc tạo phiếu yêu cầu nhập kho (Import Ticket) từ nhân viên.
+ */
 package controller;
 
 import dal.ProductDAO;

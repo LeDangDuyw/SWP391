@@ -1,3 +1,10 @@
+/*
+ * Name: AddProductImeiController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc đăng ký số IMEI, Serial Number và mã vạch cho sản phẩm thực tế khi nhập kho.
+ */
 package controller;
 
 import dal.ImeiDAO;
