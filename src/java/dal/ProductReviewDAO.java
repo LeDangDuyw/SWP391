@@ -25,7 +25,7 @@ public class ProductReviewDAO extends DBContext {
       // them review tu customers
     public boolean addReview(ProductReview review) {
         String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status) VALUES (?, ?, ?, ?, 'approved')";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, review.getProductId());
             ps.setInt(2, review.getUserId());
             ps.setInt(3, review.getRating());
@@ -39,7 +39,7 @@ public class ProductReviewDAO extends DBContext {
      // admin , staff comment
     public boolean replyToReview(int reviewId, String replyContent, int replierId) {
         String sql = "UPDATE ProductReview SET reply_content = ?, replied_by = ?, replied_at = GETDATE() WHERE review_id = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, replyContent);
             ps.setInt(2, replierId);
             ps.setInt(3, reviewId);
@@ -53,7 +53,7 @@ public class ProductReviewDAO extends DBContext {
     // duyet an binh luan 
         public boolean updateReviewStatus(int reviewId, String status, int moderatorId) {
         String sql = "UPDATE ProductReview SET status = ?, moderated_by = ?, moderated_at = GETDATE() WHERE review_id = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, moderatorId);
             ps.setInt(3, reviewId);
@@ -126,7 +126,7 @@ public class ProductReviewDAO extends DBContext {
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         
         int offset = (page - 1) * pageSize;
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
             int idx = 1;
             for (Object param : params) {
                 ps.setObject(idx++, param);
@@ -174,7 +174,7 @@ public class ProductReviewDAO extends DBContext {
             sql.append("AND pr.status = ? ");
             params.add(status);
         }
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
             int idx = 1;
             for (Object param : params) {
                 ps.setObject(idx++, param);
@@ -211,7 +211,7 @@ public class ProductReviewDAO extends DBContext {
             params.add(Timestamp.valueOf(toDate + " 23:59:59"));
         }
         sql.append("ORDER BY pr.created_at DESC");
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
             int idx = 1;
             for (Object param : params) {
                 ps.setObject(idx++, param);
@@ -237,7 +237,7 @@ public class ProductReviewDAO extends DBContext {
                      "LEFT JOIN [User] ru ON pr.replied_by = ru.user_id " +
                      "WHERE pr.product_id = ? AND pr.status = 'approved' " +
                      "ORDER BY pr.created_at DESC";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -252,7 +252,7 @@ public class ProductReviewDAO extends DBContext {
 
     public boolean insertReview(int productId, int userId, int rating, String comment, String status) {
         String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setInt(2, userId);
             ps.setInt(3, rating);
