@@ -38,6 +38,24 @@ public class ManageUsersController extends HttpServlet {
             return;
         }
 
+        String ajaxAction = request.getParameter("ajaxAction");
+        if ("checkActiveOrders".equalsIgnoreCase(ajaxAction)) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            String targetUserIdStr = request.getParameter("userId");
+            int targetUserId = 0;
+            int activeOrdersCount = 0;
+            try {
+                targetUserId = Integer.parseInt(targetUserIdStr.trim());
+                UserDAO userDAO = new UserDAO();
+                activeOrdersCount = userDAO.getActiveOrdersCount(targetUserId);
+            } catch (Exception e) {
+                // Ignore
+            }
+            response.getWriter().write("{\"activeOrdersCount\":" + activeOrdersCount + "}");
+            return;
+        }
+
         String search = request.getParameter("search");
         if (search == null) {
             search = "";
