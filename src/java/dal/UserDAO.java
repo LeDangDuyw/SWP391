@@ -409,5 +409,26 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    /*
+     * Name: getActiveOrdersCount
+     * Description: Đếm số đơn hàng chưa hoàn tất của người dùng (khác 'cancelled' và 'delivered').
+     */
+    public int getActiveOrdersCount(int userId) {
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE user_id = ? AND order_status NOT IN ('cancelled', 'delivered')";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
 }
+
 
