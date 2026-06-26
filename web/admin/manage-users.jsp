@@ -931,14 +931,40 @@
             });
 
             function submitLockAction(userId, email, isLock) {
-                var actionName = isLock ? "KHÓA" : "MỞ KHÓA";
                 var actionCode = isLock ? "lock" : "unlock";
                 
-                if (confirm("Bạn có chắc chắn muốn " + actionName + " tài khoản [" + email + "] không?")) {
-                    document.getElementById("formAction").value = actionCode;
-                    document.getElementById("formUserId").value = userId;
-                    document.getElementById("actionForm").submit();
+                if (isLock) {
+                    // Check active orders count before locking
+                    fetch("${pageContext.request.contextPath}/admin/users?ajaxAction=checkActiveOrders&userId=" + userId)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            var count = data.activeOrdersCount || 0;
+                            var confirmMsg = "Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                            if (count > 0) {
+                                confirmMsg = "Người dùng này đang có " + count + " đơn hàng chưa hoàn tất. Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                            }
+                            if (confirm(confirmMsg)) {
+                                executeLockAction(actionCode, userId);
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error("Lỗi kiểm tra đơn hàng: ", err);
+                            // Fallback to normal confirm on error
+                            if (confirm("Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?")) {
+                                executeLockAction(actionCode, userId);
+                            }
+                        });
+                } else {
+                    if (confirm("Bạn có chắc chắn muốn MỞ KHÓA tài khoản [" + email + "] không?")) {
+                        executeLockAction(actionCode, userId);
+                    }
                 }
+            }
+
+            function executeLockAction(actionCode, userId) {
+                document.getElementById("formAction").value = actionCode;
+                document.getElementById("formUserId").value = userId;
+                document.getElementById("actionForm").submit();
             }
 
             function submitRoleAction(userId, email, selectElement) {

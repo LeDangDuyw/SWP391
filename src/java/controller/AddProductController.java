@@ -126,16 +126,31 @@ public class AddProductController extends HttpServlet {
                 extension = originalFileName.substring(i);
             }
             // Tạo tên ngẫu nhiên cho file ảnh để tránh bị trùng lặp tên
-            fileName = UUID.randomUUID().toString() + extension;
-            // Đường dẫn lưu ảnh trong thư mục 'images' của server
-            String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdir(); // Tạo thư mục nếu nó chưa tồn tại
-            }
-            // Tiến hành ghi file ảnh vào ổ cứng
-            filePart.write(uploadPath + File.separator + fileName);
-        }
+             fileName = UUID.randomUUID().toString() + extension;
+             // Đường dẫn lưu ảnh trong thư mục 'images' của server
+             String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
+             File uploadDir = new File(uploadPath);
+             if (!uploadDir.exists()) {
+                 uploadDir.mkdirs(); // Tạo thư mục nếu nó chưa tồn tại
+             }
+             // Tiến hành ghi file ảnh vào ổ cứng
+             filePart.write(uploadPath + File.separator + fileName);
+             
+             // Sync to source directory for persistence in local NetBeans environment
+             try {
+                 String sourcePath = uploadPath.replace("build" + File.separator + "web", "web");
+                 File sourceDir = new File(sourcePath);
+                 if (sourceDir.exists()) {
+                     File buildFile = new File(uploadPath + File.separator + fileName);
+                     File sourceFile = new File(sourcePath + File.separator + fileName);
+                     if (buildFile.exists()) {
+                         java.nio.file.Files.copy(buildFile.toPath(), sourceFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                     }
+                 }
+             } catch (Exception ex) {
+                 ex.printStackTrace();
+             }
+         }
 
         // Tạo đối tượng Product mới và gọi hàm insert vào CSDL
         Product p = new Product(0, productName, description, 0, fileName, categoryId, brandId);
