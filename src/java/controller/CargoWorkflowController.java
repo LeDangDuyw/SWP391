@@ -1,4 +1,11 @@
-package controller.ticket;
+/*
+ * Name: CargoWorkflowController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller quản lý quy trình trạng thái (hủy, nhận hàng, yêu cầu chỉnh sửa) của phiếu nhập kho.
+ */
+package controller;
 
 import dal.TicketDAO;
 import jakarta.servlet.ServletException;

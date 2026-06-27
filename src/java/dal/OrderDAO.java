@@ -16,18 +16,24 @@ public class OrderDAO extends DBContext {
         cnn = super.connection;
     }
 
-    public Order insertOrder(BigDecimal totalAmount, String receiver, String phone, String address, Integer userId) {
+    public Order insertOrder(BigDecimal totalAmount, BigDecimal shippingFee, String receiver, String phone, String address, Integer userId, Integer voucherId) {
         try {
-            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id) VALUES (?, 0, 'Pending', ?, ?, ?, ?)";
+            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, totalAmount);
-            ps.setString(2, receiver);
-            ps.setString(3, phone);
-            ps.setString(4, address);
+            ps.setBigDecimal(2, shippingFee);
+            ps.setString(3, receiver);
+            ps.setString(4, phone);
+            ps.setString(5, address);
             if (userId != null) {
-                ps.setInt(5, userId);
+                ps.setInt(6, userId);
             } else {
-                ps.setNull(5, java.sql.Types.INTEGER);
+                ps.setNull(6, java.sql.Types.INTEGER);
+            }
+            if (voucherId != null) {
+                ps.setInt(7, voucherId);
+            } else {
+                ps.setNull(7, java.sql.Types.INTEGER);
             }
             
             int affectedRows = ps.executeUpdate();
@@ -48,13 +54,14 @@ public class OrderDAO extends DBContext {
                     Order order = new Order();
                     order.setOrderId(orderId);
                     order.setTotalAmount(totalAmount);
-                    order.setShippingFee(BigDecimal.ZERO);
+                    order.setShippingFee(shippingFee);
                     order.setOrderStatus("Pending");
                     order.setShippingReceiver(receiver);
                     order.setShippingPhone(phone);
                     order.setShippingAddress(address);
                     order.setOrderCode(orderCode);
                     order.setUserId(userId);
+                    order.setVoucherId(voucherId);
                     return order;
                 }
             }
@@ -62,6 +69,10 @@ public class OrderDAO extends DBContext {
             System.out.println("insertOrder error: " + e.getMessage());
         }
         return null;
+    }
+
+    public Order insertOrder(BigDecimal totalAmount, String receiver, String phone, String address, Integer userId) {
+        return insertOrder(totalAmount, BigDecimal.ZERO, receiver, phone, address, userId, null);
     }
 
     public Order getOrderByCode(String orderCode) {
@@ -116,6 +127,15 @@ public class OrderDAO extends DBContext {
                 detailPs.setBigDecimal(4, unitPrice);
                 detailPs.executeUpdate();
             }
+            
+            // Decrement stock in Inventory
+            String updateInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - ? WHERE variant_id = ?";
+            try (PreparedStatement invPs = cnn.prepareStatement(updateInventorySql)) {
+                invPs.setInt(1, quantity);
+                invPs.setInt(2, variantId);
+                invPs.executeUpdate();
+            }
+            
             return true;
         } catch (Exception e) {
             System.out.println("insertOrderDetail error: " + e.getMessage());

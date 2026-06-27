@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
         thumb.addEventListener('click', function () {
             thumbs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            const newSrc = this.querySelector('img').src;
-            mainImg.src = newSrc;
+            const thumbImg = this.querySelector('img');
+            mainImg.src = thumbImg.src;
+            mainImg.style.filter = thumbImg.style.filter || 'none';
         });
     });
 
@@ -53,6 +54,131 @@ document.addEventListener('DOMContentLoaded', function () {
             // Reset quantity to 1
             if (qtyInput) {
                 qtyInput.value = 1;
+            }
+
+            // Update dynamic specifications based on variant name
+            const variantName = this.textContent.trim();
+            if (variantName) {
+                const parts = variantName.split(/\s*\/\s*/);
+                
+                let cpu = '';
+                let ram = '';
+                let ssd = '';
+                let gpu = '';
+                let connectivity = '';
+                let switchType = '';
+                const gbParts = [];
+
+                parts.forEach(part => {
+                    const lowerPart = part.toLowerCase();
+                    if (lowerPart.includes('intel') || lowerPart.includes('core') || lowerPart.includes('ryzen') || 
+                        lowerPart.includes('amd') || lowerPart.includes('ultra') || lowerPart.includes('snapdragon') ||
+                        lowerPart.startsWith('i3') || lowerPart.startsWith('i5') || lowerPart.startsWith('i7') || 
+                        lowerPart.startsWith('i9') || lowerPart.startsWith('m1') || lowerPart.startsWith('m2') || 
+                        lowerPart.startsWith('m3') || lowerPart.startsWith('m4') || lowerPart.startsWith('m5')) {
+                        cpu = part;
+                    } else if (lowerPart.includes('rtx') || lowerPart.includes('gtx') || lowerPart.includes('radeon') || 
+                               lowerPart.includes('graphics') || lowerPart.includes('iris') || lowerPart.includes('geforce') ||
+                               lowerPart.includes('rx ')) {
+                        gpu = part;
+                    } else if (lowerPart.includes('switch')) {
+                        switchType = part;
+                    } else if (lowerPart.includes('wired') || lowerPart.includes('wireless') || 
+                               lowerPart.includes('bluetooth') || lowerPart.includes('usb')) {
+                        connectivity = part;
+                    } else if (lowerPart.includes('gb') || lowerPart.includes('tb')) {
+                        gbParts.push(part);
+                    }
+                });
+
+                if (gbParts.length > 0) {
+                    if (gbParts.length === 1) {
+                        const val = parseInt(gbParts[0], 10);
+                        if (val <= 64) {
+                            ram = gbParts[0];
+                        } else {
+                            ssd = gbParts[0];
+                        }
+                    } else if (gbParts.length >= 2) {
+                        const parsed = gbParts.map(p => {
+                            let size = parseFloat(p);
+                            if (p.toLowerCase().includes('tb')) {
+                                size *= 1024;
+                            }
+                            return { text: p, size: size };
+                        });
+                        parsed.sort((a, b) => a.size - b.size);
+                        ram = parsed[0].text;
+                        ssd = parsed[1].text;
+                    }
+                }
+
+                if (!cpu && parts.length > 0) {
+                    const usedParts = [ram, ssd, connectivity, switchType, gpu];
+                    const unused = parts.filter(p => !usedParts.includes(p));
+                    if (unused.length > 0) {
+                        cpu = unused[0];
+                    }
+                }
+
+                // Quick spec elements at the top
+                const cpuEl = document.getElementById('specCpu');
+                const ramEl = document.getElementById('specRam');
+                const ssdEl = document.getElementById('specSsd');
+                const connEl = document.getElementById('specConnectivity');
+                const switchEl = document.getElementById('specSwitchType');
+
+                // Specs table elements in the tab
+                const tblCpuEl = document.getElementById('tblSpecCpu');
+                const tblRamEl = document.getElementById('tblSpecRam');
+                const tblSsdEl = document.getElementById('tblSpecSsd');
+                const tblGpuEl = document.getElementById('tblSpecGpu');
+                const tblConnEl = document.getElementById('tblSpecConnectivity');
+                const tblSwitchEl = document.getElementById('tblSpecSwitchType');
+
+                if (cpuEl && cpu) {
+                    cpuEl.textContent = cpu;
+                    cpuEl.title = cpu;
+                }
+                if (tblCpuEl && cpu) {
+                    tblCpuEl.textContent = cpu;
+                }
+
+                if (ramEl && ram) {
+                    ramEl.textContent = ram;
+                    ramEl.title = ram;
+                }
+                if (tblRamEl && ram) {
+                    tblRamEl.textContent = ram;
+                }
+
+                if (ssdEl && ssd) {
+                    ssdEl.textContent = ssd;
+                    ssdEl.title = ssd;
+                }
+                if (tblSsdEl && ssd) {
+                    tblSsdEl.textContent = ssd;
+                }
+
+                if (tblGpuEl && gpu) {
+                    tblGpuEl.textContent = gpu;
+                }
+
+                if (connEl && connectivity) {
+                    connEl.textContent = connectivity;
+                    connEl.title = connectivity;
+                }
+                if (tblConnEl && connectivity) {
+                    tblConnEl.textContent = connectivity;
+                }
+
+                if (switchEl && switchType) {
+                    switchEl.textContent = switchType;
+                    switchEl.title = switchType;
+                }
+                if (tblSwitchEl && switchType) {
+                    tblSwitchEl.textContent = switchType;
+                }
             }
         });
     });
@@ -114,24 +240,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 5. Header Dropdown Menu for User (Trigger logic matching product_list.js)
-    const userTrigger = document.querySelector('.user-menu-trigger');
-    if (userTrigger) {
-        userTrigger.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const dropdown = this.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        });
-        
-        document.addEventListener('click', function () {
-            const dropdowns = document.querySelectorAll('.user-menu-dropdown-content');
-            dropdowns.forEach(d => {
-                d.style.display = 'none';
-            });
-        });
-    }
-
     // 6. Handle Add to Cart & Buy Now submits
     const addCartForm = document.getElementById('addCartForm');
     const formQty = document.getElementById('formQty');
@@ -148,5 +256,11 @@ document.addEventListener('DOMContentLoaded', function () {
             formQty.value = qtyInput.value;
             addCartForm.submit();
         });
+    }
+
+    // Trigger initial click on the active variant button to sync UI
+    const activeVariantBtn = document.querySelector('.pd-variant-btn.active');
+    if (activeVariantBtn) {
+        activeVariantBtn.click();
     }
 });

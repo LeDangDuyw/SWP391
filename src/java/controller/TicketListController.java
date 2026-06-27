@@ -1,4 +1,11 @@
-package controller.ticket;
+/*
+ * Name: TicketListController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị danh sách phiếu yêu cầu nhập kho dành cho nhân viên.
+ */
+package controller;
 
 import dal.TicketDAO;
 import jakarta.servlet.ServletException;

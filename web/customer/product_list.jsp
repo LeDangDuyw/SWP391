@@ -27,7 +27,7 @@
                 </c:forEach>
 
                 <div class="nav-dropdown ${categoryId == 2 || categoryId == 5 || categoryId == 6 || categoryId == 7 ? 'active' : ''}">
-                    <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down dropdown-chevron"></i></span>
+                    <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down dropdown-chevron"></i></span>
                     <div class="dropdown-content">
                         <c:forEach items="${categories}" var="cat">
                             <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -70,7 +70,7 @@
                                         <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                        <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                     </c:otherwise>
                                 </c:choose>
                                 <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -379,8 +379,11 @@
                                     <c:if test="${not empty p.dpi}"><span class="spec-chip">${p.dpi}</span></c:if>
                                 </div>
                                  <div class="price-row">
-                                     <div class="price">
-                                         <fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫
+                                     <div class="price" style="display: flex; flex-direction: column; align-items: flex-start;">
+                                         <span><fmt:formatNumber value="${p.minPrice}" pattern="#,##0"/>₫</span>
+                                         <c:if test="${p.discountPercent > 0}">
+                                             <span class="old-price" style="font-size: 12px; font-weight: normal;"><fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/>₫</span>
+                                         </c:if>
                                      </div>
                                  </div>
                                  <div class="actions">

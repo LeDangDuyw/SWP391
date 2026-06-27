@@ -109,13 +109,14 @@ public class AdminDashboardDAO extends DBContext {
     public List<Product> getLowStockProducts() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT TOP 10 p.product_name, c.category_name, "
-                + "SUM(pv.quantity) AS total_qty "
+                + "SUM(ISNULL(i.available_quantity, 0)) AS total_qty "
                 + "FROM Product p "
                 + "LEFT JOIN Category c ON p.category_id = c.category_id "
                 + "LEFT JOIN ProductVariant pv ON p.product_id = pv.product_id "
+                + "LEFT JOIN Inventory i ON pv.variant_id = i.variant_id "
                 + "WHERE pv.status = 'active' "
                 + "GROUP BY p.product_id, p.product_name, c.category_name "
-                + "HAVING SUM(pv.quantity) <= 10 "
+                + "HAVING SUM(ISNULL(i.available_quantity, 0)) <= 10 "
                 + "ORDER BY total_qty ASC";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {

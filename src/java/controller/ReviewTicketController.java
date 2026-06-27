@@ -1,4 +1,11 @@
-package controller.ticket;
+/*
+ * Name: ReviewTicketController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc duyệt hoặc từ chối phiếu yêu cầu nhập kho của nhân viên bởi Admin.
+ */
+package controller;
 
 import dal.TicketDAO;
 import jakarta.servlet.ServletException;

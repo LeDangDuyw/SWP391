@@ -20,7 +20,6 @@ import java.util.UUID;
  * Supports updating Full Name, Phone Number, uploading an Avatar image,
  * and changing the account password (UC05 – Change Password per SRS spec).
  */
-@WebServlet("/profile")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2, // 2MB
     maxFileSize = 1024 * 1024 * 10,      // 10MB
@@ -49,7 +48,7 @@ public class ProfileController extends HttpServlet {
         }
 
         request.setAttribute("profileUser", freshUser);
-        request.getRequestDispatcher("auth/profile.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/profile.jsp").forward(request, response);
     }
 
     @Override
@@ -150,9 +149,14 @@ public class ProfileController extends HttpServlet {
         doGet(request, response);
     }
 
-    // -----------------------------------------------------------------------
-    // Update Profile: Full Name, Phone Number, Avatar image upload.
-    // -----------------------------------------------------------------------
+    /*
+     * Name: handleUpdateProfile
+     * Description: Xử lý cập nhật thông tin cá nhân bao gồm Họ tên, Số điện thoại và tải lên ảnh đại diện.
+     *              Đồng bộ ảnh đại diện sang thư mục nguồn của NetBeans để lưu trữ lâu dài.
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+     */
     private void handleUpdateProfile(HttpServletRequest request, HttpServletResponse response,
             Users sessionUser) throws ServletException, IOException {
 
@@ -191,9 +195,25 @@ public class ProfileController extends HttpServlet {
                     String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
                     File uploadDir   = new File(uploadPath);
                     if (!uploadDir.exists()) {
-                        uploadDir.mkdir();
+                        uploadDir.mkdirs();
                     }
                     filePart.write(uploadPath + File.separator + fileName);
+                    
+                    // Sync to source directory for persistence in local NetBeans environment
+                    try {
+                        String sourcePath = uploadPath.replace("build" + File.separator + "web", "web");
+                        File sourceDir = new File(sourcePath);
+                        if (sourceDir.exists()) {
+                            File buildFile = new File(uploadPath + File.separator + fileName);
+                            File sourceFile = new File(sourcePath + File.separator + fileName);
+                            if (buildFile.exists()) {
+                                java.nio.file.Files.copy(buildFile.toPath(), sourceFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    
                     newAvatarUrl = fileName;
                 } else {
                     request.setAttribute("error", "Định dạng file không hợp lệ! Vui lòng tải lên file ảnh.");

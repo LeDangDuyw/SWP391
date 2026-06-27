@@ -1,16 +1,19 @@
 package controller;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import model.Users;
 import model.WarrantyClaim;
 import service.WarrantyService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import utils.ValidationException;
 
@@ -25,9 +28,23 @@ import utils.ValidationException;
  * Routing: Customer (roleId=3) → warranty-center.jsp Staff/Admin (roleId=1,2) →
  * warranty-console.jsp
  *
- * Version 1.1 Author DuyLD
+ * Upload ảnh: action=submit hỗ trợ multipart/form-data, field "images"
+ * (multiple), tối đa 5 ảnh, mỗi ảnh tối đa 5MB. Giới hạn cứng được khai báo tại
+ *
+ * @MultipartConfig (chặn ở tầng container) và được validate lại lần nữa ở
+ * WarrantyService (chặn ở tầng business logic) để tránh request vượt giới hạn
+ * làm lội ServletException thô thay vì ValidationException thân thiện.
+ *
+ * Version 1.1 
+ * 
+ * Author DuyLD
  */
 @WebServlet("/warranty")
+@MultipartConfig(
+        maxFileSize = 5L * 1024 * 1024, // 5MB / file — khớp MAX_IMAGE_SIZE ở Service
+        maxRequestSize = 30L * 1024 * 1024, // tổng request: 5 ảnh * 5MB + buffer cho field text khác
+        fileSizeThreshold = 1024 * 1024 // > 1MB thì ghi tạm ra disk thay vì giữ hết trong memory
+)
 public class WarrantyController extends HttpServlet {
 
     private static final int PAGE_SIZE = 10;
@@ -110,7 +127,10 @@ public class WarrantyController extends HttpServlet {
         } catch (ValidationException e) {
             request.setAttribute("errorMessage", e.getMessage());
             // Lấy selectedId từ request để giữ nguyên detail panel sau khi lỗi
-            String selectedIdParam = request.getParameter("id");
+            String selectedIdParam
+                    = request.getParameter("selectedId") != null
+                    ? request.getParameter("selectedId")
+                    : request.getParameter("id");
             try {
                 if (isCustomer(user)) {
                     loadCustomerClaims(request, user);
@@ -124,12 +144,27 @@ public class WarrantyController extends HttpServlet {
                 // không nuốt lỗi khiến trang render trắng không rõ nguyên nhân
                 throw new ServletException("Lỗi tải dữ liệu sau khi xử lý validation error.", loadEx);
             }
+        } catch (IllegalStateException e) {
+            // Request multipart vượt quá maxRequestSize/maxFileSize khai báo ở
+            // @MultipartConfig, ném ra trước khi vào được handleXxx().
+            request.setAttribute("errorMessage",
+                    "Dung lượng ảnh tải lên vượt quá giới hạn cho phép (tối đa 5 ảnh, mỗi ảnh 5MB).");
+            try {
+                if (isCustomer(user)) {
+                    loadCustomerClaims(request, user);
+                    request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
+                } else {
+                    loadConsoleClaims(request, null);
+                    request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
+                }
+            } catch (Exception loadEx) {
+                throw new ServletException("Lỗi tải dữ liệu sau khi xử lý lỗi upload ảnh.", loadEx);
+            }
         } catch (Exception e) {
             throw new ServletException("Lỗi xử lý Warranty module.", e);
         }
     }
 
-    // ACTION HANDLERS
     /**
      * GET list: Customer → warranty-center.jsp (loads their own claims)
      * Staff/Admin → warranty-console.jsp (loads all claims, supports
@@ -143,7 +178,10 @@ public class WarrantyController extends HttpServlet {
             request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
         } else {
             // selectedId: click một row trong console để xem detail panel
-            String selectedIdParam = request.getParameter("selectedId");
+            String selectedIdParam
+                    = request.getParameter("selectedId") != null
+                    ? request.getParameter("selectedId")
+                    : request.getParameter("id");
             loadConsoleClaims(request, selectedIdParam);
             request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
         }
@@ -158,15 +196,24 @@ public class WarrantyController extends HttpServlet {
 
         int claimId = parseId(request.getParameter("id"));
         WarrantyClaim claim = warrantyService.getClaimDetail(claimId);
-        // Ownership check: customer chỉ xem được claim của chính mình
+
+        // check quyền customer
         if (isCustomer(user) && claim != null && claim.getCustomerId() != user.getUserId()) {
             throw new ValidationException("Bạn không có quyền xem yêu cầu này.");
         }
+
         request.setAttribute("selectedClaim", claim);
         request.setAttribute("selectedHistory", warrantyService.getHistory(claimId));
-        // Load claims list để giữ nguyên layout warranty_center
-        loadCustomerClaims(request, user);
-        request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
+        request.setAttribute("selectedImages", warrantyService.getClaimImages(claimId));
+
+        if (isCustomer(user)) {
+            request.getRequestDispatcher("/customer/warranty_detail.jsp")
+                    .forward(request, response);
+        } else {
+            loadConsoleClaims(request, String.valueOf(claimId));
+            request.getRequestDispatcher("/admin/WarrantyProcess.jsp")
+                    .forward(request, response);
+        }
     }
 
     /**
@@ -200,7 +247,7 @@ public class WarrantyController extends HttpServlet {
     }
 
     /**
-     * POST submit: tạo claim mới (customer only).
+     * POST submit: tạo claim mới (customer only), kèm tối đa 5 ảnh đính kèm.
      */
     private void handleSubmit(HttpServletRequest request, HttpServletResponse response, Users user)
             throws ValidationException, Exception, IOException, ServletException {
@@ -214,8 +261,24 @@ public class WarrantyController extends HttpServlet {
         request.setAttribute("title", title);
         request.setAttribute("description", description);
 
+        // Lấy các Part tên "images" — input file có attribute multiple nên
+        // browser gửi nhiều Part cùng tên trong 1 request multipart/form-data.
+        List<Part> imageParts = new ArrayList<>();
+        try {
+            for (Part part : request.getParts()) {
+                if ("images".equals(part.getName())) {
+                    imageParts.add(part);
+                }
+            }
+        } catch (IllegalStateException e) {
+            // Container ném lỗi này khi 1 file hoặc cả request vượt giới hạn
+            // khai báo ở @MultipartConfig (maxFileSize / maxRequestSize).
+            throw new ValidationException(
+                    "Dung lượng ảnh tải lên vượt quá giới hạn cho phép (tối đa 5 ảnh, mỗi ảnh 5MB).");
+        }
+
         int claimId = warrantyService.submitWarranty(
-                user.getUserId(), serialNumber, title, description);
+                user.getUserId(), serialNumber, title, description, imageParts);
 
         response.sendRedirect(request.getContextPath()
                 + "/warranty?action=list&msg=submitted");
@@ -272,7 +335,6 @@ public class WarrantyController extends HttpServlet {
         }
     }
 
-    // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
     /**
      * Loads claims cho customer view (warranty-center.jsp).
      */
@@ -322,6 +384,7 @@ public class WarrantyController extends HttpServlet {
                 WarrantyClaim selectedClaim = warrantyService.getClaimDetail(selectedId);
                 request.setAttribute("selectedClaim", selectedClaim);
                 request.setAttribute("selectedHistory", warrantyService.getHistory(selectedId));
+                request.setAttribute("selectedImages", warrantyService.getClaimImages(selectedId));
             } catch (Exception ignored) {
                 // Nếu ID không hợp lệ thì bỏ qua, detail panel hiện trống
             }
@@ -354,7 +417,7 @@ public class WarrantyController extends HttpServlet {
     private boolean isCustomer(Users user) {
         return user.getRoleId() == 3;
     }
-    
+
     private int parsePage(String param) {
         try {
             int p = Integer.parseInt(param);

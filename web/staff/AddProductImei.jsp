@@ -7,7 +7,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<!DOCTYPE html>
 
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -210,14 +209,17 @@
             <c:when test="${param.error == 'MismatchLists'}">
                 Lỗi: Số lượng IMEI, Serial Number và Barcode nhập vào không khớp nhau. Vui lòng kiểm tra lại.
             </c:when>
+            <c:when test="${param.error == 'InvalidImportDate'}">
+                Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.
+            </c:when>
             <c:otherwise>
                 Đã xảy ra lỗi: ${param.error}
             </c:otherwise>
         </c:choose>
     </div>
 </c:if>
-<form action="${pageContext.request.contextPath}/staff/imei/add" method="POST" class="space-y-6">
-<input type="hidden" name="ticketId" value="${param.ticketId}">
+<form action="${pageContext.request.contextPath}/staff/imei/add" method="POST" onsubmit="return validateForm(event)" class="space-y-6">
+<input type="hidden" name="ticketId" value="${not empty ticketId ? ticketId : param.ticketId}">
 <!-- Section 1: Product Information -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center gap-2 mb-6 text-primary">
@@ -225,26 +227,41 @@
 <h3 class="font-headline-md text-headline-md">Product Information</h3>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
-<select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Product</option>
-<c:forEach var="p" items="${products}">
-    <option value="${p.productId}">${p.productName}</option>
-</c:forEach>
-</select>
+<c:choose>
+    <c:when test="${not empty selectedProduct and not empty selectedVariant}">
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <input type="text" readonly value="${selectedProduct.productName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <input type="text" readonly value="${selectedVariant.sku} - ${selectedVariant.variantName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
+            <input type="hidden" name="variantId" value="${selectedVariant.variantId}">
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Product</option>
+            <c:forEach var="p" items="${products}">
+                <option value="${p.productId}">${p.productName}</option>
+            </c:forEach>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            <option value="" disabled selected>Select a Variant</option>
+            <c:forEach var="v" items="${variants}">
+                <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
+            </c:forEach>
+            </select>
+        </div>
+    </c:otherwise>
+</c:choose>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
-<select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-<option value="" disabled selected>Select a Variant</option>
-<c:forEach var="v" items="${variants}">
-    <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
-</c:forEach>
-</select>
-</div>
-</div>
-</div>
+<!-- Section 2: Unit Details -->
 <!-- Section 2: Unit Details -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center justify-between mb-6">
@@ -252,22 +269,39 @@
 <span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
 <h3 class="font-headline-md text-headline-md">Unit Details</h3>
 </div>
+<div class="flex items-center gap-4">
+<c:if test="${not empty expectedQuantity}">
+<span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required Quantity: ${expectedQuantity}</span>
+</c:if>
 <span class="font-label-md text-label-md px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Bulk Entry Mode</span>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">IMEI Numbers (one per line)</label>
-<textarea name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
 </div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Serial Numbers (one per line)</label>
-<textarea name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
-</div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Barcodes (one per line)</label>
-<textarea name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 font-code-sm text-code-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" rows="6"></textarea>
-</div>
-</div>
+<div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
+        <label>IMEI Number</label>
+        <label>Serial Number</label>
+        <label>Barcode</label>
+    </div>
+    
+    <div id="unitRowsContainer" class="space-y-3">
+        <c:set var="rowCount" value="${not empty expectedQuantity ? expectedQuantity : 1}" />
+        <c:forEach begin="1" end="${rowCount}" varStatus="status">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
+                </div>
+            </div>
+        </c:forEach>
+    </div>
 </div>
 <!-- Section 3: Storage & Status -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
@@ -275,7 +309,7 @@
 <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
 <h3 class="font-headline-md text-headline-md">Storage & Status</h3>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant">Warehouse Location</label>
 <input name="warehouseLocation" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="text" placeholder="e.g. Shelf A1"/>
@@ -283,20 +317,6 @@
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant">Import Date</label>
 <input name="receivedDate" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="date"/>
-</div>
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Initial Status</label>
-<div class="relative">
-<select name="initialStatus" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none">
-<option value="Available">Available</option>
-<option value="Reserved">Reserved</option>
-<option value="QC Pending">QC Pending</option>
-</select>
-<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-<span class="w-2.5 h-2.5 rounded-full bg-green-500 mr-2"></span>
-<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -317,63 +337,145 @@
     </div>
 </div>
 <script>
-        // Simple micro-interaction for unit counter
-        const textarea = document.querySelector('textarea');
-        const unitCount = document.getElementById('unitCount');
+    const expectedQty = parseInt("${expectedQuantity}");
+    const isTicketContext = ${not empty expectedQuantity && expectedQuantity > 0};
 
-        textarea.addEventListener('input', () => {
-            const lines = textarea.value.split('\n').filter(line => line.trim() !== '');
-            unitCount.textContent = lines.length;
+    function addUnitRow() {
+        const container = document.getElementById('unitRowsContainer');
+        const rowCount = container.children.length + 1;
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
+        row.innerHTML = `
+            <div class="space-y-1">
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+            </div>
+            <div class="space-y-1">
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+            </div>
+            <div class="space-y-1">
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
+            </div>
+        `;
+        container.appendChild(row);
+    }
+
+    function validateForm(event) {
+        const rows = document.querySelectorAll('#unitRowsContainer > div');
+        let filledRowsCount = 0;
+        let hasPartial = false;
+        
+        rows.forEach(row => {
+            const imeiInput = row.querySelector('input[name="serials"]');
+            const snInput = row.querySelector('input[name="serialNumbers"]');
+            const bcInput = row.querySelector('input[name="barcodes"]');
             
-            if (lines.length > 0) {
-                unitCount.classList.add('scale-125');
-                setTimeout(() => unitCount.classList.remove('scale-125'), 200);
+            if (!imeiInput || !snInput || !bcInput) return;
+            
+            const imei = imeiInput.value.trim();
+            const sn = snInput.value.trim();
+            const bc = bcInput.value.trim();
+            
+            if (imei || sn || bc) {
+                if (!imei || !sn || !bc) {
+                    hasPartial = true;
+                } else {
+                    filledRowsCount++;
+                }
             }
         });
-
-        function filterVariants() {
-            filterVariantsWithoutReset();
-            const variantSelect = document.getElementById('variantSelect');
-            variantSelect.selectedIndex = 0;
-        }
-
-        function filterVariantsWithoutReset() {
-            const productSelect = document.getElementById('productSelect');
-            const variantSelect = document.getElementById('variantSelect');
-            const selectedProductId = productSelect.value;
-
-            // Show/Hide options
-            Array.from(variantSelect.options).forEach(option => {
-                if (option.value === "") return; // Skip placeholder
-                if (option.getAttribute('data-product-id') === selectedProductId) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
+        
+        if (filledRowsCount === 0) {
+            alert("Vui lòng điền thông tin cho ít nhất 1 dòng sản phẩm.");
+            event.preventDefault();
+            return false;
         }
         
-        // Run once on load to auto select variant from URL params if present
-        window.addEventListener('DOMContentLoaded', () => {
+        if (hasPartial) {
+            alert("Vui lòng điền đầy đủ cả 3 thông tin (IMEI, Serial Number, Barcode) cho các dòng đã nhập.");
+            event.preventDefault();
+            return false;
+        }
+        
+        if (isTicketContext && filledRowsCount > expectedQty) {
+            alert("Số lượng sản phẩm nhập vào (" + filledRowsCount + ") vượt quá số lượng yêu cầu trong ticket (" + expectedQty + ").");
+            event.preventDefault();
+            return false;
+        }
+        
+        const dateInput = document.querySelector('input[name="receivedDate"]');
+        if (dateInput) {
+            const selectedDateStr = dateInput.value;
+            if (selectedDateStr) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const [year, month, day] = selectedDateStr.split('-').map(Number);
+                const selectedDate = new Date(year, month - 1, day);
+                selectedDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate <= today) {
+                    alert("Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.");
+                    event.preventDefault();
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    function filterVariants() {
+        filterVariantsWithoutReset();
+        const variantSelect = document.getElementById('variantSelect');
+        if (variantSelect) {
+            variantSelect.selectedIndex = 0;
+        }
+    }
+
+    function filterVariantsWithoutReset() {
+        const productSelect = document.getElementById('productSelect');
+        const variantSelect = document.getElementById('variantSelect');
+        if (!productSelect || !variantSelect) return;
+        
+        const selectedProductId = productSelect.value;
+
+        Array.from(variantSelect.options).forEach(option => {
+            if (option.value === "") return;
+            if (option.getAttribute('data-product-id') === selectedProductId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!isTicketContext) {
+            // Auto select variant from URL params if present
             const urlParams = new URLSearchParams(window.location.search);
             const urlVariantId = urlParams.get('variantId');
             
             if (urlVariantId) {
                 const variantSelect = document.getElementById('variantSelect');
-                const option = Array.from(variantSelect.options).find(opt => opt.value === urlVariantId);
-                if (option) {
-                    const productId = option.getAttribute('data-product-id');
-                    const productSelect = document.getElementById('productSelect');
-                    productSelect.value = productId;
-                    
-                    // Filter variants based on product without resetting choice
-                    filterVariantsWithoutReset();
-                    
-                    variantSelect.value = urlVariantId;
+                if (variantSelect) {
+                    const option = Array.from(variantSelect.options).find(opt => opt.value === urlVariantId);
+                    if (option) {
+                        const productId = option.getAttribute('data-product-id');
+                        const productSelect = document.getElementById('productSelect');
+                        if (productSelect) {
+                            productSelect.value = productId;
+                        }
+                        filterVariantsWithoutReset();
+                        variantSelect.value = urlVariantId;
+                    }
                 }
             } else {
                 filterVariants();
             }
-        });
-    </script>
+        }
+    });
+</script>
 </body></html>

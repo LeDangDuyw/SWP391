@@ -31,8 +31,8 @@ public class ProductDAO extends DBContext {
             System.out.println("Connect fail");
         }
     }
-    //Bán Chạy 
-   // Lấy top 10 laptop bán chạy nhất 
+    //B├ín Chß║íy 
+   // Lß║Ñy top 10 laptop b├ín chß║íy nhß║Ñt 
     public ArrayList<Product> getTopLapTop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -85,7 +85,7 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
-// Lấy top 10 Chuột bán chạy nhất 
+// Lß║Ñy top 10 Chuß╗Öt b├ín chß║íy nhß║Ñt 
  public ArrayList<Product> getTopMouse() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -139,7 +139,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// Lấy top 10 bàn phím bán chạy nhất 
+// Lß║Ñy top 10 b├án ph├¡m b├ín chß║íy nhß║Ñt 
  public ArrayList<Product> getTopKeyboard() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -193,8 +193,8 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
- //Sản phẩm mới 
- //sql lấy  10 Laptop mới 
+ //Sß║ún phß║⌐m mß╗¢i 
+ //sql lß║Ñy  10 Laptop mß╗¢i 
  public ArrayList<Product> getNewLaptop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -246,7 +246,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// 10 sp chuột mới 
+// 10 sp chuß╗Öt mß╗¢i 
  public ArrayList<Product> getNewMouse() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -297,7 +297,7 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
- // 10 sp bàn phím mới
+ // 10 sp b├án ph├¡m mß╗¢i
  public ArrayList<Product> getNewKeyborad() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -349,7 +349,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
 
- // Tìm category_id từ tên sản phẩm khi search
+ // T├¼m category_id tß╗½ t├¬n sß║ún phß║⌐m khi search
  public Integer getCategoryIdByProductSearch(String search) {
     try {
         String sql = """
@@ -369,7 +369,7 @@ public class ProductDAO extends DBContext {
     return null;
 }
 
- // Tìm sản phẩm theo keyword trên tất cả danh mục (dùng cho Home search)
+ // T├¼m sß║ún phß║⌐m theo keyword tr├¬n tß║Ñt cß║ú danh mß╗Ñc (d├╣ng cho Home search)
  public ArrayList<Product> searchAllProducts(String keyword, int page, int pageSize) {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -423,7 +423,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
 
- // Đếm tổng sản phẩm tìm được theo keyword
+ // ─Éß║┐m tß╗òng sß║ún phß║⌐m t├¼m ─æ╞░ß╗úc theo keyword
  public int countSearchAllProducts(String keyword) {
     try {
         String sql = """
@@ -447,7 +447,7 @@ public class ProductDAO extends DBContext {
     return 0;
 }
 
- // Phương thức lọc tổng hợp - gọi từ ProductListServlet
+ // Ph╞░╞íng thß╗⌐c lß╗ìc tß╗òng hß╗úp - gß╗ìi tß╗½ ProductListServlet
  public java.util.List<?> filterLaptop(int categoryId, Integer brandId, Integer seriesId,
          String purpose, String cpu, String ram, String ssd, String gpu, String screen,
          String price, String sort, int page, int pageSize, String search,
@@ -463,7 +463,7 @@ public class ProductDAO extends DBContext {
     }
 }
 
- // Phương thức đếm tổng hợp - gọi từ ProductListServlet
+ // Ph╞░╞íng thß╗⌐c ─æß║┐m tß╗òng hß╗úp - gß╗ìi tß╗½ ProductListServlet
  public int countFilteredLaptop(int categoryId, Integer brandId, Integer seriesId,
          String purpose, String cpu, String ram, String ssd, String gpu, String screen,
          String price, String search, String connectivity, String switchType, String dpi) {
@@ -478,40 +478,130 @@ public class ProductDAO extends DBContext {
     }
 }
 
- // Lấy thông tin chi tiết 1 sản phẩm theo product_id (cho trang chi tiết)
+ // Lß║Ñy th├┤ng tin chi tiß║┐t 1 sß║ún phß║⌐m theo product_id (cho trang chi tiß║┐t)
 public Product getProductById(int productId) {
     try {
-        String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, "
-                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name "
-                   + "from Product p "
-                   + "join Category c on p.category_id = c.category_id "
-                   + "join Brand b on p.brand_id = b.brand_id "
-                   + "where p.product_id = ?";
+        String sql = "SELECT p.product_id, p.product_name, p.description, p.warranty_period, p.purpose, "
+                   + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name, "
+                   + "spec.cpu, spec.ram, spec.ssd, spec.gpu, spec.screen, spec.connectivity, spec.switch_type, spec.dpi "
+                   + "FROM Product p "
+                   + "JOIN Category c ON p.category_id = c.category_id "
+                   + "JOIN Brand b ON p.brand_id = b.brand_id "
+                   + "LEFT JOIN ( "
+                   + "    SELECT pv.product_id, "
+                   + "           MAX(CASE WHEN vs.specification_id = 1  THEN vs.value END) AS cpu, "
+                   + "           MAX(CASE WHEN vs.specification_id = 2  THEN vs.value END) AS ram, "
+                   + "           MAX(CASE WHEN vs.specification_id = 5  THEN vs.value END) AS ssd, "
+                   + "           MAX(CASE WHEN vs.specification_id = 4  THEN vs.value END) AS gpu, "
+                   + "           MAX(CASE WHEN vs.specification_id = 3  THEN vs.value END) AS screen, "
+                   + "           MAX(CASE WHEN vs.specification_id = 18 THEN vs.value END) AS connectivity, "
+                   + "           MAX(CASE WHEN vs.specification_id = 10 THEN vs.value END) AS switch_type, "
+                   + "           MAX(CASE WHEN vs.specification_id = 13 THEN vs.value END) AS dpi "
+                   + "    FROM VariantSpecification vs "
+                   + "    JOIN ProductVariant pv ON vs.variant_id = pv.variant_id "
+                   + "    GROUP BY pv.product_id "
+                   + ") spec ON p.product_id = spec.product_id "
+                   + "WHERE p.product_id = ?";
         ps = cnn.prepareStatement(sql);
         ps.setInt(1, productId);
         rs = ps.executeQuery();
         if (rs.next()) {
-            Product p = new Product(
-                    rs.getInt("product_id"),
-                    rs.getString("product_name"),
-                    rs.getString("description"),
-                    rs.getInt("warranty_period"),
-                    rs.getString("thumbnail"),
-                    rs.getInt("category_id"),
-                    rs.getInt("brand_id"));
+            int catId = rs.getInt("category_id");
+            Product p;
+            if (catId == 1) {
+                Product.Laptop laptop = new Product.Laptop();
+                laptop.setCpu(rs.getString("cpu"));
+                laptop.setRam(rs.getString("ram"));
+                laptop.setSsd(rs.getString("ssd"));
+                laptop.setGpu(rs.getString("gpu"));
+                laptop.setScreen(rs.getString("screen"));
+                p = laptop;
+            } else if (catId == 3) {
+                Product.Keyboard keyboard = new Product.Keyboard();
+                keyboard.setConnectivity(rs.getString("connectivity"));
+                keyboard.setSwitchType(rs.getString("switch_type"));
+                p = keyboard;
+            } else if (catId == 4) {
+                Product.Mouse mouse = new Product.Mouse();
+                mouse.setConnectivity(rs.getString("connectivity"));
+                mouse.setDpi(rs.getString("dpi"));
+                p = mouse;
+            } else {
+                p = new Product();
+            }
+            p.setProductId(rs.getInt("product_id"));
+            p.setProductName(rs.getString("product_name"));
+            p.setDescription(rs.getString("description"));
+            p.setWarrantyPeriod(rs.getInt("warranty_period"));
+            p.setPurpose(rs.getString("purpose"));
+            p.setThumbnail(rs.getString("thumbnail"));
+            p.setCategoryId(catId);
+            p.setBrandId(rs.getInt("brand_id"));
             p.setCategoryName(rs.getString("category_name"));
             p.setBrandName(rs.getString("brand_name"));
             return p;
         }
     } catch (Exception e) {
         System.out.println("getProductById: " + e.getMessage());
+        e.printStackTrace();
     }
     return null;
 }
 
-    public List<Product> getSimilarProducts(int categoryId, int productId, int limit) {
+public String getProductBadge(int productId, int categoryId) {
+    String topSellingSql = "SELECT COUNT(*) FROM ("
+            + "    SELECT TOP 10 p.product_id"
+            + "    FROM Product p"
+            + "    JOIN ProductVariant v ON p.product_id = v.product_id"
+            + "    LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id"
+            + "    WHERE v.status = 'active' AND p.category_id = ?"
+            + "    GROUP BY p.product_id"
+            + "    ORDER BY SUM(ISNULL(od.quantity, 0)) DESC"
+            + ") t WHERE t.product_id = ?";
+            
+    String topNewSql = "SELECT COUNT(*) FROM ("
+            + "    SELECT TOP 10 p.product_id"
+            + "    FROM Product p"
+            + "    JOIN ProductVariant v ON p.product_id = v.product_id"
+            + "    WHERE v.status = 'active' AND p.category_id = ?"
+            + "    GROUP BY p.product_id"
+            + "    ORDER BY p.product_id DESC"
+            + ") t WHERE t.product_id = ?";
+            
+    try {
+        java.sql.PreparedStatement ps1 = cnn.prepareStatement(topSellingSql);
+        ps1.setInt(1, categoryId);
+        ps1.setInt(2, productId);
+        java.sql.ResultSet rs1 = ps1.executeQuery();
+        if (rs1.next() && rs1.getInt(1) > 0) {
+            rs1.close();
+            ps1.close();
+            return "B├ín chß║íy";
+        }
+        rs1.close();
+        ps1.close();
+        
+        java.sql.PreparedStatement ps2 = cnn.prepareStatement(topNewSql);
+        ps2.setInt(1, categoryId);
+        ps2.setInt(2, productId);
+        java.sql.ResultSet rs2 = ps2.executeQuery();
+        if (rs2.next() && rs2.getInt(1) > 0) {
+            rs2.close();
+            ps2.close();
+            return "Mß╗¢i";
+        }
+        rs2.close();
+        ps2.close();
+    } catch (Exception e) {
+        System.out.println("getProductBadge error: " + e.getMessage());
+    }
+    return "Mß╗¢i";
+}
+
+    public List<Product> getSimilarProducts(String purpose, int categoryId, int productId, int limit) {
         List<Product> list = new ArrayList<>();
         try {
+            boolean usePurpose = (purpose != null && !purpose.trim().isEmpty());
             String sql = "SELECT TOP (" + limit + ") " +
                          "p.product_id, " +
                          "p.product_name, " +
@@ -532,6 +622,7 @@ public Product getProductById(int productId) {
                          ") fs_active ON v.variant_id = fs_active.variant_id " +
                          "WHERE v.status = 'active' " +
                          "AND p.category_id = ? " +
+                         (usePurpose ? "AND p.purpose = ? " : "") +
                          "AND p.product_id != ? " +
                          "GROUP BY " +
                          "    p.product_id, " +
@@ -540,8 +631,12 @@ public Product getProductById(int productId) {
                          "    b.brand_name " +
                          "ORDER BY p.product_id DESC";
             ps = cnn.prepareStatement(sql);
-            ps.setInt(1, categoryId);
-            ps.setInt(2, productId);
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, categoryId);
+            if (usePurpose) {
+                ps.setString(paramIndex++, purpose);
+            }
+            ps.setInt(paramIndex++, productId);
             rs = ps.executeQuery();
             while (rs.next()) {
                 Product p = new Product();
@@ -556,6 +651,7 @@ public Product getProductById(int productId) {
             }
         } catch (Exception e) {
             System.out.println("getSimilarProducts Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }
@@ -563,7 +659,7 @@ public Product getProductById(int productId) {
     // === WAREHOUSE / INVENTORY MANAGEMENT METHODS ===
 
 public List<Product> GetAllProducts() {
-        // Lấy danh sách tất cả các sản phẩm (cơ bản) từ cơ sở dữ liệu
+        // Lß║Ñy danh s├ích tß║Ñt cß║ú c├íc sß║ún phß║⌐m (c╞í bß║ún) tß╗½ c╞í sß╗ƒ dß╗» liß╗çu
         List<Product> products = new ArrayList<Product>();
         try{
             String sql = "select * from Product";
@@ -613,7 +709,7 @@ public List<Product> GetAllProducts() {
 
     /*
      * Name: getAllVariants
-     * Description: Lấy danh sách tất cả các biến thể của sản phẩm.
+     * Description: Lß║Ñy danh s├ích tß║Ñt cß║ú c├íc biß║┐n thß╗â cß╗ºa sß║ún phß║⌐m.
      */
     public List<model.ProductVariant> getAllVariants() {
         List<model.ProductVariant> variants = new ArrayList<>();
@@ -674,7 +770,7 @@ public List<Product> GetAllProducts() {
 
     /*
      * Name: getVariantById
-     * Description: Lấy thông tin chi tiết của biến thể theo ID.
+     * Description: Lß║Ñy th├┤ng tin chi tiß║┐t cß╗ºa biß║┐n thß╗â theo ID.
      */
     public model.ProductVariant getVariantById(int variantId) {
         try {
@@ -702,7 +798,7 @@ public List<Product> GetAllProducts() {
 
     public CartItem getCartItemByVariantId(int variantId) {
         try {
-            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, pv.selling_price, isnull(inv.available_quantity, 0) AS available_quantity " +
+            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, pv.selling_price, p.warranty_period, isnull(inv.available_quantity, 0) AS available_quantity " +
                          "FROM ProductVariant pv " +
                          "JOIN Product p ON pv.product_id = p.product_id " +
                          "LEFT JOIN Inventory inv ON pv.variant_id = inv.variant_id " +
@@ -711,7 +807,7 @@ public List<Product> GetAllProducts() {
             ps.setInt(1, variantId);
             rs = ps.executeQuery();
             if (rs.next()) {
-                return new CartItem(
+                CartItem item = new CartItem(
                         rs.getInt("variant_id"),
                         rs.getInt("product_id"),
                         rs.getString("product_name"),
@@ -721,6 +817,8 @@ public List<Product> GetAllProducts() {
                         1,
                         rs.getInt("available_quantity")
                 );
+                item.setWarrantyPeriod(rs.getInt("warranty_period"));
+                return item;
             }
         } catch (Exception e) {
             System.out.println("getCartItemByVariantId Error: " + e.getMessage());
@@ -734,13 +832,13 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Lấy danh sách chi tiết các sản phẩm bao gồm thông tin kho hàng, danh mục, thương hiệu.
+     * Description: Lß║Ñy danh s├ích chi tiß║┐t c├íc sß║ún phß║⌐m bao gß╗ôm th├┤ng tin kho h├áng, danh mß╗Ñc, th╞░╞íng hiß╗çu.
      */
     public List<ProductInventory> GetAllProductInventory() {
-        // Lấy danh sách sản phẩm cùng với thông tin kho hàng, danh mục, thương hiệu
+        // Lß║Ñy danh s├ích sß║ún phß║⌐m c├╣ng vß╗¢i th├┤ng tin kho h├áng, danh mß╗Ñc, th╞░╞íng hiß╗çu
         List<ProductInventory> products = new ArrayList<ProductInventory>();
         try{
-            // Join nhiều bảng để lấy đầy đủ thông tin: Tên sản phẩm, biến thể, giá bán, số lượng kho...
+            // Join nhiß╗üu bß║úng ─æß╗â lß║Ñy ─æß║ºy ─æß╗º th├┤ng tin: T├¬n sß║ún phß║⌐m, biß║┐n thß╗â, gi├í b├ín, sß╗æ l╞░ß╗úng kho...
             String sql = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, \n" +
                         "case \n" +
                         "	when i.available_quantity > 0 then N'In Stock'\n" +
@@ -777,13 +875,13 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Tìm kiếm sản phẩm theo tên, danh mục, SKU và sắp xếp theo giá.
+     * Description: T├¼m kiß║┐m sß║ún phß║⌐m theo t├¬n, danh mß╗Ñc, SKU v├á sß║»p xß║┐p theo gi├í.
      */
     public List<ProductInventory> GetProductsByNameAndSort(String search, String sortBy){
-        // Hàm tìm kiếm sản phẩm theo tên, danh mục, sku và sắp xếp giá
+        // H├ám t├¼m kiß║┐m sß║ún phß║⌐m theo t├¬n, danh mß╗Ñc, sku v├á sß║»p xß║┐p gi├í
         List<ProductInventory> products = new ArrayList<ProductInventory>();
         try{
-            // Xác định chiều sắp xếp: ASC (thấp đến cao) hoặc DESC (cao đến thấp)
+            // X├íc ─æß╗ïnh chiß╗üu sß║»p xß║┐p: ASC (thß║Ñp ─æß║┐n cao) hoß║╖c DESC (cao ─æß║┐n thß║Ñp)
             String order = (sortBy.equals("lowToHigh")) ? "ASC" : "DESC"; 
             String strSQL = "select pv.variant_id, p.product_name, pv.sku,pv.variant_name, b.brand_name, c.category_name,pv.selling_price, i.available_quantity, \n" +
                         "case \n" +
@@ -794,7 +892,7 @@ public List<Product> GetAllProducts() {
                         "	join Brand b on p.brand_id = b.brand_id\n" +
                         "	join ProductVariant pv on p.product_id = pv.product_id\n" +
                         "	join Inventory i on pv.variant_id = i.variant_id\n" +
-                        // Lọc theo từ khóa tìm kiếm (so khớp tương đối bằng LIKE)
+                        // Lß╗ìc theo tß╗½ kh├│a t├¼m kiß║┐m (so khß╗¢p t╞░╞íng ─æß╗æi bß║▒ng LIKE)
                         "where (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%')\n" +
                     "and pv.status = 'active'\n" +
                         "order by pv.selling_price " + order;
@@ -829,7 +927,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Xóa cứng một biến thể sản phẩm khỏi cơ sở dữ liệu dựa trên mã biến thể (variant_id).
+     * Description: X├│a cß╗⌐ng mß╗Öt biß║┐n thß╗â sß║ún phß║⌐m khß╗Åi c╞í sß╗ƒ dß╗» liß╗çu dß╗▒a tr├¬n m├ú biß║┐n thß╗â (variant_id).
      */
     public boolean DeleteProduct(int productVariantId){
         try{
@@ -847,7 +945,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Đếm tổng số lượng biến thể sản phẩm đang hoạt động, có hỗ trợ lọc theo từ khóa tìm kiếm.
+     * Description: ─Éß║┐m tß╗òng sß╗æ l╞░ß╗úng biß║┐n thß╗â sß║ún phß║⌐m ─æang hoß║ít ─æß╗Öng, c├│ hß╗ù trß╗ú lß╗ìc theo tß╗½ kh├│a t├¼m kiß║┐m.
      */
     public int getTotalInventoryCount(String search, String category, String stockStatus, String itemStatus) {
         int count = 0;
@@ -917,7 +1015,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Lấy danh sách sản phẩm chi tiết có phân trang, hỗ trợ lọc theo từ khóa và sắp xếp theo giá.
+     * Description: Lß║Ñy danh s├ích sß║ún phß║⌐m chi tiß║┐t c├│ ph├ón trang, hß╗ù trß╗ú lß╗ìc theo tß╗½ kh├│a v├á sß║»p xß║┐p theo gi├í.
      */
     public List<ProductInventory> GetProductInventoryPaginated(
             String search, String category, String sortBy, String stockStatus, String itemStatus,
@@ -1017,7 +1115,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Thêm mới một sản phẩm (Product) vào cơ sở dữ liệu và trả về ID tự tăng của sản phẩm vừa thêm.
+     * Description: Th├¬m mß╗¢i mß╗Öt sß║ún phß║⌐m (Product) v├áo c╞í sß╗ƒ dß╗» liß╗çu v├á trß║ú vß╗ü ID tß╗▒ t─âng cß╗ºa sß║ún phß║⌐m vß╗½a th├¬m.
      */
     public int insertProduct(Product p) {
         int productId = -1;
@@ -1047,7 +1145,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Thêm mới một biến thể của sản phẩm (ProductVariant) và khởi tạo bản ghi tồn kho (Inventory) tương ứng.
+     * Description: Th├¬m mß╗¢i mß╗Öt biß║┐n thß╗â cß╗ºa sß║ún phß║⌐m (ProductVariant) v├á khß╗ƒi tß║ío bß║ún ghi tß╗ôn kho (Inventory) t╞░╞íng ß╗⌐ng.
      */
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
@@ -1091,7 +1189,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Cập nhật thông tin của một ProductVariant và tồn kho của nó dựa trên giao diện.
+     * Description: Cß║¡p nhß║¡t th├┤ng tin cß╗ºa mß╗Öt ProductVariant v├á tß╗ôn kho cß╗ºa n├│ dß╗▒a tr├¬n giao diß╗çn.
      */
     public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal price, int stock) {
         try {
@@ -1120,7 +1218,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Ẩn (xóa mềm) một biến thể sản phẩm bằng cách cập nhật trạng thái thành 'inactive'.
+     * Description: ß║¿n (x├│a mß╗üm) mß╗Öt biß║┐n thß╗â sß║ún phß║⌐m bß║▒ng c├ích cß║¡p nhß║¡t trß║íng th├íi th├ánh 'inactive'.
      */
     public void hideProduct(int variant_id) {
         try{
@@ -1140,7 +1238,7 @@ public List<Product> GetAllProducts() {
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
      * Version: 2.0
-     * Description: Khôi phục một biến thể sản phẩm đã bị ẩn bằng cách cập nhật trạng thái thành 'active'.
+     * Description: Kh├┤i phß╗Ñc mß╗Öt biß║┐n thß╗â sß║ún phß║⌐m ─æ├ú bß╗ï ß║⌐n bß║▒ng c├ích cß║¡p nhß║¡t trß║íng th├íi th├ánh 'active'.
      */
     public void unhideProduct(int variant_id) {
         try{

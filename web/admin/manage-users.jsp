@@ -579,6 +579,7 @@
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
@@ -628,14 +629,33 @@
                         </div>
                     </c:if>
 
-                    <!-- Search Form -->
+                    <!-- Search & Filter Form -->
                     <form action="${pageContext.request.contextPath}/admin/users" method="GET">
                         <div class="search-bar-container">
                             <input type="text" name="search" class="search-input" value="${searchKeyword}" placeholder="Tìm kiếm theo họ tên hoặc địa chỉ email...">
+                            
+                            <select name="role" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
+                                <option value="">Tất cả vai trò</option>
+                                <option value="1" ${selectedRole == '1' ? 'selected' : ''}>Admin</option>
+                                <option value="2" ${selectedRole == '2' ? 'selected' : ''}>Staff</option>
+                                <option value="3" ${selectedRole == '3' ? 'selected' : ''}>Customer</option>
+                            </select>
+
+                            <select name="status" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active" ${selectedStatus == 'active' ? 'selected' : ''}>Active</option>
+                                <option value="inactive" ${selectedStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
+                            </select>
+
                             <button type="submit" class="search-btn">Tìm kiếm</button>
-                            <c:if test="${not empty searchKeyword}">
+                            
+                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus}">
                                 <a href="${pageContext.request.contextPath}/admin/users" class="clear-search-btn">Xóa lọc</a>
                             </c:if>
+                            
+                            <button type="button" class="search-btn" style="background: #16a34a; margin-left: auto;" onclick="openAddUserModal()">
+                                ✚ Thêm tài khoản
+                            </button>
                         </div>
                     </form>
 
@@ -745,19 +765,19 @@
                     <!-- Pagination -->
                     <c:if test="${totalPages > 1}">
                         <div class="pagination-container">
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
                                class="pagination-link ${currentPage == 1 ? 'disabled' : ''}">
                                 &lt; Trước
                             </a>
                             
                             <c:forEach begin="1" end="${totalPages}" var="i">
-                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}" 
+                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
                                    class="pagination-link ${currentPage == i ? 'active' : ''}">
                                     ${i}
                                 </a>
                             </c:forEach>
                             
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
                                class="pagination-link ${currentPage == totalPages ? 'disabled' : ''}">
                                 Sau &gt;
                             </a>
@@ -775,6 +795,8 @@
             <input type="hidden" name="roleId" id="formRoleId">
             <input type="hidden" name="search" value="<c:out value='${searchKeyword}'/>">
             <input type="hidden" name="page" value="${currentPage}">
+            <input type="hidden" name="roleFilter" value="<c:out value='${selectedRole}'/>">
+            <input type="hidden" name="statusFilter" value="<c:out value='${selectedStatus}'/>">
         </form>
 
         <!-- User Detail Modal -->
@@ -827,6 +849,64 @@
             </div>
         </div>
 
+        <!-- Add User Modal -->
+        <div id="addUserModal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 500px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 18px 24px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0;">Tạo tài khoản mới</h3>
+                    <button class="modal-close-btn" onclick="closeAddUserModal()" style="font-size: 24px; color: #94a3b8; background: none; border: none; cursor: pointer; transition: color 0.2s;">&times;</button>
+                </div>
+                <form id="addUserForm" action="${pageContext.request.contextPath}/admin/users" method="POST" onsubmit="return validateAddUserForm(event)">
+                    <input type="hidden" name="action" value="create">
+                    <input type="hidden" name="search" value="<c:out value='${searchKeyword}'/>">
+                    <input type="hidden" name="page" value="${currentPage}">
+                    <input type="hidden" name="roleFilter" value="<c:out value='${selectedRole}'/>">
+                    <input type="hidden" name="statusFilter" value="<c:out value='${selectedStatus}'/>">
+
+                    <div class="modal-body" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Họ và tên <span style="color: red;">*</span></label>
+                            <input type="text" name="fullName" id="addFullName" required
+                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Nhập họ và tên">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Email (Tên đăng nhập) <span style="color: red;">*</span></label>
+                            <input type="email" name="email" id="addEmail" required
+                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="example@domain.com">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Số điện thoại</label>
+                            <input type="text" name="phone" id="addPhone"
+                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Nhập số điện thoại (10 chữ số)">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Mật khẩu khởi tạo <span style="color: red;">*</span></label>
+                            <input type="password" name="password" id="addPassword" required minlength="6"
+                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Nhập ít nhất 6 ký tự">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Vai trò / Phân quyền <span style="color: red;">*</span></label>
+                            <select name="roleId" id="addRoleId" required
+                                    style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background-color: #fff; cursor: pointer;">
+                                <option value="3">Customer (Khách hàng)</option>
+                                <option value="2">Staff (Nhân viên)</option>
+                                <option value="1">Admin (Quản trị viên)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px 24px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" class="clear-search-btn" style="padding: 8px 18px; margin: 0; font-size: 13px;" onclick="closeAddUserModal()">Hủy</button>
+                        <button type="submit" class="modal-btn-primary" style="background: #16a34a; padding: 8px 18px; font-size: 13px;">Tạo tài khoản</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
             // Tự động ẩn các thông báo (alert) sau 3 giây
             document.addEventListener("DOMContentLoaded", function() {
@@ -851,14 +931,40 @@
             });
 
             function submitLockAction(userId, email, isLock) {
-                var actionName = isLock ? "KHÓA" : "MỞ KHÓA";
                 var actionCode = isLock ? "lock" : "unlock";
                 
-                if (confirm("Bạn có chắc chắn muốn " + actionName + " tài khoản [" + email + "] không?")) {
-                    document.getElementById("formAction").value = actionCode;
-                    document.getElementById("formUserId").value = userId;
-                    document.getElementById("actionForm").submit();
+                if (isLock) {
+                    // Check active orders count before locking
+                    fetch("${pageContext.request.contextPath}/admin/users?ajaxAction=checkActiveOrders&userId=" + userId)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            var count = data.activeOrdersCount || 0;
+                            var confirmMsg = "Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                            if (count > 0) {
+                                confirmMsg = "Người dùng này đang có " + count + " đơn hàng chưa hoàn tất. Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                            }
+                            if (confirm(confirmMsg)) {
+                                executeLockAction(actionCode, userId);
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error("Lỗi kiểm tra đơn hàng: ", err);
+                            // Fallback to normal confirm on error
+                            if (confirm("Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?")) {
+                                executeLockAction(actionCode, userId);
+                            }
+                        });
+                } else {
+                    if (confirm("Bạn có chắc chắn muốn MỞ KHÓA tài khoản [" + email + "] không?")) {
+                        executeLockAction(actionCode, userId);
+                    }
                 }
+            }
+
+            function executeLockAction(actionCode, userId) {
+                document.getElementById("formAction").value = actionCode;
+                document.getElementById("formUserId").value = userId;
+                document.getElementById("actionForm").submit();
             }
 
             function submitRoleAction(userId, email, selectElement) {
@@ -950,12 +1056,66 @@
                 var modal = document.getElementById("userDetailModal");
                 modal.classList.remove("active");
             }
+
+            function openAddUserModal() {
+                // Clear any previous values
+                document.getElementById("addFullName").value = "";
+                document.getElementById("addEmail").value = "";
+                document.getElementById("addPhone").value = "";
+                document.getElementById("addPassword").value = "";
+                document.getElementById("addRoleId").value = "3";
+                
+                var modal = document.getElementById("addUserModal");
+                modal.classList.add("active");
+            }
+
+            function closeAddUserModal() {
+                var modal = document.getElementById("addUserModal");
+                modal.classList.remove("active");
+            }
+
+            function validateAddUserForm(event) {
+                var email = document.getElementById("addEmail").value.trim();
+                var phone = document.getElementById("addPhone").value.trim();
+                var password = document.getElementById("addPassword").value.trim();
+
+                // Basic email pattern validation
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert("Định dạng email không hợp lệ!");
+                    event.preventDefault();
+                    return false;
+                }
+
+                // Phone number validation (optional but must be 10 digits if present)
+                if (phone !== "") {
+                    var phoneRegex = /^[0-9]{10}$/;
+                    if (!phoneRegex.test(phone)) {
+                        alert("Số điện thoại phải bao gồm 10 chữ số!");
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+
+                // Password length check
+                if (password.length < 6) {
+                    alert("Mật khẩu khởi tạo phải có ít nhất 6 ký tự!");
+                    event.preventDefault();
+                    return false;
+                }
+
+                return true;
+            }
             
             // Close modal when clicking on overlay background
             window.addEventListener("click", function(event) {
-                var modal = document.getElementById("userDetailModal");
-                if (event.target === modal) {
+                var detailModal = document.getElementById("userDetailModal");
+                var addModal = document.getElementById("addUserModal");
+                if (event.target === detailModal) {
                     closeUserModal();
+                }
+                if (event.target === addModal) {
+                    closeAddUserModal();
                 }
             });
 
@@ -963,8 +1123,10 @@
             window.addEventListener("keydown", function(event) {
                 if (event.key === "Escape") {
                     closeUserModal();
+                    closeAddUserModal();
                 }
             });
         </script>
     </body>
 </html>
+

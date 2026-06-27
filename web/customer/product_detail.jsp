@@ -28,7 +28,7 @@
                     </c:forEach>
 
                     <div class="nav-dropdown ${product.categoryId == 2 || product.categoryId == 5 || product.categoryId == 6 || product.categoryId == 7 ? 'active' : ''}">
-                        <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                        <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                         <div class="dropdown-content">
                             <c:forEach items="${categories}" var="cat">
                                 <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -68,7 +68,7 @@
                                             <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                            <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                         </c:otherwise>
                                     </c:choose>
                                     <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -128,28 +128,38 @@
                              onerror="this.src='https://via.placeholder.com/500x400?text=UniLap'">
                     </div>
                     <div class="pd-thumbnails">
-                        <div class="pd-thumb-wrap active">
+                        <div class="pd-thumb-wrap active" onclick="switchProductImage(this)">
                             <img src="${pageContext.request.contextPath}/images/${product.thumbnail}" alt="${product.productName}">
                         </div>
-                        <div class="pd-thumb-wrap">
+                        <div class="pd-thumb-wrap" onclick="switchProductImage(this)">
                             <img src="${pageContext.request.contextPath}/images/${product.thumbnail}" style="filter: hue-rotate(90deg);" alt="Detail 1">
                         </div>
-                        <div class="pd-thumb-wrap">
+                        <div class="pd-thumb-wrap" onclick="switchProductImage(this)">
                             <img src="${pageContext.request.contextPath}/images/${product.thumbnail}" style="filter: brightness(0.8);" alt="Detail 2">
                         </div>
-                        <div class="pd-thumb-wrap">
+                        <div class="pd-thumb-wrap" onclick="switchProductImage(this)">
                             <img src="${pageContext.request.contextPath}/images/${product.thumbnail}" style="filter: saturate(1.5);" alt="Detail 3">
                         </div>
                     </div>
+                    <script>
+                        function switchProductImage(element) {
+                            const mainImg = document.getElementById('mainProductImg');
+                            const thumbs = document.querySelectorAll('.pd-thumb-wrap');
+                            thumbs.forEach(t => t.classList.remove('active'));
+                            element.classList.add('active');
+                            const thumbImg = element.querySelector('img');
+                            if (mainImg && thumbImg) {
+                                mainImg.src = thumbImg.src;
+                                mainImg.style.filter = thumbImg.style.filter || 'none';
+                            }
+                        }
+                    </script>
                 </div>
 
                 <!-- Right: Info details -->
                 <div class="pd-details">
                     <div class="pd-badge">
-                        <c:choose>
-                            <c:when test="${not empty product.purpose}">${product.purpose}</c:when>
-                            <c:otherwise>Sản phẩm Hot</c:otherwise>
-                        </c:choose>
+                        ${productBadge}
                     </div>
                     <h1 class="pd-title">${product.productName}</h1>
 
@@ -204,28 +214,21 @@
                                     <div class="pd-spec-icon"><i class="fas fa-microchip"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Vi xử lý</span>
-                                        <span class="pd-spec-value" title="${product.cpu}">${empty product.cpu ? 'i9-14900HX' : product.cpu}</span>
+                                        <span class="pd-spec-value" id="specCpu" title="${product.cpu}">${empty product.cpu ? 'N/A' : product.cpu}</span>
                                     </div>
                                 </div>
                                 <div class="pd-spec-card">
-                                    <div class="pd-spec-icon"><i class="fas fa-gamepad"></i></div>
+                                    <div class="pd-spec-icon"><i class="fas fa-memory"></i></div>
                                     <div class="pd-spec-info">
-                                        <span class="pd-spec-label">Đồ họa</span>
-                                        <span class="pd-spec-value" title="${product.gpu}">${empty product.gpu ? 'RTX 4090 16GB' : product.gpu}</span>
+                                        <span class="pd-spec-label">Bộ nhớ RAM</span>
+                                        <span class="pd-spec-value" id="specRam" title="${product.ram}">${empty product.ram ? 'N/A' : product.ram}</span>
                                     </div>
                                 </div>
                                 <div class="pd-spec-card">
-                                    <div class="pd-spec-icon"><i class="fas fa-desktop"></i></div>
+                                    <div class="pd-spec-icon"><i class="fas fa-hdd"></i></div>
                                     <div class="pd-spec-info">
-                                        <span class="pd-spec-label">Màn hình</span>
-                                        <span class="pd-spec-value" title="${product.screen}">${empty product.screen ? '18" QHD+ Nebula' : product.screen}</span>
-                                    </div>
-                                </div>
-                                <div class="pd-spec-card">
-                                    <div class="pd-spec-icon"><i class="fas fa-sync"></i></div>
-                                    <div class="pd-spec-info">
-                                        <span class="pd-spec-label">Tần số quét</span>
-                                        <span class="pd-spec-value">240Hz / 3ms</span>
+                                        <span class="pd-spec-label">Ổ cứng SSD</span>
+                                        <span class="pd-spec-value" id="specSsd" title="${product.ssd}">${empty product.ssd ? 'N/A' : product.ssd}</span>
                                     </div>
                                 </div>
                             </c:when>
@@ -234,16 +237,38 @@
                                     <div class="pd-spec-icon"><i class="fas fa-wifi"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Kết nối</span>
-                                        <span class="pd-spec-value">${empty product.connectivity ? 'Có dây / Không dây' : product.connectivity}</span>
+                                        <span class="pd-spec-value" id="specConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</span>
                                     </div>
                                 </div>
-                                <div class="pd-spec-card">
-                                    <div class="pd-spec-icon"><i class="fas fa-cogs"></i></div>
-                                    <div class="pd-spec-info">
-                                        <span class="pd-spec-label">Đặc tả</span>
-                                        <span class="pd-spec-value">${empty product.dpi ? (empty product.switchType ? 'Premium design' : product.switchType) : product.dpi}</span>
-                                    </div>
-                                </div>
+                                <c:choose>
+                                    <c:when test="${product.categoryId == 3}">
+                                        <div class="pd-spec-card">
+                                            <div class="pd-spec-icon"><i class="fas fa-keyboard"></i></div>
+                                            <div class="pd-spec-info">
+                                                <span class="pd-spec-label">Loại Switch</span>
+                                                <span class="pd-spec-value" id="specSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</span>
+                                            </div>
+                                        </div>
+                                    </c:when>
+                                    <c:when test="${product.categoryId == 4}">
+                                        <div class="pd-spec-card">
+                                            <div class="pd-spec-icon"><i class="fas fa-mouse"></i></div>
+                                            <div class="pd-spec-info">
+                                                <span class="pd-spec-label">Độ phân giải DPI</span>
+                                                <span class="pd-spec-value" id="specDpi">${empty product.dpi ? 'N/A' : product.dpi}</span>
+                                            </div>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="pd-spec-card">
+                                            <div class="pd-spec-icon"><i class="fas fa-cogs"></i></div>
+                                            <div class="pd-spec-info">
+                                                <span class="pd-spec-label">Đặc tả</span>
+                                                <span class="pd-spec-value">${empty product.dpi ? (empty product.switchType ? 'Premium design' : product.switchType) : product.dpi}</span>
+                                            </div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                                 <div class="pd-spec-card">
                                     <div class="pd-spec-icon"><i class="fas fa-tag"></i></div>
                                     <div class="pd-spec-info">
@@ -341,154 +366,47 @@
             <div class="pd-tabs">
                 <div class="pd-tabs-nav">
                     <button type="button" class="pd-tab-trigger active" data-target="tab-desc">Mô tả</button>
-                    <c:if test="${product.categoryId == 1 || not empty product.connectivity}">
-                        <button type="button" class="pd-tab-trigger" data-target="tab-specs">Thông số kỹ thuật</button>
-                    </c:if>
+                    <button type="button" class="pd-tab-trigger" data-target="tab-specs">Thông số kỹ thuật</button>
                     <button type="button" class="pd-tab-trigger" data-target="tab-reviews">Đánh giá</button>
                 </div>
 
                 <!-- Tab 1: Description -->
                 <div id="tab-desc" class="pd-tab-content active">
-                    <div class="pd-desc-layout">
-                        <div class="pd-desc-text">
-                            <h2>Hiệu năng tối thượng cho nhà vô địch</h2>
-                            <p>${product.description}</p>
-                            <div class="pd-desc-points">
-                                <div class="pd-desc-point">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Hệ thống tản nhiệt thông minh tối ưu hóa năng suất</span>
-                                </div>
-                                <div class="pd-desc-point">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Màn hình chất lượng cao mang lại độ tương phản tuyệt vời</span>
-                                </div>
-                                <div class="pd-desc-point">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Thiết kế hiện đại, bền bỉ và đậm chất gaming</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pd-desc-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop" alt="Premium Hardware block representation">
-                        </div>
+                    <div class="pd-desc-text" style="font-size: 15px; line-height: 1.8; color: var(--text-muted); white-space: pre-line;">
+                        ${product.description}
                     </div>
                 </div>
 
                 <!-- Tab 2: Specifications -->
-                <c:if test="${product.categoryId == 1 || not empty product.connectivity}">
-                    <div id="tab-specs" class="pd-tab-content">
-                        <table class="pd-spec-table">
-                            <c:choose>
-                                <c:when test="${product.categoryId == 1}">
-                                    <c:if test="${not empty product.cpu}"><tr><td>CPU (Bộ vi xử lý)</td><td>${product.cpu}</td></tr></c:if>
-                                    <c:if test="${not empty product.ram}"><tr><td>RAM (Bộ nhớ trong)</td><td>${product.ram}</td></tr></c:if>
-                                    <c:if test="${not empty product.ssd}"><tr><td>Ổ cứng (Lưu trữ)</td><td>${product.ssd}</td></tr></c:if>
-                                    <c:if test="${not empty product.gpu}"><tr><td>GPU (Đồ họa)</td><td>${product.gpu}</td></tr></c:if>
-                                    <c:if test="${not empty product.screen}"><tr><td>Màn hình hiển thị</td><td>${product.screen}</td></tr></c:if>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:if test="${not empty product.connectivity}"><tr><td>Kiểu kết nối</td><td>${product.connectivity}</td></tr></c:if>
-                                    <c:if test="${not empty product.switchType}"><tr><td>Loại Switch</td><td>${product.switchType}</td></tr></c:if>
-                                    <c:if test="${not empty product.dpi}"><tr><td>Độ phân giải DPI</td><td>${product.dpi}</td></tr></c:if>
-                                </c:otherwise>
-                            </c:choose>
-                            <tr><td>Thương hiệu</td><td>${product.brandName}</td></tr>
-                            <tr><td>Thời hạn bảo hành</td><td>${product.warrantyPeriod} Tháng</td></tr>
-                        </table>
-                    </div>
-                </c:if>
+                <div id="tab-specs" class="pd-tab-content">
+                    <table class="pd-spec-table">
+                        <c:choose>
+                            <c:when test="${product.categoryId == 1}">
+                                <tr><td>CPU (Bộ vi xử lý)</td><td id="tblSpecCpu">${empty product.cpu ? 'N/A' : product.cpu}</td></tr>
+                                <tr><td>RAM (Bộ nhớ trong)</td><td id="tblSpecRam">${empty product.ram ? 'N/A' : product.ram}</td></tr>
+                                <tr><td>Ổ cứng (Lưu trữ)</td><td id="tblSpecSsd">${empty product.ssd ? 'N/A' : product.ssd}</td></tr>
+                                <tr><td>GPU (Đồ họa)</td><td id="tblSpecGpu">${empty product.gpu ? 'N/A' : product.gpu}</td></tr>
+                                <tr><td>Màn hình hiển thị</td><td id="tblSpecScreen">${empty product.screen ? 'N/A' : product.screen}</td></tr>
+                            </c:when>
+                            <c:otherwise>
+                                <tr><td>Kiểu kết nối</td><td id="tblSpecConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</td></tr>
+                                <c:if test="${product.categoryId == 3}">
+                                    <tr><td>Loại Switch</td><td id="tblSpecSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</td></tr>
+                                </c:if>
+                                <c:if test="${product.categoryId == 4}">
+                                    <tr><td>Độ phân giải DPI</td><td id="tblSpecDpi">${empty product.dpi ? 'N/A' : product.dpi}</td></tr>
+                                </c:if>
+                            </c:otherwise>
+                        </c:choose>
+                        <tr><td>Thương hiệu</td><td>${product.brandName}</td></tr>
+                        <tr><td>Thời hạn bảo hành</td><td>${product.warrantyPeriod} Tháng</td></tr>
+                    </table>
+                </div>
 
                 <!-- Tab 3: Reviews -->
                 <div id="tab-reviews" class="pd-tab-content">
                     <div style="padding: 20px 0; display: flex; flex-direction: column; gap: 20px;">
                         
-                        <!-- Form gửi bình luận/đánh giá -->
-                        <c:if test="${not empty sessionScope.user}">
-                            <div style="background-color: #f8fafc; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
-                                <h3 style="font-size: 16px; font-weight: 600; margin-top: 0; margin-bottom: 16px; color: #0f172a;">Viết đánh giá của bạn</h3>
-                                <form action="${pageContext.request.contextPath}/ProductDetailServlet" method="post">
-                                    <input type="hidden" name="productId" value="${product.productId}">
-                                    
-                                    <div style="margin-bottom: 16px;">
-                                        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #334155;">Chọn đánh giá của bạn:</label>
-                                        <div class="rating-stars-input" style="display: flex; gap: 8px; font-size: 24px; color: #cbd5e1; cursor: pointer;">
-                                            <i class="fas fa-star star-btn" data-value="1" style="color: #f59e0b;"></i>
-                                            <i class="fas fa-star star-btn" data-value="2" style="color: #f59e0b;"></i>
-                                            <i class="fas fa-star star-btn" data-value="3" style="color: #f59e0b;"></i>
-                                            <i class="fas fa-star star-btn" data-value="4" style="color: #f59e0b;"></i>
-                                            <i class="fas fa-star star-btn" data-value="5" style="color: #f59e0b;"></i>
-                                        </div>
-                                        <input type="hidden" name="rating" id="reviewRatingInput" value="5" required>
-                                    </div>
-
-                                    <div style="margin-bottom: 16px;">
-                                        <label for="reviewComment" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #334155;">Nhận xét:</label>
-                                        <textarea id="reviewComment" name="comment" rows="4" placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm này..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-family: inherit; font-size: 14px; resize: vertical; box-sizing: border-box; outline: none; transition: border-color 0.2s;" required></textarea>
-                                    </div>
-
-                                    <button type="submit" style="background-color: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
-                                        Gửi đánh giá
-                                    </button>
-                                </form>
-                            </div>
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    const stars = document.querySelectorAll('.star-btn');
-                                    const ratingInput = document.getElementById('reviewRatingInput');
-                                    
-                                    stars.forEach(star => {
-                                        star.addEventListener('click', function() {
-                                            const value = parseInt(this.getAttribute('data-value'));
-                                            ratingInput.value = value;
-                                            
-                                            // Highlight selected stars
-                                            stars.forEach((s, idx) => {
-                                                if (idx < value) {
-                                                    s.classList.remove('far');
-                                                    s.classList.add('fas');
-                                                    s.style.color = '#f59e0b';
-                                                } else {
-                                                    s.classList.remove('fas');
-                                                    s.classList.add('far');
-                                                    s.style.color = '#cbd5e1';
-                                                }
-                                            });
-                                        });
-                                        
-                                        // Hover effect
-                                        star.addEventListener('mouseover', function() {
-                                            const value = parseInt(this.getAttribute('data-value'));
-                                            stars.forEach((s, idx) => {
-                                                if (idx < value) {
-                                                    s.style.color = '#f59e0b';
-                                                } else {
-                                                    s.style.color = '#cbd5e1';
-                                                }
-                                            });
-                                        });
-                                    });
-                                    
-                                    // Reset to selected value when mouse leaves the container
-                                    const starContainer = document.querySelector('.rating-stars-input');
-                                    if (starContainer) {
-                                        starContainer.addEventListener('mouseleave', function() {
-                                            const value = parseInt(ratingInput.value);
-                                            stars.forEach((s, idx) => {
-                                                if (idx < value) {
-                                                    s.classList.remove('far');
-                                                    s.classList.add('fas');
-                                                    s.style.color = '#f59e0b';
-                                                } else {
-                                                    s.classList.remove('fas');
-                                                    s.classList.add('far');
-                                                    s.style.color = '#cbd5e1';
-                                                }
-                                            });
-                                        });
-                                    }
-                                });
-                            </script>
-                        </c:if>
 
                         <!-- Danh sách đánh giá -->
                         <c:choose>
@@ -496,10 +414,10 @@
                                 <c:forEach var="r" items="${reviews}">
                                     <div style="display: flex; gap: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                                         <div style="width: 44px; height: 44px; background-color: var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--secondary-text); font-weight: 600; text-transform: uppercase;">
-                                            ${fn:substring(r.userFullName, 0, 2)}
+                                            ${fn:substring(r.userName, 0, 2)}
                                         </div>
                                         <div>
-                                            <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">${r.userFullName}</div>
+                                            <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">${r.userName}</div>
                                             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
                                                 <div style="display: flex; gap: 4px; color: #f59e0b; font-size: 12px;">
                                                     <c:forEach var="star" begin="1" end="${r.rating}">
@@ -550,7 +468,6 @@
                     <div class="similar-header">
                         <div>
                             <h2>Sản phẩm tương tự</h2>
-                            <p>Dành riêng cho những game thủ đích thực.</p>
                         </div>
                         <a href="ProductListServlet?category=${product.categoryId}" style="color: var(--primary); font-weight: 600; font-size: 14px;">Xem tất cả <i class="fas fa-arrow-right" style="font-size: 11px;"></i></a>
                     </div>

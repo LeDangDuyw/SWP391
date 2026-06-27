@@ -166,7 +166,7 @@ public class Product {
         return null;
     }
 
-    // lớp con laptop 
+    // lß╗¢p con laptop 
     public static class Laptop extends Product {
 
         private int seriesId;
@@ -217,7 +217,7 @@ public class Product {
         public void setScreen(String screen) { this.screen = screen; }
     }
 
-    // lớp con chuột 
+    // lß╗¢p con chuß╗Öt 
     public static class Mouse extends Product {
 
         private String connectivity;
@@ -243,7 +243,7 @@ public class Product {
         }
     }
 
-    // lớp con bàn phím 
+    // lß╗¢p con b├án ph├¡m 
     public static class Keyboard extends Product {
 
         private String connectivity;

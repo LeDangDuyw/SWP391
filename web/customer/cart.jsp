@@ -50,7 +50,7 @@
             </c:forEach>
 
             <div class="nav-dropdown">
-                <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                 <div class="dropdown-content">
                     <c:forEach items="${categories}" var="cat">
                         <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -88,7 +88,7 @@
                                     <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                    <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                 </c:otherwise>
                             </c:choose>
                             <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -163,7 +163,9 @@
                                         <c:if test="${item.availableQuantity > 0}">
                                             <span class="badge badge-stock">Còn hàng</span>
                                         </c:if>
-                                        <span class="badge badge-warranty">Bảo hành 2 năm</span>
+                                        <span class="badge badge-warranty">
+                                            Bảo hành ${item.warrantyPeriod} tháng
+                                        </span>
                                     </div>
                                 </div>
                                 <!-- Delete button -->

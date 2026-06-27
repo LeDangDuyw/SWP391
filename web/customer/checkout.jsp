@@ -51,7 +51,7 @@
             </c:forEach>
 
             <div class="nav-dropdown">
-                <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                 <div class="dropdown-content">
                     <c:forEach items="${categories}" var="cat">
                         <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -89,7 +89,7 @@
                                     <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                    <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                 </c:otherwise>
                             </c:choose>
                             <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -131,6 +131,13 @@
         <h1 class="cart-heading" style="margin-bottom: 8px;">Thanh toán đơn hàng</h1>
         <p class="cart-subheading" style="margin-bottom: 24px;">Vui lòng kiểm tra lại thông tin và xác nhận đặt hàng.</p>
 
+        <c:if test="${not empty error}">
+            <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #ef4444; padding: 15px; border-radius: 8px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-circle-exclamation" style="font-size: 18px;"></i>
+                <span>${error}</span>
+            </div>
+        </c:if>
+
         <form action="${pageContext.request.contextPath}/CheckoutServlet" method="POST" id="checkoutForm" class="checkout-layout">
             <!-- LEFT COLUMN: Shipping & Billing -->
             <div class="billing-col">
@@ -158,20 +165,20 @@
                     <div class="form-group">
                         <label for="fullName">Họ và tên người nhận</label>
                         <input type="text" id="fullName" name="fullName" class="form-control" 
-                               placeholder="VD: Nguyễn Văn A" required value="${sessionScope.user.fullName}">
+                               placeholder="VD: Nguyễn Văn A" required value="${sessionScope.user.userName}">
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Số điện thoại</label>
                         <input type="tel" id="phone" name="phone" class="form-control" 
-                               placeholder="VD: 0912345678" required pattern="[0-9]{10}" 
-                               title="Số điện thoại phải gồm 10 chữ số" value="${sessionScope.user.phone}">
+                               placeholder="VD: 0912345678" required pattern="0[0-9]{9}" maxlength="10"
+                               title="Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0" value="${sessionScope.user.phone}">
                     </div>
 
                     <div class="form-group">
                         <label for="address">Địa chỉ nhận hàng</label>
                         <input type="text" id="address" name="address" class="form-control" 
-                               placeholder="VD: Số 12, Ngõ 34, Phố Duy Tân, Cầu Giấy, Hà Nội" required value="${sessionScope.user.address}">
+                               placeholder="VD: Số 12, Ngõ 34, Phố Duy Tân, Cầu Giấy, Hà Nội" required value="">
                     </div>
 
                     <div class="form-group">
@@ -250,9 +257,18 @@
                             <span class="discount-badge" id="checkout-discount-val">- <fmt:formatNumber value="${discountAmount}" pattern="#,##0"/>₫</span>
                         </div>
 
-                        <div class="summary-line">
+                        <div class="summary-line" id="shipping-fee-line">
                             <span>Phí vận chuyển</span>
-                            <span class="shipping-badge">Miễn phí</span>
+                            <span class="shipping-badge" id="shipping-fee-val" style="${shippingFee > 0 ? 'background-color: #fee2e2; color: #ef4444;' : ''}">
+                                <c:choose>
+                                    <c:when test="${shippingFee > 0}">
+                                        <fmt:formatNumber value="${shippingFee}" pattern="#,##0"/>₫
+                                    </c:when>
+                                    <c:otherwise>
+                                        Miễn phí
+                                    </c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
 
                         <div class="summary-line total">
@@ -349,6 +365,12 @@
             });
         }
 
+        // Cost values for calculation
+        const subtotalVal = ${total};
+        let discountVal = ${discountAmount};
+        const baseShippingFee = subtotalVal < 500000 ? 15000 : 0;
+        let currentShippingFee = baseShippingFee;
+
         // Shipping method option switcher
         const shipHome = document.getElementById('ship-home');
         const shipStore = document.getElementById('ship-store');
@@ -365,6 +387,40 @@
         let originalPhone = phoneInput ? phoneInput.value : '';
         let originalAddress = addressInput ? addressInput.value : '';
 
+        function recalculateCheckoutTotals() {
+            // Get shipping fee based on selected method
+            const isStorePickup = radioStore.checked;
+            currentShippingFee = isStorePickup ? 0 : baseShippingFee;
+
+            // Update shipping fee badge UI
+            const shippingFeeValSpan = document.getElementById('shipping-fee-val');
+            if (shippingFeeValSpan) {
+                if (currentShippingFee > 0) {
+                    shippingFeeValSpan.innerText = formatCurrency(currentShippingFee) + '₫';
+                    shippingFeeValSpan.style.backgroundColor = '#fee2e2';
+                    shippingFeeValSpan.style.color = '#ef4444';
+                } else {
+                    shippingFeeValSpan.innerText = 'Miễn phí';
+                    shippingFeeValSpan.style.backgroundColor = '';
+                    shippingFeeValSpan.style.color = '';
+                }
+            }
+
+            // Calculate final total
+            let finalTotal = subtotalVal - discountVal + currentShippingFee;
+            if (finalTotal < 0) finalTotal = 0;
+
+            // Update Total UI
+            const totalSpan = document.querySelector('.summary-line.total span:last-child');
+            if (totalSpan) {
+                totalSpan.innerText = formatCurrency(finalTotal) + '₫';
+            }
+        }
+
+        function formatCurrency(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
         if (shipHome && shipStore) {
             shipHome.addEventListener('click', function() {
                 shipHome.classList.add('selected');
@@ -374,6 +430,12 @@
                 // Show shipping card
                 if (shippingCard) {
                     shippingCard.style.display = 'block';
+                }
+                
+                // Show shipping fee line
+                const shippingFeeLine = document.getElementById('shipping-fee-line');
+                if (shippingFeeLine) {
+                    shippingFeeLine.style.display = 'flex';
                 }
                 
                 // Restore values and require them
@@ -389,6 +451,8 @@
                     addressInput.value = originalAddress;
                     addressInput.setAttribute('required', 'required');
                 }
+
+                recalculateCheckoutTotals();
             });
 
             shipStore.addEventListener('click', function() {
@@ -399,6 +463,12 @@
                 // Hide shipping card
                 if (shippingCard) {
                     shippingCard.style.display = 'none';
+                }
+                
+                // Hide shipping fee line
+                const shippingFeeLine = document.getElementById('shipping-fee-line');
+                if (shippingFeeLine) {
+                    shippingFeeLine.style.display = 'none';
                 }
                 
                 // Keep track of current edits in inputs in case they typed before switching
@@ -425,6 +495,8 @@
                     addressInput.removeAttribute('required');
                     addressInput.value = 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội';
                 }
+
+                recalculateCheckoutTotals();
             });
         }
 
@@ -489,20 +561,17 @@
 
         function updateTotalsUI(totalStr, discountStr, finalTotalStr) {
             const discountLine = document.getElementById('checkout-discount-line');
-            const discountVal = document.getElementById('checkout-discount-val');
-            const totalSpan = document.querySelector('.summary-line.total span:last-child');
+            const discountValSpan = document.getElementById('checkout-discount-val');
 
-            const discountAmount = parseFloat(discountStr.replace(/[^0-9]/g, '')) || 0;
-            if (discountAmount > 0) {
+            discountVal = parseFloat(discountStr.replace(/[^0-9]/g, '')) || 0;
+            if (discountVal > 0) {
                 if (discountLine) discountLine.style.display = 'flex';
-                if (discountVal) discountVal.innerText = '- ' + discountStr + '₫';
+                if (discountValSpan) discountValSpan.innerText = '- ' + formatCurrency(discountVal) + '₫';
             } else {
                 if (discountLine) discountLine.style.display = 'none';
             }
 
-            if (totalSpan) {
-                totalSpan.innerText = finalTotalStr + '₫';
-            }
+            recalculateCheckoutTotals();
         }
     });
 </script>
