@@ -1164,7 +1164,7 @@
                         </div>
                     </div>
                     <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2;">
-                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số.</li>
+                        <li>Sử dụng mật khẩu ít nhất 6 ký tự gồm chữ hoa, chữ thường, số.</li>
                         <li>Không sử dụng cùng một mật khẩu cho nhiều tài khoản.</li>
                         <li>Không chia sẻ mật khẩu với bất kỳ ai.</li>
                         <li>Thay đổi mật khẩu định kỳ 3-6 tháng một lần.</li>
