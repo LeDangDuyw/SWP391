@@ -47,14 +47,10 @@ public class ProductCompareDAO extends DBContext {
                                                       FROM vw_ProductSpec v
                                                       JOIN ProductVariant pv ON v.product_id = pv.product_id AND pv.status = 'active'
                                                       LEFT JOIN Inventory inv ON pv.variant_id = inv.variant_id
-                                                      -- Liên kết Flash Sale đang diễn ra (chỉ lấy nếu Flash Sale và Chiến dịch đều đang Active)
-                                                      LEFT JOIN (
-                                                          FlashSaleItem fsi
-                                                          JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id 
-                                                              AND GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
-                                                          JOIN Campaign fc ON fs.flashsale_id = fc.flashsale_id
-                                                              AND fc.status = 'active'
-                                                      ) ON pv.variant_id = fsi.variant_id
+                                                      -- Liên kết Flash Sale đang diễn ra
+                                                      LEFT JOIN FlashSaleItem fsi ON pv.variant_id = fsi.variant_id
+                                                      LEFT JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id 
+                                                          AND GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
                                                       -- Liên kết Campaign khuyến mãi đang diễn ra
                                                       LEFT JOIN CampaignProduct cp ON pv.variant_id = cp.variant_id
                                                       LEFT JOIN Campaign c ON cp.campaign_id = c.campaign_id 

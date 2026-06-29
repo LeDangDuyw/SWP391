@@ -33,7 +33,9 @@ public class DBContext {
         }
     }
 
- 
+    public DBContext(jakarta.servlet.ServletContext context) {
+        this();
+    }
 
     private static Connection createConnection() {
         try {

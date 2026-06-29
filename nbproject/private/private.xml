@@ -21,31 +21,5 @@
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/campaignDetail.jsp</file>
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ChatFullController.java</file>
         </group>
-        <group>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/product_list.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/chat-full.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/home.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/js/compare.js</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/ProductCompareDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CompareServlet.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/product_detail.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/InventoryListController.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/ProductDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/ProductListFilterDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/ProductListServlet.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CampaignFormController.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CampaignDetailController.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignDetailDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignBannerDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/PolicyDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/js/chat.js</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/floatingCompareBar.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/compareProducts.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/checkout.jsp</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/AdminDashboardDAO.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/BrandDao.java</file>
-            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/AddProductController.java</file>
-        </group>
     </open-files>
 </project-private>
