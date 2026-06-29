@@ -55,8 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (qtyInput) {
                 qtyInput.value = 1;
             }
-<<<<<<< Updated upstream
-=======
 
             // Update dynamic specifications based on variant attributes
             const cpu = this.dataset.cpu || 'N/A';
@@ -106,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (dpiEl) { dpiEl.textContent = dpi; dpiEl.title = dpi; }
             if (tblDpiEl) { tblDpiEl.textContent = dpi; }
->>>>>>> Stashed changes
         });
     });
 
@@ -178,9 +175,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const cartRedirect = document.getElementById('cartRedirect');
+
     if (btnBuyNow && addCartForm && qtyInput && formQty) {
         btnBuyNow.addEventListener('click', function () {
             formQty.value = qtyInput.value;
+            if (cartRedirect) {
+                cartRedirect.value = 'checkout';
+            }
             addCartForm.submit();
         });
     }

@@ -128,10 +128,18 @@
                         <h1 class="success-title" style="margin-top: 0;">Thanh toán chuyển khoản</h1>
                         <p class="success-desc">Vui lòng quét mã QR hoặc chuyển khoản chính xác thông tin dưới đây để hoàn tất đơn hàng.</p>
                     </div>
+                    <div style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #b45309; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; animation: pulse 2s infinite;">
+                        <i class="fas fa-clock"></i>
+                        <span>Giao dịch sẽ hết hạn sau: <span id="countdown-timer" style="font-family: monospace; font-size: 16px; font-weight: 700;">10:00</span></span>
+                    </div>
                     <style>
                         @keyframes scaleUp {
                             from { transform: scale(0.95); opacity: 0; }
                             to { transform: scale(1); opacity: 1; }
+                        }
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.8; }
                         }
                         .sepay-payment-container {
                             margin: 28px 0;
@@ -313,8 +321,43 @@
                                     btn.style.color = '';
                                 }, 1500);
                             }
+
+                            // Countdown Timer logic
+                            (function() {
+                                let duration = 600; // 10 minutes in seconds
+                                const timerEl = document.getElementById('countdown-timer');
+                                
+                                function updateTimer() {
+                                    let minutes = Math.floor(duration / 60);
+                                    let seconds = duration % 60;
+                                    
+                                    minutes = minutes < 10 ? '0' + minutes : minutes;
+                                    seconds = seconds < 10 ? '0' + seconds : seconds;
+                                    
+                                    if (timerEl) {
+                                        timerEl.textContent = minutes + ':' + seconds;
+                                    }
+                                    
+                                    if (duration <= 0) {
+                                        clearInterval(timerInterval);
+                                        if (timerEl) {
+                                            timerEl.textContent = "Hết hạn";
+                                            timerEl.parentElement.innerHTML = "<span style='color: #ef4444;'><i class='fas fa-exclamation-circle'></i> Đã hết thời gian thanh toán! Đơn hàng đã tự động hủy.</span>";
+                                        }
+                                    }
+                                    duration--;
+                                }
+                                
+                                updateTimer();
+                                const timerInterval = setInterval(updateTimer, 1000);
+                            })();
                         })();
                     </script>
+                    <div class="btn-actions" style="margin-top: 32px; justify-content: center;">
+                        <a href="${pageContext.request.contextPath}/CheckoutServlet?action=cancel&orderCode=${orderId}" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px; background-color: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); transition: all 0.2s;">
+                            <i class="fas fa-times-circle"></i> Hủy thanh toán
+                        </a>
+                    </div>
                 </c:when>
                 <c:otherwise>
                     <div class="success-icon">
@@ -349,17 +392,16 @@
                             </span>
                         </div>
                     </div>
+                    <div class="btn-actions" style="margin-top: 32px;">
+                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
+                            <i class="fas fa-house"></i> Tiếp tục mua sắm
+                        </a>
+                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-secondary">
+                            Theo dõi đơn hàng
+                        </a>
+                    </div>
                 </c:otherwise>
             </c:choose>
-
-            <div class="btn-actions">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
-                    <i class="fas fa-house"></i> Tiếp tục mua sắm
-                </a>
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-secondary">
-                    Theo dõi đơn hàng
-                </a>
-            </div>
         </div>
     </div>
 </main>

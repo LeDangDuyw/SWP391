@@ -135,7 +135,6 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-<<<<<<< Updated upstream:src/java/Controller/ProductDetailServlet.java
         request.setCharacterEncoding("UTF-8");
         String productIdParam = request.getParameter("productId");
         String ratingParam = request.getParameter("rating");
@@ -190,9 +189,6 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");
-=======
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Chức năng viết đánh giá đã bị vô hiệu hóa.");
->>>>>>> Stashed changes:src/java/controller/ProductDetailServlet.java
     }
 
     /**

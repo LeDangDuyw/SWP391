@@ -177,14 +177,14 @@
 
                     <div class="form-group">
                         <label for="address">Địa chỉ nhận hàng</label>
-                        <input type="text" id="address" name="address" class="form-control" 
-                               placeholder="VD: Số 12, Ngõ 34, Phố Duy Tân, Cầu Giấy, Hà Nội" required value="">
+                        <textarea id="address" name="address" class="form-control" rows="3"
+                               placeholder="VD: Số 12, Ngõ 34, Phố Duy Tân, Cầu Giấy, Hà Nội" required maxlength="500"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="notes">Ghi chú đơn hàng (Tùy chọn)</label>
-                        <textarea id="notes" name="notes" class="form-control" 
-                                  placeholder="VD: Giao giờ hành chính, gọi trước khi giao..."></textarea>
+                        <textarea id="notes" name="notes" class="form-control" rows="3"
+                                  placeholder="VD: Giao giờ hành chính, gọi trước khi giao..." maxlength="500"></textarea>
                     </div>
                 </div>
 
@@ -446,6 +446,7 @@
                 if (phoneInput) {
                     phoneInput.value = originalPhone;
                     phoneInput.setAttribute('required', 'required');
+                    phoneInput.setAttribute('pattern', '0[0-9]{9}');
                 }
                 if (addressInput) {
                     addressInput.value = originalAddress;
@@ -489,7 +490,8 @@
                 }
                 if (phoneInput) {
                     phoneInput.removeAttribute('required');
-                    phoneInput.value = originalPhone ? originalPhone : '0903333333';
+                    phoneInput.removeAttribute('pattern');
+                    phoneInput.value = (originalPhone && originalPhone.match(/^0[0-9]{9}$/)) ? originalPhone : '0903333333';
                 }
                 if (addressInput) {
                     addressInput.removeAttribute('required');

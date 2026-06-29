@@ -56,6 +56,60 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        if ("cancel".equals(action)) {
+            String orderCode = request.getParameter("orderCode");
+            HttpSession session = request.getSession();
+            Object userObj = session.getAttribute("user");
+            
+            if (orderCode != null) {
+                dal.OrderDAO orderDAO = new dal.OrderDAO();
+                model.Order orderObj = orderDAO.getOrderByCode(orderCode);
+                
+                if (orderObj != null && "Pending".equals(orderObj.getOrderStatus())) {
+                    boolean success = orderDAO.cancelOrder(orderCode);
+                    if (success) {
+                        try {
+                            List<CartItem> cartToRestore = orderDAO.getOrderDetailsForCart(orderObj.getOrderId());
+                            session.setAttribute("cart", cartToRestore);
+                            
+                            Integer userId = null;
+                            if (userObj != null) {
+                                try {
+                                    java.lang.reflect.Method getUserIdMethod = userObj.getClass().getMethod("getUserId");
+                                    userId = (Integer) getUserIdMethod.invoke(userObj);
+                                } catch (Exception e1) {
+                                    try {
+                                        java.lang.reflect.Method getIdMethod = userObj.getClass().getMethod("getId");
+                                        userId = (Integer) getIdMethod.invoke(userObj);
+                                    } catch (Exception e2) {
+                                        try {
+                                            java.lang.reflect.Field field = userObj.getClass().getDeclaredField("userId");
+                                            field.setAccessible(true);
+                                            userId = (Integer) field.get(userObj);
+                                        } catch (Exception e3) {
+                                            // ignore
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (userId != null) {
+                                dal.CartDAO cartDAO = new dal.CartDAO();
+                                cartDAO.clearCart(userId);
+                                for (CartItem item : cartToRestore) {
+                                    cartDAO.addToCart(userId, item.getVariantId(), item.getQuantity());
+                                }
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Error restoring cart during cancel: " + ex.getMessage());
+                        }
+                    }
+                }
+            }
+            response.sendRedirect(request.getContextPath() + "/CheckoutServlet");
+            return;
+        }
+
         HttpSession session = request.getSession();
         Object userObj = session.getAttribute("user");
         if (userObj == null) {
@@ -190,7 +244,12 @@ public class CheckoutServlet extends HttpServlet {
 
         // Insert Order and OrderDetails into Database
         dal.OrderDAO orderDAO = new dal.OrderDAO();
-        model.Order dbOrder = orderDAO.insertOrder(finalTotal, shippingFee, fullName, phone, address, userId, couponId);
+        // Concatenate address and notes (order notes) to store notes in database order record
+        String savedAddress = address;
+        if (notes != null && !notes.trim().isEmpty()) {
+            savedAddress += " | Ghi chú: " + notes.trim();
+        }
+        model.Order dbOrder = orderDAO.insertOrder(finalTotal, shippingFee, fullName, phone, savedAddress, userId, couponId);
 
         if (dbOrder == null) {
             request.setAttribute("error", "Đã xảy ra lỗi hệ thống khi tạo đơn hàng (có thể do tổng tiền vượt quá giới hạn hoặc lỗi kết nối). Vui lòng thử lại hoặc giảm bớt số lượng!");

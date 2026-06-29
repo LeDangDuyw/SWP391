@@ -110,9 +110,9 @@
                 <a href="${pageContext.request.contextPath}/HomeServlet">Trang chủ</a>
                 <i class="fas fa-chevron-right"></i>
                 <a href="ProductListServlet?category=${product.categoryId}">${product.categoryName}</a>
-                <c:if test="${not empty product.purpose}">
+                <c:if test="${not empty product.brandName}">
                     <i class="fas fa-chevron-right"></i>
-                    <a href="ProductListServlet?category=${product.categoryId}&purpose=${product.purpose}">${product.purpose}</a>
+                    <a href="ProductListServlet?category=${product.categoryId}&brand=${product.brandId}">${product.brandName}</a>
                 </c:if>
                 <i class="fas fa-chevron-right"></i>
                 <span>${product.productName}</span>
@@ -214,21 +214,21 @@
                                     <div class="pd-spec-icon"><i class="fas fa-microchip"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Vi xử lý</span>
-                                        <span class="pd-spec-value" title="${product.cpu}">${empty product.cpu ? 'N/A' : product.cpu}</span>
+                                        <span class="pd-spec-value" id="specCpu" title="${product.cpu}">${empty product.cpu ? 'N/A' : product.cpu}</span>
                                     </div>
                                 </div>
                                 <div class="pd-spec-card">
                                     <div class="pd-spec-icon"><i class="fas fa-memory"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Bộ nhớ RAM</span>
-                                        <span class="pd-spec-value" title="${product.ram}">${empty product.ram ? 'N/A' : product.ram}</span>
+                                        <span class="pd-spec-value" id="specRam" title="${product.ram}">${empty product.ram ? 'N/A' : product.ram}</span>
                                     </div>
                                 </div>
                                 <div class="pd-spec-card">
                                     <div class="pd-spec-icon"><i class="fas fa-hdd"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Ổ cứng SSD</span>
-                                        <span class="pd-spec-value" title="${product.ssd}">${empty product.ssd ? 'N/A' : product.ssd}</span>
+                                        <span class="pd-spec-value" id="specSsd" title="${product.ssd}">${empty product.ssd ? 'N/A' : product.ssd}</span>
                                     </div>
                                 </div>
                             </c:when>
@@ -237,7 +237,7 @@
                                     <div class="pd-spec-icon"><i class="fas fa-wifi"></i></div>
                                     <div class="pd-spec-info">
                                         <span class="pd-spec-label">Kết nối</span>
-                                        <span class="pd-spec-value">${empty product.connectivity ? 'N/A' : product.connectivity}</span>
+                                        <span class="pd-spec-value" id="specConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</span>
                                     </div>
                                 </div>
                                 <c:choose>
@@ -246,7 +246,7 @@
                                             <div class="pd-spec-icon"><i class="fas fa-keyboard"></i></div>
                                             <div class="pd-spec-info">
                                                 <span class="pd-spec-label">Loại Switch</span>
-                                                <span class="pd-spec-value">${empty product.switchType ? 'N/A' : product.switchType}</span>
+                                                <span class="pd-spec-value" id="specSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</span>
                                             </div>
                                         </div>
                                     </c:when>
@@ -255,7 +255,7 @@
                                             <div class="pd-spec-icon"><i class="fas fa-mouse"></i></div>
                                             <div class="pd-spec-info">
                                                 <span class="pd-spec-label">Độ phân giải DPI</span>
-                                                <span class="pd-spec-value">${empty product.dpi ? 'N/A' : product.dpi}</span>
+                                                <span class="pd-spec-value" id="specDpi">${empty product.dpi ? 'N/A' : product.dpi}</span>
                                             </div>
                                         </div>
                                     </c:when>
@@ -315,9 +315,9 @@
                     </c:if>
 
                     <!-- Stock availability -->
-                    <div id="pdStock" class="pd-stock ${variants[0].availableQuantity > 0 ? 'in-stock' : 'out-of-stock'}">
+                    <div id="pdStock" class="pd-stock ${not empty variants && variants[0].availableQuantity > 0 ? 'in-stock' : 'out-of-stock'}">
                         <c:choose>
-                            <c:when test="${variants[0].availableQuantity > 0}">
+                            <c:when test="${not empty variants && variants[0].availableQuantity > 0}">
                                 <i class="fas fa-check-circle"></i> Còn hàng (${variants[0].availableQuantity})
                             </c:when>
                             <c:otherwise>
@@ -329,17 +329,18 @@
                     <!-- Purchase quantity and action buttons -->
                     <div class="pd-actions">
                         <div class="pd-qty">
-                            <button type="button" id="qtyMinus" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>−</button>
+                            <button type="button" id="qtyMinus" ${empty variants || variants[0].availableQuantity == 0 ? 'disabled' : ''}>−</button>
                             <input type="text" id="qtyInput" value="1" readonly>
-                            <button type="button" id="qtyPlus" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>+</button>
+                            <button type="button" id="qtyPlus" ${empty variants || variants[0].availableQuantity == 0 ? 'disabled' : ''}>+</button>
                         </div>
                         <form id="addCartForm" method="post" action="${pageContext.request.contextPath}/CartServlet">
                             <input type="hidden" name="action" id="cartAction" value="add">
-                            <input type="hidden" name="variantId" id="selectedVariantId" value="${variants[0].variantId}">
+                            <input type="hidden" name="variantId" id="selectedVariantId" value="${not empty variants ? variants[0].variantId : ''}">
                             <input type="hidden" name="quantity" id="formQty" value="1">
-                            <button type="submit" class="pd-add-cart" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                            <input type="hidden" name="redirect" id="cartRedirect" value="">
+                            <button type="submit" class="pd-add-cart" ${empty variants || variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
                         </form>
-                        <button type="button" id="btnBuyNow" class="pd-btn-buy" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>
+                        <button type="button" id="btnBuyNow" class="pd-btn-buy" ${empty variants || variants[0].availableQuantity == 0 ? 'disabled' : ''}>
                             Mua ngay
                         </button>
                     </div>
@@ -382,16 +383,20 @@
                     <table class="pd-spec-table">
                         <c:choose>
                             <c:when test="${product.categoryId == 1}">
-                                <c:if test="${not empty product.cpu}"><tr><td>CPU (Bộ vi xử lý)</td><td>${product.cpu}</td></tr></c:if>
-                                <c:if test="${not empty product.ram}"><tr><td>RAM (Bộ nhớ trong)</td><td>${product.ram}</td></tr></c:if>
-                                <c:if test="${not empty product.ssd}"><tr><td>Ổ cứng (Lưu trữ)</td><td>${product.ssd}</td></tr></c:if>
-                                <c:if test="${not empty product.gpu}"><tr><td>GPU (Đồ họa)</td><td>${product.gpu}</td></tr></c:if>
-                                <c:if test="${not empty product.screen}"><tr><td>Màn hình hiển thị</td><td>${product.screen}</td></tr></c:if>
+                                <tr><td>CPU (Bộ vi xử lý)</td><td id="tblSpecCpu">${empty product.cpu ? 'N/A' : product.cpu}</td></tr>
+                                <tr><td>RAM (Bộ nhớ trong)</td><td id="tblSpecRam">${empty product.ram ? 'N/A' : product.ram}</td></tr>
+                                <tr><td>Ổ cứng (Lưu trữ)</td><td id="tblSpecSsd">${empty product.ssd ? 'N/A' : product.ssd}</td></tr>
+                                <tr><td>GPU (Đồ họa)</td><td id="tblSpecGpu">${empty product.gpu ? 'N/A' : product.gpu}</td></tr>
+                                <tr><td>Màn hình hiển thị</td><td id="tblSpecScreen">${empty product.screen ? 'N/A' : product.screen}</td></tr>
                             </c:when>
                             <c:otherwise>
-                                <c:if test="${not empty product.connectivity}"><tr><td>Kiểu kết nối</td><td>${product.connectivity}</td></tr></c:if>
-                                <c:if test="${not empty product.switchType}"><tr><td>Loại Switch</td><td>${product.switchType}</td></tr></c:if>
-                                <c:if test="${not empty product.dpi}"><tr><td>Độ phân giải DPI</td><td>${product.dpi}</td></tr></c:if>
+                                <tr><td>Kiểu kết nối</td><td id="tblSpecConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</td></tr>
+                                <c:if test="${product.categoryId == 3 || not empty product.switchType}">
+                                    <tr><td>Loại Switch</td><td id="tblSpecSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</td></tr>
+                                </c:if>
+                                <c:if test="${product.categoryId == 4 || not empty product.dpi}">
+                                    <tr><td>Độ phân giải DPI</td><td id="tblSpecDpi">${empty product.dpi ? 'N/A' : product.dpi}</td></tr>
+                                </c:if>
                             </c:otherwise>
                         </c:choose>
                         <tr><td>Thương hiệu</td><td>${product.brandName}</td></tr>

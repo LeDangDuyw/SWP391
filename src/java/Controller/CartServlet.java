@@ -146,7 +146,12 @@ public class CartServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect("CartServlet");   // redirect to prevent resubmission on refresh
+        String redirect = request.getParameter("redirect");
+        if ("checkout".equals(redirect)) {
+            response.sendRedirect("CheckoutServlet");
+        } else {
+            response.sendRedirect("CartServlet");   // redirect to prevent resubmission on refresh
+        }
     }
 
     private void addToCart(HttpServletRequest request, List<CartItem> cart, Users user) {
