@@ -7,7 +7,7 @@ import jakarta.servlet.annotation.WebListener;
 
 /*
  * Name: DbConnectionListener
- * @Author: Antigravity AI
+ * @Author: LUCTVHE201874
  * Date: [05/06/2026]
  * Version: 1.0
  * Description: Listener tự động giải phóng kết nối cơ sở dữ liệu (ThreadLocal Connection) 
