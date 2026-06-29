@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /*
  * Name: ManageUsersController
- * @Author: Antigravity AI
+ * @Author: LUCTVHE201874
  * Date: [22/06/2026]
  * Version: 1.0
  * Description: Servlet for Admin to view, search, paginate, lock/unlock accounts, 
@@ -24,6 +24,14 @@ import java.util.ArrayList;
 @WebServlet("/admin/users")
 public class ManageUsersController extends HttpServlet {
 
+    /*
+     * Name: doGet
+     * Description: Xử lý hiển thị danh sách tài khoản kèm bộ lọc và phân trang.
+     *              Hỗ trợ cả yêu cầu AJAX để đếm số lượng đơn hàng hoạt động của người dùng trước khi khóa.
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -35,6 +43,24 @@ public class ManageUsersController extends HttpServlet {
         if (sessionUser == null || sessionUser.getRoleId() != 1) {
             response.sendRedirect(request.getContextPath() + "/login?error=" +
                     URLEncoder.encode("Bạn không có quyền truy cập trang quản lý tài khoản!", "UTF-8"));
+            return;
+        }
+
+        String ajaxAction = request.getParameter("ajaxAction");
+        if ("checkActiveOrders".equalsIgnoreCase(ajaxAction)) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            String targetUserIdStr = request.getParameter("userId");
+            int targetUserId = 0;
+            int activeOrdersCount = 0;
+            try {
+                targetUserId = Integer.parseInt(targetUserIdStr.trim());
+                UserDAO userDAO = new UserDAO();
+                activeOrdersCount = userDAO.getActiveOrdersCount(targetUserId);
+            } catch (Exception e) {
+                // Ignore
+            }
+            response.getWriter().write("{\"activeOrdersCount\":" + activeOrdersCount + "}");
             return;
         }
 
@@ -164,6 +190,13 @@ public class ManageUsersController extends HttpServlet {
         boolean isSuccess = false;
 
         if ("lock".equalsIgnoreCase(action)) {
+            // Check active orders count before locking
+            int activeOrders = userDAO.getActiveOrdersCount(targetUserId);
+            if (activeOrders > 0) {
+                response.sendRedirect(redirectURL.toString() + "&error=" +
+                        URLEncoder.encode("Không thể khóa tài khoản này vì người dùng đang có " + activeOrders + " đơn hàng chưa hoàn tất!", "UTF-8"));
+                return;
+            }
             isSuccess = userDAO.updateStatus(targetUserId, "inactive");
             if (isSuccess) {
                 response.sendRedirect(redirectURL.toString() + "&success=1");

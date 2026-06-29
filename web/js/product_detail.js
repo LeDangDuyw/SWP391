@@ -167,24 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 5. Header Dropdown Menu for User (Trigger logic matching product_list.js)
-    const userTrigger = document.querySelector('.user-menu-trigger');
-    if (userTrigger) {
-        userTrigger.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const dropdown = this.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        });
-        
-        document.addEventListener('click', function () {
-            const dropdowns = document.querySelectorAll('.user-menu-dropdown-content');
-            dropdowns.forEach(d => {
-                d.style.display = 'none';
-            });
-        });
-    }
-
     // 6. Handle Add to Cart & Buy Now submits
     const addCartForm = document.getElementById('addCartForm');
     const formQty = document.getElementById('formQty');

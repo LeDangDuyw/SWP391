@@ -1,3 +1,10 @@
+/*
+ * Name: ImeiManagement
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller quản lý và thống kê danh sách mã IMEI, Serial Number sản phẩm trong kho.
+ */
 package controller;
 
 import dal.ImeiDAO;

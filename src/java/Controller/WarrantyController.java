@@ -25,7 +25,16 @@ import utils.ValidationException;
  * Routing: Customer (roleId=3) → warranty-center.jsp Staff/Admin (roleId=1,2) →
  * warranty-console.jsp
  *
- * Version 1.1 Author DuyLD
+ * Upload ảnh: action=submit hỗ trợ multipart/form-data, field "images"
+ * (multiple), tối đa 5 ảnh, mỗi ảnh tối đa 5MB. Giới hạn cứng được khai báo tại
+ *
+ * @MultipartConfig (chặn ở tầng container) và được validate lại lần nữa ở
+ * WarrantyService (chặn ở tầng business logic) để tránh request vượt giới hạn
+ * làm lội ServletException thô thay vì ValidationException thân thiện.
+ *
+ * Version 1.1 
+ * 
+ * Author DuyLD
  */
 @WebServlet("/warranty")
 public class WarrantyController extends HttpServlet {
@@ -129,7 +138,6 @@ public class WarrantyController extends HttpServlet {
         }
     }
 
-    // ACTION HANDLERS
     /**
      * GET list: Customer → warranty-center.jsp (loads their own claims)
      * Staff/Admin → warranty-console.jsp (loads all claims, supports
@@ -164,9 +172,17 @@ public class WarrantyController extends HttpServlet {
         }
         request.setAttribute("selectedClaim", claim);
         request.setAttribute("selectedHistory", warrantyService.getHistory(claimId));
-        // Load claims list để giữ nguyên layout warranty_center
-        loadCustomerClaims(request, user);
-        request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
+        request.setAttribute("selectedImages", warrantyService.getClaimImages(claimId));
+
+        if (isCustomer(user)) {
+            // keep customer layout data and show detail for customers
+            loadCustomerClaims(request, user);
+            request.getRequestDispatcher("/customer/warranty_detail.jsp").forward(request, response);
+        } else {
+            // admin/staff flow
+            loadConsoleClaims(request, String.valueOf(claimId));
+            request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
+        }
     }
 
     /**
@@ -272,7 +288,6 @@ public class WarrantyController extends HttpServlet {
         }
     }
 
-    // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
     /**
      * Loads claims cho customer view (warranty-center.jsp).
      */

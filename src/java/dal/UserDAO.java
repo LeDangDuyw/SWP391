@@ -336,4 +336,49 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    /*
+     * Name: createUserByAdmin
+     * Description: Admin tạo tài khoản mới trực tiếp với họ tên, email, sđt, mật khẩu và vai trò cụ thể.
+     */
+    public boolean createUserByAdmin(String fullName, String email, String phone, String password, int roleId) {
+        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'active', ?)";
+        try {
+            String hashedPassword = hashPasswordUtil.hashPassword(password);
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, fullName);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+            ps.setString(4, hashedPassword);
+            ps.setInt(5, roleId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return false;
+    }
+
+    /*
+     * Name: getActiveOrdersCount
+     * Description: Đếm số đơn hàng chưa hoàn tất của người dùng (khác 'cancelled' và 'delivered').
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+     */
+    public int getActiveOrdersCount(int userId) {
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE user_id = ? AND order_status NOT IN ('cancelled', 'delivered')";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
 }
+
