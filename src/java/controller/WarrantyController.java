@@ -71,6 +71,13 @@ public class WarrantyController extends HttpServlet {
             action = "list";
         }
 
+        if (user.getRoleId() == 2) {
+            response.sendRedirect(request.getContextPath() + "/staff/warranty?action=" + action
+                    + (request.getParameter("id") != null ? "&id=" + request.getParameter("id") : "")
+                    + (request.getParameter("selectedId") != null ? "&selectedId=" + request.getParameter("selectedId") : ""));
+            return;
+        }
+
         try {
             switch (action) {
                 case "list":
@@ -108,6 +115,11 @@ public class WarrantyController extends HttpServlet {
         String action = request.getParameter("action");
         if (action == null) {
             action = "";
+        }
+
+        if (user.getRoleId() == 2) {
+            response.sendRedirect(request.getContextPath() + "/staff/warranty?action=list");
+            return;
         }
 
         try {
