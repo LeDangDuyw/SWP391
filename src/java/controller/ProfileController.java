@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /*
  * Name: ProfileController
- * @Author: LUCTVHE201874 / Antigravity AI
+ * @Author: LUCTVHE201874
  * Date: [21/06/2026]
  * Version: 2.0
  * Description: Controller to display and update the user's personal profile.

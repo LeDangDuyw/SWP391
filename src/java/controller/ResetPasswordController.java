@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /*
  * Name: ResetPasswordController
- * @Author: Antigravity
+ * @Author: LUCTVHE201874
  * Date: [21/06/2026]
  * Version: 1.0
  * Description: Servlet for resetting password. Validates recovery token, 
