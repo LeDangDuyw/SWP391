@@ -349,6 +349,14 @@
                             </span>
                         </div>
                     </div>
+                    <div class="btn-actions">
+                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
+                            <i class="fas fa-house"></i> Tiếp tục mua sắm
+                        </a>
+                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-secondary">
+                            Theo dõi đơn hàng
+                        </a>
+                    </div>
                 </c:otherwise>
             </c:choose>
 

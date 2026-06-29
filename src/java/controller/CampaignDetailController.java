@@ -35,7 +35,7 @@ public class CampaignDetailController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        detailDao = new CampaignDetailDAO(getServletContext());
+   
     }
 
     /**

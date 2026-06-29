@@ -27,9 +27,7 @@ public class CampaignDetailDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
      * Action/Luồng đi: Truyền context lên lớp cha.
      */
-    public CampaignDetailDAO(ServletContext context) {
-        super(context);
-    }
+   
 
     /**
      * Chức năng: Truy vấn hiệu suất bán hàng của từng sản phẩm thuộc một chiến dịch cụ thể (gồm: số lượng bán, doanh thu, tồn kho, và tính toán giá khuyến mãi thực tế).
