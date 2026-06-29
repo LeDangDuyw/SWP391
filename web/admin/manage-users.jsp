@@ -939,11 +939,11 @@
                         .then(function(response) { return response.json(); })
                         .then(function(data) {
                             var count = data.activeOrdersCount || 0;
-                            var confirmMsg = "Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
                             if (count > 0) {
-                                confirmMsg = "Người dùng này đang có " + count + " đơn hàng chưa hoàn tất. Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                                alert("Không thể khóa tài khoản này vì người dùng [" + email + "] đang có " + count + " đơn hàng chưa hoàn tất!");
+                                return;
                             }
-                            if (confirm(confirmMsg)) {
+                            if (confirm("Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?")) {
                                 executeLockAction(actionCode, userId);
                             }
                         })
