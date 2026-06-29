@@ -29,7 +29,7 @@ public class PromotionsController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        promotionsDao = new PromotionsDAO(getServletContext());
+    
     }
 
     /**

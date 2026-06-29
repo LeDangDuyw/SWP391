@@ -30,7 +30,7 @@ public class CampaignFormController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        formDao = new CampaignFormDAO(getServletContext());
+       
     }
 
     /**
