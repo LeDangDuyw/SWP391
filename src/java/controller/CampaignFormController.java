@@ -30,8 +30,9 @@ public class CampaignFormController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-       
+        formDao = new CampaignFormDAO(getServletContext());
     }
+
 
     /**
      * Chức năng: Xử lý yêu cầu HTTP GET, trả về dữ liệu danh sách sản phẩm dạng JSON, sinh mã ngẫu nhiên, hoặc chuyển tiếp tới trang form điền thông tin chiến dịch.
