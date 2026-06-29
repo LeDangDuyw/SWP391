@@ -20,14 +20,15 @@ import model.CampaignProduct;
 import model.CampaignSalesVolume;
 
 public class CampaignDetailDAO extends CampaignDAO {
-    /**
-     * Chức năng: Khởi tạo lớp DAO chi tiết chiến dịch, kế thừa CampaignDAO.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
-     * Action/Luồng đi: Truyền context lên lớp cha.
-     */
-   
+
+    public CampaignDetailDAO() {
+        super();
+    }
+
+    public CampaignDetailDAO(ServletContext context) {
+        super(context);
+    }
+
 
     /**
      * Chức năng: Truy vấn hiệu suất bán hàng của từng sản phẩm thuộc một chiến dịch cụ thể (gồm: số lượng bán, doanh thu, tồn kho, và tính toán giá khuyến mãi thực tế).
