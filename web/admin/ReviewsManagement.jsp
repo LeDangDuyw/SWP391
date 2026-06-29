@@ -1,7 +1,7 @@
 <%-- 
     Document   : ReviewsManagement
     Created on : Jun 22, 2026, 4:14:24 AM
-    Author     : NC
+    Author     : MINHBQ
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>

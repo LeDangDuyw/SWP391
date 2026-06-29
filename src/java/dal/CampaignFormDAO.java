@@ -17,16 +17,15 @@ import model.Campaign;
 import model.ProductSearchItem;
 
 public class CampaignFormDAO extends CampaignDAO {
-    /**
-     * Chức năng: Khởi tạo lớp DAO form chiến dịch, kế thừa CampaignDAO.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
-     * Action/Luồng đi: Truyền context lên lớp cha.
-     */
+
+    public CampaignFormDAO() {
+        super();
+    }
+
     public CampaignFormDAO(ServletContext context) {
         super(context);
     }
+
 
     /**
      * Chức năng: Tìm kiếm danh sách các sản phẩm (tối đa 120 dòng) để hiển thị trong form chọn sản phẩm khuyến mãi, đồng thời đánh dấu xem sản phẩm nào đã được chọn trong chiến dịch trước đó.
@@ -201,7 +200,7 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Thực hiện commit giao dịch. Nếu có lỗi xảy ra, thực hiện rollback để đảm bảo tính toàn vẹn dữ liệu.
      */
     public int insertCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
-        checkConnection();
+
         con.setAutoCommit(false);
 
         try {
@@ -254,7 +253,7 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Commit giao dịch, thực hiện rollback nếu gặp ngoại lệ SQL.
      */
     public void updateCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
-        checkConnection();
+        
         con.setAutoCommit(false);
 
         try {
@@ -509,7 +508,7 @@ public class CampaignFormDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Trả về true nếu tên chiến dịch đã tồn tại, ngược lại trả về false.
      */
     public boolean isCampaignNameExists(String name, int excludeId) throws SQLException {
-        checkConnection();
+        
         String sql = "SELECT COUNT(*) FROM [Campaign] WHERE campaign_name = ? AND campaign_id != ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, name);

@@ -203,6 +203,7 @@ public class UserDAO extends DBContext {
      * Name: getUserById
      * @Author: LUCTVHE201874
      * Date: [21/06/2026]
+     * Date Completed: [26/06/2026]
      * Version: 1.0
      * Description: Tìm kiếm thông tin người dùng theo user_id.
      */
@@ -413,6 +414,9 @@ public class UserDAO extends DBContext {
     /*
      * Name: getActiveOrdersCount
      * Description: Đếm số đơn hàng chưa hoàn tất của người dùng (khác 'cancelled' và 'delivered').
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
      */
     public int getActiveOrdersCount(int userId) {
         String sql = "SELECT COUNT(*) FROM [Order] WHERE user_id = ? AND order_status NOT IN ('cancelled', 'delivered')";

@@ -1,3 +1,10 @@
+/*
+ * Name: AdminTicketListController
+ * @Author: HuyDQ
+ * Date: [05/06/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị danh sách phiếu nhập kho chờ duyệt dành cho quản trị viên (Admin).
+ */
 package controller;
 
 import dal.TicketDAO;

@@ -38,6 +38,7 @@ public class CampaignDetailController extends PromotionServlet {
         detailDao = new CampaignDetailDAO(getServletContext());
     }
 
+
     /**
      * Chức năng: Xử lý các yêu cầu HTTP GET, hiển thị trang chi tiết chiến dịch hoặc xuất báo cáo in ấn PDF.
      * Tác nhân liên quan: Admin.
