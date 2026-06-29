@@ -105,7 +105,10 @@ public class CompareServlet extends HttpServlet {
           
           CategoryDAO categoryDAO = new CategoryDAO();
           request.setAttribute("categories", categoryDAO.getAllCategories());
-          request.setAttribute("compareProducts", compareProductList);
+           request.setAttribute("compareProducts", compareProductList);
+           
+           List<ProductCompareDTO> suggestProductList = compareDAO.getSuggestProductforCompare(compareList, 4);
+           request.setAttribute("suggestProducts", suggestProductList);
           
           List<ProductCompareDTO> suggestProductList = compareDAO.getSuggestProductforCompare(compareList, 4);
           request.setAttribute("suggestProducts", suggestProductList);
