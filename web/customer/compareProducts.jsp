@@ -117,20 +117,24 @@
     </header>
 
     <!-- Main Compare Content -->
-    <div class="compare-container">
-        <c:choose>
-            <c:when test="${empty compareProducts}">
+    <c:choose>
+        <c:when test="${empty compareProducts}">
+            <div class="compare-container">
                 <div class="empty-compare">
                     <i class="fas fa-balance-scale-left"></i>
                     <p>Chưa có sản phẩm nào trong danh sách so sánh của bạn.</p>
                     <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-back">Quay lại Trang chủ</a>
                 </div>
-            </c:when>
-            <c:otherwise>
-                <div class="compare-header">
-                    <h1>So Sánh Sản Phẩm</h1>
-                    <button class="btn-clear" onclick="clearCompareList()">Xóa tất cả</button>
-                </div>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <div class="compare-layout-wrapper">
+                <!-- Left Column: Compare Main Content -->
+                <div class="compare-main-block">
+                    <div class="compare-header">
+                        <h1>So Sánh Sản Phẩm</h1>
+                        <button class="btn-clear" onclick="clearCompareList()">Xóa tất cả</button>
+                    </div>
 
                 <div class="compare-table-wrapper">
                     <table class="compare-table">
@@ -344,10 +348,34 @@
                             </c:when>
                         </c:choose>
                     </table>
+                </div> <!-- End of .compare-table-wrapper -->
+            </div> <!-- End of .compare-main-block -->
+
+            <!-- Right Column: Sidebar (Suggest Products) -->
+            <c:if test="${not empty suggestProducts}">
+                <div class="compare-sidebar-block">
+                    <h4 class="sidebar-section-title">Gợi ý sản phẩm cùng phân khúc</h4>
+                    <div class="suggest-sidebar-list">
+                        <c:forEach items="${suggestProducts}" var="sp">
+                            <div class="suggest-sidebar-item">
+                                <img src="${pageContext.request.contextPath}/images/${sp.thumbnail}" alt="${sp.productName}">
+                                <div class="suggest-info">
+                                    <div class="suggest-price">
+                                        <fmt:formatNumber value="${sp.minPrice}" type="currency" currencySymbol="đ" />
+                                    </div>
+                                    <h5 class="suggest-name" title="${sp.productName}">${sp.productName}</h5>
+                                    <a href="javascript:void(0)" onclick="addProductToCompare(${sp.productId})" class="suggest-add-link">
+                                        <i class="fas fa-plus-circle"></i> Thêm vào so sánh
+                                    </a>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
                 </div>
-            </c:otherwise>
-        </c:choose>
-    </div>
+            </c:if>
+        </div> <!-- End of .compare-layout-wrapper -->
+    </c:otherwise>
+</c:choose>
 
     <!-- Footer -->
     <%
