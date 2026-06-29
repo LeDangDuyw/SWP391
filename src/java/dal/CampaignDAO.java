@@ -15,7 +15,7 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
-    private final ServletContext context;
+    
 
     /**
      * 
@@ -25,7 +25,7 @@ public class CampaignDAO extends DBContext {
      * Đẩy/Gửi dữ liệu đi: Gán đối tượng connection cho thuộc tính `con` dùng chung trong lớp.
      * Action/Luồng đi: Gọi constructor của lớp cha DBContext để kết nối CSDL, sau đó gán kết nối.
      */
-    public CampaignDAO(ServletContext context) {
+    public CampaignDAO() {
         super(context);
         this.context = context;
         this.con = super.connection;
