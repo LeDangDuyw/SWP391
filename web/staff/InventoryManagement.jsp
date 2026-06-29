@@ -146,7 +146,10 @@
     
     String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
     String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
-    String queryStr = "&tab=" + activeTab + searchInputAttr + sortByAttr;
+    String categoryAttr = request.getParameter("category") != null ? "&category=" + request.getParameter("category") : "";
+    String stockStatusAttr = request.getParameter("stockStatus") != null ? "&stockStatus=" + request.getParameter("stockStatus") : "";
+    String itemStatusAttr = request.getParameter("itemStatus") != null ? "&itemStatus=" + request.getParameter("itemStatus") : "";
+    String queryStr = "&tab=" + activeTab + searchInputAttr + sortByAttr + categoryAttr + stockStatusAttr + itemStatusAttr;
 %>
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
@@ -235,6 +238,7 @@
 
             <div class="flex flex-col gap-4 mb-8">
                 <form action="${pageContext.request.contextPath}/staff/inventory" method="get" class="w-full">
+                    <input type="hidden" name="tab" value="<%= activeTab %>">
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
@@ -246,20 +250,26 @@
                     </div>
 
                     <div class="relative">
-                        <select name="category" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                        <select name="category" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
                             <option value="">All Categories</option>
-                            <option value="laptops"    ${param.category == 'laptops'    ? 'selected' : ''}>Laptops</option>
-                            <option value="mice"       ${param.category == 'mice'       ? 'selected' : ''}>Mice</option>
-                            <option value="keyboards"  ${param.category == 'keyboards'  ? 'selected' : ''}>Keyboards</option>
+                            <% 
+                                dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+                                List<model.Category> categories = categoryDAO.getAllCategories();
+                                String selectedCategory = request.getParameter("category");
+                                for (model.Category cat : categories) {
+                                    String catName = cat.getCategoryName();
+                            %>
+                            <option value="<%= catName %>" <%= catName.equalsIgnoreCase(selectedCategory) ? "selected" : "" %>><%= catName %></option>
+                            <% } %>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
 
                     <div class="relative">
-                        <select name="sortBy" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                        <select name="sortBy" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
                             <option value="all"       ${param.sortBy == 'all'       ? 'selected' : ''}>All</option>
@@ -273,7 +283,7 @@
                     <!-- Stock Status chỉ hiện ở tab variants -->
                     <% if (activeTab.equals("variants")) { %>
                     <div class="relative">
-                        <select name="stockStatus" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                        <select name="stockStatus" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
                             <option value="">Stock Status</option>
@@ -285,7 +295,7 @@
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
                     <div class="relative">
-                        <select name="itemStatus" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                        <select name="itemStatus" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
                             <option value="active" ${param.itemStatus == 'active' || empty param.itemStatus ? 'selected' : ''}>Active Items</option>
@@ -457,6 +467,13 @@
                                             </button>
                                             <% } %>
                                         </form>
+                                    </td>
+                                </tr>
+                                 <% } %>
+                                <% if (products.isEmpty()) { %>
+                                <tr>
+                                    <td class="py-4 px-4 text-center text-on-surface-variant font-body-sm text-body-sm" colspan="7">
+                                        No product variants found matching the selected filters.
                                     </td>
                                 </tr>
                                 <% } %>
