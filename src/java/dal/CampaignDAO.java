@@ -15,7 +15,7 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
-    private final ServletContext context;
+  
 
     /**
      * 
