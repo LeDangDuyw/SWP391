@@ -15,17 +15,16 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
-    private final ServletContext context;
 
-    /**
-     * 
-     * Chức năng: Khởi tạo lớp DAO cho Chiến dịch (Campaign), kế thừa DBContext và lấy đối tượng Connection.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gán đối tượng connection cho thuộc tính `con` dùng chung trong lớp.
-     * Action/Luồng đi: Gọi constructor của lớp cha DBContext để kết nối CSDL, sau đó gán kết nối.
-     */
-  
+    public CampaignDAO() {
+        super();
+        this.con = super.connection;
+    }
+
+    public CampaignDAO(ServletContext context) {
+        super(context);
+        this.con = super.connection;
+    }
 
     /**
      * Chức năng: Kiểm tra trạng thái kết nối CSDL hiện tại. Nếu chưa có hoặc đã đóng, tiến hành kết nối lại.
