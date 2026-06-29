@@ -84,6 +84,9 @@ public class InventoryListController extends HttpServlet {
         String searchInput = request.getParameter("searchInput");
         if (searchInput == null) searchInput = "";
         String sortBy = request.getParameter("sortBy");
+        String category = request.getParameter("category");
+        String stockStatus = request.getParameter("stockStatus");
+        String itemStatus = request.getParameter("itemStatus");
         
         int page = 1;
         int pageSize = 10;
@@ -97,9 +100,9 @@ public class InventoryListController extends HttpServlet {
         }
         
         if ("products".equals(activeTab)) {
-            int totalRecords = dao.countSearchAllProducts(searchInput);
+            int totalRecords = dao.countSearchAllProducts(searchInput, category);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            List<Product> product = dao.searchAllProducts(searchInput, page, pageSize);
+            List<Product> product = dao.searchAllProducts(searchInput, category, sortBy, page, pageSize);
             
             request.setAttribute("product", product);
             request.setAttribute("currentPage", page);
@@ -108,10 +111,10 @@ public class InventoryListController extends HttpServlet {
             request.setAttribute("pageSize", pageSize);
         } else {
             int offset = (page - 1) * pageSize;
-            int totalRecords = dao.getTotalInventoryCount(searchInput);
+            int totalRecords = dao.getTotalInventoryCount(searchInput, category, stockStatus, itemStatus);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
             
-            List<ProductInventory> products = dao.GetProductInventoryPaginated(searchInput, sortBy, offset, pageSize);
+            List<ProductInventory> products = dao.GetProductInventoryPaginated(searchInput, category, sortBy, stockStatus, itemStatus, offset, pageSize);
             
             request.setAttribute("products", products);
             request.setAttribute("currentPage", page);
@@ -123,6 +126,7 @@ public class InventoryListController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
     } 
+
 
     /** 
      * Handles the HTTP <code>POST</code> method.

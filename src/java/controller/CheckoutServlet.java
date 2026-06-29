@@ -59,6 +59,8 @@ public class CheckoutServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Object userObj = session.getAttribute("user");
         if (userObj == null) {
+            // Lưu lại URL để sau khi đăng nhập redirect về checkout
+            session.setAttribute("redirectAfterLogin", request.getContextPath() + "/CheckoutServlet");
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }

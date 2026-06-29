@@ -16,6 +16,7 @@ import java.util.UUID;
  * @Author: LUCTVHE201874
  * Date: [21/06/2026]
  * Version: 2.0
+ * Complete:[26/06/2026]
  * Description: Controller to display and update the user's personal profile.
  * Supports updating Full Name, Phone Number, uploading an Avatar image,
  * and changing the account password (UC05 – Change Password per SRS spec).

@@ -359,6 +359,12 @@
                     </div>
                 </c:otherwise>
             </c:choose>
+
+            <div class="btn-actions">
+                <a href="javascript:history.back()" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
+                    <i class="fas fa-arrow-left"></i> Quay lại chọn phương thức khác
+                </a>
+            </div>
         </div>
     </div>
 </main>
