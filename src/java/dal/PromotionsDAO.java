@@ -17,9 +17,7 @@ public class PromotionsDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
      * Action/Luồng đi: Chuyển tiếp context lên lớp cha.
      */
-    public PromotionsDAO(ServletContext context) {
-        super(context);
-    }
+ 
 
     /**
      * Chức năng: Truy vấn danh sách các chiến dịch khuyến mãi có hỗ trợ tìm kiếm theo từ khóa và phân trang dữ liệu trong CSDL.
