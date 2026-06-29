@@ -347,7 +347,7 @@
             .revenue-hero .kpi-sub   {
                 color:#93c5fd;
             }
-            .revenue-hero .kpi-badge.mock {
+            .revenue-hero .kpi-badge.up {
                 background:rgba(255,255,255,.2);
                 color:#fff;
             }
@@ -676,35 +676,35 @@
                     <!-- ══ ROW 1: KPI SUMMARY CARDS ══ -->
                     <div class="kpi-row">
 
-                        <!-- Revenue Today — MOCK -->
+                        <!-- Revenue — REAL -->
                         <div class="kpi-card revenue-hero">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-white">💰</div>
-                                <span class="kpi-badge mock">MOCK</span>
+                                <span class="kpi-badge up">REAL</span>
                             </div>
-                            <div class="kpi-label">Revenue Today</div>
+                            <div class="kpi-label">Total Revenue</div>
                             <div class="kpi-value">
                                 <fmt:formatNumber value="${todayRevenue}" pattern="#,##0"/> ₫
                             </div>
-                            <div class="kpi-sub">↑ 12% vs yesterday · MOCK DATA</div>
+                            <div class="kpi-sub">All orders (excl. cancelled)</div>
                         </div>
 
-                        <!-- Orders Today — MOCK -->
+                        <!-- Orders — REAL -->
                         <div class="kpi-card c-green">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-green">🛒</div>
-                                <span class="kpi-badge mock">MOCK</span>
+                                <span class="kpi-badge up">REAL</span>
                             </div>
-                            <div class="kpi-label">Orders Today</div>
+                            <div class="kpi-label">Total Orders</div>
                             <div class="kpi-value">${todayOrders}</div>
-                            <div class="kpi-sub">↑ 4 orders vs yesterday</div>
+                            <div class="kpi-sub">All time order count</div>
                         </div>
 
-                        <!-- New Customers — MOCK -->
+                        <!-- New Customers — REAL -->
                         <div class="kpi-card c-blue">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-blue">👤</div>
-                                <span class="kpi-badge mock">MOCK</span>
+                                <span class="kpi-badge up">REAL</span>
                             </div>
                             <div class="kpi-label">New Customers</div>
                             <div class="kpi-value">${newCustomersToday}</div>
@@ -730,7 +730,7 @@
                     <div class="chart-card" style="margin-bottom:20px;">
                         <div class="chart-card-title">
                             Monthly Revenue 2026
-                            <span class="mock-tag">MOCK DATA</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                         </div>
                         <canvas id="revenueChart" height="90"></canvas>
                     </div>
@@ -739,11 +739,11 @@
                     <div class="section-hd"><span class="dot"></span>Operations</div>
                     <div class="grid-3">
 
-                        <!-- Orders by Status Doughnut — MOCK -->
+                        <!-- Orders by Status Doughnut — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 Orders by Status
-                                <span class="mock-tag">MOCK</span>
+                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <canvas id="ordersChart" height="180"></canvas>
                         </div>
@@ -799,29 +799,29 @@
                     <div class="section-hd"><span class="dot"></span>Rankings &amp; Activity</div>
                     <div class="grid-3b">
 
-                        <!-- Top Products Horizontal Bar — MOCK -->
+                        <!-- Top Products Horizontal Bar — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 🏆 Top Products
-                                <span class="mock-tag">MOCK</span>
+                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <canvas id="topProductsChart" height="200"></canvas>
                         </div>
 
-                        <!-- Top Customers Horizontal Bar — MOCK -->
+                        <!-- Top Customers Horizontal Bar — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 👑 Top Customers
-                                <span class="mock-tag">MOCK</span>
+                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <canvas id="topCustomersChart" height="200"></canvas>
                         </div>
 
-                        <!-- Recent Activities — MIXED -->
+                        <!-- Recent Activities — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 🕐 Recent Activities
-                                <span style="font-size:10px;font-weight:500;color:#6b7280;">Mixed</span>
+                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <div class="activity-feed">
                                 <c:forEach items="${recentActivities}" var="act">
@@ -855,8 +855,7 @@
                 return Object.values(map);
             }
 
-        // ── Revenue Bar Chart — MOCK DATA ────────────────────
-        // MOCK DATA — Replace when Order module is implemented
+        // ── Revenue Bar Chart — REAL DATA ────────────────────
             const revenueLabels = [<c:forEach items="${monthlyRevenue}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const revenueValues = [<c:forEach items="${monthlyRevenue}" var="e" varStatus="s">${e.value / 1000000}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
@@ -887,8 +886,7 @@
                 }
             });
 
-        // ── Orders Doughnut — MOCK DATA ──────────────────────
-        // MOCK DATA — Replace when Order module is implemented
+        // ── Orders Doughnut — REAL DATA ──────────────────────
             const orderLabels = [<c:forEach items="${ordersByStatus}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const orderValues = [<c:forEach items="${ordersByStatus}" var="e" varStatus="s">${e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
@@ -935,8 +933,7 @@
                 }
             });
 
-        // ── Top Products Horizontal Bar — MOCK DATA ──────────
-        // MOCK DATA — Replace when Order module is implemented
+        // ── Top Products Horizontal Bar — REAL DATA ──────────
             const tpLabels = [<c:forEach items="${topProducts}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tpValues = [<c:forEach items="${topProducts}" var="e" varStatus="s">${e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
@@ -963,8 +960,7 @@
                 }
             });
 
-        // ── Top Customers Horizontal Bar — MOCK DATA ─────────
-        // MOCK DATA — Replace when Order module is implemented
+        // ── Top Customers Horizontal Bar — REAL DATA ─────────
             const tcLabels = [<c:forEach items="${topCustomers}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tcValues = [<c:forEach items="${topCustomers}" var="e" varStatus="s">${e.value / 1000000}<c:if test="${!s.last}">,</c:if></c:forEach>];
 

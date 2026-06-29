@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import model.Users;
-import service.MockAnalyticsService;
+
 
 /**
  * AdminDashboardServlet loads dashboard data.
@@ -24,12 +24,12 @@ import service.MockAnalyticsService;
 public class AdminDashboardServlet extends HttpServlet {
 
     private AdminDashboardDAO dashboardDAO;
-    private MockAnalyticsService mockService;
+
 
     @Override
     public void init() {
         dashboardDAO = new AdminDashboardDAO();
-        mockService = new MockAnalyticsService();
+
     }
 
     @Override
@@ -61,20 +61,17 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("lowStockProducts", dashboardDAO.getLowStockProducts());
             request.setAttribute("recentProducts", dashboardDAO.getRecentProducts());
 
-            // ===============================
-            // MOCK ANALYTICS DATA
-            // Replace later with Order DAO
-            // ===============================
-            request.setAttribute("todayRevenue", mockService.getTodayRevenue());
-            request.setAttribute("todayOrders", mockService.getTodayOrders());
-            request.setAttribute("newCustomersToday", mockService.getNewCustomersToday());
-            request.setAttribute("pendingAlerts", mockService.getPendingAlerts());
+            // REAL ANALYTICS DATA FROM DATABASE
+            request.setAttribute("todayRevenue", dashboardDAO.getTotalRevenue());
+            request.setAttribute("todayOrders", dashboardDAO.getTotalOrderCount());
+            request.setAttribute("newCustomersToday", dashboardDAO.getNewCustomersToday());
+            request.setAttribute("pendingAlerts", dashboardDAO.getPendingAlerts());
 
-            request.setAttribute("monthlyRevenue", mockService.getMonthlyRevenue());
-            request.setAttribute("ordersByStatus", mockService.getOrdersByStatus());
-            request.setAttribute("topProducts", mockService.getTopProducts());
-            request.setAttribute("topCustomers", mockService.getTopCustomers());
-            request.setAttribute("recentActivities", mockService.getRecentActivities());
+            request.setAttribute("monthlyRevenue", dashboardDAO.getMonthlyRevenue());
+            request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
+            request.setAttribute("topProducts", dashboardDAO.getTopProducts());
+            request.setAttribute("topCustomers", dashboardDAO.getTopCustomers());
+            request.setAttribute("recentActivities", dashboardDAO.getRecentActivities());
 
             request.getRequestDispatcher("/admin/AdminDashboard.jsp")
                     .forward(request, response);
