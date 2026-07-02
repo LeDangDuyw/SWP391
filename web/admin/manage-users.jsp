@@ -631,6 +631,8 @@
 
                     <!-- Search & Filter Form -->
                     <form action="${pageContext.request.contextPath}/admin/users" method="GET">
+                        <input type="hidden" name="from" value="${from}">
+                        <input type="hidden" name="to" value="${to}">
                         <div class="search-bar-container">
                             <input type="text" name="search" class="search-input" value="${searchKeyword}" placeholder="Tìm kiếm theo họ tên hoặc địa chỉ email...">
                             
@@ -649,7 +651,7 @@
 
                             <button type="submit" class="search-btn">Tìm kiếm</button>
                             
-                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus}">
+                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus || not empty from || not empty to}">
                                 <a href="${pageContext.request.contextPath}/admin/users" class="clear-search-btn">Xóa lọc</a>
                             </c:if>
                             
@@ -765,19 +767,19 @@
                     <!-- Pagination -->
                     <c:if test="${totalPages > 1}">
                         <div class="pagination-container">
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == 1 ? 'disabled' : ''}">
                                 &lt; Trước
                             </a>
                             
                             <c:forEach begin="1" end="${totalPages}" var="i">
-                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                    class="pagination-link ${currentPage == i ? 'active' : ''}">
                                     ${i}
                                 </a>
                             </c:forEach>
                             
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == totalPages ? 'disabled' : ''}">
                                 Sau &gt;
                             </a>
@@ -939,11 +941,11 @@
                         .then(function(response) { return response.json(); })
                         .then(function(data) {
                             var count = data.activeOrdersCount || 0;
-                            var confirmMsg = "Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
                             if (count > 0) {
-                                confirmMsg = "Người dùng này đang có " + count + " đơn hàng chưa hoàn tất. Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?";
+                                alert("Không thể khóa tài khoản này vì người dùng [" + email + "] đang có " + count + " đơn hàng chưa hoàn tất!");
+                                return;
                             }
-                            if (confirm(confirmMsg)) {
+                            if (confirm("Bạn có chắc chắn muốn KHÓA tài khoản [" + email + "] không?")) {
                                 executeLockAction(actionCode, userId);
                             }
                         })

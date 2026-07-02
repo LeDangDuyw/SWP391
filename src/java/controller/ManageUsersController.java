@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /*
  * Name: ManageUsersController
- * @Author: Antigravity AI
+ * @Author: LUCTVHE201874
  * Date: [22/06/2026]
  * Version: 1.0
  * Description: Servlet for Admin to view, search, paginate, lock/unlock accounts, 
@@ -24,6 +24,14 @@ import java.util.ArrayList;
 @WebServlet("/admin/users")
 public class ManageUsersController extends HttpServlet {
 
+    /*
+     * Name: doGet
+     * Description: Xử lý hiển thị danh sách tài khoản kèm bộ lọc và phân trang.
+     *              Hỗ trợ cả yêu cầu AJAX để đếm số lượng đơn hàng hoạt động của người dùng trước khi khóa.
+     * @Author: LUCTVHE201874
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -93,8 +101,26 @@ public class ManageUsersController extends HttpServlet {
             }
         }
 
+        String from = request.getParameter("from");
+        String to = request.getParameter("to");
+        if (from != null && from.trim().isEmpty()) from = null;
+        if (to != null && to.trim().isEmpty()) to = null;
+
+        if (from != null && to != null) {
+            try {
+                java.sql.Date.valueOf(from.trim());
+                java.sql.Date.valueOf(to.trim());
+            } catch (Exception e) {
+                from = null;
+                to = null;
+            }
+        }
+
+        request.setAttribute("from", from);
+        request.setAttribute("to", to);
+
         UserDAO userDAO = new UserDAO();
-        int totalUsers = userDAO.getTotalUsers(search, roleFilter, statusFilter);
+        int totalUsers = userDAO.getTotalUsers(search, roleFilter, statusFilter, from, to);
         int limit = 10;
         int totalPages = (int) Math.ceil((double) totalUsers / limit);
         if (totalPages == 0) {
@@ -106,7 +132,7 @@ public class ManageUsersController extends HttpServlet {
         }
 
         int offset = (currentPage - 1) * limit;
-        ArrayList<Users> usersList = userDAO.getUsers(search, roleFilter, statusFilter, offset, limit);
+        ArrayList<Users> usersList = userDAO.getUsers(search, roleFilter, statusFilter, from, to, offset, limit);
 
         // Map feedback codes
         String successCode = request.getParameter("success");
@@ -302,6 +328,13 @@ public class ManageUsersController extends HttpServlet {
         boolean isSuccess = false;
 
         if ("lock".equalsIgnoreCase(action)) {
+            // Check active orders count before locking
+            int activeOrders = userDAO.getActiveOrdersCount(targetUserId);
+            if (activeOrders > 0) {
+                response.sendRedirect(redirectURL.toString() + "&error=" +
+                        URLEncoder.encode("Không thể khóa tài khoản này vì người dùng đang có " + activeOrders + " đơn hàng chưa hoàn tất!", "UTF-8"));
+                return;
+            }
             isSuccess = userDAO.updateStatus(targetUserId, "inactive");
             if (isSuccess) {
                 response.sendRedirect(redirectURL.toString() + "&success=1");

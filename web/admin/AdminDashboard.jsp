@@ -669,8 +669,19 @@
 
                 <div class="content">
                     <div class="page-header">
-                        <div class="page-title">Overview &amp; Analytics</div>
-                        <div class="page-sub">Real-time business performance</div>
+                        <div>
+                            <div class="page-title">Overview &amp; Analytics</div>
+                            <div class="page-sub">
+                                <c:choose>
+                                    <c:when test="${not empty dateError}">
+                                        <span style="color:#ef4444; font-weight:600;">⚠️ ${dateError}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        Real-time business performance
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ══ ROW 1: KPI SUMMARY CARDS ══ -->
@@ -680,7 +691,6 @@
                         <div class="kpi-card revenue-hero">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-white">💰</div>
-                                <span class="kpi-badge up">REAL</span>
                             </div>
                             <div class="kpi-label">Total Revenue</div>
                             <div class="kpi-value">
@@ -693,18 +703,16 @@
                         <div class="kpi-card c-green">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-green">🛒</div>
-                                <span class="kpi-badge up">REAL</span>
                             </div>
                             <div class="kpi-label">Total Orders</div>
                             <div class="kpi-value">${todayOrders}</div>
                             <div class="kpi-sub">All time order count</div>
                         </div>
 
-                        <!-- New Customers — REAL -->
-                        <div class="kpi-card c-blue">
+                        <!-- New Customers -->
+                        <div class="kpi-card c-blue" onclick="window.location.href='${pageContext.request.contextPath}/admin/users?role=3&from=${not empty from ? from : todayDate}&to=${not empty to ? to : todayDate}'" style="cursor:pointer;">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-blue">👤</div>
-                                <span class="kpi-badge up">REAL</span>
                             </div>
                             <div class="kpi-label">New Customers</div>
                             <div class="kpi-value">${newCustomersToday}</div>
@@ -712,26 +720,52 @@
                         </div>
 
                         <!-- Alerts -->
-                        <div class="kpi-card c-red">
+                        <div class="kpi-card c-red" onclick="openAlertsModal()" style="cursor:pointer;">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-red">⚠️</div>
                                 <span class="kpi-badge down">Needs attention</span>
                             </div>
                             <div class="kpi-label">Active Alerts</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Low stock &amp; pending items</div>
+                            <div class="kpi-sub">Low stock &amp; pending claims</div>
                         </div>
                     </div>
 
 
                     <!-- ══ ROW 2: REVENUE CHART (full width) ══ -->
-                    <div class="section-hd"><span class="dot"></span>Revenue Analytics</div>
+                    <div class="section-hd" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <span style="display:flex; align-items:center;"><span class="dot"></span>Revenue Analytics</span>
+                        
+                        <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
+                            <input type="hidden" name="revenueYear" value="${revenueYear}">
+                            <input type="hidden" name="groupBy" value="${groupBy}">
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <label style="font-size:12px; font-weight:600; color:#475569;">From:</label>
+                                <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
+                            </div>
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <label style="font-size:12px; font-weight:600; color:#475569;">To:</label>
+                                <input type="date" name="to" value="${to}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
+                            </div>
+                            <select name="groupBy" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
+                                <option value="day" ${groupBy == 'day' ? 'selected' : ''}>Theo ngày</option>
+                                <option value="month" ${groupBy == 'month' || empty groupBy ? 'selected' : ''}>Theo tháng</option>
+                                <option value="quarter" ${groupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
+                                <option value="year" ${groupBy == 'year' ? 'selected' : ''}>Theo năm</option>
+                            </select>
+                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Filter</button>
+                            <c:if test="${not empty from || not empty to}">
+                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Reset</a>
+                            </c:if>
+                        </form>
+                        <c:if test="${autoDefaultRange}">
+                            <div style="font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:6px 12px; border-radius:6px; margin-top:8px; display:inline-flex; align-items:center; gap:6px;">
+                                ⓘ Chưa chọn khoảng ngày — đang hiển thị 30 ngày gần nhất
+                            </div>
+                        </c:if>
+                    </div>
 
-                    <div class="chart-card" style="margin-bottom:20px;">
-                        <div class="chart-card-title">
-                            Monthly Revenue 2026
-                            <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
-                        </div>
+                    <div class="chart-card" style="margin-bottom:20px; padding: 16px;">
                         <canvas id="revenueChart" height="90"></canvas>
                     </div>
 
@@ -739,29 +773,40 @@
                     <div class="section-hd"><span class="dot"></span>Operations</div>
                     <div class="grid-3">
 
-                        <!-- Orders by Status Doughnut — REAL -->
+                        <!-- Orders by Status Doughnut -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 Orders by Status
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
-                            <canvas id="ordersChart" height="180"></canvas>
+                            <c:choose>
+                                <c:when test="${not empty ordersByStatus}">
+                                    <canvas id="ordersChart" height="180"></canvas>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="no-data" style="height:180px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No order status data for this period</div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
-                        <!-- Products by Category Pie — REAL -->
+                        <!-- Products by Category Pie -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 Products by Category
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
-                            <canvas id="categoryChart" height="180"></canvas>
+                            <c:choose>
+                                <c:when test="${not empty productsByCategory}">
+                                    <canvas id="categoryChart" height="180"></canvas>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="no-data" style="height:180px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No product category data for this period</div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <!-- Low Stock Panel — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 ⚠️ Low Stock Products
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <c:choose>
                                 <c:when test="${not empty lowStockProducts}">
@@ -775,7 +820,7 @@
                                         </thead>
                                         <tbody>
                                             <c:forEach items="${lowStockProducts}" var="p">
-                                                <tr>
+                                                <tr onclick="window.location.href='${pageContext.request.contextPath}/staff/inventory'" style="cursor:pointer;">
                                                     <td style="font-weight:500;font-size:12px;">${p.productName}</td>
                                                     <td style="color:#6b7280;font-size:12px;">${p.categoryName}</td>
                                                     <td>
@@ -799,29 +844,40 @@
                     <div class="section-hd"><span class="dot"></span>Rankings &amp; Activity</div>
                     <div class="grid-3b">
 
-                        <!-- Top Products Horizontal Bar — REAL -->
+                        <!-- Top Products Horizontal Bar -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 🏆 Top Products
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
-                            <canvas id="topProductsChart" height="200"></canvas>
+                            <c:choose>
+                                <c:when test="${not empty topProducts}">
+                                    <canvas id="topProductsChart" height="200"></canvas>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No product sales data for this period</div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
-                        <!-- Top Customers Horizontal Bar — REAL -->
+                        <!-- Top Customers Horizontal Bar -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 👑 Top Customers
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
-                            <canvas id="topCustomersChart" height="200"></canvas>
+                            <c:choose>
+                                <c:when test="${not empty topCustomers}">
+                                    <canvas id="topCustomersChart" height="200"></canvas>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No customer spending data for this period</div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <!-- Recent Activities — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
                                 🕐 Recent Activities
-                                <span style="font-size:10px;font-weight:600;padding:2px 6px;background:#dcfce7;color:#166534;border-radius:4px;">REAL</span>
                             </div>
                             <div class="activity-feed">
                                 <c:forEach items="${recentActivities}" var="act">
@@ -890,105 +946,213 @@
             const orderLabels = [<c:forEach items="${ordersByStatus}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const orderValues = [<c:forEach items="${ordersByStatus}" var="e" varStatus="s">${e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
-            new Chart(document.getElementById('ordersChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: orderLabels,
-                    datasets: [{
-                            data: orderValues,
-                            backgroundColor: ['#dbeafe', '#fef9c3', '#ede9fe', '#dcfce7', '#fee2e2'],
-                            borderColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'],
-                            borderWidth: 2
-                        }]
-                },
-                options: {
-                    responsive: true,
-                    cutout: '62%',
-                    plugins: {
-                        legend: {position: 'bottom', labels: {font: {size: 11}, padding: 10}}
+            const ordersEl = document.getElementById('ordersChart');
+            if (ordersEl) {
+                new Chart(ordersEl, {
+                    type: 'doughnut',
+                    data: {
+                        labels: orderLabels,
+                        datasets: [{
+                                data: orderValues,
+                                backgroundColor: ['#dbeafe', '#fef9c3', '#ede9fe', '#dcfce7', '#fee2e2'],
+                                borderColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'],
+                                borderWidth: 2
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: '62%',
+                        plugins: {
+                            legend: {position: 'bottom', labels: {font: {size: 11}, padding: 10}}
+                        }
                     }
-                }
-            });
+                });
+            }
 
         // ── Products by Category Pie — REAL DATA ─────────────
             const catLabels = [<c:forEach items="${productsByCategory}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const catValues = [<c:forEach items="${productsByCategory}" var="e" varStatus="s">${e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
             const catColors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#f97316', '#84cc16'];
 
-            new Chart(document.getElementById('categoryChart'), {
-                type: 'pie',
-                data: {
-                    labels: catLabels.length ? catLabels : ['No data'],
-                    datasets: [{
-                            data: catValues.length ? catValues : [1],
-                            backgroundColor: catColors,
-                            borderWidth: 2, borderColor: '#fff'
-                        }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {position: 'bottom', labels: {font: {size: 11}, padding: 8}}
+            const categoryEl = document.getElementById('categoryChart');
+            if (categoryEl) {
+                new Chart(categoryEl, {
+                    type: 'pie',
+                    data: {
+                        labels: catLabels.length ? catLabels : ['No data'],
+                        datasets: [{
+                                data: catValues.length ? catValues : [1],
+                                backgroundColor: catColors,
+                                borderWidth: 2, borderColor: '#fff'
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {position: 'bottom', labels: {font: {size: 11}, padding: 8}}
+                        }
                     }
-                }
-            });
+                });
+            }
 
         // ── Top Products Horizontal Bar — REAL DATA ──────────
             const tpLabels = [<c:forEach items="${topProducts}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tpValues = [<c:forEach items="${topProducts}" var="e" varStatus="s">${e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
-            new Chart(document.getElementById('topProductsChart'), {
-                type: 'bar',
-                data: {
-                    labels: tpLabels,
-                    datasets: [{
-                            label: 'Units Sold',
-                            data: tpValues,
-                            backgroundColor: 'rgba(16,185,129,.75)',
-                            borderColor: '#10b981',
-                            borderWidth: 1, borderRadius: 4
-                        }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    plugins: {legend: {display: false}},
-                    scales: {
-                        x: {beginAtZero: true, grid: {color: '#f3f4f6'}, ticks: {font: {size: 11}}},
-                        y: {grid: {display: false}, ticks: {font: {size: 11}}}
+            const topProductsEl = document.getElementById('topProductsChart');
+            if (topProductsEl) {
+                new Chart(topProductsEl, {
+                    type: 'bar',
+                    data: {
+                        labels: tpLabels,
+                        datasets: [{
+                                label: 'Units Sold',
+                                data: tpValues,
+                                backgroundColor: 'rgba(16,185,129,.75)',
+                                borderColor: '#10b981',
+                                borderWidth: 1, borderRadius: 4
+                            }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {legend: {display: false}},
+                        scales: {
+                            x: {beginAtZero: true, grid: {color: '#f3f4f6'}, ticks: {font: {size: 11}}},
+                            y: {grid: {display: false}, ticks: {font: {size: 11}}}
+                        }
                     }
-                }
-            });
+                });
+            }
 
         // ── Top Customers Horizontal Bar — REAL DATA ─────────
             const tcLabels = [<c:forEach items="${topCustomers}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tcValues = [<c:forEach items="${topCustomers}" var="e" varStatus="s">${e.value / 1000000}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
-            new Chart(document.getElementById('topCustomersChart'), {
-                type: 'bar',
-                data: {
-                    labels: tcLabels,
-                    datasets: [{
-                            label: 'Total Spent (M ₫)',
-                            data: tcValues,
-                            backgroundColor: 'rgba(139,92,246,.75)',
-                            borderColor: '#8b5cf6',
-                            borderWidth: 1, borderRadius: 4
-                        }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    plugins: {legend: {display: false}},
-                    scales: {
-                        x: {
-                            beginAtZero: true, grid: {color: '#f3f4f6'},
-                            ticks: {callback: v => v + 'M', font: {size: 11}}
-                        },
-                        y: {grid: {display: false}, ticks: {font: {size: 11}}}
+            const topCustomersEl = document.getElementById('topCustomersChart');
+            if (topCustomersEl) {
+                new Chart(topCustomersEl, {
+                    type: 'bar',
+                    data: {
+                        labels: tcLabels,
+                        datasets: [{
+                                label: 'Total Spent (M ₫)',
+                                data: tcValues,
+                                backgroundColor: 'rgba(139,92,246,.75)',
+                                borderColor: '#8b5cf6',
+                                borderWidth: 1, borderRadius: 4
+                            }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {legend: {display: false}},
+                        scales: {
+                            x: {
+                                beginAtZero: true, grid: {color: '#f3f4f6'},
+                                ticks: {callback: v => v + 'M', font: {size: 11}}
+                            },
+                            y: {grid: {display: false}, ticks: {font: {size: 11}}}
+                        }
                     }
+                });
+            }
+
+            // ── Alerts Modal Functions ─────────────────────────
+            function openAlertsModal() {
+                var modal = document.getElementById('alertsModal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            }
+            function closeAlertsModal() {
+                var modal = document.getElementById('alertsModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+            window.addEventListener('click', function(e) {
+                var modal = document.getElementById('alertsModal');
+                if (e.target === modal) {
+                    modal.style.display = 'none';
                 }
             });
         </script>
+
+        <!-- Alerts Details Modal -->
+        <div id="alertsModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+            <div style="background:#fff; border-radius:12px; max-width:600px; width:90%; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.15); position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:12px; margin-bottom:16px;">
+                    <h3 style="font-size:18px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; margin:0;">⚠️ Active Alerts Detail</h3>
+                    <span onclick="closeAlertsModal()" style="font-size:24px; font-weight:bold; color:#94a3b8; cursor:pointer; line-height:1;">&times;</span>
+                </div>
+                
+                <!-- Low Stock Section -->
+                <div style="margin-bottom:20px;">
+                    <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">
+                        <span>Sản phẩm sắp hết hàng</span>
+                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${lowStockProducts.size()} items</span>
+                    </h4>
+                    <c:choose>
+                        <c:when test="${not empty lowStockProducts}">
+                            <div style="max-height:120px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px;">
+                                <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                                    <thead style="background:#f8fafc; position:sticky; top:0; z-index:1;">
+                                        <tr>
+                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; border-bottom:1px solid #e2e8f0;">Sản phẩm</th>
+                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; text-align:right; border-bottom:1px solid #e2e8f0;">Số lượng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach items="${lowStockProducts}" var="p">
+                                            <tr style="border-bottom:1px solid #f1f5f9; cursor:pointer;" onclick="window.location.href='${pageContext.request.contextPath}/staff/inventory'">
+                                                <td style="padding:8px 12px; color:#1e293b;">${p.productName}</td>
+                                                <td style="padding:8px 12px; color:#ef4444; font-weight:600; text-align:right;">${p.minPrice}</td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div style="color:#94a3b8; font-size:12px; padding:8px 0; border:1px dashed #e2e8f0; border-radius:8px; text-align:center;">Không có sản phẩm sắp hết hàng</div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
+                <!-- Pending Claims Section -->
+                <div>
+                    <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">
+                        <span>Yêu cầu bảo hành chưa xử lý</span>
+                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${pendingClaimsList.size()} items</span>
+                    </h4>
+                    <c:choose>
+                        <c:when test="${not empty pendingClaimsList}">
+                            <div style="max-height:120px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px;">
+                                <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                                    <thead style="background:#f8fafc; position:sticky; top:0; z-index:1;">
+                                        <tr>
+                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; border-bottom:1px solid #e2e8f0;">Mã yêu cầu</th>
+                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; border-bottom:1px solid #e2e8f0;">Khách hàng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach items="${pendingClaimsList}" var="c">
+                                            <tr style="border-bottom:1px solid #f1f5f9; cursor:pointer;" onclick="window.location.href='${pageContext.request.contextPath}/warranty?action=list&statusFilter=PENDING'">
+                                                <td style="padding:8px 12px; color:#2563eb; font-weight:600;">#${c[0]}</td>
+                                                <td style="padding:8px 12px; color:#1e293b;">${c[1]}</td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div style="color:#94a3b8; font-size:12px; padding:8px 0; border:1px dashed #e2e8f0; border-radius:8px; text-align:center;">Không có yêu cầu bảo hành chưa xử lý</div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
