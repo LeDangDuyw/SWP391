@@ -161,12 +161,22 @@ public class AdminDashboardDAO extends DBContext {
     /**
      * Total revenue from all non-cancelled orders.
      */
-    public long getTotalRevenue() {
+    public long getTotalRevenue(String from, String to) {
+        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
         String sql = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled')";
+        if (hasFilter) {
+            sql += " AND CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ?";
+        }
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getLong(1);
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            if (hasFilter) {
+                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
+                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getTotalRevenue: " + e.getMessage());
@@ -191,9 +201,9 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Number of new customers registered today (role_id = 3).
+     * Number of new customers registered (role_id = 3).
      */
-    public int getNewCustomersToday() {
+    public int getNewCustomers() {
         String sql = "SELECT COUNT(*) FROM [User] WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE) AND role_id = 3";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -201,7 +211,7 @@ public class AdminDashboardDAO extends DBContext {
                 return rs.getInt(1);
             }
         } catch (Exception e) {
-            System.out.println("DashboardService.getNewCustomersToday: " + e.getMessage());
+            System.out.println("DashboardService.getNewCustomers: " + e.getMessage());
         }
         return 0;
     }
@@ -237,27 +247,106 @@ public class AdminDashboardDAO extends DBContext {
         return count;
     }
 
-    /**
-     * Monthly revenue for the current year, keyed by month name.
-     */
-    public Map<String, Long> getMonthlyRevenue() {
-        Map<String, Long> map = new LinkedHashMap<>();
-        String sql = "SELECT MONTH(completed_at) AS m, CAST(SUM(total_amount) AS BIGINT) "
-                + "FROM [Order] WHERE completed_at IS NOT NULL "
-                + "AND YEAR(completed_at) = YEAR(GETDATE()) "
-                + "AND order_status NOT IN ('cancelled', 'Cancelled') "
-                + "GROUP BY MONTH(completed_at) ORDER BY m";
-        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    public List<String[]> getPendingClaimsList() {
+        List<String[]> list = new ArrayList<>();
+        String sql = "SELECT c.claim_id, u.full_name, c.created_at "
+                + "FROM WarrantyClaims c JOIN [User] u ON c.customer_id = u.user_id "
+                + "WHERE c.status = 'PENDING' ORDER BY c.created_at DESC";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                map.put(months[rs.getInt(1) - 1], rs.getLong(2));
+                list.add(new String[]{
+                    String.valueOf(rs.getInt(1)),
+                    rs.getString(2),
+                    rs.getTimestamp(3).toString()
+                });
             }
         } catch (Exception e) {
-            System.out.println("DashboardService.getMonthlyRevenue: " + e.getMessage());
+            System.out.println("DashboardService.getPendingClaimsList: " + e.getMessage());
+        }
+        return list;
+    }
+
+    /**
+     * Monthly revenue for the current year, keyed by month name.
+     */
+    public Map<String, Long> getRevenueChart(String from, String to, Integer year, String groupBy) {
+        Map<String, Long> map = new LinkedHashMap<>();
+        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
+        if (groupBy == null || groupBy.trim().isEmpty()) {
+            groupBy = "month";
+        }
+
+        String groupExpr;
+        switch (groupBy) {
+            case "day":
+                groupExpr = "CONVERT(varchar(10), completed_at, 23)";
+                break;
+            case "quarter":
+                groupExpr = "CONCAT(YEAR(completed_at), '-Q', DATEPART(quarter, completed_at))";
+                break;
+            case "year":
+                groupExpr = "CAST(YEAR(completed_at) AS VARCHAR(4))";
+                break;
+            case "month":
+            default:
+                groupExpr = "FORMAT(completed_at, 'yyyy-MM')";
+                break;
+        }
+
+        String sql = "SELECT " + groupExpr + " AS label, CAST(SUM(total_amount) AS BIGINT) AS revenue "
+                + "FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') ";
+        if (hasFilter) {
+            sql += "AND CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ? ";
+        } else {
+            sql += "AND YEAR(completed_at) = ? ";
+        }
+        sql += "GROUP BY " + groupExpr + " ORDER BY MIN(completed_at)";
+
+        try (Connection con = getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            if (hasFilter) {
+                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
+                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
+            } else {
+                ps.setInt(1, year != null ? year : 2026);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getString("label"), rs.getLong("revenue"));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("DashboardService.getRevenueChart: " + e.getMessage());
+        }
+
+        if (!hasFilter && "month".equals(groupBy)) {
+            Map<String, Long> full = new LinkedHashMap<>();
+            for (int m = 1; m <= 12; m++) {
+                String key = year + "-" + (m < 10 ? "0" + m : "" + m);
+                full.put(key, map.getOrDefault(key, 0L));
+            }
+            return full;
         }
         return map;
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null) return "Unknown";
+        status = status.trim().toUpperCase();
+        switch (status) {
+            case "PENDING":
+                return "Pending";
+            case "COMPLETED":
+                return "Completed";
+            case "SHIPPED":
+                return "Shipped";
+            case "CANCELLED":
+                return "Cancelled";
+            default:
+                if (status.isEmpty()) return "";
+                return status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+        }
     }
 
     /**
@@ -265,16 +354,27 @@ public class AdminDashboardDAO extends DBContext {
      */
     public Map<String, Integer> getOrdersByStatus() {
         Map<String, Integer> map = new LinkedHashMap<>();
-        String sql = "SELECT order_status, COUNT(*) FROM [Order] GROUP BY order_status ORDER BY COUNT(*) DESC";
+        String sql = "SELECT order_status, COUNT(*) FROM [Order] GROUP BY order_status";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                map.put(rs.getString(1), rs.getInt(2));
+                String rawStatus = rs.getString(1);
+                String normStatus = normalizeStatus(rawStatus);
+                int count = rs.getInt(2);
+                map.put(normStatus, map.getOrDefault(normStatus, 0) + count);
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getOrdersByStatus: " + e.getMessage());
         }
-        return map;
+        
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
+        list.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+        
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
     }
 
     /**
@@ -286,6 +386,7 @@ public class AdminDashboardDAO extends DBContext {
                 + "FROM OrderDetail od "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
+                + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "GROUP BY p.product_name ORDER BY total_sold DESC";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -326,19 +427,27 @@ public class AdminDashboardDAO extends DBContext {
         List<String[]> list = new ArrayList<>();
         String sql = "SELECT TOP 10 * FROM ("
                 + "SELECT N'🛒' AS icon, "
-                + "CONCAT('Order <b>', order_code, '</b> — ', order_status) AS txt, "
-                + "completed_at AS event_date "
-                + "FROM [Order] WHERE completed_at IS NOT NULL "
+                + "CONCAT('Order <b>', o.order_code, '</b> by Customer <b>', u.full_name, '</b> — ', o.order_status) AS txt, "
+                + "o.completed_at AS event_date "
+                + "FROM [Order] o "
+                + "JOIN [User] u ON o.user_id = u.user_id "
+                + "WHERE o.completed_at IS NOT NULL "
                 + "UNION ALL "
                 + "SELECT N'🔧' AS icon, "
-                + "CONCAT('Warranty claim <b>#', claim_id, '</b> — ', status) AS txt, "
-                + "created_at AS event_date "
-                + "FROM WarrantyClaims "
+                + "CASE "
+                + "    WHEN c.status = 'PENDING' THEN CONCAT('Warranty claim <b>#', c.claim_id, '</b> submitted by Customer <b>', cust.full_name, '</b>') "
+                + "    ELSE CONCAT('Warranty claim <b>#', c.claim_id, '</b> updated to ', c.status, ' by Staff <b>', COALESCE(st.full_name, 'System'), '</b>') "
+                + "END AS txt, "
+                + "c.created_at AS event_date "
+                + "FROM WarrantyClaims c "
+                + "JOIN [User] cust ON c.customer_id = cust.user_id "
+                + "LEFT JOIN [User] st ON c.staff_id = st.user_id "
                 + "UNION ALL "
                 + "SELECT N'👤' AS icon, "
                 + "CONCAT('New customer <b>', full_name, '</b> registered') AS txt, "
                 + "created_at AS event_date "
-                + "FROM [User] WHERE role_id = 3"
+                + "FROM [User] "
+                + "WHERE role_id = 3 "
                 + ") AS combined ORDER BY event_date DESC";
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {

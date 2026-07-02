@@ -886,11 +886,7 @@
                         <div class="pagination">
 
                             <c:if test="${page > 1}">
-                                <a href="${pageContext.request.contextPath}/warranty?action=list
-                                   &page=${page-1}
-                                   &statusFilter=${statusFilter}
-                                   &keyword=${keyword}
-                                   &selectedId=${selectedClaim.claimId}">
+                                <a href="${pageContext.request.contextPath}/warranty?action=list&page=${page-1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
                                     ‹ Prev
                                 </a>
                             </c:if>
@@ -901,11 +897,7 @@
                                         <span class="pg-active">${p}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/warranty?action=list
-                                           &page=${p}
-                                           &statusFilter=${statusFilter}
-                                           &keyword=${keyword}
-                                           &selectedId=${selectedClaim.claimId}">
+                                        <a href="${pageContext.request.contextPath}/warranty?action=list&page=${p}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
                                             ${p}
                                         </a>
                                     </c:otherwise>
@@ -913,11 +905,7 @@
                             </c:forEach>
 
                             <c:if test="${page < totalPages}">
-                                <a href="${pageContext.request.contextPath}/warranty?action=list
-                                   &page=${page+1}
-                                   &statusFilter=${statusFilter}
-                                   &keyword=${keyword}
-                                   &selectedId=${selectedClaim.claimId}">
+                                <a href="${pageContext.request.contextPath}/warranty?action=list&page=${page+1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
                                     Next ›
                                 </a>
                             </c:if>

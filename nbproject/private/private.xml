@@ -3,23 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="luyentap_prj">
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/index.html</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/model/DashboardSummary.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/EditProductController.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CompareServlet.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CreateTicketController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ProfileController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/manage-users.jsp</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CategoryManagementController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/dal/ProductDAO.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/CartServlet.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AdminPolicy.java</file>
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/ReviewsManagement.jsp</file>
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AddProductController.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AddProductImeiController.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin.jsp</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ChatServlet.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/customer/home.jsp</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/campaignForm.jsp</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/dal/ProductDAO.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ProductDetailServlet.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/AdminDashboardServlet.java</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/campaignDetail.jsp</file>
-            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/src/java/controller/ChatFullController.java</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/auth/profile.jsp</file>
+            <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/AdminDashboard.jsp</file>
         </group>
         <group>
             <file>file:/D:/GithubSWP/SWP391/web/admin/AdminDashboard.jsp</file>

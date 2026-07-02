@@ -665,15 +665,15 @@
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
-                    <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                    <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href = '${pageContext.request.contextPath}/profile'">
                         <%
                             model.Users u = (model.Users) session.getAttribute("user");
                             if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
                         %>
-                            <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                                 alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
                         <% } else { %>
-                            <span>♙</span>
+                        <span>♙</span>
                         <% } %>
                         <span>Admin User Profile</span>
                     </div>
@@ -770,25 +770,14 @@
                     <!-- Right pane -->
                     <div class="editor-pane">
                         <div class="editor-toolbar">
-                            <div class="editor-tools">
-                                <button class="tool-btn" style="font-weight:700;" title="Bold">B</button>
-                                <button class="tool-btn" style="font-style:italic;" title="Italic">I</button>
-                                <button class="tool-btn" style="text-decoration:underline;" title="Underline">U</button>
-                            </div>
                             <div class="status-indicator">
                                 <c:if test="${selectedPolicy != null}">
                                     <span>Status:</span>
-                                    <div class="toggle-wrap">
-                                        <button class="toggle ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'on' : 'off'}"
-                                                id="statusToggle"
-                                                onclick="toggleStatus(${selectedPolicy.policyId}, '${selectedPolicy.status}')"></button>
-                                        <span id="statusLabel">
-                                            <c:choose>
-                                                <c:when test="${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED'}">Live</c:when>
-                                                <c:otherwise>Draft/Disabled</c:otherwise>
-                                            </c:choose>
-                                        </span>
-                                    </div>
+                                    <select id="statusSelect" onchange="changeStatus(${selectedPolicy.policyId}, this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; margin-left: 4px;">
+                                        <option value="DRAFT" ${selectedPolicy.status eq 'DRAFT' ? 'selected' : ''}>Draft</option>
+                                        <option value="LIVE" ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Live</option>
+                                        <option value="DISABLED" ${selectedPolicy.status eq 'DISABLED' ? 'selected' : ''}>Disabled</option>
+                                    </select>
                                 </c:if>
                                 <c:if test="${selectedPolicy == null}">
                                     <span style="color:#9ca3af;font-size:13px;">No document selected</span>
@@ -850,7 +839,7 @@
                                     </div>
                                     <c:choose>
                                         <c:when test="${not empty selectedPolicy.policyContent}">
-                                            <div class="policy-text" style="white-space:pre-wrap;">${selectedPolicy.policyContent}</div>
+                                             <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0;">${selectedPolicy.policyContent}</div>
                                         </c:when>
                                         <c:otherwise>
                                             <div class="policy-text" style="color:#9ca3af;font-style:italic;">No policy content yet. Use Edit Policy to add body text.</div>
@@ -869,11 +858,13 @@
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="saveDraft">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
                                         <button type="submit" class="btn btn-outline btn-sm">&#128190; Save Draft</button>
                                     </form>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="publish">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
                                         <button type="submit" class="btn btn-primary btn-sm">&#9650; Publish</button>
                                     </form>
                                 </div>
@@ -904,12 +895,16 @@
                         <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\S.*"
                                                                                    title="Policy Name cannot contain only spaces"></div>
                             <c:if test="${not empty error}">
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger text-danger">
                                 ${error}
                             </div>
                         </c:if>
                         <div class="form-group"><label>Description</label><textarea name="description" rows="2" placeholder="Short summary...">${formData.description}</textarea></div>
-                        <div class="form-group"><label>Policy Content</label><textarea name="policyContent" rows="5" placeholder="Full policy body text...">${formData.policyContent}</textarea></div>
+                        <div class="form-group">
+                            <label>Policy Content</label>
+                            <input type="hidden" id="createPolicyContent" name="policyContent" value="${formData.policyContent}">
+                            <div id="createQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
+                        </div>
                         <div class="form-group"><label>Applicable Regions <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="e.g. NA, EU, APAC"></div>
                         <div class="form-row">
                             <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" 
@@ -937,6 +932,7 @@
                     <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                        <input type="hidden" name="page" value="${currentPage}">
                         <div class="modal-body">
                             <c:if test="${not empty error}">
                                 <div class="alert alert-danger">
@@ -945,7 +941,11 @@
                             </c:if>
                             <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\S.*" title="Policy Name cannot be empty or contain only spaces"></div>
                             <div class="form-group"><label>Description</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
-                            <div class="form-group"><label>Policy Content</label><textarea name="policyContent" rows="5">${selectedPolicy.policyContent}</textarea></div>
+                            <div class="form-group">
+                                <label>Policy Content</label>
+                                <input type="hidden" id="editPolicyContent" name="policyContent" value="${selectedPolicy.policyContent}">
+                                <div id="editQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
+                            </div>
                             <div class="form-group"><label>Applicable Regions</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
                             <div class="form-row">
                                 <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
@@ -986,6 +986,7 @@
                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="policyId" id="deletePolicyId" value="">
+                        <input type="hidden" name="page" value="${currentPage}">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>
@@ -998,27 +999,40 @@
                 <div class="modal-header"><h2>Version History</h2><button class="modal-close" onclick="closeModal('vhModal')">&#215;</button></div>
                 <div class="modal-body">
                     <c:choose>
-                        <c:when test="${not empty policies}">
-                            <ul class="vh-list">
-                                <c:forEach items="${policies}" var="p">
-                                    <li class="vh-item">
-                                        <div class="vh-dot">${not empty p.version ? p.version : 'v?'}</div>
-                                        <div class="vh-info">
-                                            <div class="vh-ver">${p.policyName}</div>
-                                            <div class="vh-date">
-                                                <c:choose>
-                                                    <c:when test="${p.updatedAt != null}">Updated: <fmt:formatDate value="${p.updatedAt}" pattern="dd MMM yyyy HH:mm"/></c:when>
-                                                    <c:otherwise>—</c:otherwise>
-                                                </c:choose>
-                                                &nbsp;&middot;&nbsp;
-                                                <span class="badge <c:choose><c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when><c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when><c:otherwise>badge-disabled</c:otherwise></c:choose>">${p.status}</span>
+                        <c:when test="${selectedPolicy == null}">
+                            <p style="color:#9ca3af;text-align:center;padding:20px;">Please select a policy to view its version history.</p>
+                        </c:when>
+                        <c:otherwise>
+                            <c:choose>
+                                <c:when test="${not empty historyList}">
+                                    <ul class="vh-list">
+                                        <c:forEach items="${historyList}" var="h">
+                                            <li class="vh-item">
+                                                <div class="vh-dot">${not empty h.version ? h.version : 'v?'}</div>
+                                                <div class="vh-info">
+                                                    <div class="vh-ver">${h.policyName} (${not empty h.version ? h.version : 'v?'})</div>
+                                                    <div class="vh-date">
+                                                        <c:choose>
+                                                            <c:when test="${h.actionType eq 'CREATED'}">
+                                                                Created: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                Updated: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                        &nbsp;&middot;&nbsp;
+                                                        <span class="badge <c:choose><c:when test='${h.status eq "LIVE" or h.status eq "PUBLISHED"}'>badge-live</c:when><c:when test='${h.status eq "DRAFT"}'>badge-draft</c:when><c:otherwise>badge-disabled</c:otherwise></c:choose>">${h.status}</span>
                                                     </div>
                                                 </div>
                                             </li>
-                                </c:forEach>
-                            </ul>
-                        </c:when>
-                        <c:otherwise><p style="color:#9ca3af;text-align:center;padding:20px;">No policies available.</p></c:otherwise>
+                                        </c:forEach>
+                                    </ul>
+                                </c:when>
+                                <c:otherwise>
+                                    <p style="color:#9ca3af;text-align:center;padding:20px;">No change history recorded for this policy yet.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:otherwise>
                     </c:choose>
                 </div>
                 <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('vhModal')">Close</button></div>
@@ -1027,63 +1041,126 @@
 
         <script>
             function openModal(id) {
-            document.getElementById(id).classList.add('open');
+                document.getElementById(id).classList.add('open');
             }
             function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
+                document.getElementById(id).classList.remove('open');
             }
 
             function openDeleteConfirm(id) {
-            document.getElementById('deletePolicyId').value = id;
-            openModal('deleteModal');
+                document.getElementById('deletePolicyId').value = id;
+                openModal('deleteModal');
             }
 
             document.querySelectorAll('.modal-overlay').forEach(function (el) {
-            el.addEventListener('click', function (e) {
-            if (e.target === el)
-                    el.classList.remove('open');
+                el.addEventListener('click', function (e) {
+                    if (e.target === el)
+                        el.classList.remove('open');
+                });
             });
-            });
-            function toggleStatus(policyId, currentStatus) {
-            var isLive = (currentStatus === 'LIVE' || currentStatus === 'PUBLISHED');
-            var newAction = isLive ? 'disable' : 'publish';
-            if (!confirm(isLive ? 'Set this policy to Disabled?' : 'Publish this policy as Live?'))
+
+            function changeStatus(policyId, newStatus) {
+                var newAction = '';
+                var statusText = '';
+                if (newStatus === 'DRAFT') {
+                    newAction = 'saveDraft';
+                    statusText = 'Set this policy to Draft?';
+                } else if (newStatus === 'LIVE') {
+                    newAction = 'publish';
+                    statusText = 'Publish this policy as Live?';
+                } else if (newStatus === 'DISABLED') {
+                    newAction = 'disable';
+                    statusText = 'Set this policy to Disabled?';
+                }
+                
+                if (!newAction || !confirm(statusText)) {
+                    window.location.reload();
                     return;
-            var form = document.createElement('form');
-            form.method = 'post';
-            form.action = '${pageContext.request.contextPath}/admin/policy';
-            var a = document.createElement('input');
-            a.type = 'hidden';
-            a.name = 'action';
-            a.value = newAction;
-            form.appendChild(a);
-            var i = document.createElement('input');
-            i.type = 'hidden';
-            i.name = 'policyId';
-            i.value = policyId;
-            form.appendChild(i);
-            document.body.appendChild(form);
-            form.submit();
+                }
+                
+                var form = document.createElement('form');
+                form.method = 'post';
+                form.action = '${pageContext.request.contextPath}/admin/policy';
+                var a = document.createElement('input');
+                a.type = 'hidden';
+                a.name = 'action';
+                a.value = newAction;
+                form.appendChild(a);
+                var i = document.createElement('input');
+                i.type = 'hidden';
+                i.name = 'policyId';
+                i.value = policyId;
+                form.appendChild(i);
+                var p = document.createElement('input');
+                p.type = 'hidden';
+                p.name = 'page';
+                p.value = '${currentPage}';
+                form.appendChild(p);
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            // Initialize Create Editor
+            var createQuill = new Quill('#createQuillEditor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'header': [1, 2, 3, false] }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'clean']
+                    ]
+                }
+            });
+            var initialCreate = document.getElementById('createPolicyContent').value;
+            if (initialCreate) {
+                createQuill.root.innerHTML = initialCreate;
+            }
+            document.querySelector('#createModal form').addEventListener('submit', function() {
+                document.getElementById('createPolicyContent').value = createQuill.root.innerHTML;
+            });
+
+            // Initialize Edit Editor (if edit modal is rendered)
+            var editPolicyInput = document.getElementById('editPolicyContent');
+            if (editPolicyInput) {
+                var editQuill = new Quill('#editQuillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'clean']
+                        ]
+                    }
+                });
+                var initialEdit = editPolicyInput.value;
+                if (initialEdit) {
+                    editQuill.root.innerHTML = initialEdit;
+                }
+                document.querySelector('#editModal form').addEventListener('submit', function() {
+                    document.getElementById('editPolicyContent').value = editQuill.root.innerHTML;
+                });
             }
 
             (function () {
-            var params = new URLSearchParams(window.location.search);
-            if (params.get('edit') === '1')
+                var params = new URLSearchParams(window.location.search);
+                if (params.get('edit') === '1')
                     openModal('editModal');
+
+            <c:if test="${not empty error}">
+                <c:choose>
+                    <c:when test="${not empty formData}">
+                openModal('createModal');
+                    </c:when>
+                    <c:otherwise>
+                openModal('editModal');
+                    </c:otherwise>
+                </c:choose>
+            </c:if>
             })();
-            <script>
-                var quill = new Quill('#editor', {
-                    theme: 'snow',
-                    modules: {                 toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    [{ 'header': [1, 2, 3, false] }],
-                    [{ 'size': ['small', false, 'large', 'huge'] }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'clean']
-                    ]
-                    }
-            });
         </script>
-    </script>
-</body>
+    </body>
 </html>

@@ -51,6 +51,56 @@ public class AdminDashboardServlet extends HttpServlet {
                 return;
             }
 
+            String from = request.getParameter("from");
+            String to = request.getParameter("to");
+
+            if (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty()) {
+                try {
+                    java.sql.Date fromDate = java.sql.Date.valueOf(from.trim());
+                    java.sql.Date toDate = java.sql.Date.valueOf(to.trim());
+                    if (fromDate.after(toDate)) {
+                        request.setAttribute("dateError", "From date cannot be after To date.");
+                        from = null;
+                        to = null;
+                    }
+                } catch (Exception e) {
+                    from = null;
+                    to = null;
+                }
+            }
+            request.setAttribute("todayDate", java.time.LocalDate.now().toString());
+
+            String groupBy = request.getParameter("groupBy");
+            if (groupBy == null || groupBy.trim().isEmpty()) {
+                groupBy = "month";
+            }
+
+            boolean missingRange = (from == null || from.trim().isEmpty() || to == null || to.trim().isEmpty());
+            boolean autoDefaultRange = "day".equals(groupBy) && missingRange;
+
+            if (autoDefaultRange) {
+                java.time.LocalDate today = java.time.LocalDate.now();
+                to = today.toString();
+                from = today.minusDays(30).toString();
+            }
+
+            request.setAttribute("groupBy", groupBy);
+            request.setAttribute("autoDefaultRange", autoDefaultRange);
+            request.setAttribute("from", from);
+            request.setAttribute("to", to);
+
+            String revenueYearParam = request.getParameter("revenueYear");
+            Integer revenueYear = null;
+            if (revenueYearParam != null && !revenueYearParam.trim().isEmpty()) {
+                try {
+                    revenueYear = Integer.parseInt(revenueYearParam.trim());
+                } catch (Exception ignored) {}
+            }
+            if (revenueYear == null) {
+                revenueYear = 2026; // Default
+            }
+            request.setAttribute("revenueYear", revenueYear);
+
             // REAL DATA FROM DATABASE
             request.setAttribute("totalUsers", dashboardDAO.getTotalUsers());
             request.setAttribute("totalProducts", dashboardDAO.getTotalProducts());
@@ -62,12 +112,13 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("recentProducts", dashboardDAO.getRecentProducts());
 
             // REAL ANALYTICS DATA FROM DATABASE
-            request.setAttribute("todayRevenue", dashboardDAO.getTotalRevenue());
+            request.setAttribute("todayRevenue", dashboardDAO.getTotalRevenue(null, null));
             request.setAttribute("todayOrders", dashboardDAO.getTotalOrderCount());
-            request.setAttribute("newCustomersToday", dashboardDAO.getNewCustomersToday());
+            request.setAttribute("newCustomersToday", dashboardDAO.getNewCustomers());
             request.setAttribute("pendingAlerts", dashboardDAO.getPendingAlerts());
+            request.setAttribute("pendingClaimsList", dashboardDAO.getPendingClaimsList());
 
-            request.setAttribute("monthlyRevenue", dashboardDAO.getMonthlyRevenue());
+            request.setAttribute("monthlyRevenue", dashboardDAO.getRevenueChart(from, to, revenueYear, groupBy));
             request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
             request.setAttribute("topProducts", dashboardDAO.getTopProducts());
             request.setAttribute("topCustomers", dashboardDAO.getTopCustomers());
