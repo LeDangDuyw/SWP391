@@ -32,6 +32,7 @@ public class PromotionsController extends PromotionServlet {
         promotionsDao = new PromotionsDAO(getServletContext());
     }
 
+
     /**
      * Chức năng: Xử lý các yêu cầu HTTP GET để xem danh sách chiến dịch, xuất báo cáo CSV, hoặc điều hướng (redirect) tới form tạo mới/chỉnh sửa/xem chi tiết chiến dịch.
      * Tác nhân liên quan: Admin.

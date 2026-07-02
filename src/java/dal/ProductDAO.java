@@ -447,6 +447,120 @@ public class ProductDAO extends DBContext {
     return 0;
 }
 
+    public ArrayList<Product> searchAllProducts(String keyword, String category, String sortBy, int page, int pageSize) {
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String order = (sortBy != null && sortBy.equals("lowToHigh")) ? "ASC" : "DESC";
+            String orderClause = "ORDER BY p.product_id DESC";
+            if (sortBy != null && (sortBy.equals("highToLow") || sortBy.equals("lowToHigh"))) {
+                orderClause = "ORDER BY min_price " + order;
+            }
+
+            String sql = "SELECT " +
+                         "    p.product_id, p.product_name, p.thumbnail, " +
+                         "    b.brand_name, c.category_name, p.category_id, " +
+                         "    MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
+                         "    MIN(v.selling_price) AS original_price, " +
+                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
+                         "FROM Product p " +
+                         "JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "JOIN Category c ON p.category_id = c.category_id " +
+                         "JOIN ProductVariant v ON p.product_id = v.product_id " +
+                         "LEFT JOIN ( " +
+                         "    SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price " +
+                         "    FROM FlashSaleItem fsi " +
+                         "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id " +
+                         "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
+                         "    GROUP BY fsi.variant_id " +
+                         ") fs_active ON v.variant_id = fs_active.variant_id " +
+                         "WHERE v.status = 'active'";
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                sql += " AND c.category_name = ?";
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND (p.product_name LIKE ? OR b.brand_name LIKE ?)";
+            }
+
+            sql += " GROUP BY p.product_id, p.product_name, p.thumbnail, b.brand_name, c.category_name, p.category_id " +
+                   orderClause + " " +
+                   "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+            ps = cnn.prepareStatement(sql);
+            int idx = 1;
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                ps.setString(idx++, category);
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+            }
+
+            ps.setInt(idx++, (page - 1) * pageSize);
+            ps.setInt(idx++, pageSize);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt("product_id"));
+                p.setProductName(rs.getString("product_name"));
+                p.setThumbnail(rs.getString("thumbnail"));
+                p.setBrandName(rs.getString("brand_name"));
+                p.setCategoryName(rs.getString("category_name"));
+                p.setMinPrice(rs.getLong("min_price"));
+                p.setOriginalPrice(rs.getLong("original_price"));
+                p.setDiscountPercent(rs.getInt("discount_percent"));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("searchAllProducts Error: " + e.getMessage());
+        }
+        return data;
+    }
+
+    public int countSearchAllProducts(String keyword, String category) {
+        try {
+            String sql = "SELECT COUNT(DISTINCT p.product_id) " +
+                         "FROM Product p " +
+                         "JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "JOIN Category c ON p.category_id = c.category_id " +
+                         "JOIN ProductVariant v ON p.product_id = v.product_id " +
+                         "WHERE v.status = 'active'";
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                sql += " AND c.category_name = ?";
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND (p.product_name LIKE ? OR b.brand_name LIKE ?)";
+            }
+
+            ps = cnn.prepareStatement(sql);
+            int idx = 1;
+
+            if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
+                ps.setString(idx++, category);
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+            }
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("countSearchAllProducts Error: " + e.getMessage());
+        }
+        return 0;
+    }
+
+
  // Ph╞░╞íng thß╗⌐c lß╗ìc tß╗òng hß╗úp - gß╗ìi tß╗½ ProductListServlet
  public java.util.List<?> filterLaptop(int categoryId, Integer brandId, Integer seriesId,
          String purpose, String cpu, String ram, String ssd, String gpu, String screen,

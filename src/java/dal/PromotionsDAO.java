@@ -10,13 +10,11 @@ import model.Campaign;
 import model.CampaignStats;
 
 public class PromotionsDAO extends CampaignDAO {
-    /**
-     * Chức năng: Khởi tạo lớp PromotionsDAO kết nối CSDL, kế thừa CampaignDAO.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
-     * Action/Luồng đi: Chuyển tiếp context lên lớp cha.
-     */
+
+    public PromotionsDAO() {
+        super();
+    }
+
     public PromotionsDAO(ServletContext context) {
         super(context);
     }

@@ -29,8 +29,13 @@ public class ManageUsersController extends HttpServlet {
      * Description: Xử lý hiển thị danh sách tài khoản kèm bộ lọc và phân trang.
      *              Hỗ trợ cả yêu cầu AJAX để đếm số lượng đơn hàng hoạt động của người dùng trước khi khóa.
      * @Author: LUCTVHE201874
+<<<<<<< HEAD
      * Created Date: 04/04/2026
      * Completed Date: 26/04/2026
+=======
+     * Created Date: 04/06/2026
+     * Completed Date: 26/06/2026
+>>>>>>> main3
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -95,14 +95,36 @@ public class LoginController extends HttpServlet {
             }
 
             HttpSession session = request.getSession();
+
+            // Merge giỏ hàng session (guest) vào DB cart của user vừa đăng nhập
+            @SuppressWarnings("unchecked")
+            java.util.List<model.CartItem> sessionCart =
+                    (java.util.List<model.CartItem>) session.getAttribute("cart");
+            if (sessionCart != null && !sessionCart.isEmpty()) {
+                dal.CartDAO cartDAO = new dal.CartDAO();
+                for (model.CartItem item : sessionCart) {
+                    cartDAO.addToCart(user.getUserId(), item.getVariantId(), item.getQuantity());
+                }
+                // Reload cart từ DB vào session
+                session.setAttribute("cart", cartDAO.getCart(user.getUserId()));
+            }
+
             session.setAttribute("user", user);
-            if (user.roleId == 1) {
+
+            // Redirect về trang đã lưu (vd: checkout), hoặc trang mặc định theo role
+            String redirectUrl = (String) session.getAttribute("redirectAfterLogin");
+            session.removeAttribute("redirectAfterLogin");
+
+            if (redirectUrl != null && !redirectUrl.isEmpty()) {
+                response.sendRedirect(redirectUrl);
+            } else if (user.roleId == 1) {
                 response.sendRedirect("admin/dashboard");
             } else if (user.roleId == 2) {
                 response.sendRedirect("staff/inventory");
-            }else{
+            } else {
                 response.sendRedirect("HomeServlet");
-            } 
+            }
+
         }
     }
 }

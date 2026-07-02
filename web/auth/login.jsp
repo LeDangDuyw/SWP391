@@ -59,7 +59,7 @@
                         </label>
                     </div>
                     <button type="submit" class="btn-submit">
-                        Authenticate →
+                       Login →
                     </button>
 
                     <div class="divider">
