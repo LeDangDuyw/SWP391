@@ -1066,6 +1066,12 @@
                     newAction = 'saveDraft';
                     statusText = 'Set this policy to Draft?';
                 } else if (newStatus === 'LIVE') {
+                    <c:set var="cleanText" value="${selectedPolicy.policyContent.replaceAll('<[^>]*>', '').trim()}" />
+                    <c:if test="${empty cleanText}">
+                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        window.location.reload();
+                        return;
+                    </c:if>
                     newAction = 'publish';
                     statusText = 'Publish this policy as Live?';
                 } else if (newStatus === 'DISABLED') {
@@ -1140,7 +1146,15 @@
                 if (initialEdit) {
                     editQuill.root.innerHTML = initialEdit;
                 }
-                document.querySelector('#editModal form').addEventListener('submit', function() {
+                document.querySelector('#editModal form').addEventListener('submit', function(event) {
+                    var status = this.status.value;
+                    var contentValue = editQuill.root.innerHTML;
+                    var cleanContent = contentValue.replace(/<[^>]*>/g, '').trim();
+                    if ((status === 'LIVE' || status === 'PUBLISHED') && cleanContent === '') {
+                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        event.preventDefault();
+                        return false;
+                    }
                     document.getElementById('editPolicyContent').value = editQuill.root.innerHTML;
                 });
             }

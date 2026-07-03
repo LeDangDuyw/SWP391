@@ -174,6 +174,17 @@ public class AdminPolicy extends HttpServlet {
                             return;
                         }
 
+                        if (("LIVE".equalsIgnoreCase(p.getStatus()) || "PUBLISHED".equalsIgnoreCase(p.getStatus()))
+                                && isContentEmpty(p.getPolicyContent())) {
+                            request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
+                            request.setAttribute("selectedPolicy", p);
+                            loadPolicyList(request);
+                            List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
+                            request.setAttribute("historyList", historyList);
+                            request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
+                            return;
+                        }
+
                         if (dao.existsPolicyNameForUpdate(p.getPolicyName(), id)) {
                             request.setAttribute("error", "Policy name has existed!");
                             request.setAttribute("selectedPolicy", p);
@@ -200,8 +211,18 @@ public class AdminPolicy extends HttpServlet {
 
                 case "publish": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
-                    dao.publishPolicy(id);
                     WarrantyPolicy p = dao.getPolicyById(id);
+                    if (p != null && isContentEmpty(p.getPolicyContent())) {
+                        request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
+                        request.setAttribute("selectedPolicy", p);
+                        loadPolicyList(request);
+                        List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
+                        request.setAttribute("historyList", historyList);
+                        request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
+                        return;
+                    }
+                    dao.publishPolicy(id);
+                    p = dao.getPolicyById(id);
                     if (p != null) {
                         dao.insertHistory(id, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "UPDATED");
                     }
@@ -335,6 +356,14 @@ public class AdminPolicy extends HttpServlet {
         ld = ld.plusMonths(months);
 
         return java.sql.Date.valueOf(ld);
+    }
+
+    private boolean isContentEmpty(String content) {
+        if (content == null) {
+            return true;
+        }
+        String clean = content.replaceAll("<[^>]*>", "").trim();
+        return clean.isEmpty();
     }
 
     /**
