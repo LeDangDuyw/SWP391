@@ -129,8 +129,8 @@ public class AdminPolicy extends HttpServlet {
                 case "create": {
                     WarrantyPolicy p = buildPolicyFromRequest(request);
 
-                    if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty()) {
-                        request.setAttribute("error", "Policy name can't be empty!");
+                    if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
+                        request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
                         request.setAttribute("formData", p);
                         loadPolicyList(request);
                         request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
@@ -164,8 +164,8 @@ public class AdminPolicy extends HttpServlet {
                     if (p != null) {
                         updatePolicyFromRequest(request, p);
 
-                        if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty()) {
-                            request.setAttribute("error", "Policy name can't be empty!");
+                        if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
+                            request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
                             request.setAttribute("selectedPolicy", p);
                             loadPolicyList(request);
                             List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);

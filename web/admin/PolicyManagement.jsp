@@ -892,8 +892,8 @@
                 <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                     <input type="hidden" name="action" value="create">
                     <div class="modal-body">
-                        <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\S.*"
-                                                                                   title="Policy Name cannot contain only spaces"></div>
+                        <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\p{L}.*"
+                                                                                   title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
                             <c:if test="${not empty error}">
                             <div class="alert alert-danger text-danger">
                                 ${error}
@@ -939,7 +939,7 @@
                                     ${error}
                                 </div>
                             </c:if>
-                            <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\S.*" title="Policy Name cannot be empty or contain only spaces"></div>
+                            <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\p{L}.*" title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
                             <div class="form-group"><label>Description</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
                             <div class="form-group">
                                 <label>Policy Content</label>
