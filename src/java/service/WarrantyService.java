@@ -389,9 +389,21 @@ public class WarrantyService {
         return warrantyDAO.filter(status, offset, limit);
     }
 
+    // ── PURCHASED PRODUCTS (Step 1 product picker) ────────────────────────────
+
+    /**
+     * Lists all purchased units (one row per serial) for the customer, to
+     * populate Step 1 ("Select Product") of the Submit Claim wizard. Replaces
+     * manual serial number entry — the customer picks from their own
+     * purchase history instead of typing a serial.
+     */
+    public List<model.WarrantyPurchasedProduct> getPurchasedProducts(int customerId) throws Exception {
+        return warrantyDAO.findPurchasedProductsByCustomer(customerId);
+    }
+
     // ── CHECK ELIGIBILITY (FIXED - moved inside class) ────────────────────────
 
-    public void checkEligibility(String serialNumber, int customerId)
+    public model.WarrantyEligibilityInfo checkEligibility(String serialNumber, int customerId)
             throws ValidationException, Exception {
 
         if (!warrantyDAO.serialExists(serialNumber)) {
@@ -403,6 +415,14 @@ public class WarrantyService {
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành.");
         }
+        // BR18 / UC27 EF2: chỉ 1 active claim (PENDING/PROCESSING/APPROVED)
+        // cho mỗi serial. Step 1 của wizard phải chặn ở đây, không để khách
+        // điền hết Step 3 rồi mới bị từ chối ở submit.
+        if (warrantyDAO.hasActiveClaim(serialNumber)) {
+            throw new ValidationException("Đã tồn tại một yêu cầu bảo hành đang xử lý cho sản phẩm này.");
+        }
+
+        return warrantyDAO.getEligibilityInfo(serialNumber);
     }
 
     // ── PRIVATE HELPERS ───────────────────────────────────────────────────────

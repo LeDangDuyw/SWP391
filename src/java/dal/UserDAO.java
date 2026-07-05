@@ -269,12 +269,20 @@ public class UserDAO extends DBContext {
      * Description: Trả về tổng số lượng người dùng khớp với từ khóa tìm kiếm, vai trò và trạng thái lọc.
      */
     public int getTotalUsers(String search, Integer roleFilter, String statusFilter) {
+        return getTotalUsers(search, roleFilter, statusFilter, null, null);
+    }
+
+    public int getTotalUsers(String search, Integer roleFilter, String statusFilter, String from, String to) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM [User] WHERE (full_name LIKE ? OR email LIKE ?)");
         if (roleFilter != null) {
             sql.append(" AND role_id = ?");
         }
         if (statusFilter != null && !statusFilter.trim().isEmpty()) {
             sql.append(" AND status = ?");
+        }
+        boolean hasDate = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
+        if (hasDate) {
+            sql.append(" AND CAST(created_at AS DATE) >= ? AND CAST(created_at AS DATE) <= ?");
         }
         try {
             PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -287,6 +295,10 @@ public class UserDAO extends DBContext {
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty()) {
                 ps.setString(index++, statusFilter.trim());
+            }
+            if (hasDate) {
+                ps.setDate(index++, java.sql.Date.valueOf(from.trim()));
+                ps.setDate(index++, java.sql.Date.valueOf(to.trim()));
             }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -311,6 +323,10 @@ public class UserDAO extends DBContext {
      * Description: Trả về danh sách người dùng được phân trang và lọc theo từ khóa tìm kiếm, vai trò và trạng thái.
      */
     public ArrayList<Users> getUsers(String search, Integer roleFilter, String statusFilter, int offset, int limit) {
+        return getUsers(search, roleFilter, statusFilter, null, null, offset, limit);
+    }
+
+    public ArrayList<Users> getUsers(String search, Integer roleFilter, String statusFilter, String from, String to, int offset, int limit) {
         ArrayList<Users> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM [User] WHERE (full_name LIKE ? OR email LIKE ?)");
         if (roleFilter != null) {
@@ -318,6 +334,10 @@ public class UserDAO extends DBContext {
         }
         if (statusFilter != null && !statusFilter.trim().isEmpty()) {
             sql.append(" AND status = ?");
+        }
+        boolean hasDate = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
+        if (hasDate) {
+            sql.append(" AND CAST(created_at AS DATE) >= ? AND CAST(created_at AS DATE) <= ?");
         }
         sql.append(" ORDER BY user_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         try {
@@ -331,6 +351,10 @@ public class UserDAO extends DBContext {
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty()) {
                 ps.setString(index++, statusFilter.trim());
+            }
+            if (hasDate) {
+                ps.setDate(index++, java.sql.Date.valueOf(from.trim()));
+                ps.setDate(index++, java.sql.Date.valueOf(to.trim()));
             }
             ps.setInt(index++, offset);
             ps.setInt(index++, limit);

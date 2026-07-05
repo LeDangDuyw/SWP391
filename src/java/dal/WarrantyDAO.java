@@ -363,7 +363,10 @@ public class WarrantyDAO extends DBContext {
     /**
      * Checks whether the product identified by serial number is still under
      * warranty. Warranty expiry is computed as: order completion date +
-     * warranty months from policy.
+     * the product's own warranty_period (months), NOT the WarrantyPolicies
+     * template — warranty_period is the per-product value shown on the
+     * product detail page (e.g. "Bảo hành 24 tháng") and is what customers
+     * actually see when they buy.
      *
      * @param serialNumber the serial number to check
      * @return true if warranty is still active
@@ -376,9 +379,8 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
                 + "WHERE ps.serial_number = ? "
-                + "AND DATEADD(MONTH, wp.WarrantyMonths, o.completed_at) >= GETDATE()";
+                + "AND DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE()";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -404,6 +406,96 @@ public class WarrantyDAO extends DBContext {
                 return rs.next();
             }
         }
+    }
+
+    /**
+     * Retrieves all purchased units (one row per serial number) for a
+     * customer, across all their completed orders. Used to render Step 1
+     * ("Select Product") of the Submit Claim wizard — replaces manual serial
+     * number entry. Each row includes purchase date, computed warranty
+     * expiry, and whether an active claim already exists, so the JSP can
+     * show eligibility state without an extra query per row.
+     *
+     * @param customerId the customer whose purchases to list
+     * @return list of purchased products, most recently purchased first
+     * @throws Exception on SQL error
+     */
+    public List<model.WarrantyPurchasedProduct> findPurchasedProductsByCustomer(int customerId) throws Exception {
+        String sql = "SELECT ps.serial_number AS serialNumber, "
+                + "p.product_name AS productName, "
+                + "o.completed_at AS purchaseDate, "
+                + "DATEADD(MONTH, p.warranty_period, o.completed_at) AS warrantyExpiry, "
+                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName, "
+                + "CASE WHEN DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE() "
+                + "     THEN 1 ELSE 0 END AS underWarranty, "
+                + "CASE WHEN EXISTS (SELECT 1 FROM WarrantyClaims wc "
+                + "                  WHERE wc.serial_number = ps.serial_number "
+                + "                  AND wc.status IN ('PENDING','PROCESSING','APPROVED')) "
+                + "     THEN 1 ELSE 0 END AS hasActiveClaim "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "JOIN [Order] o ON od.order_id = o.order_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "LEFT JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
+                + "WHERE o.customer_id = ? AND o.order_status = 'COMPLETED' "
+                + "ORDER BY o.completed_at DESC, ps.serial_number ASC";
+
+        List<model.WarrantyPurchasedProduct> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.WarrantyPurchasedProduct item = new model.WarrantyPurchasedProduct();
+                    item.setSerialNumber(rs.getString("serialNumber"));
+                    item.setProductName(rs.getString("productName"));
+                    item.setPurchaseDate(rs.getTimestamp("purchaseDate"));
+                    item.setWarrantyExpiry(rs.getDate("warrantyExpiry"));
+                    item.setCoverageName(rs.getString("coverageName"));
+                    item.setUnderWarranty(rs.getInt("underWarranty") == 1);
+                    item.setHasActiveClaim(rs.getInt("hasActiveClaim") == 1);
+                    list.add(item);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Retrieves product name, warranty expiry date, and coverage (policy)
+     * name for a serial number. Used to populate Step 2 ("Warranty
+     * Information") of the Submit Claim wizard on warranty_center.jsp after
+     * a successful Check Eligibility call. Assumes the serial has already
+     * passed serialExists / productBelongsToCustomer / isUnderWarranty.
+     *
+     * @param serialNumber the serial number to look up
+     * @return a populated WarrantyEligibilityInfo, or null if not found
+     * @throws Exception on SQL error
+     */
+    public model.WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
+        String sql = "SELECT p.product_name AS productName, "
+                + "DATEADD(MONTH, p.warranty_period, o.completed_at) AS warrantyExpiry, "
+                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName "
+                + "FROM ProductSerials ps "
+                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "JOIN [Order] o ON od.order_id = o.order_id "
+                + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
+                + "JOIN Product p ON pv.product_id = p.product_id "
+                + "LEFT JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
+                + "WHERE ps.serial_number = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new model.WarrantyEligibilityInfo(
+                            serialNumber,
+                            rs.getString("productName"),
+                            rs.getDate("warrantyExpiry"),
+                            rs.getString("coverageName"));
+                }
+            }
+        }
+        return null;
     }
 
     /**

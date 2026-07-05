@@ -3,9 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%
-    // Bảo vệ trang: chỉ Admin (roleId=1)
+    // Bảo vệ trang: chỉ Staff (roleId=2)
     model.Users currentUser = (model.Users) session.getAttribute("user");
-    if (currentUser == null || currentUser.getRoleId() != 1) {
+    if (currentUser == null || currentUser.getRoleId() != 2) {
         response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
         return;
     }
@@ -15,7 +15,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin – Warranty Console</title>
+        <title>UNILAP Staff – Warranty Console</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -35,7 +35,7 @@
 
             .layout { display: flex; min-height: 100vh; }
 
-            /* ── Sidebar (synced with AdminDashboard) ── */
+            /* ── Sidebar ── */
             .sidebar {
                 width: 280px;
                 background: #eef2f7;
@@ -734,26 +734,35 @@
     <body>
     <div class="layout">
 
-        <!-- ════ SIDEBAR (synced with other admin pages) ════ -->
+        <!-- ════ SIDEBAR (synced with other staff pages) ════ -->
         <aside class="sidebar">
             <div class="brand">
-                <span>UNILAP Admin</span>
+                <span>UNILAP Staff</span>
                 <small>System Controller</small>
             </div>
-                        <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="#"><span>▣</span>Orders</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                    <a href="#"><span>⚙</span>Settings</a>
-                </nav>
+            <nav>
+                <a href="${pageContext.request.contextPath}/staff/inventory">
+                    <span class="nav-icon">▤</span>Inventory
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/category">
+                    <span class="nav-icon">📁</span>Category
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/imei">
+                    <span class="nav-icon">🏷</span>IMEI
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/ticket/list">
+                    <span class="nav-icon">🎫</span>Tickets
+                </a>
+                <a href="${pageContext.request.contextPath}/staff/reviews">
+                    <span class="nav-icon">★</span>Manage Reviews
+                </a>
+                <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
+                    <span class="nav-icon">🛠</span>Warranty
+                </a>
+            </nav>
             <div class="profile">
-                <a href="#" class="profile-link">
-                    <span class="nav-icon">●</span>Admin User Profile
+                <a href="${pageContext.request.contextPath}/profile" class="profile-link">
+                    <span class="nav-icon">●</span>Staff Profile
                 </a>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">
                     Logout
@@ -766,8 +775,8 @@
 
             <!-- Topbar -->
             <div class="topbar">
-                <span class="topbar-title">Warranty Console</span>
-                <form method="get" action="${pageContext.request.contextPath}/warranty" class="search-box">
+                <span class="topbar-title">Warranty Console (Staff)</span>
+                <form method="get" action="${pageContext.request.contextPath}/staff/warranty" class="search-box">
                     <input type="hidden" name="action" value="list">
                     <input type="hidden" name="selectedId" value="${selectedClaim.claimId}">
                     <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
@@ -805,7 +814,7 @@
                         </div>
                         <div class="panel-header-actions">
                             <%-- Filter dropdown --%>
-                            <form method="get" action="${pageContext.request.contextPath}/warranty"
+                            <form method="get" action="${pageContext.request.contextPath}/staff/warranty"
                                   style="display:flex;gap:6px;align-items:center;">
                                 <input type="hidden" name="action" value="list">
                                 <input type="hidden" name="selectedId" value="${selectedClaim.claimId}">
@@ -818,12 +827,12 @@
                                     </c:forEach>
                                 </select>
                                 <c:if test="${not empty selectedClaim}">
-                                    <a href="${pageContext.request.contextPath}/warranty?action=list&selectedId=${selectedClaim.claimId}"
+                                    <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list&selectedId=${selectedClaim.claimId}"
                                        class="filter-reset">Reset</a>
                                 </c:if>
 
                                 <c:if test="${empty selectedClaim}">
-                                    <a href="${pageContext.request.contextPath}/warranty?action=list"
+                                    <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list"
                                        class="filter-reset">Reset</a>
                                 </c:if>
                             </form>
@@ -851,7 +860,7 @@
                                         <tr class="${selectedClaim != null && selectedClaim.claimId == claim.claimId ? 'selected-row' : ''}">
                                             <td>
                                                 <a class="claim-id-link"
-                                                   href="${pageContext.request.contextPath}/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
+                                                   href="${pageContext.request.contextPath}/staff/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
                                                     #${claim.claimId}
                                                 </a>
                                             </td>
@@ -870,7 +879,7 @@
                                             </td>
                                             <td>
                                                 <a class="claim-id-link"
-                                                   href="${pageContext.request.contextPath}/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
+                                                   href="${pageContext.request.contextPath}/staff/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
                                                     Open →
                                                 </a>
                                             </td>
@@ -886,7 +895,11 @@
                         <div class="pagination">
 
                             <c:if test="${page > 1}">
-                                <a href="${pageContext.request.contextPath}/warranty?action=list&page=${page-1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
+                                <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
+                                   &page=${page-1}
+                                   &statusFilter=${statusFilter}
+                                   &keyword=${keyword}
+                                   &selectedId=${selectedClaim.claimId}">
                                     ‹ Prev
                                 </a>
                             </c:if>
@@ -897,7 +910,11 @@
                                         <span class="pg-active">${p}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/warranty?action=list&page=${p}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
+                                        <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
+                                           &page=${p}
+                                           &statusFilter=${statusFilter}
+                                           &keyword=${keyword}
+                                           &selectedId=${selectedClaim.claimId}">
                                             ${p}
                                         </a>
                                     </c:otherwise>
@@ -905,7 +922,11 @@
                             </c:forEach>
 
                             <c:if test="${page < totalPages}">
-                                <a href="${pageContext.request.contextPath}/warranty?action=list&page=${page+1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
+                                <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
+                                   &page=${page+1}
+                                   &statusFilter=${statusFilter}
+                                   &keyword=${keyword}
+                                   &selectedId=${selectedClaim.claimId}">
                                     Next ›
                                 </a>
                             </c:if>
@@ -1018,11 +1039,6 @@
                                     </div>
                                 </c:when>
                                 <c:otherwise>
-                                    <%--
-                                        PENDING → 2 lựa chọn: PROCESSING hoặc CANCELLED
-                                        Mỗi action dùng form riêng với hidden newStatus cứng
-                                        → không cần onclick overwrite select, không bị race condition
-                                    --%>
                                     <c:choose>
 
                                         <%-- ── PENDING: Accept hoặc Cancel ── --%>
@@ -1032,7 +1048,7 @@
                                                 <textarea id="note-pending" placeholder="Enter note or reason..."></textarea>
                                             </div>
                                             <div class="detail-actions">
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                       style="display:contents"
                                                       onsubmit="document.getElementById('note-cancel').value = document.getElementById('note-pending').value">
                                                     <input type="hidden" name="action"     value="process">
@@ -1045,7 +1061,7 @@
                                                         Cancel Claim
                                                     </button>
                                                 </form>
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                       style="display:contents"
                                                       onsubmit="document.getElementById('note-process').value = document.getElementById('note-pending').value">
                                                     <input type="hidden" name="action"     value="process">
@@ -1067,7 +1083,7 @@
                                                 <textarea id="note-processing" placeholder="Enter note or reason..."></textarea>
                                             </div>
                                             <div class="detail-actions">
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                       style="display:contents"
                                                       onsubmit="document.getElementById('note-reject').value = document.getElementById('note-processing').value">
                                                     <input type="hidden" name="action"     value="process">
@@ -1077,7 +1093,7 @@
                                                     <input type="hidden" name="note"       id="note-reject">
                                                     <button type="submit" class="btn-reject">Reject</button>
                                                 </form>
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                       style="display:contents"
                                                       onsubmit="document.getElementById('note-approve').value = document.getElementById('note-processing').value">
                                                     <input type="hidden" name="action"     value="process">
@@ -1092,7 +1108,7 @@
 
                                         <%-- ── APPROVED: Complete ── --%>
                                         <c:when test="${sc.status == 'APPROVED'}">
-                                            <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                   class="process-form">
                                                 <input type="hidden" name="action"     value="process">
                                                 <input type="hidden" name="id"         value="${sc.claimId}">
