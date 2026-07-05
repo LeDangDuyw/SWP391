@@ -35,7 +35,6 @@ public class CampaignDetailController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-   
     }
 
     /**
@@ -52,6 +51,7 @@ public class CampaignDetailController extends PromotionServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.detailDao = new CampaignDetailDAO();
         String action = request.getParameter("action");
 
         try {
@@ -80,6 +80,7 @@ public class CampaignDetailController extends PromotionServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.detailDao = new CampaignDetailDAO();
 
         try {
             int id = parseInt(request.getParameter("id"), 0);
@@ -135,20 +136,33 @@ public class CampaignDetailController extends PromotionServlet {
         int customerGrowthProgress = percent(Math.abs(customerGrowth), Math.max(1, totalCustomers));
 
         request.setAttribute("campaign", campaign);
-        request.setAttribute("products", products);
+        request.setAttribute("products", products != null ? products : new ArrayList<>());
         request.setAttribute("totalUnits", totalUnits);
         request.setAttribute("revenue", revenue);
+        request.setAttribute("revenueShort", shortMoney(revenue));
         request.setAttribute("conversion", conversion);
         request.setAttribute("customerGrowth", customerGrowth);
         request.setAttribute("totalUnitsProgress", totalUnitsProgress);
         request.setAttribute("revenueProgress", revenueProgress);
         request.setAttribute("conversionProgress", conversionProgress);
         request.setAttribute("customerGrowthProgress", customerGrowthProgress);
-        request.setAttribute("salesVolume", salesVolume);
+        request.setAttribute("salesVolume", salesVolume != null ? salesVolume : new ArrayList<>());
         request.setAttribute("salesAxisLabels", buildSalesAxisLabels(salesVolume));
-        request.setAttribute("salesRangeLabel", salesVolume.isEmpty() ? "No Sales Data" : "Last 30 Sale Days");
+        request.setAttribute("salesRangeLabel", (salesVolume == null || salesVolume.isEmpty()) ? "No Sales Data" : "Last 30 Sale Days");
         request.setAttribute("msg", request.getParameter("msg"));
         request.getRequestDispatcher("/admin/campaignDetail.jsp").forward(request, response);
+    }
+
+    private String shortMoney(BigDecimal n) {
+        if (n == null) {
+            return "0₫";
+        }
+        BigDecimal million = new BigDecimal("1000000");
+        if (n.compareTo(million) >= 0) {
+            return n.divide(million, 1, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() + "M";
+        }
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        return nf.format(n);
     }
 
     /**

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import model.Campaign;
@@ -30,7 +31,6 @@ public class CampaignFormController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-       
     }
 
     /**
@@ -47,6 +47,7 @@ public class CampaignFormController extends PromotionServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.formDao = new CampaignFormDAO();
         String action = request.getParameter("action");
 
         try {
@@ -82,6 +83,7 @@ public class CampaignFormController extends PromotionServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.formDao = new CampaignFormDAO();
 
         try {
             saveCampaign(request, response);
@@ -114,13 +116,27 @@ public class CampaignFormController extends PromotionServlet {
             }
         }
 
-        String productKeyword = request.getParameter("productKeyword");
-        int campaignId = campaign == null ? 0 : campaign.getCampaignId();
-        List<ProductSearchItem> products = formDao.searchProducts(productKeyword, campaignId);
+        if (campaign == null) {
+            campaign = new Campaign();
+        }
 
+        String productKeyword = request.getParameter("productKeyword");
+        int campaignId = campaign.getCampaignId();
+        List<ProductSearchItem> products = formDao.searchProducts(productKeyword, campaignId);
+        if (products == null) {
+            products = new ArrayList<>();
+        }
+
+        String bannerUrl = "";
+        if (id > 0) {
+            bannerUrl = formDao.getBannerUrlByCampaignId(id);
+        }
+
+        request.setAttribute("editing", id > 0);
         request.setAttribute("campaign", campaign);
         request.setAttribute("products", products);
         request.setAttribute("productKeyword", productKeyword == null ? "" : productKeyword);
+        request.setAttribute("bannerUrl", bannerUrl);
         request.getRequestDispatcher("/admin/campaignForm.jsp").forward(request, response);
     }
 
@@ -164,6 +180,11 @@ public class CampaignFormController extends PromotionServlet {
         if (formDao.isCampaignNameExists(campaign.getCampaignName(), campaign.getCampaignId())) {
             throw new IllegalArgumentException("Tên chiến dịch '" + campaign.getCampaignName() + "' đã được sử dụng!");
         }
+        if ("flash".equals(campaign.getCampaignType())) {
+            if (formDao.isFlashSaleOverlapping(campaign.getStartDate(), campaign.getEndDate(), campaign.getCampaignId())) {
+                throw new IllegalArgumentException("Khung giờ Flash Sale bị trùng lặp với một chiến dịch Flash Sale khác đang hoạt động!");
+            }
+        }
 
         String type = campaign.getCampaignType();
         if ("percentage".equals(type) || "fixed".equals(type)) {
@@ -197,9 +218,11 @@ public class CampaignFormController extends PromotionServlet {
 
         if (id > 0) {
             formDao.updateCampaign(campaign, variantIds, giftVariantIds);
+            formDao.saveCampaignBanner(id, request.getParameter("bannerUrl"));
             redirectToCampaignDetail(response, request, "?id=" + id + "&msg=" + enc("Đã lưu thay đổi"));
         } else {
             int newId = formDao.insertCampaign(campaign, variantIds , giftVariantIds);
+            formDao.saveCampaignBanner(newId, request.getParameter("bannerUrl"));
             redirectToCampaignDetail(response, request, "?id=" + newId + "&msg=" + enc("Đã tạo chiến dịch mới"));
         }
     }

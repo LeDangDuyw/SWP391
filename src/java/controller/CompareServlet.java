@@ -155,7 +155,7 @@ public class CompareServlet extends HttpServlet {
              
               }else if (compareList.contains(productID)){
                 return null ; 
-              }else if(compareList.size() >4 ){
+              }else if(compareList.size() >=4 ){
                  return "chi co the toi da 4 san pham so sanh cung luc ";
                   
               }else{

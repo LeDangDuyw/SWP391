@@ -25,6 +25,10 @@ public class CampaignDAO extends DBContext {
      * Đẩy/Gửi dữ liệu đi: Gán đối tượng connection cho thuộc tính `con` dùng chung trong lớp.
      * Action/Luồng đi: Gọi constructor của lớp cha DBContext để kết nối CSDL, sau đó gán kết nối.
      */
+    public CampaignDAO() {
+        this.con = super.connection;
+    }
+
   
 
     /**
@@ -44,7 +48,7 @@ public class CampaignDAO extends DBContext {
      * Action/Luồng đi: Gọi checkConnection() để đảm bảo kết nối DB còn sống trước khi con.prepareStatement().
      */
     protected PreparedStatement prepare(String sql) throws SQLException {
-      
+        this.con = getConnection();
         return con.prepareStatement(sql);
     }
 
