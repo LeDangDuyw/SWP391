@@ -1,55 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, java.text.*, java.math.BigDecimal, model.Campaign, model.CampaignStats" %>
-<%!
-    String h(String s) { return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;"); }
-    String money(Number n) { return NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(n == null ? 0 : n); }
-    String date(Object d) { return d == null ? "-" : d.toString().replace('T', ' ').substring(0, Math.min(10, d.toString().length())); }
- String statusText(String s) {
-        if (s == null) {
-            return "Unknown";
-        }
-
-        switch (s) {
-            case "active":
-                return "Active";
-            case "scheduled":
-                return "Scheduled";
-            case "pending_approval":
-                return "Pending Approval";
-            case "paused":
-                return "Paused";
-            case "stopped":
-                return "Stopped";
-            case "expired":
-                return "Expired";
-            default:
-                return s;
-        }
-    }
-    String statusClass(String s) { return s == null ? "" : s.replace('_', '-'); }
-%>
-<%
-    String base = request.getContextPath() + "/admin/promotions";
-    String formBase = request.getContextPath() + "/admin/campaign-form";
-    String detailBase = request.getContextPath() + "/admin/campaign-detail";
-    List<Campaign> campaigns = (List<Campaign>) request.getAttribute("campaigns");
-    CampaignStats stats = (CampaignStats) request.getAttribute("stats");
-    if (campaigns == null) campaigns = new ArrayList<>();
-    if (stats == null) stats = new CampaignStats();
-    String keyword = (String) request.getAttribute("keyword");
-    int pageNo = request.getAttribute("page") == null ? 1 : (Integer) request.getAttribute("page");
-    int pageSize = request.getAttribute("pageSize") == null ? 6 : (Integer) request.getAttribute("pageSize");
-    int total = request.getAttribute("total") == null ? campaigns.size() : (Integer) request.getAttribute("total");
-    int totalPages = Math.max(1, (int)Math.ceil(total * 1.0 / pageSize));
-    String msg = (String) request.getAttribute("msg");
-%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!doctype html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNILAP Admin - Promotions</title>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/promotion.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <body>
 <div class="layout">
@@ -59,35 +17,35 @@
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-            <a class="active" href="<%=base%>"><span>▥</span>Analytics</a>
-            <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
-            <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
+            <a class="active" href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+            <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
             <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <%
-                    model.Users u = (model.Users) session.getAttribute("user");
-                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user && not empty sessionScope.user.avatarUrl}">
+                        <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
+                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                    </c:when>
+                    <c:otherwise>
+                        <span>♙</span>
+                    </c:otherwise>
+                </c:choose>
                 <span>Admin User Profile</span>
             </div>
-            <a href="<%=request.getContextPath()%>/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
         </div>
     </aside>
 
     <main class="main">
         <header class="topbar">
             <h1>Console</h1>
-            <form action="<%=base%>" method="get" class="top-search">
-                <input name="keyword" value="<%=h(keyword)%>" placeholder="Search promotions...">
+            <form action="${pageContext.request.contextPath}/admin/promotions" method="get" class="top-search">
+                <input name="keyword" value="<c:out value="${keyword}"/>" placeholder="Search promotions...">
             </form>
             <div class="top-icons">⌕ &nbsp; ◴</div>
         </header>
@@ -98,29 +56,33 @@
                 <p>Manage active campaigns, discount codes, and seasonal promotions.</p>
             </div>
             <div class="head-actions">
-                <a class="btn ghost" href="<%=base%>?action=export&keyword=<%=java.net.URLEncoder.encode(keyword == null ? "" : keyword, java.nio.charset.StandardCharsets.UTF_8)%>">Export Report</a>
-                <a class="btn primary" href="<%=formBase%>">＋ Create Campaign</a>
+                <c:url var="exportUrl" value="/admin/promotions">
+                    <c:param name="action" value="export" />
+                    <c:param name="keyword" value="${keyword}" />
+                </c:url>
+                <a class="btn ghost" href="${exportUrl}">Export Report</a>
+                <a class="btn primary" href="${pageContext.request.contextPath}/admin/campaign-form">＋ Create Campaign</a>
             </div>
         </section>
 
-        <% if (msg != null && !msg.isBlank()) { %>
-        <div class="alert success"><%=h(msg)%></div>
-        <% } %>
+        <c:if test="${not empty msg}">
+            <div class="alert success"><c:out value="${msg}"/></div>
+        </c:if>
 
         <section class="stats-grid">
             <article class="stat-card">
                 <h3>Active Campaigns</h3>
-                <strong class="blue"><%=stats.getActiveCampaigns()%></strong>
+                <strong class="blue">${stats.activeCampaigns}</strong>
                 <p><span class="up">↗</span> running now</p>
             </article>
             <article class="stat-card">
                 <h3>Total Redemptions (MTD)</h3>
-                <strong><%=NumberFormat.getNumberInstance(Locale.US).format(stats.getTotalRedemptions())%></strong>
+                <strong><fmt:formatNumber value="${stats.totalRedemptions}" type="number"/></strong>
                 <p><span class="up blue-text">↗</span> voucher usage</p>
             </article>
             <article class="stat-card">
                 <h3>Pending Approvals</h3>
-                <strong class="red"><%=stats.getPendingApprovals()%></strong>
+                <strong class="red">${stats.pendingApprovals}</strong>
                 <p>Requires Admin Review</p>
             </article>
         </section>
@@ -142,53 +104,87 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% if (campaigns.isEmpty()) { %>
-                <tr><td colspan="6" class="empty">Không có campaign nào. Bấm Create Campaign để tạo mới.</td></tr>
-                <% } %>
-                <% for (Campaign c : campaigns) { %>
-                <tr>
-                    <td>
-                        <b><%=h(c.getCampaignName())%></b>
-                        <small><%=h(c.getCampaignDescription())%></small>
-                    </td>
-                    <td>
-                        <code><%=h(c.getPromoCode())%></code>
-                        <small>
-                            <%=h(c.getCampaignType())%>
-                            <% if (c.getDiscountValue() != null) { %>
-                                <br>Val: <b><%= ("percentage".equals(c.getCampaignType()) || "flash".equals(c.getCampaignType()) || "bundle_discount".equals(c.getCampaignType())) ? (c.getDiscountValue().compareTo(BigDecimal.ZERO) == 0 ? "0%" : c.getDiscountValue().stripTrailingZeros().toPlainString() + "%") : money(c.getDiscountValue()) %></b>
-                            <% } %>
-                            <% if (c.getMinOrderValue() != null && c.getMinOrderValue().compareTo(BigDecimal.ZERO) > 0) { %>
-                                <br>Min: <%= money(c.getMinOrderValue()) %>
-                            <% } %>
-                        </small>
-                    </td>
-                    <td><span class="badge <%=statusClass(c.getStatus())%>"><%=statusText(c.getStatus())%></span></td>
-                    <td><%=NumberFormat.getNumberInstance(Locale.US).format(c.getUsedCount())%> / <%=c.getUsageLimit() == null ? "∞" : NumberFormat.getNumberInstance(Locale.US).format(c.getUsageLimit())%></td>
-                    <td><%=date(c.getEndDate())%></td>
-                    <td class="actions right">
-                        <a href="<%=detailBase%>?id=<%=c.getCampaignId()%>">◎ Show</a>
-                        <% if ("active".equals(c.getStatus())) { %>
-                        <form method="post" action="<%=base%>"><input type="hidden" name="id" value="<%=c.getCampaignId()%>"><input type="hidden" name="action" value="stop"><button class="link danger" onclick="return confirm('Stop campaign này?')">Stop</button></form>
-                        <% } else if ("scheduled".equals(c.getStatus()) || "paused".equals(c.getStatus())) { %>
-                        <form method="post" action="<%=base%>"><input type="hidden" name="id" value="<%=c.getCampaignId()%>"><input type="hidden" name="action" value="resume"><button class="link">Resume</button></form>
-                        <% } else if ("pending_approval".equals(c.getStatus())) { %>
-                        <a href="<%=detailBase%>?id=<%=c.getCampaignId()%>&review=true">Review</a>
-                        <% } %>
-                        <% if (!"pending_approval".equals(c.getStatus())) { %>
-                        <a href="<%=formBase%>?id=<%=c.getCampaignId()%>">Edit</a>
-                        <% } %>
-                    </td>
-                </tr>
-                <% } %>
+                <c:if test="${empty campaigns}">
+                    <tr><td colspan="6" class="empty">Không có campaign nào. Bấm Create Campaign để tạo mới.</td></tr>
+                </c:if>
+                <c:forEach var="c" items="${campaigns}">
+                    <tr>
+                        <td>
+                            <b><c:out value="${c.campaignName}"/></b>
+                            <small><c:out value="${c.campaignDescription}"/></small>
+                        </td>
+                        <td>
+                            <code><c:out value="${c.promoCode}"/></code>
+                            <small>
+                                <c:out value="${c.campaignType}"/>
+                                <c:if test="${not empty c.discountValue}">
+                                    <br>Val: <b>
+                                        <c:choose>
+                                            <c:when test="${c.campaignType == 'percentage' || c.campaignType == 'flash' || c.campaignType == 'bundle_discount'}">
+                                                <c:choose>
+                                                    <c:when test="${c.discountValue == 0}">0%</c:when>
+                                                    <c:otherwise>
+                                                        <fmt:formatNumber value="${c.discountValue}" pattern="#.##"/>%
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <fmt:formatNumber value="${c.discountValue}" pattern="#,##0"/>₫
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </b>
+                                </c:if>
+                                <c:if test="${not empty c.minOrderValue && c.minOrderValue > 0}">
+                                    <br>Min: <fmt:formatNumber value="${c.minOrderValue}" pattern="#,##0"/>₫
+                                </c:if>
+                            </small>
+                        </td>
+                        <td><span class="badge ${c.statusClass}"><c:out value="${c.formattedStatus}"/></span></td>
+                        <td><fmt:formatNumber value="${c.usedCount}" type="number"/> / <c:choose><c:when test="${empty c.usageLimit}">∞</c:when><c:otherwise><fmt:formatNumber value="${c.usageLimit}" type="number"/></c:otherwise></c:choose></td>
+                        <td><c:out value="${c.formattedEndDateDateOnly}"/></td>
+                        <td class="actions right">
+                            <a href="${pageContext.request.contextPath}/admin/campaign-detail?id=${c.campaignId}">◎ Show</a>
+                            <c:choose>
+                                <c:when test="${c.status == 'active'}">
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/promotions">
+                                        <input type="hidden" name="id" value="${c.campaignId}">
+                                        <input type="hidden" name="action" value="stop">
+                                        <button class="link danger" onclick="return confirm('Stop campaign này?')">Stop</button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${c.status == 'scheduled' || c.status == 'paused'}">
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/promotions">
+                                        <input type="hidden" name="id" value="${c.campaignId}">
+                                        <input type="hidden" name="action" value="resume">
+                                        <button class="link">Resume</button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${c.status == 'pending_approval'}">
+                                    <a href="${pageContext.request.contextPath}/admin/campaign-detail?id=${c.campaignId}&review=true">Review</a>
+                                </c:when>
+                            </c:choose>
+                            <c:if test="${c.status != 'pending_approval'}">
+                                <a href="${pageContext.request.contextPath}/admin/campaign-form?id=${c.campaignId}">Edit</a>
+                            </c:if>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
             <div class="table-footer">
-                <span>Showing <%=campaigns.isEmpty() ? 0 : ((pageNo - 1) * pageSize + 1)%>-<%=Math.min(pageNo * pageSize, total)%> of <%=total%> campaigns</span>
+                <span>Showing ${empty campaigns ? 0 : (page - 1) * pageSize + 1}-${page * pageSize < total ? page * pageSize : total} of ${total} campaigns</span>
                 <div class="pager">
-                    <a class="page-btn <%=pageNo <= 1 ? "disabled" : ""%>" href="<%=base%>?page=<%=Math.max(1, pageNo-1)%>&keyword=<%=java.net.URLEncoder.encode(keyword == null ? "" : keyword, java.nio.charset.StandardCharsets.UTF_8)%>">‹</a>
-                    <span><%=pageNo%>/<%=totalPages%></span>
-                    <a class="page-btn <%=pageNo >= totalPages ? "disabled" : ""%>" href="<%=base%>?page=<%=Math.min(totalPages, pageNo+1)%>&keyword=<%=java.net.URLEncoder.encode(keyword == null ? "" : keyword, java.nio.charset.StandardCharsets.UTF_8)%>">›</a>
+                    <c:url var="prevUrl" value="/admin/promotions">
+                        <c:param name="page" value="${page > 1 ? page - 1 : 1}" />
+                        <c:param name="keyword" value="${keyword}" />
+                    </c:url>
+                    <a class="page-btn ${page <= 1 ? 'disabled' : ''}" href="${prevUrl}">‹</a>
+                    <span>${page}/${totalPages}</span>
+                    <c:url var="nextUrl" value="/admin/promotions">
+                        <c:param name="page" value="${page < totalPages ? page + 1 : totalPages}" />
+                        <c:param name="keyword" value="${keyword}" />
+                    </c:url>
+                    <a class="page-btn ${page >= totalPages ? 'disabled' : ''}" href="${nextUrl}">›</a>
                 </div>
             </div>
         </section>

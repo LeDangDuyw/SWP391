@@ -1,115 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.text.NumberFormat" %>
-<%@ page import="java.util.Locale" %>
-<%@ page import="model.Campaign" %>
-<%@ page import="model.ProductSearchItem" %>
-
-<%!
-    String h(String s) {
-        if (s == null) {
-            return "";
-        }
-        return s.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;");
-    }
-
-    String dateValue(Object d) {
-        if (d == null) {
-            return "";
-        }
-
-        String text = d.toString();
-
-        if (text.length() >= 10) {
-            return text.substring(0, 10);
-        }
-
-        return text;
-    }
-
-    String checked(boolean v) {
-        if (v) {
-            return "checked";
-        }
-        return "";
-    }
-
-    String selected(String a, String b) {
-        if (a == null && b == null) {
-            return "selected";
-        }
-
-        if (a != null && a.equals(b)) {
-            return "selected";
-        }
-
-        return "";
-    }
-
-    String money(Number n) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-
-        if (n == null) {
-            return nf.format(0);
-        }
-
-        return nf.format(n);
-    }
-
-    String numberValue(Object n) {
-        if (n == null) {
-            return "";
-        }
-
-        return n.toString();
-    }
-%>
-<%
-    String base = request.getContextPath() + "/admin/campaign-form";
-    String listBase = request.getContextPath() + "/admin/promotions";
-
-    Campaign c = (Campaign) request.getAttribute("campaign");
-
-    boolean editing = false;
-
-    if (c != null && c.getCampaignId() > 0) {
-        editing = true;
-    }
-
-    if (c == null) {
-        c = new Campaign();
-    }
-
-    List<ProductSearchItem> products = (List<ProductSearchItem>) request.getAttribute("products");
-
-if (products == null) {
-    products = new ArrayList<ProductSearchItem>();
-}
-
-String discountValueText = "";
-if (c.getDiscountValue() != null) {
-    discountValueText = c.getDiscountValue().toString();
-}
-
-String usageLimitText = "";
-if (c.getUsageLimit() != null) {
-    usageLimitText = String.valueOf(c.getUsageLimit());
-}
-%>
-    
-
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!doctype html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title><%= editing ? "Edit Campaign" : "Create Campaign" %></title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/promotion.css">
+    <title>${editing ? 'Edit Campaign' : 'Create Campaign'}</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
     <style>
         .selected-product-row {
             display: flex;
@@ -185,27 +83,27 @@ if (c.getUsageLimit() != null) {
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-            <a class="active" href="<%=listBase%>"><span>▥</span>Analytics</a>
-            <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
-            <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
+            <a class="active" href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+            <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
             <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
             <a href="#"><span>⚙</span>Settings</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <%
-                    model.Users u = (model.Users) session.getAttribute("user");
-                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user && not empty sessionScope.user.avatarUrl}">
+                        <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
+                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
+                    </c:when>
+                    <c:otherwise>
+                        <span>♙</span>
+                    </c:otherwise>
+                </c:choose>
                 <span>Admin User Profile</span>
             </div>
-            <a href="<%=request.getContextPath()%>/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
         </div>
     </aside>
 
@@ -221,21 +119,21 @@ if (c.getUsageLimit() != null) {
 
         <div class="crumb">
             Campaigns <span>›</span>
-            <b><%= editing ? "Edit Campaign" : "New Campaign" %></b>
+            <b>${editing ? "Edit Campaign" : "New Campaign"}</b>
         </div>
 
-        <form method="post" action="<%= base %>" class="campaign-form" id="campaignForm">
+        <form method="post" action="${pageContext.request.contextPath}/admin/campaign-form" class="campaign-form" id="campaignForm">
 
             <input type="hidden" name="action" value="save">
-            <input type="hidden" name="id" value="<%= c.getCampaignId() %>">
+            <input type="hidden" name="id" value="${campaign.campaignId}">
 
             <section class="page-head no-margin">
                 <div>
-                    <h2><%= editing ? "Edit Campaign" : "Create New Campaign" %></h2>
+                    <h2>${editing ? "Edit Campaign" : "Create New Campaign"}</h2>
                 </div>
 
                 <div class="head-actions">
-                    <a class="btn ghost" href="<%= listBase %>">Cancel</a>
+                    <a class="btn ghost" href="${pageContext.request.contextPath}/admin/promotions">Cancel</a>
                     <button class="btn primary" type="submit">▣ Save Campaign</button>
                 </div>
             </section>
@@ -251,32 +149,32 @@ if (c.getUsageLimit() != null) {
                         <input name="campaignName"
                                id="campaignName"
                                required
-                               value="<%= h(c.getCampaignName()) %>"
+                               value="<c:out value="${campaign.campaignName}"/>"
                                placeholder="e.g. Summer Tech Extravaganza 2026">
                         <span class="validation-error" id="campaignNameError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
 
                         <label>Campaign Description</label>
                         <textarea name="campaignDescription"
                                   rows="4"
-                                  placeholder="Provide internal details or customer-facing teaser text..."><%= h(c.getCampaignDescription()) %></textarea>
+                                  placeholder="Provide internal details or customer-facing teaser text..."><c:out value="${campaign.campaignDescription}"/></textarea>
 
                         <div class="two-cols">
                             <div>
                                 <label>Campaign Type</label>
                                 <select name="campaignType" id="campaignType">
-                                    <option value="percentage" <%= selected(c.getCampaignType(), "percentage") %>>
+                                    <option value="percentage" ${campaign.campaignType == 'percentage' ? 'selected' : ''}>
                                         Percentage Discount
                                     </option>
-                                    <option value="fixed" <%= selected(c.getCampaignType(), "fixed") %>>
+                                    <option value="fixed" ${campaign.campaignType == 'fixed' ? 'selected' : ''}>
                                         Fixed Amount Discount
                                     </option>
-                                    <option value="flash" <%= selected(c.getCampaignType(), "flash") %>>
+                                    <option value="flash" ${campaign.campaignType == 'flash' ? 'selected' : ''}>
                                         Flash Sale / Auto Apply
                                     </option>
-                                    <option value="bundle_discount" <%= selected(c.getCampaignType(), "bundle_discount") %>>
+                                    <option value="bundle_discount" ${campaign.campaignType == 'bundle_discount' ? 'selected' : ''}>
                                         Buy Together Discount
                                     </option>
-                                    <option value="gift_with_purchase" <%= selected(c.getCampaignType(), "gift_with_purchase") %>>
+                                    <option value="gift_with_purchase" ${campaign.campaignType == 'gift_with_purchase' ? 'selected' : ''}>
                                         Gift With Purchase
                                     </option>
                                 </select>
@@ -285,16 +183,16 @@ if (c.getUsageLimit() != null) {
                             <div>
                                 <label>Targeting Group</label>
                                 <select name="targetGroup">
-                                    <option value="All Customers" <%= selected(c.getTargetGroup(), "All Customers") %>>
+                                    <option value="All Customers" ${campaign.targetGroup == 'All Customers' ? 'selected' : ''}>
                                         All Customers
                                     </option>
-                                    <option value="New Customers" <%= selected(c.getTargetGroup(), "New Customers") %>>
+                                    <option value="New Customers" ${campaign.targetGroup == 'New Customers' ? 'selected' : ''}>
                                         New Customers
                                     </option>
-                                    <option value="Students" <%= selected(c.getTargetGroup(), "Students") %>>
+                                    <option value="Students" ${campaign.targetGroup == 'Students' ? 'selected' : ''}>
                                         Students
                                     </option>
-                                    <option value="B2B Customers" <%= selected(c.getTargetGroup(), "B2B Customers") %>>
+                                    <option value="B2B Customers" ${campaign.targetGroup == 'B2B Customers' ? 'selected' : ''}>
                                         B2B Customers
                                     </option>
                                 </select>
@@ -311,7 +209,7 @@ if (c.getUsageLimit() != null) {
                                 <input name="promoCode"
                                        id="promoCode"
                                        required
-                                       value="<%= h(c.getPromoCode()) %>"
+                                       value="<c:out value="${campaign.promoCode}"/>"
                                        placeholder="SUMMER24">
 
                                 <button type="button" class="btn ghost" id="generateBtn">
@@ -329,7 +227,7 @@ if (c.getUsageLimit() != null) {
                                        type="number"
                                        step="1"
                                        min="0"
-                                       value="<%= numberValue(c.getDiscountValue()) %>"
+                                       value="${campaign.discountValue}"
                                        style="width: 100%; box-sizing: border-box;">
                                 <span class="validation-error" id="discountValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
@@ -340,7 +238,7 @@ if (c.getUsageLimit() != null) {
                                        id="usageLimit"
                                        type="number"
                                        min="0"
-                                       value="<%= numberValue(c.getUsageLimit()) %>"
+                                       value="${campaign.usageLimit}"
                                        placeholder="1000"
                                        style="width: 100%; box-sizing: border-box;">
                                 <span class="validation-error" id="usageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
@@ -397,53 +295,37 @@ if (c.getUsageLimit() != null) {
                         </div>
 
                         <div class="product-list" id="productList">
+                            <c:forEach var="p" items="${products}">
+                                <c:set var="searchText" value="${p.productName} ${p.variantName} ${p.sku} ${p.categoryName}" />
+                                <label class="product-option" data-search="<c:out value="${searchText.toLowerCase()}"/>">
+                                    <input type="checkbox"
+                                           class="picker-checkbox"
+                                           data-id="${p.variantId}"
+                                           data-name="<c:out value="${p.productName}"/>"
+                                           data-variant="<c:out value="${p.variantName}"/>"
+                                           data-sku="<c:out value="${p.sku}"/>"
+                                           data-category="<c:out value="${p.categoryName}"/>"
+                                           data-price="${p.price}"
+                                           data-stock="${p.stock}"
+                                           data-gift="${p.gift}"
+                                           ${p.selected ? 'checked' : ''}>
 
-                            <%
-                                for (int i = 0; i < products.size(); i++) {
-                                    ProductSearchItem p = products.get(i);
+                                    <span>
+                                        <b><c:out value="${p.productName}"/></b>
+                                        <small>
+                                            <c:out value="${p.variantName}"/>
+                                            · <c:out value="${p.sku}"/>
+                                            · <c:out value="${p.categoryName}"/>
+                                        </small>
+                                    </span>
 
-                                    String searchText =
-                                            String.valueOf(p.getProductName()) + " " +
-                                            String.valueOf(p.getVariantName()) + " " +
-                                            String.valueOf(p.getSku()) + " " +
-                                            String.valueOf(p.getCategoryName());
-
-                                    searchText = searchText.toLowerCase();
-                            %>
-
-                             <label class="product-option" data-search="<%= h(searchText) %>">
-                                <input type="checkbox"
-                                       class="picker-checkbox"
-                                       data-id="<%= p.getVariantId() %>"
-                                       data-name="<%= h(p.getProductName()) %>"
-                                       data-variant="<%= h(p.getVariantName()) %>"
-                                       data-sku="<%= h(p.getSku()) %>"
-                                       data-category="<%= h(p.getCategoryName()) %>"
-                                       data-price="<%= p.getPrice() %>"
-                                       data-stock="<%= p.getStock() %>"
-                                       data-gift="<%= p.isGift() %>"
-                                       <%= checked(p.isSelected()) %>>
-
-                                <span>
-                                    <b><%= h(p.getProductName()) %></b>
-                                    <small>
-                                        <%= h(p.getVariantName()) %>
-                                        · <%= h(p.getSku()) %>
-                                        · <%= h(p.getCategoryName()) %>
-                                    </small>
-                                </span>
-
-                                <em>
-                                    <%= money(p.getPrice()) %>
-                                    <br>
-                                    <small>Stock: <%= p.getStock() %></small>
-                                </em>
-                            </label>
-
-                            <%
-                                }
-                            %>
-
+                                    <em>
+                                        <fmt:formatNumber value="${p.price}" pattern="#,##0"/>₫
+                                        <br>
+                                        <small>Stock: ${p.stock}</small>
+                                    </em>
+                                </label>
+                            </c:forEach>
                         </div>
                     </section>
 
@@ -457,19 +339,19 @@ if (c.getUsageLimit() != null) {
                         <label>Start Date</label>
                         <input name="startDate"
                                id="startDate"
-                               type="date"
+                               type="datetime-local"
                                required
-                               value="<%= dateValue(c.getStartDate()) %>">
+                               value="${campaign.formattedStartDate}">
 
                         <label>End Date</label>
                         <input name="endDate"
                                id="endDate"
-                               type="date"
+                               type="datetime-local"
                                required
-                               value="<%= dateValue(c.getEndDate()) %>">
+                               value="${campaign.formattedEndDate}">
 
                         <div class="info-box">
-                            ⓘ This campaign will automatically activate at 12:00 AM on the start date.
+                            ⓘ This campaign will automatically activate at the specified start date and time.
                         </div>
                     </section>
 
@@ -483,29 +365,42 @@ if (c.getUsageLimit() != null) {
                                    type="number"
                                    step="1"
                                    min="0"
-                                   value="<%= numberValue(c.getMinOrderValue()) %>"
+                                   value="${campaign.minOrderValue}"
                                    placeholder="500000 Đ">
                             <span class="validation-error" id="minOrderValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                         </div>
 
                         <label>Status</label>
                         <select name="status">
-                            <option value="scheduled" <%= selected(c.getStatus(), "scheduled") %>>
+                            <option value="scheduled" ${campaign.status == 'scheduled' ? 'selected' : ''}>
                                 Scheduled
                             </option>
-                            <option value="active" <%= selected(c.getStatus(), "active") %>>
+                            <option value="active" ${campaign.status == 'active' ? 'selected' : ''}>
                                 Active
                             </option>
-                            <option value="paused" <%= selected(c.getStatus(), "paused") %>>
+                            <option value="paused" ${campaign.status == 'paused' ? 'selected' : ''}>
                                 Paused
                             </option>
-                            <option value="pending_approval" <%= selected(c.getStatus(), "pending_approval") %>>
+                            <option value="pending_approval" ${campaign.status == 'pending_approval' ? 'selected' : ''}>
                                 Pending Approval
                             </option>
-                            <option value="stopped" <%= selected(c.getStatus(), "stopped") %>>
+                            <option value="stopped" ${campaign.status == 'stopped' ? 'selected' : ''}>
                                 Stopped
                             </option>
                         </select>
+                    </section>
+
+                    <section class="form-card side-card">
+                        <h3>🖼 Campaign Banner</h3>
+                        <label for="bannerUrl">Banner Image URL</label>
+                        <input name="bannerUrl"
+                               id="bannerUrl"
+                               type="text"
+                               value="${not empty bannerUrl ? bannerUrl : ''}"
+                               placeholder="/images/banner-gaming-sale.jpg">
+                        <span style="font-size: 11px; color: #64748b; display: block; margin-top: 4px; line-height: 1.4;">
+                            Nhập đường dẫn ảnh banner (ví dụ: /images/banner-gaming-sale.jpg) để hiển thị trên slider Trang chủ. Để trống nếu không muốn dùng banner cho chiến dịch này.
+                        </span>
                     </section>
 
                     <section class="preview-card">
@@ -546,10 +441,10 @@ if (c.getUsageLimit() != null) {
         var endDateInput = document.getElementById("endDate");
 
         if (startDateInput && endDateInput) {
-            startDateInput.setAttribute("min", todayStr);
-            startDateInput.setAttribute("max", maxDateStr);
-            endDateInput.setAttribute("min", todayStr);
-            endDateInput.setAttribute("max", maxDateStr);
+            startDateInput.setAttribute("min", todayStr + "T00:00");
+            startDateInput.setAttribute("max", maxDateStr + "T23:59");
+            endDateInput.setAttribute("min", todayStr + "T00:00");
+            endDateInput.setAttribute("max", maxDateStr + "T23:59");
 
             startDateInput.addEventListener("change", function() {
                 if (startDateInput.value) {
@@ -589,9 +484,9 @@ if (c.getUsageLimit() != null) {
                 isNameValid = false;
                 return;
             }
-            var campaignId = "<%= c.getCampaignId() %>";
+            var campaignId = "${campaign.campaignId}";
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "<%= base %>?action=check-name&name=" + encodeURIComponent(name) + "&id=" + campaignId, true);
+            xhr.open("GET", "${pageContext.request.contextPath}/admin/campaign-form?action=check-name&name=" + encodeURIComponent(name) + "&id=" + campaignId, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     try {
@@ -727,14 +622,16 @@ if (c.getUsageLimit() != null) {
                 // 6. Dates validation
                 var startVal = startDateInput.value;
                 var endVal = endDateInput.value;
-                if (startVal < todayStr) {
+                var startDateOnly = startVal.substring(0, 10);
+                var endDateOnly = endVal.substring(0, 10);
+                if (startDateOnly < todayStr) {
                     alert("Ngày bắt đầu chiến dịch phải từ ngày hôm nay trở đi!");
                     isValid = false;
-                } else if (endVal > maxDateStr) {
+                } else if (endDateOnly > maxDateStr) {
                     alert("Thời gian kết thúc không được vượt quá 6 tháng kể từ hôm nay!");
                     isValid = false;
                 } else if (startVal > endVal) {
-                    alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu!");
+                    alert("Thời gian kết thúc phải lớn hơn hoặc bằng thời gian bắt đầu!");
                     isValid = false;
                 }
 
@@ -919,7 +816,7 @@ if (c.getUsageLimit() != null) {
         var optionType = document.getElementById("optionType").value;
         var startDate = document.getElementById("salesStartDate").value;
         var endDate = document.getElementById("salesEndDate").value;
-        var campaignId = "<%= c.getCampaignId() %>";
+        var campaignId = "${campaign.campaignId}";
 
         // Date validation: no future dates allowed for sales filtering
         if (startDate > todayStr || endDate > todayStr) {
@@ -934,7 +831,7 @@ if (c.getUsageLimit() != null) {
         var productListContainer = document.getElementById("productList");
         productListContainer.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 30px;">⏳ Đang tải sản phẩm...</div>';
 
-        var url = "<%= base %>?action=products" +
+        var url = "${pageContext.request.contextPath}/admin/campaign-form?action=products" +
                   "&keyword=" + encodeURIComponent(keyword) +
                   "&optionType=" + encodeURIComponent(optionType) +
                   "&startDate=" + encodeURIComponent(startDate) +
@@ -1055,7 +952,7 @@ if (c.getUsageLimit() != null) {
     if (generateBtn != null) {
         generateBtn.onclick = function () {
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "<%= base %>?action=generate", true);
+            xhr.open("GET", "${pageContext.request.contextPath}/admin/campaign-form?action=generate", true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     var input = document.getElementById("promoCode");

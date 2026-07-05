@@ -29,7 +29,6 @@ public class PromotionsController extends PromotionServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        promotionsDao = new PromotionsDAO(getServletContext());
     }
 
 
@@ -51,6 +50,7 @@ public class PromotionsController extends PromotionServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.promotionsDao = new PromotionsDAO();
         String action = request.getParameter("action");
 
         try {
@@ -100,6 +100,7 @@ public class PromotionsController extends PromotionServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         prepareEncoding(request, response);
+        this.promotionsDao = new PromotionsDAO();
 
         try {
             int id = parseInt(request.getParameter("id"), 0);
@@ -133,6 +134,7 @@ public class PromotionsController extends PromotionServlet {
         List<Campaign> campaigns = promotionsDao.listCampaigns(keyword, page, PAGE_SIZE);
         int total = promotionsDao.countCampaigns(keyword);
         CampaignStats stats = promotionsDao.getDashboardStats();
+        int totalPages = Math.max(1, (int) Math.ceil(total * 1.0 / PAGE_SIZE));
 
         request.setAttribute("campaigns", campaigns);
         request.setAttribute("stats", stats);
@@ -140,6 +142,7 @@ public class PromotionsController extends PromotionServlet {
         request.setAttribute("page", page);
         request.setAttribute("pageSize", PAGE_SIZE);
         request.setAttribute("total", total);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("msg", request.getParameter("msg"));
         request.getRequestDispatcher("/admin/promotions.jsp").forward(request, response);
     }
