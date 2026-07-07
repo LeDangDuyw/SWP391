@@ -1164,7 +1164,7 @@
                         </div>
                     </div>
                     <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2;">
-                        <li>Sử dụng mật khẩu ít nhất 6 ký tự gồm chữ hoa, chữ thường, số.</li>
+                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số.</li>
                         <li>Không sử dụng cùng một mật khẩu cho nhiều tài khoản.</li>
                         <li>Không chia sẻ mật khẩu với bất kỳ ai.</li>
                         <li>Thay đổi mật khẩu định kỳ 3-6 tháng một lần.</li>
@@ -1205,21 +1205,14 @@
                     </div>
 
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                        <a href="${pageContext.request.contextPath}/warranty?action=list" class="quick-card" id="warranty-list-btn">
+                        <a href="${pageContext.request.contextPath}/warranty?action=list#recent-activity" class="quick-card" id="warranty-list-btn">
                             <div class="quick-card-icon" style="background:#dcfce7;color:#16a34a;">
                                 <i class="fas fa-list-ul"></i>
                             </div>
                             <span class="quick-card-label">Xem Yêu Cầu Của Tôi</span>
                         </a>
 
-                        <a href="${pageContext.request.contextPath}/warranty?action=checkEligibility" class="quick-card" id="warranty-check-btn">
-                            <div class="quick-card-icon" style="background:#dbeafe;color:#1d4ed8;">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <span class="quick-card-label">Kiểm Tra Còn Bảo Hành</span>
-                        </a>
-
-                        <a href="${pageContext.request.contextPath}/warranty?action=list" class="quick-card" id="warranty-submit-btn" style="grid-column:1/-1;">
+                        <a href="${pageContext.request.contextPath}/warranty?action=checkEligibility" class="quick-card" id="warranty-submit-btn">
                             <div class="quick-card-icon" style="background:#fef3c7;color:#d97706;">
                                 <i class="fas fa-plus-circle"></i>
                             </div>

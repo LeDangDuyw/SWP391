@@ -17,14 +17,15 @@ import model.Campaign;
 import model.ProductSearchItem;
 
 public class CampaignFormDAO extends CampaignDAO {
-    /**
-     * Chức năng: Khởi tạo lớp DAO form chiến dịch, kế thừa CampaignDAO.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
-     * Action/Luồng đi: Truyền context lên lớp cha.
-     */
- 
+
+    public CampaignFormDAO() {
+        super();
+    }
+
+    public CampaignFormDAO(ServletContext context) {
+        super(context);
+    }
+
 
     /**
      * Chức năng: Tìm kiếm danh sách các sản phẩm (tối đa 120 dòng) để hiển thị trong form chọn sản phẩm khuyến mãi, đồng thời đánh dấu xem sản phẩm nào đã được chọn trong chiến dịch trước đó.

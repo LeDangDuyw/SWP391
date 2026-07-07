@@ -37,6 +37,7 @@ public class CampaignDetailController extends PromotionServlet {
         super.init();
     }
 
+
     /**
      * Chức năng: Xử lý các yêu cầu HTTP GET, hiển thị trang chi tiết chiến dịch hoặc xuất báo cáo in ấn PDF.
      * Tác nhân liên quan: Admin.
