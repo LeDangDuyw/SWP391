@@ -398,6 +398,8 @@
                 </div>
             </div>
         </footer>
+        <jsp:include page="chatbot.jsp" />
+
         <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
     </body>
 </html>

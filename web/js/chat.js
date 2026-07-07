@@ -368,6 +368,39 @@
         // Reload to default state
         loadChatHistory();
     }
+    
+    // hien thi len web cua cai productdetail 
+    function sendMessageToChatbot(userInput) {
+    // 1. Hiển thị tin nhắn người dùng lên khung chat
+    appendMessage("user", userInput);
+    // 2. Gửi request tới FastAPI server
+    fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: userInput,
+            session_id: sessionId // Session ID của phiên chat hiện tại
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 3. Hiển thị câu trả lời của Chatbot lên khung chat
+        appendMessage("assistant", data.answer);
+        // 4. Nếu backend yêu cầu chuyển hướng sang sản phẩm chi tiết
+        if (data.redirect_product_id) {
+            // Đợi 2 giây để khách kịp đọc tin nhắn trả lời, sau đó chuyển hướng
+            setTimeout(() => {
+                // Chuyển hướng trình duyệt sang trang chi tiết sản phẩm của dự án Java Web
+                window.location.href = "productDetail?id=" + data.redirect_product_id;
+            }, 2000); 
+        }
+    })
+    .catch(error => {
+        console.error("Lỗi kết nối chatbot:", error);
+    });
+}
 
     /**
      * Formats basic markdown elements like strong/bold and lists, and handles newline to br
