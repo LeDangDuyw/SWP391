@@ -901,8 +901,8 @@
 
     <!-- ════ HERO ════ -->
     <section class="page-hero">
-        <h1>Warranty Center</h1>
-        <p>Check eligibility, submit claims, and track the status of your UNILAP precision hardware. Fast, transparent, and reliable support.</p>
+        <h1>Trung Tâm Bảo Hành</h1>
+        <p>Kiểm tra điều kiện bảo hành, gửi yêu cầu và theo dõi tiến trình xử lý thiết bị của bạn. Hỗ trợ nhanh chóng, minh bạch và đáng tin cậy.</p>
     </section>
 
     <!-- ════ SUBMIT A CLAIM — WIZARD (3 steps, one step visible at a time) ════ -->
@@ -911,6 +911,8 @@
             <div class="card-icon-wrap">🔧</div>
             <h3>Submit a Claim</h3>
             <p>Experiencing an issue? Verify your serial number first, then describe the problem to help our technicians diagnose it quickly.</p>
+            <h3>Gửi Yêu Cầu Bảo Hành</h3>
+            <p>Sản phẩm gặp sự cố? Vui lòng chọn sản phẩm và mô tả sự cố để kỹ thuật viên của chúng tôi chẩn đoán nhanh chóng.</p>
 
             <!-- Step indicator -->
             <div class="wizard-steps" id="wizardStepsIndicator">
@@ -928,6 +930,19 @@
                 <div class="wizard-step-line" data-step-line="3"></div>
                 <div class="wizard-step-indicator" data-step-indicator="4">
                     <span class="dot">4</span> Describe Issue
+                    <span class="dot">1</span> Chọn Sản Phẩm
+                </div>
+                <div class="wizard-step-line" data-step-line="1"></div>
+                <div class="wizard-step-indicator" data-step-indicator="2">
+                    <span class="dot">2</span> Trạng Thái Bảo Hành
+                </div>
+                <div class="wizard-step-line" data-step-line="2"></div>
+                <div class="wizard-step-indicator" data-step-indicator="3">
+                    <span class="dot">3</span> Xác Nhận
+                </div>
+                <div class="wizard-step-line" data-step-line="3"></div>
+                <div class="wizard-step-indicator" data-step-indicator="4">
+                    <span class="dot">4</span> Mô Tả Lỗi
                 </div>
             </div>
 
@@ -1028,6 +1043,128 @@
                             <div class="input-row">
                                 <input type="text" value="<c:out value="${eligibilityInfo.productName}"/> (SN: <c:out value="${eligibilityInfo.serialNumber}"/>)" disabled>
                             </div>
+                        </c:if>
+
+                        <c:choose>
+                            <c:when test="${empty purchasedProducts}">
+                                <div class="no-claims" style="padding:24px 0;">
+                                    Bạn chưa có sản phẩm nào đã mua để yêu cầu bảo hành.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="product-pick-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Sản phẩm</th>
+                                            <th>Ngày mua</th>
+                                            <th>Thời hạn bảo hành</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="item" items="${purchasedProducts}">
+                                            <%-- Mỗi serial là 1 dòng riêng — kể cả khi 2 máy cùng model
+                                                 trong cùng 1 đơn hàng, vì mỗi máy có warranty/claim
+                                                 state độc lập (BR15-BR18 áp dụng theo từng serial). --%>
+                                            <tr class="product-pick-row" data-serial="<c:out value="${item.serialNumber}"/>">
+                                                <td>
+                                                    <input type="radio" name="serialNumberRadio"
+                                                           class="product-pick-radio"
+                                                           value="<c:out value="${item.serialNumber}"/>">
+                                                </td>
+                                                <td>
+                                                    <div style="font-size:13px;font-weight:600;color:#111827;"><c:out value="${item.productName}"/></div>
+                                                    <div style="font-size:11.5px;color:#9ca3af;">SN: <c:out value="${item.serialNumber}"/></div>
+                                                </td>
+                                                <td style="font-size:13px;">
+                                                    <fmt:formatDate value="${item.purchaseDate}" pattern="dd/MM/yyyy"/>
+                                                </td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${item.underWarranty}">
+                                                            <span class="badge badge-APPROVED">Còn bảo hành</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge badge-REJECTED">Hết hạn bảo hành</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+
+                                <%-- Form GET thật, submit khi bấm "Verify" sau khi chọn 1 dòng.
+                                     serialNumberRadio được JS đồng bộ vào hidden input bên dưới
+                                     khi người dùng click vào dòng. --%>
+                                <form method="get" action="${pageContext.request.contextPath}/warranty"
+                                      id="selectProductForm">
+                                    <input type="hidden" name="action" value="checkEligibility">
+                                    <input type="hidden" name="serialNumber" id="selectedSerialInput" value="">
+                                    <div class="wizard-nav-row" style="justify-content:flex-end;">
+                                        <button type="submit" class="btn-wizard-next" id="selectProductNextBtn" disabled>Tiếp theo</button>
+                                    </div>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </c:when>
+
+                <%-- ════════════════════════════════════════════════════════
+                     Sản phẩm đã được chọn và verify thành công (1 GET request
+                     tới server). Step 2/3/4 đã có sẵn data ở đây — chuyển
+                     giữa các step từ thời điểm này là show/hide bằng JS
+                     thuần (không AJAX), KHÔNG round-trip lại server.
+                     Form Step 4 vẫn là form POST duy nhất, submit 1 lần.
+                     ════════════════════════════════════════════════════════ --%>
+                <c:otherwise>
+                    <!-- ─ STEP 1 panel (kept in DOM so "Back" can return to it without re-verifying) ─ -->
+                    <div class="wizard-step-panel" data-step-panel="1">
+                        <div class="field-group" style="max-width:420px;">
+                            <label>Sản phẩm đã chọn</label>
+                            <div class="input-row">
+                                <input type="text" value="<c:out value="${eligibilityInfo.productName}"/> (SN: <c:out value="${eligibilityInfo.serialNumber}"/>)" disabled>
+                            </div>
+                        </div>
+                        <div class="verify-success">✓ Đã xác thực sản phẩm</div>
+
+                        <!-- Cho phép chọn lại sản phẩm khác — đây vẫn là round-trip GET thật -->
+                        <form method="get" action="${pageContext.request.contextPath}/warranty" style="display:inline;">
+                            <input type="hidden" name="action" value="checkEligibility">
+                            <input type="hidden" name="serialNumber" value="">
+                            <button type="submit" class="btn-change-serial">← Chọn sản phẩm khác</button>
+                        </form>
+
+                        <div class="wizard-nav-row" style="justify-content:flex-end;">
+                            <button type="button" class="btn-wizard-next" data-go-to-step="2">Tiếp theo</button>
+                        </div>
+                    </div>
+
+                    <!-- ─ STEP 2: Warranty Status (còn hạn / hết hạn) ─ -->
+                    <div class="wizard-step-panel" data-step-panel="2">
+                        <div class="warranty-info-box">
+                            <div class="warranty-info-item">
+                                <label>Sản phẩm</label>
+                                <span><c:out value="${eligibilityInfo.productName}"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Số Serial</label>
+                                <span><c:out value="${eligibilityInfo.serialNumber}"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Gói bảo hành</label>
+                                <span><c:out value="${eligibilityInfo.coverageName}"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Trạng thái bảo hành</label>
+                                <%-- Tới được Step 2 nghĩa là checkEligibility() đã pass
+                                     isUnderWarranty() ở server rồi, nên luôn là "còn hạn"
+                                     tại đây — nhánh "hết hạn" chỉ xảy ra ở Step 1 nếu khách
+                                     chọn 1 sản phẩm hiển thị badge "Hết hạn bảo hành": khi đó
+                                     server trả INVALID và khách bị giữ lại Step 1 (xem nhánh
+                                     c:when ở trên), không bao giờ tới được Step 2. --%>
+                                <span style="color:#16a34a;">✓ Còn bảo hành đến <fmt:formatDate value="${eligibilityInfo.warrantyExpiry}" pattern="dd/MM/yyyy"/></span>
+                            </div>
                         </div>
                         <div class="verify-success">✓ Product verified</div>
 
@@ -1067,6 +1204,33 @@
                                      server trả INVALID và khách bị giữ lại Step 1 (xem nhánh
                                      c:when ở trên), không bao giờ tới được Step 2. --%>
                                 <span style="color:#16a34a;">✓ Còn bảo hành đến <fmt:formatDate value="${eligibilityInfo.warrantyExpiry}" pattern="dd/MM/yyyy"/></span>
+                        <div class="wizard-nav-row">
+                            <button type="button" class="btn-wizard-back" data-go-to-step="1">← Quay lại</button>
+                            <button type="button" class="btn-wizard-next" data-go-to-step="3">Tiếp theo</button>
+                        </div>
+                    </div>
+
+                    <!-- ─ STEP 3: Confirm — "Bạn có muốn bảo hành sản phẩm này?" ─ -->
+                    <div class="wizard-step-panel" data-step-panel="3">
+                        <p style="font-size:14px;font-weight:600;color:#111827;margin-bottom:14px;">
+                            Bạn có muốn gửi yêu cầu bảo hành cho sản phẩm này?
+                        </p>
+                        <div class="warranty-info-box">
+                            <div class="warranty-info-item">
+                                <label>Sản phẩm</label>
+                                <span><c:out value="${eligibilityInfo.productName}"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Số Serial</label>
+                                <span><c:out value="${eligibilityInfo.serialNumber}"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Hạn bảo hành</label>
+                                <span><fmt:formatDate value="${eligibilityInfo.warrantyExpiry}" pattern="dd/MM/yyyy"/></span>
+                            </div>
+                            <div class="warranty-info-item">
+                                <label>Gói bảo hành</label>
+                                <span><c:out value="${eligibilityInfo.coverageName}"/></span>
                             </div>
                         </div>
 
@@ -1106,6 +1270,11 @@
                         </div>
                     </div>
 
+                            <button type="button" class="btn-wizard-back" data-go-to-step="2">← Không, quay lại</button>
+                            <button type="button" class="btn-wizard-next" data-go-to-step="4">Có, tiếp tục</button>
+                        </div>
+                    </div>
+
                     <!-- ─ STEP 4: Describe Issue (the only form that actually submits) ─ -->
                     <div class="wizard-step-panel" data-step-panel="4">
                         <form method="post" action="${pageContext.request.contextPath}/warranty"
@@ -1121,6 +1290,10 @@
                                         <input type="text" name="title"
                                                value="<c:out value="${title}"/>"
                                                placeholder="e.g., Screen flickering"
+                                        <label>Tiêu đề lỗi <span style="color:#ef4444">*</span></label>
+                                        <input type="text" name="title"
+                                               value="<c:out value="${title}"/>"
+                                               placeholder="Ví dụ: Màn hình bị nhấp nháy, sọc màn hình..."
                                                required maxlength="200">
                                     </div>
 
@@ -1128,6 +1301,9 @@
                                         <label>Detailed Description <span style="color:#ef4444">*</span></label>
                                         <textarea name="description"
                                                   placeholder="Please describe the issue in detail..."
+                                        <label>Mô tả chi tiết <span style="color:#ef4444">*</span></label>
+                                        <textarea name="description"
+                                                  placeholder="Vui lòng mô tả chi tiết lỗi bạn gặp phải..."
                                                   required maxlength="2000"><c:out value="${description}"/></textarea>
                                     </div>
                                 </div>
@@ -1160,6 +1336,8 @@
                             <div class="wizard-nav-row">
                                 <button type="button" class="btn-wizard-back" data-go-to-step="3">← Back</button>
                                 <button type="submit" class="btn-submit-claim" id="submitClaimBtn">Submit Claim Request</button>
+                                <button type="button" class="btn-wizard-back" data-go-to-step="3">← Quay lại</button>
+                                <button type="submit" class="btn-submit-claim" id="submitClaimBtn">Gửi yêu cầu bảo hành</button>
                             </div>
                         </form>
                     </div>
@@ -1181,6 +1359,15 @@
                     <input type="text" name="id" placeholder="Enter Claim ID (e.g., 42)">
                 </div>
                 <button class="btn-outline-primary" type="submit">Track Claim</button>
+            <h3>Theo Dõi Yêu Cầu Bảo Hành</h3>
+            <p>Theo dõi tiến trình xử lý các yêu cầu bảo hành hoặc trả phần cứng đang hoạt động.</p>
+            <form method="get" action="${pageContext.request.contextPath}/warranty">
+                <input type="hidden" name="action" value="detail">
+                <div class="field-group">
+                    <label>Mã yêu cầu bảo hành</label>
+                    <input type="text" name="id" placeholder="Nhập mã yêu cầu (ví dụ: 42)">
+                </div>
+                <button class="btn-outline-primary" type="submit">Theo dõi</button>
             </form>
         </div>
     </div>
@@ -1188,14 +1375,15 @@
     <!-- ════ RECENT WARRANTY ACTIVITY ════ -->
     <section class="recent-section" id="recent-activity">
         <h3>Recent Warranty Activity</h3>
+        <h3>Hoạt Động Bảo Hành Gần Đây</h3>
         <table class="activity-table">
             <thead>
                 <tr>
-                    <th>Claim ID / Date</th>
-                    <th>Product</th>
-                    <th>Issue Title</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Mã yêu cầu / Ngày tạo</th>
+                    <th>Sản phẩm</th>
+                    <th>Tiêu đề lỗi</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -1213,7 +1401,7 @@
                             <td>
                                 <div class="claim-ref">#${claim.claimId}</div>
                                 <div class="claim-date">
-                                    <fmt:formatDate value="${claim.createdAt}" pattern="MMM dd, yyyy"/>
+                                    <fmt:formatDate value="${claim.createdAt}" pattern="dd/MM/yyyy"/>
                                 </div>
                             </td>
                             <td>
@@ -1222,12 +1410,20 @@
                             </td>
                             <td style="font-size:13px;"><c:out value="${claim.title}"/></td>
                             <td>
-                                <span class="badge badge-${claim.status}">${claim.status}</span>
+                                <span class="badge badge-${claim.status}">
+                                    <c:choose>
+                                        <c:when test="${claim.status == 'PENDING'}">Chờ xử lý</c:when>
+                                        <c:when test="${claim.status == 'APPROVED'}">Đã duyệt</c:when>
+                                        <c:when test="${claim.status == 'REJECTED'}">Từ chối</c:when>
+                                        <c:when test="${claim.status == 'COMPLETED'}">Hoàn thành</c:when>
+                                        <c:otherwise>${claim.status}</c:otherwise>
+                                    </c:choose>
+                                </span>
                             </td>
                             <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                                 <a class="btn-detail-sm"
                                    href="${pageContext.request.contextPath}/warranty?action=detail&id=${claim.claimId}">
-                                    View
+                                    Xem chi tiết
                                 </a>
                                 <%-- Cancel chỉ hiện khi PENDING --%>
                         <c:if test="${claim.status == 'PENDING'}">
@@ -1237,7 +1433,7 @@
                                   onsubmit="return confirm('Huỷ yêu cầu #${claim.claimId}?')">
                                 <input type="hidden" name="action" value="cancel">
                                 <input type="hidden" name="id"     value="${claim.claimId}">
-                                <button type="submit" class="btn-cancel-sm">Cancel</button>
+                                <button type="submit" class="btn-cancel-sm">Hủy</button>
                             </form>
                         </c:if>
                         </td>
@@ -1536,9 +1732,73 @@
                 });
             }
 
-            // Chặn submit lần cuối ở client nếu vượt giới hạn (phòng trường hợp
-            // người dùng bypass UI, ví dụ chỉnh DOM). Server vẫn validate lại.
+            // Client-side text field validations (prevent empty / whitespace-only inputs)
+            var titleInput = form.querySelector('input[name="title"]');
+            var descInput = form.querySelector('textarea[name="description"]');
+
+            function setupFieldValidation(inputElement, emptyMessage, whitespaceMessage) {
+                if (!inputElement) return;
+
+                // Clear custom validity on input
+                inputElement.addEventListener('input', function () {
+                    if (inputElement.value.trim() !== "") {
+                        inputElement.setCustomValidity("");
+                    }
+                });
+
+                // Check validity on blur
+                inputElement.addEventListener('blur', function () {
+                    var val = inputElement.value;
+                    if (val === "") {
+                        inputElement.setCustomValidity(emptyMessage);
+                    } else if (val.trim() === "") {
+                        inputElement.setCustomValidity(whitespaceMessage);
+                        inputElement.reportValidity();
+                    } else {
+                        inputElement.setCustomValidity("");
+                    }
+                });
+            }
+
+            setupFieldValidation(titleInput, "Vui lòng nhập tiêu đề lỗi.", "Tiêu đề không được chỉ chứa khoảng trắng.");
+            setupFieldValidation(descInput, "Vui lòng nhập mô tả chi tiết lỗi.", "Mô tả lỗi không được chỉ chứa khoảng trắng.");
+
+            // Chặn submit lần cuối ở client nếu vượt giới hạn hoặc validation thất bại
             form.addEventListener('submit', function (e) {
+                var titleVal = titleInput ? titleInput.value : "";
+                var descVal = descInput ? descInput.value : "";
+
+                if (titleInput) {
+                    if (titleVal === "") {
+                        titleInput.setCustomValidity("Vui lòng nhập tiêu đề lỗi.");
+                    } else if (titleVal.trim() === "") {
+                        titleInput.setCustomValidity("Tiêu đề không được chỉ chứa khoảng trắng.");
+                    } else {
+                        titleInput.setCustomValidity("");
+                    }
+                }
+
+                if (descInput) {
+                    if (descVal === "") {
+                        descInput.setCustomValidity("Vui lòng nhập mô tả chi tiết lỗi.");
+                    } else if (descVal.trim() === "") {
+                        descInput.setCustomValidity("Mô tả lỗi không được chỉ chứa khoảng trắng.");
+                    } else {
+                        descInput.setCustomValidity("");
+                    }
+                }
+
+                if (titleInput && !titleInput.checkValidity()) {
+                    e.preventDefault();
+                    titleInput.reportValidity();
+                    return;
+                }
+                if (descInput && !descInput.checkValidity()) {
+                    e.preventDefault();
+                    descInput.reportValidity();
+                    return;
+                }
+
                 if (selectedFiles.length > MAX_IMAGES) {
                     e.preventDefault();
                     showError('Chỉ được tải lên tối đa ' + MAX_IMAGES + ' ảnh.');
@@ -1546,6 +1806,6 @@
             });
         })();
     </script>
-
+    <jsp:include page="chatbot.jsp" />
 </body>
 </html>

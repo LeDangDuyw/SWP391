@@ -21,6 +21,15 @@ private int soldQuantity;
 private int discountPercent;
 // time 
 private Timestamp endTime;
+private String campaignDescription;
+
+    public String getCampaignDescription() {
+        return campaignDescription;
+    }
+
+    public void setCampaignDescription(String campaignDescription) {
+        this.campaignDescription = campaignDescription;
+    }
 
     public FlashSaleProduct() {
     }

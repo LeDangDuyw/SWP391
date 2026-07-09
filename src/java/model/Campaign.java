@@ -64,4 +64,56 @@ public class Campaign {
     public void setStatus(String status) { this.status = status; }
     public int getProductCount() { return productCount; }
     public void setProductCount(int productCount) { this.productCount = productCount; }
+
+    public String getFormattedStartDate() {
+        if (startDate == null) {
+            return "";
+        }
+        String text = startDate.toString();
+        return text.length() >= 16 ? text.substring(0, 16) : text;
+    }
+
+    public String getFormattedEndDate() {
+        if (endDate == null) {
+            return "";
+        }
+        String text = endDate.toString();
+        return text.length() >= 16 ? text.substring(0, 16) : text;
+    }
+
+    public String getFormattedStatus() {
+        if (status == null) {
+            return "Unknown";
+        }
+        switch (status.toLowerCase()) {
+            case "active":
+                return "Active";
+            case "scheduled":
+                return "Scheduled";
+            case "pending_approval":
+                return "Pending Approval";
+            case "paused":
+                return "Paused";
+            case "stopped":
+                return "Stopped";
+            case "expired":
+                return "Expired";
+            default:
+                return status;
+        }
+    }
+
+    public String getStatusClass() {
+        return status == null ? "" : status.toLowerCase().replace('_', '-');
+    }
+
+    public String getFormattedStartDateDateOnly() {
+        String start = getFormattedStartDate();
+        return start.length() >= 10 ? start.substring(0, 10) : start;
+    }
+
+    public String getFormattedEndDateDateOnly() {
+        String end = getFormattedEndDate();
+        return end.length() >= 10 ? end.substring(0, 10) : end;
+    }
 }

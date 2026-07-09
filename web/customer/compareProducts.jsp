@@ -390,5 +390,6 @@
 
     <!-- Gọi file JavaScript thuần đã viết riêng -->
     <script src="${pageContext.request.contextPath}/js/compare.js"></script>
+    <jsp:include page="chatbot.jsp" />
 </body>
 </html>

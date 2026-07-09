@@ -84,6 +84,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
@@ -245,6 +246,7 @@
                                                 <th class="px-6 py-4 uppercase">ATTRIBUTES<br><span
                                                         class="text-[10px] font-normal text-gray-300">(RAM/COLOR)</span>
                                                 </th>
+                                                <th class="px-6 py-4 uppercase">THUMBNAIL</th>
                                                 <th class="px-6 py-4 uppercase text-right">ACTIONS</th>
                                             </tr>
                                         </thead>
@@ -311,16 +313,16 @@
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-surface-container-lowest/50';
                         tr.innerHTML = `
-                <td class="px-6 py-5 w-1/5">
+                <td class="px-6 py-5 w-1/6">
                     <input type="text" name="sku[]" placeholder="SKU-\${variantCount}" class="w-full px-3 py-2 border border-outline-variant/50 rounded bg-surface-container-low text-on-surface-variant font-mono text-sm focus:outline-none focus:border-primary" required>
                 </td>
-                <td class="px-6 py-5 w-1/5">
+                <td class="px-6 py-5 w-1/6">
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
                         <input type="number" step="0.01" name="importPrice[]" placeholder="0.00" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
                     </div>
                 </td>
-                <td class="px-6 py-5 w-1/5">
+                <td class="px-6 py-5 w-1/6">
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
                         <input type="number" step="0.01" name="price[]" placeholder="0.00" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
@@ -331,6 +333,14 @@
                         <button type="button" onclick="addAttribute(this)" class="text-[#003ec7] hover:bg-blue-100 rounded-full flex items-center justify-center p-1"><span class="material-symbols-outlined text-[18px]">add</span></button>
                     </div>
                     <input type="hidden" name="variantName[]" value="" class="variant-name-hidden">
+                </td>
+                <td class="px-6 py-5">
+                    <label class="flex items-center gap-2 cursor-pointer border border-dashed border-outline-variant/50 rounded-lg px-3 py-2 hover:bg-surface-container-low transition-colors">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">image</span>
+                        <span class="text-xs text-on-surface-variant variant-thumb-label">Chọn ảnh</span>
+                        <input type="file" name="variantThumbnail[]" accept="image/*" class="hidden" onchange="previewVariantThumb(this)">
+                    </label>
+                    <img class="variant-thumb-preview mt-1 w-10 h-10 object-cover rounded hidden" alt="Preview">
                 </td>
                 <td class="px-6 py-5 text-right">
                     <button type="button" onclick="this.closest('tr').remove()" class="text-on-surface-variant hover:text-error transition-colors p-2"><span class="material-symbols-outlined">delete</span></button>
@@ -363,6 +373,21 @@
                         const hiddenInput = td.querySelector('.variant-name-hidden');
                         const values = Array.from(badges).map(b => b.textContent);
                         hiddenInput.value = values.join(' / ');
+                    }
+
+                    // Xem trước ảnh thumbnail của biến thể
+                    function previewVariantThumb(input) {
+                        const preview = input.closest('td').querySelector('.variant-thumb-preview');
+                        const label = input.closest('td').querySelector('.variant-thumb-label');
+                        if (input.files && input.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                preview.src = e.target.result;
+                                preview.classList.remove('hidden');
+                                label.textContent = input.files[0].name.substring(0, 12) + '...';
+                            };
+                            reader.readAsDataURL(input.files[0]);
+                        }
                     }
 
                     // Khởi tạo dòng nhập biến thể đầu tiên lúc vừa load trang

@@ -545,5 +545,6 @@
         <script>window.contextPath = '${pageContext.request.contextPath}';</script>
         <script src="${pageContext.request.contextPath}/js/compare.js?v=2"></script>
         <script src="${pageContext.request.contextPath}/js/product_detail.js?v=2" defer></script>
+        <jsp:include page="chatbot.jsp" />
     </body>
 </html>

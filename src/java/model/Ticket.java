@@ -90,4 +90,16 @@ public class Ticket {
     public void setDetails(List<TicketDetail> details) {
         this.details = details;
     }
+
+    public java.math.BigDecimal getTotalValue() {
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        if (details != null) {
+            for (TicketDetail d : details) {
+                if (d.getExpectedPrice() != null) {
+                    total = total.add(d.getExpectedPrice().multiply(new java.math.BigDecimal(d.getQuantity())));
+                }
+            }
+        }
+        return total;
+    }
 }

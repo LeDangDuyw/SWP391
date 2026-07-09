@@ -209,6 +209,10 @@ public abstract class PromotionServlet extends HttpServlet {
             return LocalDateTime.now().with(LocalTime.MIN);
         }
 
+        if (value.contains("T")) {
+            return LocalDateTime.parse(value);
+        }
+
         return LocalDate.parse(value).atStartOfDay();
     }
 
@@ -222,6 +226,10 @@ public abstract class PromotionServlet extends HttpServlet {
     protected LocalDateTime parseDateEnd(String value) {
         if (value == null || value.isBlank()) {
             return LocalDateTime.now().plusMonths(1).with(LocalTime.MAX);
+        }
+
+        if (value.contains("T")) {
+            return LocalDateTime.parse(value);
         }
 
         return LocalDate.parse(value).atTime(23, 59, 59);

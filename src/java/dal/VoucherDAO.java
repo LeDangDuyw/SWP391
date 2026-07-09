@@ -43,7 +43,7 @@ public class VoucherDAO extends DBContext {
                     Timestamp start = rs.getTimestamp("start_date");
                     Timestamp end = rs.getTimestamp("end_date");
                     int used = rs.getInt("used_count");
-                    
+
                     int limit = 0;
                     boolean hasLimit = false;
                     Object limitObj = rs.getObject("usage_limit");
@@ -51,7 +51,7 @@ public class VoucherDAO extends DBContext {
                         limit = ((Number) limitObj).intValue();
                         hasLimit = true;
                     }
-                    
+
                     BigDecimal minVal = rs.getBigDecimal("min_order_value");
                     BigDecimal discVal = rs.getBigDecimal("discount_value");
                     String campaignType = rs.getString("campaign_type");
@@ -76,7 +76,8 @@ public class VoucherDAO extends DBContext {
                         return info;
                     }
                     if (minVal != null && orderTotal.compareTo(minVal) < 0) {
-                        info.message = "Đơn hàng tối thiểu để áp dụng mã này là " + String.format("%,.0f", minVal) + "₫.";
+                        info.message = "Đơn hàng tối thiểu để áp dụng mã này là " + String.format("%,.0f", minVal)
+                                + "₫.";
                         return info;
                     }
 
@@ -114,7 +115,8 @@ public class VoucherDAO extends DBContext {
                         return info;
                     }
                     if (minVal != null && orderTotal.compareTo(minVal) < 0) {
-                        info.message = "Đơn hàng tối thiểu để áp dụng mã này là " + String.format("%,.0f", minVal) + "₫.";
+                        info.message = "Đơn hàng tối thiểu để áp dụng mã này là " + String.format("%,.0f", minVal)
+                                + "₫.";
                         return info;
                     }
 
@@ -143,7 +145,8 @@ public class VoucherDAO extends DBContext {
     }
 
     public void incrementUsedCount(Integer voucherOrCampaignId, boolean isCampaign) {
-        if (voucherOrCampaignId == null) return;
+        if (voucherOrCampaignId == null)
+            return;
         if (isCampaign) {
             String sql = "UPDATE [Campaign] SET used_count = used_count + 1 WHERE campaign_id = ?";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {

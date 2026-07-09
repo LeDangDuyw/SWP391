@@ -160,6 +160,15 @@ public class AddProductController extends HttpServlet {
         // Nếu lưu sản phẩm thành công, tiếp tục lưu các biến thể (variants) của sản phẩm
         if (productId != -1) {
             if (skus != null) {
+                // Lấy tất cả các Parts từ request để tìm file thumbnail cho từng variant
+                java.util.Collection<Part> allParts = request.getParts();
+                java.util.List<Part> variantThumbParts = new java.util.ArrayList<>();
+                for (Part part : allParts) {
+                    if ("variantThumbnail[]".equals(part.getName())) {
+                        variantThumbParts.add(part);
+                    }
+                }
+
                 for (int j = 0; j < skus.length; j++) {
                     String sku = skus[j];
                     String importPriceStr = importPrices[j];
@@ -176,8 +185,48 @@ public class AddProductController extends HttpServlet {
                         e.printStackTrace();
                     }
                     
-                    // Thêm biến thể của sản phẩm vào database
-                    productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock);
+                    // Xử lý upload ảnh thumbnail cho biến thể
+                    String variantThumbName = null;
+                    if (j < variantThumbParts.size()) {
+                        Part variantThumbPart = variantThumbParts.get(j);
+                        if (variantThumbPart != null && variantThumbPart.getSize() > 0) {
+                            String origName = variantThumbPart.getSubmittedFileName();
+                            String ext = "";
+                            int idx = origName.lastIndexOf('.');
+                            if (idx > 0) {
+                                ext = origName.substring(idx);
+                            }
+                            variantThumbName = UUID.randomUUID().toString() + ext;
+                            String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
+                            File uploadDir = new File(uploadPath);
+                            if (!uploadDir.exists()) {
+                                uploadDir.mkdirs();
+                            }
+                            variantThumbPart.write(uploadPath + File.separator + variantThumbName);
+                            
+                            // Sync to source directory
+                            try {
+                                String sourcePath = uploadPath.replace("build" + File.separator + "web", "web");
+                                File sourceDir = new File(sourcePath);
+                                if (sourceDir.exists()) {
+                                    File buildFile = new File(uploadPath + File.separator + variantThumbName);
+                                    File sourceFile = new File(sourcePath + File.separator + variantThumbName);
+                                    if (buildFile.exists()) {
+                                        java.nio.file.Files.copy(buildFile.toPath(), sourceFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                    
+                    // Thêm biến thể của sản phẩm vào database (kèm thumbnail nếu có)
+                    if (variantThumbName != null) {
+                        productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock, variantThumbName);
+                    } else {
+                        productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock);
+                    }
                 }
             }
         }

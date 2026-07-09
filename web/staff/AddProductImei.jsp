@@ -143,6 +143,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
@@ -273,7 +274,6 @@
 <c:if test="${not empty expectedQuantity}">
 <span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required Quantity: ${expectedQuantity}</span>
 </c:if>
-<span class="font-label-md text-label-md px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Bulk Entry Mode</span>
 </div>
 </div>
 <div class="space-y-4">
@@ -289,15 +289,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
-                    <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                    <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
                 </div>
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
-                    <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                    <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9]{5,20}" title="Serial chỉ gồm 5-20 chữ và số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
                 </div>
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
-                    <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
+                    <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
                 </div>
             </div>
         </c:forEach>
@@ -309,11 +309,7 @@
 <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
 <h3 class="font-headline-md text-headline-md">Storage & Status</h3>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Warehouse Location</label>
-<input name="warehouseLocation" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="text" placeholder="e.g. Shelf A1"/>
-</div>
+<div class="grid grid-cols-1 gap-6">
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant">Import Date</label>
 <input name="receivedDate" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="date"/>
@@ -348,15 +344,15 @@
         row.innerHTML = `
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
-                <input type="text" name="serials" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+                <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
             </div>
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
-                <input type="text" name="serialNumbers" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9]{5,20}" title="Serial chỉ gồm 5-20 chữ và số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
             </div>
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
-                <input type="text" name="barcodes" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
+                <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
             </div>
         `;
         container.appendChild(row);

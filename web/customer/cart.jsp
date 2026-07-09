@@ -322,5 +322,6 @@
     });
 </script>
 <script src="${pageContext.request.contextPath}/js/cart.js?v=2" defer></script>
+<jsp:include page="chatbot.jsp" />
 </body>
 </html>

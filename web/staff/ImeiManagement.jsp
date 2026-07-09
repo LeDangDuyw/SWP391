@@ -131,6 +131,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
@@ -253,7 +254,6 @@
                                 <th class="px-6 py-4">Serial / IMEI Number</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4">Received Date</th>
-                                <th class="px-6 py-4">Batch/Lot ID</th>
                                 <th class="px-6 py-4">Linked Order</th>
                                 <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
@@ -282,7 +282,6 @@
                                                 </c:choose>
                                             </td>
                                             <td class="px-6 py-4 text-on-surface-variant">${item.importDate}</td>
-                                            <td class="px-6 py-4 text-on-surface-variant">${item.warehouseLocation != null ? item.warehouseLocation : "—"}</td>
                                             <td class="px-6 py-4 text-on-surface-variant italic">${item.note != null ? item.note : "—"}</td>
                                             <td class="px-6 py-4 text-right">
                                                 <div class="flex items-center justify-end gap-2">
@@ -326,10 +325,46 @@
                         </c:otherwise>
                     </c:choose>
 
-                    <div class="flex gap-1">
-                        <c:forEach begin="1" end="${totalPages}" var="i">
-                            <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
-                        </c:forEach>
+                    <div class="flex gap-1 items-center flex-wrap">
+                        <c:choose>
+                            <c:when test="${totalPages <= 7}">
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <!-- Page 1 -->
+                                <a href="?page=1${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == 1 ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">1</a>
+
+                                <c:if test="${currentPage > 4}">
+                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
+                                </c:if>
+
+                                <!-- Middle pages -->
+                                <c:set var="startPage" value="${currentPage - 2}" />
+                                <c:set var="endPage" value="${currentPage + 2}" />
+                                
+                                <c:if test="${startPage < 2}">
+                                    <c:set var="startPage" value="2" />
+                                    <c:set var="endPage" value="6" />
+                                </c:if>
+                                <c:if test="${endPage >= totalPages}">
+                                    <c:set var="startPage" value="${totalPages - 5}" />
+                                    <c:set var="endPage" value="${totalPages - 1}" />
+                                </c:if>
+
+                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+
+                                <c:if test="${currentPage < totalPages - 3}">
+                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
+                                </c:if>
+
+                                <!-- Last page -->
+                                <a href="?page=${totalPages}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == totalPages ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${totalPages}</a>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
 
                     <c:choose>

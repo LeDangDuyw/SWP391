@@ -130,8 +130,10 @@
             <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Student Verify</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -260,13 +262,56 @@
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
                        Previous
                     </a>
-                    <div class="flex gap-1">
-                    <% for(int i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %><%= queryStr %>" 
-                           class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
-                           <%= i %>
-                        </a>
-                    <% } %>
+                    <div class="flex gap-1 items-center flex-wrap">
+                    <%
+                        if (totalPages <= 7) {
+                            for (int i = 1; i <= totalPages; i++) {
+                    %>
+                                <a href="?page=<%= i %><%= queryStr %>" 
+                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
+                                   <%= i %>
+                                </a>
+                    <%
+                            }
+                        } else {
+                    %>
+                            <a href="?page=1<%= queryStr %>" 
+                               class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == 1 ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">1</a>
+                    <%
+                            if (currentPage > 4) {
+                    %>
+                                <span class="px-1 text-on-surface-variant font-label-md">...</span>
+                    <%
+                            }
+                            int startPage = currentPage - 2;
+                            int endPage = currentPage + 2;
+                            if (startPage < 2) {
+                                startPage = 2;
+                                endPage = 6;
+                            }
+                            if (endPage >= totalPages) {
+                                startPage = totalPages - 5;
+                                endPage = totalPages - 1;
+                            }
+                            for (int i = startPage; i <= endPage; i++) {
+                    %>
+                                <a href="?page=<%= i %><%= queryStr %>" 
+                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
+                                   <%= i %>
+                                </a>
+                    <%
+                            }
+                            if (currentPage < totalPages - 3) {
+                    %>
+                                <span class="px-1 text-on-surface-variant font-label-md">...</span>
+                    <%
+                            }
+                    %>
+                            <a href="?page=<%= totalPages %><%= queryStr %>" 
+                               class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == totalPages ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md"><%= totalPages %></a>
+                    <%
+                        }
+                    %>
                     </div>
                     <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">

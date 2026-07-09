@@ -178,6 +178,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
