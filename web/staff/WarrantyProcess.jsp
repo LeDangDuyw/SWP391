@@ -759,6 +759,9 @@
                 <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
                     <span class="nav-icon">🛠</span>Warranty
                 </a>
+                <a href="${pageContext.request.contextPath}/staff/verifications">
+                    <span class="nav-icon">🎓</span>Student Verify
+                </a>
             </nav>
             <div class="profile">
                 <a href="${pageContext.request.contextPath}/profile" class="profile-link">
