@@ -71,6 +71,13 @@ public class WarrantyController extends HttpServlet {
             action = "list";
         }
 
+        if (user.getRoleId() == 2) {
+            response.sendRedirect(request.getContextPath() + "/staff/warranty?action=" + action
+                    + (request.getParameter("id") != null ? "&id=" + request.getParameter("id") : "")
+                    + (request.getParameter("selectedId") != null ? "&selectedId=" + request.getParameter("selectedId") : ""));
+            return;
+        }
+
         try {
             switch (action) {
                 case "list":
@@ -108,6 +115,11 @@ public class WarrantyController extends HttpServlet {
         String action = request.getParameter("action");
         if (action == null) {
             action = "";
+        }
+
+        if (user.getRoleId() == 2) {
+            response.sendRedirect(request.getContextPath() + "/staff/warranty?action=list");
+            return;
         }
 
         try {
@@ -225,19 +237,23 @@ public class WarrantyController extends HttpServlet {
 
         String serial = request.getParameter("serialNumber");
 
-        if (serial == null || serial.trim().isEmpty()) {
-            request.setAttribute("eligibilityResult", "INVALID");
-            request.setAttribute("eligibilityMessage", "Vui lòng nhập số serial.");
-        } else {
-            serial = serial.trim();
-            try {
-                warrantyService.checkEligibility(serial, user.getUserId());
-                request.setAttribute("eligibilityResult", "VALID");
-            } catch (ValidationException e) {
-                // Bắt lỗi tại đây để hiển thị đúng eligibilityMessage,
-                // thay vì để nổi lên doGet() rồi forward về list không kèm kết quả.
+        if (serial != null) {
+            if (serial.trim().isEmpty()) {
                 request.setAttribute("eligibilityResult", "INVALID");
-                request.setAttribute("eligibilityMessage", e.getMessage());
+                request.setAttribute("eligibilityMessage", "Vui lòng nhập số serial.");
+            } else {
+                serial = serial.trim();
+                try {
+                    model.WarrantyEligibilityInfo info = warrantyService.checkEligibility(serial, user.getUserId());
+                    request.setAttribute("eligibilityResult", "VALID");
+                    // Dữ liệu cho Step 2 (Warranty Information) của wizard Submit Claim
+                    request.setAttribute("eligibilityInfo", info);
+                } catch (ValidationException e) {
+                    // Bắt lỗi tại đây để hiển thị đúng eligibilityMessage,
+                    // thay vì để nổi lên doGet() rồi forward về list không kèm kết quả.
+                    request.setAttribute("eligibilityResult", "INVALID");
+                    request.setAttribute("eligibilityMessage", e.getMessage());
+                }
             }
         }
 
@@ -341,6 +357,12 @@ public class WarrantyController extends HttpServlet {
     private void loadCustomerClaims(HttpServletRequest request, Users user) throws Exception {
         List<WarrantyClaim> claims = warrantyService.getCustomerClaims(user.getUserId());
         request.setAttribute("claims", claims);
+
+        // Step 1 wizard cần danh sách sản phẩm đã mua để khách chọn thay vì
+        // gõ tay serial number — load luôn ở đây vì handleList/handleCheckEligibility/
+        // error handler trong doGet/doPost đều gọi qua loadCustomerClaims().
+        List<model.WarrantyPurchasedProduct> purchasedProducts = warrantyService.getPurchasedProducts(user.getUserId());
+        request.setAttribute("purchasedProducts", purchasedProducts);
     }
 
     /**
@@ -415,7 +437,7 @@ public class WarrantyController extends HttpServlet {
     }
 
     private boolean isCustomer(Users user) {
-        return user.getRoleId() == 3;
+        return user.getRoleId() == 3 || user.getRoleId() == 4;
     }
 
     private int parsePage(String param) {

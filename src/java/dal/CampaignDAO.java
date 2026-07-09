@@ -15,7 +15,6 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
-    private final ServletContext context;
 
     /**
      * 
@@ -25,11 +24,11 @@ public class CampaignDAO extends DBContext {
      * Đẩy/Gửi dữ liệu đi: Gán đối tượng connection cho thuộc tính `con` dùng chung trong lớp.
      * Action/Luồng đi: Gọi constructor của lớp cha DBContext để kết nối CSDL, sau đó gán kết nối.
      */
-    public CampaignDAO(ServletContext context) {
-        super(context);
-        this.context = context;
+    public CampaignDAO() {
         this.con = super.connection;
     }
+
+  
 
     /**
      * Chức năng: Kiểm tra trạng thái kết nối CSDL hiện tại. Nếu chưa có hoặc đã đóng, tiến hành kết nối lại.
@@ -38,17 +37,7 @@ public class CampaignDAO extends DBContext {
      * Đẩy/Gửi dữ liệu đi: Thiết lập lại kết nối mới vào biến `con` nếu kết nối cũ không hoạt động, ném ra SQLException nếu thất bại.
      * Action/Luồng đi: Gọi `isClosed()` để kiểm tra kết nối, nếu cần kết nối lại thì khởi tạo đối tượng DBContext mới.
      */
-    protected void checkConnection() throws SQLException {
-        if (con == null || con.isClosed()) {
-            DBContext db = new DBContext(context);
-            this.connection = db.connection;
-            this.con = this.connection;
-        }
-
-        if (con == null || con.isClosed()) {
-            throw new SQLException("Không kết nối được database. Lỗi thật: " + DBContext.lastError);
-        }
-    }
+ 
 
     /**
      * Chức năng: Tạo đối tượng PreparedStatement để thực hiện các truy vấn SQL có tham số an toàn.
@@ -58,7 +47,7 @@ public class CampaignDAO extends DBContext {
      * Action/Luồng đi: Gọi checkConnection() để đảm bảo kết nối DB còn sống trước khi con.prepareStatement().
      */
     protected PreparedStatement prepare(String sql) throws SQLException {
-        checkConnection();
+        this.con = getConnection();
         return con.prepareStatement(sql);
     }
 

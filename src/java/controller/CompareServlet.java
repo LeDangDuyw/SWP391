@@ -107,7 +107,11 @@ public class CompareServlet extends HttpServlet {
           request.setAttribute("categories", categoryDAO.getAllCategories());
           request.setAttribute("compareProducts", compareProductList);
           
+          List<ProductCompareDTO> suggestProductList = compareDAO.getSuggestProductforCompare(compareList, 4);
+          request.setAttribute("suggestProducts", suggestProductList);
+
           if(errorMess != null){
+
           
           request.setAttribute("error", errorMess);
           }
@@ -152,7 +156,7 @@ public class CompareServlet extends HttpServlet {
              
               }else if (compareList.contains(productID)){
                 return null ; 
-              }else if(compareList.size() >4 ){
+              }else if(compareList.size() >=4 ){
                  return "chi co the toi da 4 san pham so sanh cung luc ";
                   
               }else{

@@ -17,16 +17,15 @@ import model.Campaign;
 import model.ProductSearchItem;
 
 public class CampaignFormDAO extends CampaignDAO {
-    /**
-     * Chức năng: Khởi tạo lớp DAO form chiến dịch, kế thừa CampaignDAO.
-     * Tác nhân liên quan: Hệ thống.
-     * Nhận dữ liệu từ: ServletContext.
-     * Đẩy/Gửi dữ liệu đi: Gọi Constructor lớp cha.
-     * Action/Luồng đi: Truyền context lên lớp cha.
-     */
+
+    public CampaignFormDAO() {
+        super();
+    }
+
     public CampaignFormDAO(ServletContext context) {
         super(context);
     }
+
 
     /**
      * Chức năng: Tìm kiếm danh sách các sản phẩm (tối đa 120 dòng) để hiển thị trong form chọn sản phẩm khuyến mãi, đồng thời đánh dấu xem sản phẩm nào đã được chọn trong chiến dịch trước đó.
@@ -201,23 +200,24 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Thực hiện commit giao dịch. Nếu có lỗi xảy ra, thực hiện rollback để đảm bảo tính toàn vẹn dữ liệu.
      */
     public int insertCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
-        checkConnection();
+
         con.setAutoCommit(false);
 
         try {
             Integer voucherId = upsertVoucherIfNeeded(campaign);
+            Integer flashsaleId = upsertFlashSale(campaign, variantIds);
 
             String sql =
                     "INSERT INTO [Campaign] " +
                     "(campaign_name, campaign_description, promo_code, campaign_type, discount_value, " +
                     " min_order_value, usage_limit, used_count, target_group, start_date, end_date, status, " +
-                    " created_at, updated_at, voucher_id) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?)";
+                    " created_at, updated_at, voucher_id, flashsale_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
 
             int newId;
 
             try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                bindCampaignForInsert(ps, campaign, voucherId);
+                bindCampaignForInsert(ps, campaign, voucherId, flashsaleId);
                 ps.executeUpdate();
 
                 try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -254,11 +254,12 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Commit giao dịch, thực hiện rollback nếu gặp ngoại lệ SQL.
      */
     public void updateCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
-        checkConnection();
+        
         con.setAutoCommit(false);
 
         try {
             Integer voucherId = upsertVoucherIfNeeded(campaign);
+            Integer flashsaleId = upsertFlashSale(campaign, variantIds);
 
             String sql =
                     "UPDATE [Campaign] SET " +
@@ -274,11 +275,12 @@ public class CampaignFormDAO extends CampaignDAO {
                     "    end_date = ?, " +
                     "    status = ?, " +
                     "    updated_at = GETDATE(), " +
-                    "    voucher_id = ? " +
+                    "    voucher_id = ?, " +
+                    "    flashsale_id = ? " +
                     "WHERE campaign_id = ?";
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
-                bindCampaignForUpdate(ps, campaign, voucherId);
+                bindCampaignForUpdate(ps, campaign, voucherId, flashsaleId);
                 ps.executeUpdate();
             }
 
@@ -300,7 +302,7 @@ public class CampaignFormDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Gán các giá trị tham số tương ứng vào PreparedStatement.
      * Action/Luồng đi: Lần lượt gán các trường thông tin chung, sử dụng hàm setTimestamp phụ trợ để xử lý trường LocalDateTime.
      */
-    private void bindCampaignForInsert(PreparedStatement ps, Campaign c, Integer voucherId) throws SQLException {
+    private void bindCampaignForInsert(PreparedStatement ps, Campaign c, Integer voucherId, Integer flashsaleId) throws SQLException {
         ps.setString(1, c.getCampaignName());
         ps.setString(2, c.getCampaignDescription());
         ps.setString(3, c.getPromoCode());
@@ -325,6 +327,12 @@ public class CampaignFormDAO extends CampaignDAO {
         } else {
             ps.setInt(13, voucherId);
         }
+        
+        if (flashsaleId == null) {
+            ps.setNull(14, Types.INTEGER);
+        } else {
+            ps.setInt(14, flashsaleId);
+        }
     }
 
     /**
@@ -334,7 +342,7 @@ public class CampaignFormDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Gán các giá trị tham số tương ứng vào PreparedStatement.
      * Action/Luồng đi: Thiết lập các tham số cho câu lệnh UPDATE, gán khóa chính campaign_id ở tham số cuối cùng (vị trí 13).
      */
-    private void bindCampaignForUpdate(PreparedStatement ps, Campaign c, Integer voucherId) throws SQLException {
+    private void bindCampaignForUpdate(PreparedStatement ps, Campaign c, Integer voucherId, Integer flashsaleId) throws SQLException {
         ps.setString(1, c.getCampaignName());
         ps.setString(2, c.getCampaignDescription());
         ps.setString(3, c.getPromoCode());
@@ -358,8 +366,14 @@ public class CampaignFormDAO extends CampaignDAO {
         } else {
             ps.setInt(12, voucherId);
         }
+        
+        if (flashsaleId == null) {
+            ps.setNull(13, Types.INTEGER);
+        } else {
+            ps.setInt(13, flashsaleId);
+        }
 
-        ps.setInt(13, c.getCampaignId());
+        ps.setInt(14, c.getCampaignId());
     }
 
     /**
@@ -509,7 +523,7 @@ public class CampaignFormDAO extends CampaignDAO {
      * Đẩy/Gửi dữ liệu đi: Trả về true nếu tên chiến dịch đã tồn tại, ngược lại trả về false.
      */
     public boolean isCampaignNameExists(String name, int excludeId) throws SQLException {
-        checkConnection();
+        
         String sql = "SELECT COUNT(*) FROM [Campaign] WHERE campaign_name = ? AND campaign_id != ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, name);
@@ -521,6 +535,195 @@ public class CampaignFormDAO extends CampaignDAO {
             }
         }
         return false;
+    }
+
+    public boolean isFlashSaleOverlapping(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, int excludeCampaignId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM [Campaign] " +
+                     "WHERE campaign_type = 'flash' " +
+                     "  AND status != 'stopped' " +
+                     "  AND campaign_id != ? " +
+                     "  AND start_date < ? " +
+                     "  AND end_date > ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, excludeCampaignId);
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            ps.setTimestamp(3, java.sql.Timestamp.valueOf(startDate));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Integer upsertFlashSale(Campaign c, int[] variantIds) throws SQLException {
+        String type = c.getCampaignType() == null ? "" : c.getCampaignType();
+        if (!"flash".equalsIgnoreCase(type)) {
+            // Clean up old flash sale mapping if type changed
+            if (c.getCampaignId() > 0) {
+                Integer oldFlashSaleId = null;
+                String query = "SELECT flashsale_id FROM [Campaign] WHERE campaign_id = ?";
+                try (PreparedStatement ps = con.prepareStatement(query)) {
+                    ps.setInt(1, c.getCampaignId());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            int idVal = rs.getInt("flashsale_id");
+                            if (!rs.wasNull()) {
+                                oldFlashSaleId = idVal;
+                            }
+                        }
+                    }
+                }
+                if (oldFlashSaleId != null) {
+                    String deleteItems = "DELETE FROM [FlashSaleItem] WHERE flashsale_id = ?";
+                    try (PreparedStatement ps = con.prepareStatement(deleteItems)) {
+                        ps.setInt(1, oldFlashSaleId);
+                        ps.executeUpdate();
+                    }
+                    String deleteFs = "DELETE FROM [FlashSale] WHERE flashsale_id = ?";
+                    try (PreparedStatement ps = con.prepareStatement(deleteFs)) {
+                        ps.setInt(1, oldFlashSaleId);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+            return null;
+        }
+
+        Integer flashsaleId = null;
+        if (c.getCampaignId() > 0) {
+            String query = "SELECT flashsale_id FROM [Campaign] WHERE campaign_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ps.setInt(1, c.getCampaignId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int idVal = rs.getInt("flashsale_id");
+                        if (!rs.wasNull()) {
+                            flashsaleId = idVal;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (flashsaleId != null) {
+            String updateSql = "UPDATE [FlashSale] SET flashsale_name = ?, start_time = ?, end_time = ? WHERE flashsale_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(updateSql)) {
+                ps.setString(1, c.getCampaignName());
+                ps.setTimestamp(2, java.sql.Timestamp.valueOf(c.getStartDate()));
+                ps.setTimestamp(3, java.sql.Timestamp.valueOf(c.getEndDate()));
+                ps.setInt(4, flashsaleId);
+                ps.executeUpdate();
+            }
+        } else {
+            String insertSql = "INSERT INTO [FlashSale] (flashsale_name, start_time, end_time) VALUES (?, ?, ?)";
+            try (PreparedStatement ps = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, c.getCampaignName());
+                ps.setTimestamp(2, java.sql.Timestamp.valueOf(c.getStartDate()));
+                ps.setTimestamp(3, java.sql.Timestamp.valueOf(c.getEndDate()));
+                ps.executeUpdate();
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        flashsaleId = keys.getInt(1);
+                    }
+                }
+            }
+        }
+
+        if (flashsaleId != null) {
+            String deleteSql = "DELETE FROM [FlashSaleItem] WHERE flashsale_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(deleteSql)) {
+                ps.setInt(1, flashsaleId);
+                ps.executeUpdate();
+            }
+
+            if (variantIds != null && variantIds.length > 0) {
+                String insertItemSql = "INSERT INTO [FlashSaleItem] (sale_price, quantity_limit, flashsale_id, variant_id, sold_quantity, purchase_limit_per_user) " +
+                                       "VALUES (?, ?, ?, ?, 0, 1)";
+                try (PreparedStatement ps = con.prepareStatement(insertItemSql)) {
+                    for (int variantId : variantIds) {
+                        if (variantId <= 0) continue;
+                        
+                        java.math.BigDecimal originalPrice = java.math.BigDecimal.ZERO;
+                        String priceQuery = "SELECT selling_price FROM [ProductVariant] WHERE variant_id = ?";
+                        try (PreparedStatement pps = con.prepareStatement(priceQuery)) {
+                            pps.setInt(1, variantId);
+                            try (ResultSet rrs = pps.executeQuery()) {
+                                if (rrs.next()) {
+                                    originalPrice = rrs.getBigDecimal("selling_price");
+                                }
+                            }
+                        }
+                        
+                        java.math.BigDecimal salePrice = originalPrice.multiply(java.math.BigDecimal.valueOf(100).subtract(c.getDiscountValue()))
+                                                            .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+                        
+                        ps.setBigDecimal(1, salePrice);
+                        ps.setInt(2, 10);
+                        ps.setInt(3, flashsaleId);
+                        ps.setInt(4, variantId);
+                        ps.addBatch();
+                    }
+                    ps.executeBatch();
+                }
+            }
+        }
+
+        return flashsaleId;
+    }
+
+    public void saveCampaignBanner(int campaignId, String bannerUrl) throws SQLException {
+        if (bannerUrl == null || bannerUrl.trim().isEmpty()) {
+            String deleteSql = "DELETE FROM [CampaignBanner] WHERE campaign_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(deleteSql)) {
+                ps.setInt(1, campaignId);
+                ps.executeUpdate();
+            }
+            return;
+        }
+        
+        bannerUrl = bannerUrl.trim();
+        
+        String checkSql = "SELECT COUNT(*) FROM [CampaignBanner] WHERE campaign_id = ?";
+        boolean exists = false;
+        try (PreparedStatement ps = con.prepareStatement(checkSql)) {
+            ps.setInt(1, campaignId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    exists = rs.getInt(1) > 0;
+                }
+            }
+        }
+        
+        if (exists) {
+            String updateSql = "UPDATE [CampaignBanner] SET image_url = ?, status = 1 WHERE campaign_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(updateSql)) {
+                ps.setString(1, bannerUrl);
+                ps.setInt(2, campaignId);
+                ps.executeUpdate();
+            }
+        } else {
+            String insertSql = "INSERT INTO [CampaignBanner] (campaign_id, image_url, display_order, status) VALUES (?, ?, 1, 1)";
+            try (PreparedStatement ps = con.prepareStatement(insertSql)) {
+                ps.setInt(1, campaignId);
+                ps.setString(2, bannerUrl);
+                ps.executeUpdate();
+            }
+        }
+    }
+
+    public String getBannerUrlByCampaignId(int campaignId) throws SQLException {
+        String sql = "SELECT image_url FROM [CampaignBanner] WHERE campaign_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, campaignId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("image_url");
+                }
+            }
+        }
+        return "";
     }
 }
 

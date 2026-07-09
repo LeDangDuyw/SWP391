@@ -157,7 +157,7 @@
             <section class="flash-sale">
                 <div class="container">
                     <div class="section-header flash-sale-header">
-                        <h2><i class="fas fa-bolt flash-icon"></i> Săn Deal Thần Tốc</h2>
+                        <h2><i class="fas fa-bolt flash-icon"></i> ${not empty flashsale and not empty flashsale[0].campaignDescription ? flashsale[0].campaignDescription : 'Săn Deal Thần Tốc'}</h2>
                         <!--giờ đếm ngược cho đến hết flash sale--> 
                         <div class="countdown" id="flash-sale-countdown" data-endtime="${not empty flashsale ? flashsale[0].endTime.time : ''}">
                             <span>Kết thúc trong: </span>
@@ -398,6 +398,8 @@
                 </div>
             </div>
         </footer>
+        <jsp:include page="chatbot.jsp" />
+
         <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
     </body>
 </html>

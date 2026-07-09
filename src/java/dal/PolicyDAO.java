@@ -47,12 +47,12 @@ public class PolicyDAO extends DBContext {
     /*
      * Creates a new warranty policy record in the database.
      */
-    public void insertPolicy(WarrantyPolicy p) throws Exception {
+    public int insertPolicy(WarrantyPolicy p) throws Exception {
         String sql = "INSERT INTO WarrantyPolicies "
                 + "(PolicyName, Description, PolicyContent, ApplicableRegions, "
                 + " WarrantyMonths, Status, Version, EffectiveDate, CreatedAt, UpdatedAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.getPolicyName());
             ps.setString(2, p.getDescription());
             ps.setString(3, p.getPolicyContent());
@@ -64,7 +64,14 @@ public class PolicyDAO extends DBContext {
             ps.setTimestamp(9, p.getCreatedAt());
             ps.setTimestamp(10, p.getUpdatedAt());
             ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
         }
+        return -1;
     }
 
     /*
@@ -72,7 +79,10 @@ public class PolicyDAO extends DBContext {
      *
      */
     public boolean existsPolicyName(String policyName) throws Exception {
-        String sql = "SELECT 1 FROM WarrantyPolicies WHERE PolicyName = ?";
+        if (policyName == null) {
+            return false;
+        }
+        String sql = "SELECT 1 FROM WarrantyPolicies WHERE LOWER(PolicyName) = LOWER(?)";
 
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -110,10 +120,13 @@ public class PolicyDAO extends DBContext {
      *
      */
     public boolean existsPolicyNameForUpdate(String policyName, int policyId) {
+        if (policyName == null) {
+            return false;
+        }
         String sql = """
         SELECT 1
         FROM WarrantyPolicies
-        WHERE PolicyName = ?
+        WHERE LOWER(PolicyName) = LOWER(?)
         AND PolicyID <> ?
         """;
 
@@ -170,14 +183,27 @@ public class PolicyDAO extends DBContext {
         }
     }
 
-    /*
-     * Deletes a warranty policy record by its unique identifier.
-     */
     public void deletePolicy(int id) throws Exception {
-        String sql = "DELETE FROM WarrantyPolicies WHERE PolicyID = ?";
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        String deleteHistorySql = "DELETE FROM WarrantyPolicyHistory WHERE PolicyID = ?";
+        String deletePolicySql = "DELETE FROM WarrantyPolicies WHERE PolicyID = ?";
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                try (PreparedStatement psHist = con.prepareStatement(deleteHistorySql)) {
+                    psHist.setInt(1, id);
+                    psHist.executeUpdate();
+                }
+                try (PreparedStatement psPol = con.prepareStatement(deletePolicySql)) {
+                    psPol.setInt(1, id);
+                    psPol.executeUpdate();
+                }
+                con.commit();
+            } catch (Exception e) {
+                con.rollback();
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
         }
     }
 
@@ -338,5 +364,45 @@ public class PolicyDAO extends DBContext {
         p.setCreatedAt(rs.getTimestamp("CreatedAt"));
         p.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
         return p;
+    }
+
+    public void insertHistory(int policyId, String policyName, String version, String description, String content, String status, String actionType) throws Exception {
+        String sql = "INSERT INTO WarrantyPolicyHistory (PolicyID, PolicyName, Version, Description, PolicyContent, Status, ActionType, ChangedAt) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, policyId);
+            ps.setString(2, policyName);
+            ps.setString(3, version);
+            ps.setString(4, description);
+            ps.setString(5, content);
+            ps.setString(6, status);
+            ps.setString(7, actionType);
+            ps.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+            ps.executeUpdate();
+        }
+    }
+
+    public List<model.PolicyHistory> getHistoryByPolicyId(int policyId) throws Exception {
+        List<model.PolicyHistory> list = new ArrayList<>();
+        String sql = "SELECT * FROM WarrantyPolicyHistory WHERE PolicyID = ? ORDER BY ChangedAt DESC";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, policyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.PolicyHistory h = new model.PolicyHistory();
+                    h.setHistoryId(rs.getInt("HistoryID"));
+                    h.setPolicyId(rs.getInt("PolicyID"));
+                    h.setPolicyName(rs.getString("PolicyName"));
+                    h.setVersion(rs.getString("Version"));
+                    h.setDescription(rs.getString("Description"));
+                    h.setPolicyContent(rs.getString("PolicyContent"));
+                    h.setStatus(rs.getString("Status"));
+                    h.setActionType(rs.getString("ActionType"));
+                    h.setChangedAt(rs.getTimestamp("ChangedAt"));
+                    list.add(h);
+                }
+            }
+        }
+        return list;
     }
 }

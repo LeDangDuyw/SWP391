@@ -631,6 +631,8 @@
 
                     <!-- Search & Filter Form -->
                     <form action="${pageContext.request.contextPath}/admin/users" method="GET">
+                        <input type="hidden" name="from" value="${from}">
+                        <input type="hidden" name="to" value="${to}">
                         <div class="search-bar-container">
                             <input type="text" name="search" class="search-input" value="${searchKeyword}" placeholder="Tìm kiếm theo họ tên hoặc địa chỉ email...">
                             
@@ -639,6 +641,8 @@
                                 <option value="1" ${selectedRole == '1' ? 'selected' : ''}>Admin</option>
                                 <option value="2" ${selectedRole == '2' ? 'selected' : ''}>Staff</option>
                                 <option value="3" ${selectedRole == '3' ? 'selected' : ''}>Customer</option>
+                                <option value="4" ${selectedRole == '4' ? 'selected' : ''}>Student</option>
+                                <option value="5" ${selectedRole == '5' ? 'selected' : ''}>B2B</option>
                             </select>
 
                             <select name="status" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
@@ -649,7 +653,7 @@
 
                             <button type="submit" class="search-btn">Tìm kiếm</button>
                             
-                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus}">
+                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus || not empty from || not empty to}">
                                 <a href="${pageContext.request.contextPath}/admin/users" class="clear-search-btn">Xóa lọc</a>
                             </c:if>
                             
@@ -699,6 +703,8 @@
                                                         <option value="1" ${u.roleId == 1 ? 'selected' : ''}>Admin</option>
                                                         <option value="2" ${u.roleId == 2 ? 'selected' : ''}>Staff</option>
                                                         <option value="3" ${u.roleId == 3 ? 'selected' : ''}>Customer</option>
+                                                        <option value="4" ${u.roleId == 4 ? 'selected' : ''}>Student</option>
+                                                        <option value="5" ${u.roleId == 5 ? 'selected' : ''}>B2B</option>
                                                     </select>
                                                 </td>
                                                 <td>
@@ -722,7 +728,7 @@
                                                                 data-name="<c:out value='${u.userName}'/>"
                                                                 data-email="<c:out value='${u.email}'/>"
                                                                 data-phone="<c:out value='${u.phone}'/>"
-                                                                data-role="${u.roleId == 1 ? 'Admin' : (u.roleId == 2 ? 'Staff' : 'Customer')}"
+                                                                data-role="${u.roleId == 1 ? 'Admin' : (u.roleId == 2 ? 'Staff' : (u.roleId == 4 ? 'Student' : (u.roleId == 5 ? 'B2B' : 'Customer')))}"
                                                                 data-status="${u.status ? 'Active' : 'Inactive'}"
                                                                 data-avatar="<c:out value='${u.avatarUrl}'/>"
                                                                 data-created="${formattedCreatedAt}"
@@ -765,19 +771,19 @@
                     <!-- Pagination -->
                     <c:if test="${totalPages > 1}">
                         <div class="pagination-container">
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == 1 ? 'disabled' : ''}">
                                 &lt; Trước
                             </a>
                             
                             <c:forEach begin="1" end="${totalPages}" var="i">
-                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                    class="pagination-link ${currentPage == i ? 'active' : ''}">
                                     ${i}
                                 </a>
                             </c:forEach>
                             
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == totalPages ? 'disabled' : ''}">
                                 Sau &gt;
                             </a>
@@ -894,6 +900,8 @@
                             <select name="roleId" id="addRoleId" required
                                     style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background-color: #fff; cursor: pointer;">
                                 <option value="3">Customer (Khách hàng)</option>
+                                <option value="4">Student (Sinh viên)</option>
+                                <option value="5">B2B (Doanh nghiệp)</option>
                                 <option value="2">Staff (Nhân viên)</option>
                                 <option value="1">Admin (Quản trị viên)</option>
                             </select>

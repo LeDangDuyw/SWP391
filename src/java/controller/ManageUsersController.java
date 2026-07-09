@@ -29,8 +29,13 @@ public class ManageUsersController extends HttpServlet {
      * Description: Xử lý hiển thị danh sách tài khoản kèm bộ lọc và phân trang.
      *              Hỗ trợ cả yêu cầu AJAX để đếm số lượng đơn hàng hoạt động của người dùng trước khi khóa.
      * @Author: LUCTVHE201874
+<<<<<<< HEAD
+     * Created Date: 04/04/2026
+     * Completed Date: 26/04/2026
+=======
      * Created Date: 04/06/2026
      * Completed Date: 26/06/2026
+>>>>>>> main3
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -101,8 +106,26 @@ public class ManageUsersController extends HttpServlet {
             }
         }
 
+        String from = request.getParameter("from");
+        String to = request.getParameter("to");
+        if (from != null && from.trim().isEmpty()) from = null;
+        if (to != null && to.trim().isEmpty()) to = null;
+
+        if (from != null && to != null) {
+            try {
+                java.sql.Date.valueOf(from.trim());
+                java.sql.Date.valueOf(to.trim());
+            } catch (Exception e) {
+                from = null;
+                to = null;
+            }
+        }
+
+        request.setAttribute("from", from);
+        request.setAttribute("to", to);
+
         UserDAO userDAO = new UserDAO();
-        int totalUsers = userDAO.getTotalUsers(search, roleFilter, statusFilter);
+        int totalUsers = userDAO.getTotalUsers(search, roleFilter, statusFilter, from, to);
         int limit = 10;
         int totalPages = (int) Math.ceil((double) totalUsers / limit);
         if (totalPages == 0) {
@@ -114,7 +137,7 @@ public class ManageUsersController extends HttpServlet {
         }
 
         int offset = (currentPage - 1) * limit;
-        ArrayList<Users> usersList = userDAO.getUsers(search, roleFilter, statusFilter, offset, limit);
+        ArrayList<Users> usersList = userDAO.getUsers(search, roleFilter, statusFilter, from, to, offset, limit);
 
         // Map feedback codes
         String successCode = request.getParameter("success");
@@ -249,7 +272,7 @@ public class ManageUsersController extends HttpServlet {
                 return;
             }
 
-            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3) {
+            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3 && newRoleId != 4 && newRoleId != 5) {
                 response.sendRedirect(redirectURL.toString() + "&error=" +
                         URLEncoder.encode("Vai trò không tồn tại!", "UTF-8"));
                 return;
@@ -347,8 +370,8 @@ public class ManageUsersController extends HttpServlet {
                 return;
             }
 
-            // Ensure roleId is valid: 1 = Admin, 2 = Staff, 3 = Customer
-            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3) {
+            // Ensure roleId is valid: 1 = Admin, 2 = Staff, 3 = Customer, 4 = Student, 5 = B2B
+            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3 && newRoleId != 4 && newRoleId != 5) {
                 response.sendRedirect(redirectURL.toString() + "&error=" +
                         URLEncoder.encode("Phân quyền không tồn tại!", "UTF-8"));
                 return;
