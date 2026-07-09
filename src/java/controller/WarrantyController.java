@@ -427,7 +427,7 @@ public class WarrantyController extends HttpServlet {
     }
 
     private boolean isCustomer(Users user) {
-        return user.getRoleId() == 3;
+        return user.getRoleId() == 3 || user.getRoleId() == 4;
     }
 
     private int parsePage(String param) {

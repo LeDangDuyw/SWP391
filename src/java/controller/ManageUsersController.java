@@ -249,7 +249,7 @@ public class ManageUsersController extends HttpServlet {
                 return;
             }
 
-            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3) {
+            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3 && newRoleId != 4 && newRoleId != 5) {
                 response.sendRedirect(redirectURL.toString() + "&error=" +
                         URLEncoder.encode("Vai trò không tồn tại!", "UTF-8"));
                 return;
@@ -347,8 +347,8 @@ public class ManageUsersController extends HttpServlet {
                 return;
             }
 
-            // Ensure roleId is valid: 1 = Admin, 2 = Staff, 3 = Customer
-            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3) {
+            // Ensure roleId is valid: 1 = Admin, 2 = Staff, 3 = Customer, 4 = Student, 5 = B2B
+            if (newRoleId != 1 && newRoleId != 2 && newRoleId != 3 && newRoleId != 4 && newRoleId != 5) {
                 response.sendRedirect(redirectURL.toString() + "&error=" +
                         URLEncoder.encode("Phân quyền không tồn tại!", "UTF-8"));
                 return;
