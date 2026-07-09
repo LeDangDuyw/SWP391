@@ -646,6 +646,23 @@
                 margin-top: 4px;
                 display: block;
             }
+
+            /* Sidebar dropdown style */
+            .sidebar-dropdown {
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-dropdown-container {
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 4px;
+            }
+            .sidebar nav .sidebar-dropdown-container a {
+                padding: 8px 14px 8px 30px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+            }
         </style>
     </head>
     <body>
@@ -657,7 +674,22 @@
                     <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="#"><span>▣</span>Orders</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+                    
+                    <div class="sidebar-dropdown">
+                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
+                        </a>
+                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <a href="${pageContext.request.contextPath}/admin/promotions">
+                                <span>▥</span>Voucher & Promotion
+                            </a>
+                            <a href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
+                            </a>
+                        </div>
+                    </div>
+
                     <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
@@ -1040,6 +1072,18 @@
         </div>
 
         <script>
+            function toggleSidebarDropdown(btn) {
+                const container = btn.nextElementSibling;
+                const arrow = btn.querySelector('.dropdown-arrow');
+                if (container.style.display === 'flex') {
+                    container.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    container.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+
             function openModal(id) {
                 document.getElementById(id).classList.add('open');
             }
@@ -1066,6 +1110,12 @@
                     newAction = 'saveDraft';
                     statusText = 'Set this policy to Draft?';
                 } else if (newStatus === 'LIVE') {
+                    <c:set var="cleanText" value="${selectedPolicy.policyContent.replaceAll('<[^>]*>', '').trim()}" />
+                    <c:if test="${empty cleanText}">
+                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        window.location.reload();
+                        return;
+                    </c:if>
                     newAction = 'publish';
                     statusText = 'Publish this policy as Live?';
                 } else if (newStatus === 'DISABLED') {
@@ -1140,7 +1190,15 @@
                 if (initialEdit) {
                     editQuill.root.innerHTML = initialEdit;
                 }
-                document.querySelector('#editModal form').addEventListener('submit', function() {
+                document.querySelector('#editModal form').addEventListener('submit', function(event) {
+                    var status = this.status.value;
+                    var contentValue = editQuill.root.innerHTML;
+                    var cleanContent = contentValue.replace(/<[^>]*>/g, '').trim();
+                    if ((status === 'LIVE' || status === 'PUBLISHED') && cleanContent === '') {
+                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        event.preventDefault();
+                        return false;
+                    }
                     document.getElementById('editPolicyContent').value = editQuill.root.innerHTML;
                 });
             }

@@ -3,15 +3,6 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%
-    if (request.getAttribute("footerPages") == null) {
-        try {
-            dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-            java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-            request.setAttribute("footerPages", footerPagesList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -349,24 +340,17 @@
                             </span>
                         </div>
                     </div>
-                    <div class="btn-actions">
-                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
-                            <i class="fas fa-house"></i> Tiếp tục mua sắm
-                        </a>
-                        <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-secondary">
-                            Theo dõi đơn hàng
-                        </a>
-                    </div>
                 </c:otherwise>
             </c:choose>
 
-            <c:if test="${paymentMethod == 'BANK_TRANSFER' || param.paymentMethod == 'BANK_TRANSFER'}">
             <div class="btn-actions">
-                <a href="javascript:history.back()" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
-                    <i class="fas fa-arrow-left"></i> Quay lại chọn phương thức khác
+                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
+                    <i class="fas fa-house"></i> Tiếp tục mua sắm
+                </a>
+                <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-secondary">
+                    Theo dõi đơn hàng
                 </a>
             </div>
-            </c:if>
         </div>
     </div>
 </main>
@@ -379,17 +363,11 @@
             <p class="footer-desc">Trải nghiệm công nghệ đỉnh cao với các dòng laptop gaming và văn phòng cao cấp nhất hiện nay.</p>
         </div>
         <nav class="footer-links">
-            <c:if test="${not empty footerPages}">
-                <c:forEach items="${footerPages}" var="pageItem">
-                    <a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}">${pageItem.title}</a>
-                </c:forEach>
-            </c:if>
-            <c:if test="${empty footerPages}">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Shipping Info</a>
-                <a href="#">Returns</a>
-            </c:if>
+            <a href="${pageContext.request.contextPath}/policy/privacy">Chính sách bảo mật</a>
+            <a href="${pageContext.request.contextPath}/policy/terms">Điều khoản sử dụng</a>
+            <a href="${pageContext.request.contextPath}/policy/shopping-guide">Hướng dẫn mua hàng</a>
+            <a href="${pageContext.request.contextPath}/policy/warranty">Chính sách bảo hành</a>
+            <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
         </nav>
         <div class="footer-right">
             <p>&copy; 2024 UniLap Technologies. All rights reserved.</p>

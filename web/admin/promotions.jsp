@@ -50,6 +50,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNILAP Admin - Promotions</title>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/promotion.css">
+    <style>
+        .sidebar-dropdown { display: flex; flex-direction: column; }
+        .sidebar-dropdown-container { display: none; flex-direction: column; gap: 4px; margin-top: 4px; }
+        .sidebar nav .sidebar-dropdown-container a { padding: 8px 14px 8px 30px !important; font-size: 13px !important; font-weight: 500 !important; }
+    </style>
 </head>
 <body>
 <div class="layout">
@@ -59,7 +64,22 @@
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
             <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-            <a class="active" href="<%=base%>"><span>▥</span>Analytics</a>
+            
+            <div class="sidebar-dropdown">
+                <a href="javascript:void(0)" class="sidebar-dropdown-btn active" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                    <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(180deg);">▼</span>
+                </a>
+                <div class="sidebar-dropdown-container" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                    <a href="${pageContext.request.contextPath}/admin/promotions" class="active">
+                        <span>▥</span>Voucher & Promotion
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/analytics">
+                        <span>📈</span>Advanced Analytics
+                    </a>
+                </div>
+            </div>
+            
             <a href="<%=request.getContextPath()%>/admin/policy"><span>📜</span>Policies</a>
             <a href="<%=request.getContextPath()%>/admin/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
@@ -194,5 +214,18 @@
         </section>
     </main>
 </div>
+<script>
+    function toggleSidebarDropdown(btn) {
+        const container = btn.nextElementSibling;
+        const arrow = btn.querySelector('.dropdown-arrow');
+        if (container.style.display === 'flex') {
+            container.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            container.style.display = 'flex';
+            arrow.style.transform = 'rotate(180deg)';
+        }
+    }
+</script>
 </body>
 </html>
