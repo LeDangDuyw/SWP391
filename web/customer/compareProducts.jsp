@@ -117,26 +117,22 @@
     </header>
 
     <!-- Main Compare Content -->
-    <c:choose>
-        <c:when test="${empty compareProducts}">
-            <div class="compare-container">
+    <div class="compare-container">
+        <c:choose>
+            <c:when test="${empty compareProducts}">
                 <div class="empty-compare">
                     <i class="fas fa-balance-scale-left"></i>
                     <p>Chưa có sản phẩm nào trong danh sách so sánh của bạn.</p>
                     <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-back">Quay lại Trang chủ</a>
                 </div>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <div class="compare-layout-wrapper">
-                <!-- Left Column: Compare Main Content -->
-                <div class="compare-main-block">
-                    <div class="compare-header">
-                        <h1>So Sánh Sản Phẩm</h1>
-                        <button class="btn-clear" onclick="clearCompareList()">Xóa tất cả</button>
-                    </div>
+            </c:when>
+            <c:otherwise>
+                <div class="compare-header">
+                    <h1>So Sánh Sản Phẩm</h1>
+                    <button class="btn-clear" onclick="clearCompareList()">Xóa tất cả</button>
+                </div>
 
-                    <div class="compare-table-wrapper">
+                <div class="compare-table-wrapper">
                     <table class="compare-table">
                         <!-- 1. Dòng hình ảnh & tên sản phẩm -->
                         <tr>
@@ -348,47 +344,11 @@
                             </c:when>
                         </c:choose>
                     </table>
-                </div> <!-- End of .compare-table-wrapper -->
-            </div> <!-- End of .compare-main-block -->
-
-            <!-- Right Column: Sidebar (Suggest Products) -->
-            <c:if test="${not empty suggestProducts}">
-                <div class="compare-sidebar-block">
-                    <h4 class="sidebar-section-title">Gợi ý sản phẩm cùng phân khúc</h4>
-                    <div class="suggest-sidebar-list">
-                        <c:forEach items="${suggestProducts}" var="sp">
-                            <div class="suggest-sidebar-item">
-                                <img src="${pageContext.request.contextPath}/images/${sp.thumbnail}" alt="${sp.productName}">
-                                <div class="suggest-info">
-                                    <div class="suggest-price">
-                                        <fmt:formatNumber value="${sp.minPrice}" type="currency" currencySymbol="đ" />
-                                    </div>
-                                    <h5 class="suggest-name" title="${sp.productName}">${sp.productName}</h5>
-                                    <a href="javascript:void(0)" onclick="addProductToCompare(${sp.productId})" class="suggest-add-link">
-                                        <i class="fas fa-plus-circle"></i> Thêm vào so sánh
-                                    </a>
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </div>
                 </div>
-            </c:if>
-        </div> <!-- End of .compare-layout-wrapper -->
-    </c:otherwise>
-</c:choose>
+            </c:otherwise>
+        </c:choose>
+    </div>
 
-    <!-- Footer -->
-    <%
-        if (request.getAttribute("footerPages") == null) {
-            try {
-                dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                request.setAttribute("footerPages", footerPagesList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    %>
     <footer class="footer">
         <div class="container footer-grid">
             <!-- Column 1: Brand & Contact -->
@@ -411,11 +371,11 @@
             <div class="footer-col">
                 <h3>Chính sách & Hỗ trợ</h3>
                 <ul>
-                    <c:if test="${not empty footerPages}">
-                        <c:forEach items="${footerPages}" var="pageItem">
-                            <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                        </c:forEach>
-                    </c:if>
+                    <li><a href="${pageContext.request.contextPath}/policy/privacy"><i class="fas fa-chevron-right"></i> Chính sách bảo mật</a></li>
+                    <li><a href="${pageContext.request.contextPath}/policy/terms"><i class="fas fa-chevron-right"></i> Điều khoản sử dụng</a></li>
+                    <li><a href="${pageContext.request.contextPath}/policy/shopping-guide"><i class="fas fa-chevron-right"></i> Hướng dẫn mua hàng</a></li>
+                    <li><a href="${pageContext.request.contextPath}/policy/warranty"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
+                    <li><a href="${pageContext.request.contextPath}/about"><i class="fas fa-chevron-right"></i> Về chúng tôi</a></li>
                 </ul>
             </div>
         </div>

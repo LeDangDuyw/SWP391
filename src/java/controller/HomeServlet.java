@@ -16,10 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import dal.FlashSaleProductDAO;
-import dal.PageContentDAO;
 import java.util.List;
 import model.CampaignBanner;
-import model.PageContent;
 
 /**
  *
@@ -69,13 +67,9 @@ public class HomeServlet extends HttpServlet {
         CategoryDAO c = new CategoryDAO();
         FlashSaleProductDAO fl = new FlashSaleProductDAO();
        CampaignBannerDAO bannerDAO = new CampaignBannerDAO();         
-        PageContentDAO pg = new PageContentDAO();
         // hiển thị banner
         List<CampaignBanner> banners = bannerDAO.getHomeBanners();
         request.setAttribute("banners", banners);
-        // hiển thị chính sách ở footer
-        ArrayList<PageContent> footerPages = pg.getAllActivePages();
-        request.setAttribute("footerPages", footerPages);
         // Sản phẩm bán chạy
         String bsTab = request.getParameter("bsTab");
         if (bsTab == null) {

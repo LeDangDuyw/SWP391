@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <fmt:setLocale value="vi_VN"/>
 
 <!DOCTYPE html>
@@ -8,19 +9,16 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Trò chuyện với AI - UniLap</title>
+        <title>UniLap - ${policy.title}</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=2">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/chat.css?v=1">
-        <script>
-            window.contextPath = "${pageContext.request.contextPath}";
-        </script>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css?v=10">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/policy.css?v=1">
     </head>
     <body>
-        <!-- Header (Đồng bộ từ home.jsp) -->
+        <!-- Header -->
         <header class="header">
             <div class="container header-container">
                 <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>
@@ -31,9 +29,8 @@
                             <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
                         </c:if>
                     </c:forEach>
-
                     <div class="nav-dropdown">
-                        <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                        <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                         <div class="dropdown-content">
                             <c:forEach items="${categories}" var="cat">
                                 <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -42,7 +39,6 @@
                             </c:forEach>
                         </div>
                     </div>
-
                     <a href="#">Khuyến mãi</a>
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
@@ -50,15 +46,29 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
-                    <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
+                            <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
+                        </c:if>
+                    </a>
                     <a href="#"><i class="fas fa-bell"></i></a>
                     <c:choose>
                         <c:when test="${not empty sessionScope.user}">
                             <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
-                                <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: inherit;">
-                                    <i class="fas fa-user"></i>
-                                    <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
-                                </a>
+                                 <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                            <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}"
+                                                 alt="avatar"
+                                                 style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="fas fa-user"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                     <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                                 </a>
                                 <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
                                     <c:choose>
                                         <c:when test="${sessionScope.user.roleId == 1}">
@@ -77,65 +87,85 @@
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/login"><i class="fas fa-user"></i></a>
+                            <a href="${pageContext.request.contextPath}/login" style="color: #1e293b; text-decoration: none; font-size: 14px; font-weight: 500;"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
                         </c:otherwise>
                     </c:choose>
                 </div>
             </div>
         </header>
 
-        <!-- Main Chat Layout -->
-        <div class="chat-full-layout">
-            <!-- Sidebar bên trái -->
-            <aside class="chat-full-sidebar">
-                <div class="sidebar-header">
-                    <h2><i class="fas fa-robot" style="color: var(--chat-primary);"></i> UniLap AI</h2>
-                </div>
-                
-                <div class="sidebar-section">
-                    <div class="sidebar-card">
-                        <h3>Tư Vấn Thông Minh</h3>
-                        <p>Trợ lý AI hỗ trợ bạn so sánh cấu hình laptop, tìm linh kiện phù hợp và giải đáp các chính sách hậu mãi của UniLap.</p>
-                    </div>
-                    
-                    <div class="sidebar-suggestions-list">
-                        <h4 style="font-size: 12px; color: var(--chat-text-muted); text-transform: uppercase; margin: 10px 0 5px 0; font-family: 'Inter', sans-serif;">Gợi ý câu hỏi:</h4>
-                        <button class="suggestion-item" data-question="Tìm laptop gaming dưới 25 triệu tốt nhất">
-                            <i class="fas fa-laptop" style="color: #f59e0b;"></i> Laptop Gaming dưới 25tr
-                        </button>
-                        <button class="suggestion-item" data-question="Tư vấn bàn phím cơ gõ êm cho văn phòng">
-                            <i class="fas fa-keyboard" style="color: #10b981;"></i> Bàn phím cơ gõ êm
-                        </button>
-                        <button class="suggestion-item" data-question="Chính sách bảo hành và đổi trả của shop thế nào?">
-                            <i class="fas fa-shield-alt" style="color: #3b82f6;"></i> Chính sách bảo hành
-                        </button>
-                    </div>
-                    
-                    <button class="sidebar-footer-btn" type="button">
-                        <i class="fas fa-trash-alt"></i> Xóa lịch sử chat
-                    </button>
-                </div>
-            </aside>
+        <!-- Main Page Container -->
+        <div class="policy-page-container">
+            <!-- Sidebar -->
+            <%@include file="_policySidebar.jspf" %>
 
-            <!-- Khung Chat bên phải -->
-            <main class="chat-full-panel">
-                <div class="chat-full-messages-container">
-                    <div class="chat-full-messages-inner">
-                        <!-- Messages dynamically loaded from chat.js -->
-                    </div>
+            <!-- Content Area -->
+            <main class="policy-main-content">
+                <div class="breadcrumbs">
+                    <a href="${pageContext.request.contextPath}/HomeServlet">Trang chủ</a> 
+                    <i class="fas fa-chevron-right"></i> 
+                    <span>${policy.title}</span>
                 </div>
-                
-                <div class="chat-full-input-outer">
-                    <div class="chat-full-input-inner">
-                        <textarea class="chat-full-textarea" placeholder="Hỏi UniLap AI về sản phẩm và chính sách..." autocomplete="off"></textarea>
-                        <button class="chat-full-send-btn" type="button" title="Gửi tin nhắn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                <div class="policy-header">
+                    <h1>${policy.title}</h1>
+                    <c:if test="${not empty policy.updatedAt}">
+                        <div class="last-updated">Cập nhật lần cuối: <fmt:formatDate value="${policy.updatedAt}" pattern="dd/MM/yyyy"/></div>
+                    </c:if>
+                </div>
+                <div class="policy-content-body">
+                    <!-- About Hero Banner -->
+                    <div class="about-hero">
+                        <h2>Kiến Tạo Trải Nghiệm Công Nghệ Đỉnh Cao</h2>
+                        <p>UniLap đồng hành cùng bạn trên con đường chinh phục đỉnh cao công nghệ bằng những sản phẩm Laptop, chuột và bàn phím máy tính chất lượng chính hãng tốt nhất.</p>
+                    </div>
+
+                    ${policy.content}
+
+                    <!-- Core Value Grid -->
+                    <h2 style="border-left: 4px solid #2563eb; padding-left: 12px; margin-top: 40px; margin-bottom: 20px;">Giá Trị Cốt Lõi Tại UniLap</h2>
+                    <div class="core-values-grid">
+                        <div class="core-value-card">
+                            <div class="core-value-icon"><i class="fas fa-medal"></i></div>
+                            <h4 class="core-value-title">Chất Lượng Chính Hãng</h4>
+                            <p class="core-value-desc">Cam kết phân phối sản phẩm chính hãng 100% từ các thương hiệu hàng đầu thế giới như ASUS, Dell, HP, Apple, Logitech...</p>
+                        </div>
+                        <div class="core-value-card">
+                            <div class="core-value-icon"><i class="fas fa-brain"></i></div>
+                            <h4 class="core-value-title">Công Nghệ AI Gợi Ý</h4>
+                            <p class="core-value-desc">Tích hợp AI trợ lý mua sắm thông minh hỗ trợ tìm kiếm cấu hình và so sánh sản phẩm tối ưu theo nhu cầu khách hàng.</p>
+                        </div>
+                        <div class="core-value-card">
+                            <div class="core-value-icon"><i class="fas fa-headset"></i></div>
+                            <h4 class="core-value-title">Hậu Mãi Tận Tâm</h4>
+                            <p class="core-value-desc">Chính sách bảo hành điện tử rõ ràng, thời gian hỗ trợ nhanh chóng và cam kết 1 đổi 1 trong vòng 7 ngày đầu tiên.</p>
+                        </div>
+                    </div>
+
+                    <!-- Counter Stats -->
+                    <h2 style="border-left: 4px solid #2563eb; padding-left: 12px; margin-top: 40px; margin-bottom: 20px;">UniLap Qua Những Con Số</h2>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-num">10,000+</div>
+                            <div class="stat-label">Khách hàng tin dùng</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">500+</div>
+                            <div class="stat-label">Sản phẩm công nghệ</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">5+</div>
+                            <div class="stat-label">Năm hoạt động</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">99%</div>
+                            <div class="stat-label">Hài lòng dịch vụ</div>
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
 
+        <!-- Footer -->
         <footer class="footer">
             <div class="container footer-grid">
                 <!-- Column 1: Brand & Contact -->
@@ -174,9 +204,8 @@
                 </div>
             </div>
         </footer>
-
-        <!-- Javascript triggers for header user menu dropdown -->
         <script>
+            // Header User Menu Dropdown Toggle
             (function () {
                 document.addEventListener('DOMContentLoaded', function () {
                     var triggers = document.querySelectorAll('.user-menu-trigger');
@@ -188,16 +217,14 @@
                             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
                         });
                     });
-                    document.addEventListener('click', function () {
-                        document.querySelectorAll('.user-menu-dropdown-content').forEach(function (dropdown) {
-                            dropdown.style.display = 'none';
+                    document.addEventListener('click', function() {
+                        var dropdowns = document.querySelectorAll('.user-menu-dropdown-content');
+                        dropdowns.forEach(function(d) {
+                            d.style.display = 'none';
                         });
                     });
                 });
             })();
         </script>
-
-        <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
-        <script src="${pageContext.request.contextPath}/js/chat.js?v=1"></script>
     </body>
 </html>

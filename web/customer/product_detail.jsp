@@ -501,18 +501,6 @@
             </c:if>
         </div>
 
-        <!-- Footer -->
-        <%
-            if (request.getAttribute("footerPages") == null) {
-                try {
-                    dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                    java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                    request.setAttribute("footerPages", footerPagesList);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        %>
         <footer class="footer">
             <div class="container footer-grid">
                 <!-- Column 1: Brand & Contact -->
@@ -535,11 +523,11 @@
                 <div class="footer-col">
                     <h3>Chính sách & Hỗ trợ</h3>
                     <ul>
-                        <c:if test="${not empty footerPages}">
-                            <c:forEach items="${footerPages}" var="pageItem">
-                                <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                                </c:forEach>
-                            </c:if>
+                        <li><a href="${pageContext.request.contextPath}/policy/privacy"><i class="fas fa-chevron-right"></i> Chính sách bảo mật</a></li>
+                        <li><a href="${pageContext.request.contextPath}/policy/terms"><i class="fas fa-chevron-right"></i> Điều khoản sử dụng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/policy/shopping-guide"><i class="fas fa-chevron-right"></i> Hướng dẫn mua hàng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/policy/warranty"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
+                        <li><a href="${pageContext.request.contextPath}/about"><i class="fas fa-chevron-right"></i> Về chúng tôi</a></li>
                     </ul>
                 </div>
             </div>
