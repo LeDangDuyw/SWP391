@@ -780,7 +780,7 @@ public List<Product> GetAllProducts() {
             ps = cnn.prepareStatement(sql);
             rs = ps.executeQuery();
             while(rs.next()) {
-            Product p = new Product(rs.getInt("variant_id"),rs.getString("product_name"), rs.getString("description"),rs.getInt("warranty_period"),
+            Product p = new Product(rs.getInt("product_id"), rs.getString("product_name"), rs.getString("description"), rs.getInt("warranty_period"),
                                     rs.getString("thumbnail"), rs.getInt("category_id"), rs.getInt("brand_id"));
             products.add(p);
         }
@@ -842,6 +842,7 @@ public List<Product> GetAllProducts() {
                         rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
+                pv.setThumbnail(rs.getString("thumbnail"));
                 variants.add(pv);
             }
         } catch (Exception e) {
@@ -893,7 +894,7 @@ public List<Product> GetAllProducts() {
             ps.setInt(1, variantId);
             rs = ps.executeQuery();
             if (rs.next()) {
-                return new model.ProductVariant(
+                model.ProductVariant pv = new model.ProductVariant(
                         rs.getInt("variant_id"),
                         rs.getInt("product_id"),
                         rs.getString("sku"),
@@ -903,6 +904,8 @@ public List<Product> GetAllProducts() {
                         rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
+                pv.setThumbnail(rs.getString("thumbnail"));
+                return pv;
             }
         } catch (Exception e) {
             System.out.println("getVariantById Error: " + e.getMessage());
@@ -1264,8 +1267,8 @@ public List<Product> GetAllProducts() {
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
         try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
@@ -1274,6 +1277,7 @@ public List<Product> GetAllProducts() {
             ps.setBigDecimal(5, sellingPrice);
             ps.setBoolean(6, false);
             ps.setString(7, "active");
+            ps.setString(8, null);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -1296,6 +1300,43 @@ public List<Product> GetAllProducts() {
 
     public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
         insertProductVariant(productId, sku, variantName, price, price, stock);
+    }
+
+    /**
+     * Thêm biến thể kèm thumbnail riêng.
+     */
+    public void insertProductVariant(int productId, String sku, String variantName,
+                                     java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock, String thumbnail) {
+        try {
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, productId);
+            ps.setString(2, sku);
+            ps.setString(3, variantName);
+            ps.setBigDecimal(4, importPrice);
+            ps.setBigDecimal(5, sellingPrice);
+            ps.setBoolean(6, false);
+            ps.setString(7, "active");
+            ps.setString(8, thumbnail);
+            ps.executeUpdate();
+
+            rs = ps.getGeneratedKeys();
+            int variantId = -1;
+            if (rs.next()) {
+                variantId = rs.getInt(1);
+            }
+            if (variantId != -1) {
+                String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
+                PreparedStatement psInv = cnn.prepareStatement(sqlInv);
+                psInv.setInt(1, variantId);
+                psInv.setInt(2, 0);
+                psInv.setInt(3, stock);
+                psInv.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.out.println("Insert ProductVariant with thumbnail Error: " + e.getMessage());
+        }
     }
     
     /*
