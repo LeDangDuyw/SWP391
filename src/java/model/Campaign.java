@@ -17,6 +17,7 @@ public class Campaign {
     private BigDecimal discountValue;
     private BigDecimal minOrderValue;
     private Integer usageLimit;
+    private Integer userUsageLimit;
     private int usedCount;
     private String targetGroup;
     private LocalDateTime startDate;
@@ -52,6 +53,8 @@ public class Campaign {
     public void setMinOrderValue(BigDecimal minOrderValue) { this.minOrderValue = minOrderValue; }
     public Integer getUsageLimit() { return usageLimit; }
     public void setUsageLimit(Integer usageLimit) { this.usageLimit = usageLimit; }
+    public Integer getUserUsageLimit() { return userUsageLimit; }
+    public void setUserUsageLimit(Integer userUsageLimit) { this.userUsageLimit = userUsageLimit; }
     public int getUsedCount() { return usedCount; }
     public void setUsedCount(int usedCount) { this.usedCount = usedCount; }
     public String getTargetGroup() { return targetGroup; }

@@ -12,6 +12,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import dal.ChatbotDAO;
+import model.Users;
 
 @WebServlet("/chat-ai")
 public class ChatServlet extends HttpServlet {
@@ -25,7 +28,25 @@ public class ChatServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // 1. Read request body (JSON) from client
+        // 1. Kiểm tra xác thực người dùng đã đăng nhập chưa
+        HttpSession session = request.getSession(false);
+        Users user = (session != null) ? (Users) session.getAttribute("user") : null;
+
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Bạn cần phải đăng nhập để trò chuyện với AI!\"}");
+            return;
+        }
+
+        // 2. Kiểm tra xem người dùng có bị chặn sử dụng chatbot hay không
+        ChatbotDAO chatbotDAO = new ChatbotDAO();
+        if (chatbotDAO.isChatbotBlocked(user.getUserId())) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("{\"error\": \"Tài khoản của bạn đã bị chặn sử dụng tính năng chatbot do vi phạm điều khoản.\"}");
+            return;
+        }
+
+        // 3. Read request body (JSON) from client
         StringBuilder sb = new StringBuilder();
         String line;
         try (BufferedReader reader = request.getReader()) {
@@ -33,17 +54,55 @@ public class ChatServlet extends HttpServlet {
                 sb.append(line);
             }
         }
-        String requestBody = sb.toString();
+        String requestBody = sb.toString().trim();
 
         // If request body is empty, return bad request status
-        if (requestBody == null || requestBody.trim().isEmpty()) {
+        if (requestBody == null || requestBody.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\": \"Yêu cầu không được để trống\"}");
             return;
         }
 
+        // Trích xuất thông tin message và session_id từ requestBody của client để ghi log nếu cần
+        String userMessage = "";
+        int msgIndex = requestBody.indexOf("\"message\"");
+        if (msgIndex != -1) {
+            String sub = requestBody.substring(msgIndex);
+            int colonIndex = sub.indexOf(":");
+            if (colonIndex != -1) {
+                int startQuote = sub.indexOf("\"", colonIndex);
+                if (startQuote != -1) {
+                    int endQuote = sub.indexOf("\"", startQuote + 1);
+                    if (endQuote != -1) {
+                        userMessage = sub.substring(startQuote + 1, endQuote);
+                    }
+                }
+            }
+        }
+        
+        String userSessionId = "default_session";
+        int sessIndex = requestBody.indexOf("\"session_id\"");
+        if (sessIndex != -1) {
+            String sub = requestBody.substring(sessIndex);
+            int colonIndex = sub.indexOf(":");
+            if (colonIndex != -1) {
+                int startQuote = sub.indexOf("\"", colonIndex);
+                if (startQuote != -1) {
+                    int endQuote = sub.indexOf("\"", startQuote + 1);
+                    if (endQuote != -1) {
+                        userSessionId = sub.substring(startQuote + 1, endQuote);
+                    }
+                }
+            }
+        }
+
+        // Chèn thêm user_id vào JSON request chuyển tiếp sang FastAPI
+        if (requestBody.endsWith("}")) {
+            requestBody = requestBody.substring(0, requestBody.length() - 1) + ", \"user_id\": " + user.getUserId() + "}";
+        }
+
         try {
-            // 2. Connect and send request to FastAPI Server
+            // 4. Connect and send request to FastAPI Server
             URL url = java.net.URI.create(FASTAPI_URL).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -60,7 +119,7 @@ public class ChatServlet extends HttpServlet {
 
             int statusCode = conn.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
-                // 3. Read response from FastAPI
+                // 5. Read response from FastAPI
                 StringBuilder result = new StringBuilder();
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
@@ -68,8 +127,33 @@ public class ChatServlet extends HttpServlet {
                         result.append(line.trim());
                     }
                 }
-                // 4. Return success response to the client
-                response.getWriter().write(result.toString());
+                
+                String responseStr = result.toString();
+                
+                // 6. Kiểm tra xem phản hồi từ FastAPI có đánh dấu vi phạm an ninh hay không
+                boolean isViolation = responseStr.contains("\"is_violation\":true") || responseStr.contains("\"is_violation\": true");
+                if (isViolation) {
+                    String violationType = "UNKNOWN";
+                    int typeIndex = responseStr.indexOf("\"violation_type\"");
+                    if (typeIndex != -1) {
+                        String sub = responseStr.substring(typeIndex);
+                        int colonIndex = sub.indexOf(":");
+                        if (colonIndex != -1) {
+                            int startQuote = sub.indexOf("\"", colonIndex);
+                            if (startQuote != -1) {
+                                int endQuote = sub.indexOf("\"", startQuote + 1);
+                                if (endQuote != -1) {
+                                    violationType = sub.substring(startQuote + 1, endQuote);
+                                }
+                            }
+                        }
+                    }
+                    // Lưu log vi phạm bảo mật vào DB
+                    chatbotDAO.insertSecurityLog(user.getUserId(), userSessionId, violationType, userMessage);
+                }
+
+                // 7. Return success response to the client
+                response.getWriter().write(responseStr);
             } else {
                 // Return server error code and original message if FastAPI fails
                 response.setStatus(statusCode);
