@@ -233,15 +233,27 @@
                             </div>
 
                             <div id="usageLimitGroup" style="flex: 1; min-width: 200px;">
-                                <label>Usage Limit</label>
+                                <label>Usage Limit (Giới hạn toàn bộ)</label>
                                 <input name="usageLimit"
                                        id="usageLimit"
                                        type="number"
                                        min="0"
                                        value="${campaign.usageLimit}"
-                                       placeholder="1000"
+                                       placeholder="Tối đa lượt dùng"
                                        style="width: 100%; box-sizing: border-box;">
                                 <span class="validation-error" id="usageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
+                            </div>
+
+                            <div id="userUsageLimitGroup" style="flex: 1; min-width: 200px; display: none;">
+                                <label>User Usage Limit (Giới hạn mỗi User)</label>
+                                <input name="userUsageLimit"
+                                       id="userUsageLimit"
+                                       type="number"
+                                       min="0"
+                                       value="${campaign.userUsageLimit}"
+                                       placeholder="Ví dụ: 1"
+                                       style="width: 100%; box-sizing: border-box;">
+                                <span class="validation-error" id="userUsageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
                         </div>
                     </section>
@@ -603,9 +615,13 @@
                     }
                 }
 
-                // 5. Usage Limit validation
+                // 5. Usage Limit and User Usage Limit validation
                 var usageLimitInput = document.getElementById("usageLimit");
                 var usageLimitError = document.getElementById("usageLimitError");
+                var userUsageLimitInput = document.getElementById("userUsageLimit");
+                var userUsageLimitError = document.getElementById("userUsageLimitError");
+                var typeSelect = document.getElementById("campaignType");
+
                 if (usageLimitInput && usageLimitError) {
                     usageLimitError.style.display = "none";
                     usageLimitInput.classList.remove("input-error");
@@ -615,6 +631,34 @@
                         usageLimitError.textContent = "Giới hạn sử dụng không được nhập số âm!";
                         usageLimitError.style.display = "block";
                         usageLimitInput.classList.add("input-error");
+                        isValid = false;
+                    }
+                }
+
+                if (userUsageLimitInput && userUsageLimitError) {
+                    userUsageLimitError.style.display = "none";
+                    userUsageLimitInput.classList.remove("input-error");
+
+                    var userLimitVal = parseFloat(userUsageLimitInput.value);
+                    if (!isNaN(userLimitVal) && userLimitVal < 0) {
+                        userUsageLimitError.textContent = "Giới hạn sử dụng mỗi user không được nhập số âm!";
+                        userUsageLimitError.style.display = "block";
+                        userUsageLimitInput.classList.add("input-error");
+                        isValid = false;
+                    }
+                }
+
+                if (typeSelect && typeSelect.value === "percentage") {
+                    var hasUsageLimit = usageLimitInput && usageLimitInput.value && usageLimitInput.value.trim() !== "";
+                    var hasUserUsageLimit = userUsageLimitInput && userUsageLimitInput.value && userUsageLimitInput.value.trim() !== "";
+                    if (hasUsageLimit && hasUserUsageLimit) {
+                        usageLimitError.textContent = "Chỉ được nhập 1 trong 2 ô: Giới hạn toàn bộ HOẶC Giới hạn mỗi User!";
+                        usageLimitError.style.display = "block";
+                        usageLimitInput.classList.add("input-error");
+
+                        userUsageLimitError.textContent = "Chỉ được nhập 1 trong 2 ô: Giới hạn toàn bộ HOẶC Giới hạn mỗi User!";
+                        userUsageLimitError.style.display = "block";
+                        userUsageLimitInput.classList.add("input-error");
                         isValid = false;
                     }
                 }
@@ -992,6 +1036,7 @@
         var promoCodeGroup = document.getElementById("promoCodeGroup");
         var discountValueGroup = document.getElementById("discountValueGroup");
         var usageLimitGroup = document.getElementById("usageLimitGroup");
+        var userUsageLimitGroup = document.getElementById("userUsageLimitGroup");
         var minOrderValueGroup = document.getElementById("minOrderValueGroup");
         var promoCodeInput = document.getElementById("promoCode");
         var discountValueInput = document.getElementById("discountValue");
@@ -1029,6 +1074,12 @@
             if (usageLimitGroup) usageLimitGroup.style.display = "block";
             if (minOrderValueGroup) minOrderValueGroup.style.display = "block";
             
+            if (val === "percentage") {
+                if (userUsageLimitGroup) userUsageLimitGroup.style.display = "block";
+            } else {
+                if (userUsageLimitGroup) userUsageLimitGroup.style.display = "none";
+            }
+
             if (promoCodeInput) {
                 promoCodeInput.setAttribute("required", "required");
                 // If it was auto-generated before, clear it so the user can enter a real one
@@ -1042,6 +1093,7 @@
             if (promoCodeGroup) promoCodeGroup.style.display = "none";
             if (discountValueGroup) discountValueGroup.style.display = "block";
             if (usageLimitGroup) usageLimitGroup.style.display = "none";
+            if (userUsageLimitGroup) userUsageLimitGroup.style.display = "none";
             if (minOrderValueGroup) minOrderValueGroup.style.display = "none";
             
             if (promoCodeInput) {
@@ -1055,6 +1107,7 @@
         } else {
             // Hide Voucher Configuration and Minimum Order Value Condition
             if (voucherConfigCard) voucherConfigCard.style.display = "none";
+            if (userUsageLimitGroup) userUsageLimitGroup.style.display = "none";
             if (minOrderValueGroup) minOrderValueGroup.style.display = "none";
             
             if (promoCodeInput) {

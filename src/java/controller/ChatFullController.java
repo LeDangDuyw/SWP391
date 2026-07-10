@@ -2,6 +2,7 @@ package controller;
 
 import dal.CategoryDAO;
 import model.Category;
+import model.Users;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -9,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/chat-full")
 public class ChatFullController extends HttpServlet {
@@ -16,6 +18,15 @@ public class ChatFullController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        // Bắt buộc người dùng đăng nhập
+        HttpSession session = request.getSession(false);
+        Users user = (session != null) ? (Users) session.getAttribute("user") : null;
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         try {
             // Load categories to populate standard navigation header in chat-full.jsp
             CategoryDAO categoryDAO = new CategoryDAO();

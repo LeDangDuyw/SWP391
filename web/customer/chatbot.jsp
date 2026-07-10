@@ -2,7 +2,7 @@
 <!-- UniLap Floating Chatbot Widget -->
 
 <!-- Import Chat CSS -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/chat.css?v=1">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/chat.css?v=2">
 
 <!-- Define Context Path for chat.js -->
 <script>
@@ -55,4 +55,4 @@
 </div>
 
 <!-- Import Chat JS -->
-<script src="${pageContext.request.contextPath}/js/chat.js?v=1"></script>
+<script src="${pageContext.request.contextPath}/js/chat.js?v=2"></script>
