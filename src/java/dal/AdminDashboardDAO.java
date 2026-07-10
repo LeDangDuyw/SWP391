@@ -331,7 +331,7 @@ public class AdminDashboardDAO extends DBContext {
         return map;
     }
 
-    private String normalizeStatus(String status) {
+    protected String normalizeStatus(String status) {
         if (status == null) return "Unknown";
         status = status.trim().toUpperCase();
         switch (status) {
