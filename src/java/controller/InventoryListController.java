@@ -1,0 +1,188 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+package controller;
+
+import dal.ProductDAO;
+import jakarta.servlet.RequestDispatcher;
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import model.Product;
+import viewmodel.ProductInventory;
+/**
+ *
+ * @author huy
+ */
+@WebServlet("/staff/inventory")
+public class InventoryListController extends HttpServlet {
+   
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    /*
+     * Name: processRequest
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý chung các yêu cầu HTTP (GET và POST), trả về mã HTML hiển thị thông tin mặc định của servlet.
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet InventoryListController</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet InventoryListController at " + request.getContextPath () + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    /*
+     * Name: doGet
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu GET để hiển thị danh sách hàng tồn kho, hỗ trợ tìm kiếm, sắp xếp và phân trang.
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        ProductDAO dao = new ProductDAO();
+        
+        String activeTab = request.getParameter("tab");
+        if (activeTab == null || activeTab.isEmpty()) {
+            activeTab = "variants";
+        }
+        
+        String searchInput = request.getParameter("searchInput");
+        if (searchInput == null) searchInput = "";
+        String sortBy = request.getParameter("sortBy");
+        String category = request.getParameter("category");
+        String stockStatus = request.getParameter("stockStatus");
+        String itemStatus = request.getParameter("itemStatus");
+        
+        int page = 1;
+        int pageSize = 10;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        if ("products".equals(activeTab)) {
+            int totalRecords = dao.countSearchAllProducts(searchInput, category);
+            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+            List<Product> product = dao.searchAllProducts(searchInput, category, sortBy, page, pageSize);
+            
+            request.setAttribute("product", product);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalRecords", totalRecords);
+            request.setAttribute("pageSize", pageSize);
+        } else {
+            int offset = (page - 1) * pageSize;
+            int totalRecords = dao.getTotalInventoryCount(searchInput, category, stockStatus, itemStatus);
+            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+            
+            List<ProductInventory> products = dao.GetProductInventoryPaginated(searchInput, category, sortBy, stockStatus, itemStatus, offset, pageSize);
+            
+            request.setAttribute("products", products);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalRecords", totalRecords);
+            request.setAttribute("pageSize", pageSize);
+        }
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
+        dispatcher.forward(request, response);
+    } 
+
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    /*
+     * Name: doPost
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Xử lý yêu cầu POST để thực hiện các thao tác ẩn (xóa mềm) hoặc khôi phục sản phẩm trong kho.
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        ProductDAO dao = new ProductDAO();
+        // Kiểm tra xem hành động người dùng gửi lên là gì (xóa hay khôi phục)
+        String action = request.getParameter("action");
+        
+        if ("delete".equals(action)) {
+            // Xử lý ẩn (xóa mềm) sản phẩm
+            String variantIdToHide = request.getParameter("variantIdToDelete");
+            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
+                int v = Integer.parseInt(variantIdToHide);
+                dao.hideProduct(v);
+            }
+        }else if("restore".equals(action)) {
+            // Xử lý khôi phục lại sản phẩm đã ẩn
+            String variantIdToHide = request.getParameter("variantIdToDelete");
+            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
+                int v = Integer.parseInt(variantIdToHide);
+                dao.unhideProduct(v);
+            }
+        }
+        
+        // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
+        response.sendRedirect(request.getContextPath() + "/staff/inventory");
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    /*
+     * Name: getServletInfo
+     * @Author: HUYDQHE204239
+     * Date: [04/06/2026]
+     * Version: 2.0
+     * Description: Trả về thông tin ngắn gọn mô tả về servlet này.
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
