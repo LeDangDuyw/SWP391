@@ -1,0 +1,85 @@
+<%@page pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:if test="${empty footerPolicies}">
+    <%
+        try {
+            dal.GeneralPolicyDAO generalDAO = new dal.GeneralPolicyDAO();
+            request.setAttribute("footerPolicies", generalDAO.getFooterPolicies());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    %>
+</c:if>
+<%
+    // Define social links
+    java.util.List<java.util.Map<String, String>> socialLinks = new java.util.ArrayList<>();
+    
+    java.util.Map<String, String> fb = new java.util.HashMap<>();
+    fb.put("class", "social-icon-fb");
+    fb.put("icon", "fab fa-facebook-f");
+    fb.put("url", "#");
+    socialLinks.add(fb);
+
+    java.util.Map<String, String> yt = new java.util.HashMap<>();
+    yt.put("class", "social-icon-yt");
+    yt.put("icon", "fab fa-youtube");
+    yt.put("url", "#");
+    socialLinks.add(yt);
+
+    java.util.Map<String, String> ig = new java.util.HashMap<>();
+    ig.put("class", "social-icon-ig");
+    ig.put("icon", "fab fa-instagram");
+    ig.put("url", "#");
+    socialLinks.add(ig);
+
+    java.util.Map<String, String> tt = new java.util.HashMap<>();
+    tt.put("class", "social-icon-tt");
+    tt.put("icon", "fab fa-tiktok");
+    tt.put("url", "#");
+    socialLinks.add(tt);
+
+    request.setAttribute("socialLinks", socialLinks);
+%>
+<footer class="footer">
+    <div class="container footer-grid">
+        <!-- Column 1: Brand & Contact -->
+        <div class="footer-col">
+            <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
+            <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
+            <div class="footer-contact-info">
+                <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình, Hà Nội</p>
+                <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
+                <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
+            </div>
+            <div class="social-icons">
+                <c:forEach var="social" items="${socialLinks}">
+                    <a href="${social.url}" class="${social['class']}"><i class="${social.icon}"></i></a>
+                </c:forEach>
+            </div>
+        </div>
+        
+        <div class="footer-col">
+            <h3>Chính sách & Hỗ trợ</h3>
+            <ul>
+                <c:forEach var="p" items="${footerPolicies}">
+                    <c:choose>
+                        <c:when test="${p.policyType == 'PRIVACY'}"><c:set var="pUrl" value="/policy/privacy"/></c:when>
+                        <c:when test="${p.policyType == 'TERMS'}"><c:set var="pUrl" value="/policy/terms"/></c:when>
+                        <c:when test="${p.policyType == 'SHOPPING_GUIDE'}"><c:set var="pUrl" value="/policy/shopping-guide"/></c:when>
+                        <c:when test="${p.policyType == 'ABOUT'}"><c:set var="pUrl" value="/about"/></c:when>
+                        <c:otherwise><c:set var="pUrl" value="#"/></c:otherwise>
+                    </c:choose>
+                    <li><a href="${pageContext.request.contextPath}${pUrl}"><i class="fas fa-chevron-right"></i> ${p.title}</a></li>
+                </c:forEach>
+                <li><a href="${pageContext.request.contextPath}/policy/warranty"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <div class="container footer-bottom-container">
+            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
+            <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
+        </div>
+    </div>
+</footer>

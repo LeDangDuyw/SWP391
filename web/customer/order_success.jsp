@@ -355,29 +355,7 @@
     </div>
 </main>
 
-<!-- ===== FOOTER ===== -->
-<footer class="footer">
-    <div class="container footer-inner">
-        <div class="footer-brand">
-            <a href="${pageContext.request.contextPath}/HomeServlet" class="footer-logo">UniLap</a>
-            <p class="footer-desc">Trải nghiệm công nghệ đỉnh cao với các dòng laptop gaming và văn phòng cao cấp nhất hiện nay.</p>
-        </div>
-        <nav class="footer-links">
-            <a href="${pageContext.request.contextPath}/policy/privacy">Chính sách bảo mật</a>
-            <a href="${pageContext.request.contextPath}/policy/terms">Điều khoản sử dụng</a>
-            <a href="${pageContext.request.contextPath}/policy/shopping-guide">Hướng dẫn mua hàng</a>
-            <a href="${pageContext.request.contextPath}/policy/warranty">Chính sách bảo hành</a>
-            <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
-        </nav>
-        <div class="footer-right">
-            <p>&copy; 2024 UniLap Technologies. All rights reserved.</p>
-            <div class="footer-icons">
-                <a href="#" aria-label="Language"><i class="fas fa-globe"></i></a>
-                <a href="#" aria-label="Share"><i class="fas fa-share-nodes"></i></a>
-            </div>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     // Header user menu dropdown toggle

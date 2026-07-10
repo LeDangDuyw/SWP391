@@ -164,45 +164,7 @@
             </main>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container footer-grid">
-                <!-- Column 1: Brand & Contact -->
-                <div class="footer-col">
-                    <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                    <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-                    <div class="footer-contact-info">
-                        <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình, Hà Nội</p>
-                        <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                        <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-                    </div>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
-                    </div>
-                </div>
-                
-                <div class="footer-col">
-                    <h3>Chính sách & Hỗ trợ</h3>
-                    <ul>
-                        <li><a href="${pageContext.request.contextPath}/policy/privacy"><i class="fas fa-chevron-right"></i> Chính sách bảo mật</a></li>
-                        <li><a href="${pageContext.request.contextPath}/policy/terms"><i class="fas fa-chevron-right"></i> Điều khoản sử dụng</a></li>
-                        <li><a href="${pageContext.request.contextPath}/policy/shopping-guide"><i class="fas fa-chevron-right"></i> Hướng dẫn mua hàng</a></li>
-                        <li><a href="${pageContext.request.contextPath}/policy/warranty"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
-                        <li><a href="${pageContext.request.contextPath}/about"><i class="fas fa-chevron-right"></i> Về chúng tôi</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <div class="container footer-bottom-container">
-                    <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-                    <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
-                </div>
-            </div>
-        </footer>
+        <%@include file="_footer.jspf" %>
         <script>
             // Header User Menu Dropdown Toggle
             (function () {

@@ -348,6 +348,7 @@
             </div>
         </section>
 
+        <%@include file="_footer.jspf" %>
         <footer class="footer">
             <div class="container footer-grid">
                 <!-- Column 1: Brand & Contact -->

@@ -596,4 +596,60 @@ public class AdminDashboardDAO extends DBContext {
         return days + " day ago";
     }
 
+    /**
+     * Get revenue stats for month, quarter, and year with growth comparisons.
+     */
+    public java.util.Map<String, Object> getRevenueStats() {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        
+        long curMonth = 0;
+        long prevMonth = 0;
+        long curQuarter = 0;
+        long prevQuarter = 0;
+        long curYear = 0;
+        long prevYear = 0;
+
+        String sqlMonthCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE()) AND MONTH(completed_at) = MONTH(GETDATE())";
+        String sqlMonthPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(month, -1, GETDATE())) AND MONTH(completed_at) = MONTH(DATEADD(month, -1, GETDATE()))";
+        
+        String sqlQuarterCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE()) AND DATEPART(quarter, completed_at) = DATEPART(quarter, GETDATE())";
+        String sqlQuarterPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(quarter, -1, GETDATE())) AND DATEPART(quarter, completed_at) = DATEPART(quarter, DATEADD(quarter, -1, GETDATE()))";
+        
+        String sqlYearCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE())";
+        String sqlYearPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(year, -1, GETDATE()))";
+
+        try (Connection con = getConnection()) {
+            try (PreparedStatement ps = con.prepareStatement(sqlMonthCur); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) curMonth = rs.getLong(1);
+            }
+            try (PreparedStatement ps = con.prepareStatement(sqlMonthPrev); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) prevMonth = rs.getLong(1);
+            }
+            try (PreparedStatement ps = con.prepareStatement(sqlQuarterCur); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) curQuarter = rs.getLong(1);
+            }
+            try (PreparedStatement ps = con.prepareStatement(sqlQuarterPrev); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) prevQuarter = rs.getLong(1);
+            }
+            try (PreparedStatement ps = con.prepareStatement(sqlYearCur); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) curYear = rs.getLong(1);
+            }
+            try (PreparedStatement ps = con.prepareStatement(sqlYearPrev); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) prevYear = rs.getLong(1);
+            }
+        } catch (Exception e) {
+            System.out.println("AdminDashboardDAO.getRevenueStats: " + e.getMessage());
+        }
+
+        stats.put("monthRevenue", curMonth);
+        stats.put("monthGrowth", prevMonth == 0 ? (curMonth == 0 ? 0.0 : 100.0) : (double)(curMonth - prevMonth) * 100.0 / prevMonth);
+        
+        stats.put("quarterRevenue", curQuarter);
+        stats.put("quarterGrowth", prevQuarter == 0 ? (curQuarter == 0 ? 0.0 : 100.0) : (double)(curQuarter - prevQuarter) * 100.0 / prevQuarter);
+        
+        stats.put("yearRevenue", curYear);
+        stats.put("yearGrowth", prevYear == 0 ? (curYear == 0 ? 0.0 : 100.0) : (double)(curYear - prevYear) * 100.0 / prevYear);
+
+        return stats;
+    }
 }

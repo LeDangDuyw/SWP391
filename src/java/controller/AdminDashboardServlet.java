@@ -118,6 +118,12 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("pendingAlerts", dashboardDAO.getPendingAlerts());
             request.setAttribute("pendingClaimsList", dashboardDAO.getPendingClaimsList());
 
+            // Set Month, Quarter, Year revenue stats and growth comparisons
+            java.util.Map<String, Object> revenueStats = dashboardDAO.getRevenueStats();
+            for (java.util.Map.Entry<String, Object> entry : revenueStats.entrySet()) {
+                request.setAttribute(entry.getKey(), entry.getValue());
+            }
+
             request.setAttribute("monthlyRevenue", dashboardDAO.getRevenueChart(from, to, revenueYear, groupBy));
             request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
             request.setAttribute("topProducts", dashboardDAO.getTopProducts());

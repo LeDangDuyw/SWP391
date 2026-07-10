@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page pageEncoding="UTF-8"%>
 <%
     String sidebarURI = request.getRequestURI();
     String sidebarContextPath = request.getContextPath();

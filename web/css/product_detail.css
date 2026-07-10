@@ -55,7 +55,7 @@ a {
 
 /* Header & Footer Styles (Aligned with home.css) */
 .header {
-    background: rgba(255, 255, 255, 0.85);
+    background: #ffffff;
     backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
