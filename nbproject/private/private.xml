@@ -15,10 +15,28 @@
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/AdminDashboard.jsp</file>
         </group>
         <group>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/AdminDashboard.jsp</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/dal/AdminDashboardDAO.java</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/controller/AdminDashboardServlet.java</file>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/WarrantyProcess.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/TicketListController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/ReviewTicketController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketList.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/CargoWorkflowController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/CreateTicket.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/TicketDetail.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDetailDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignFormDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PromotionsDAO.java</file>
+        </group>
+        <group>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/TicketListController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/ReviewTicketController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketList.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/CargoWorkflowController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/CreateTicket.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/TicketDetail.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDetailDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignFormDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PromotionsDAO.java</file>
         </group>
     </open-files>
 </project-private>
