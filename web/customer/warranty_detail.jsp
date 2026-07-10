@@ -670,18 +670,7 @@
     <img id="lightbox-img" src="" alt="Evidence">
 </div>
 
-<!-- ════ FOOTER ════ -->
-<footer class="footer">
-    <div class="container">
-        <p style="font-size:14px;font-weight:700;color:#1a56db;margin-bottom:8px;">UniLap</p>
-        <p style="font-size:13px;color:#64748b;">Nền tảng mua sắm công nghệ cao cấp hàng đầu.</p>
-    </div>
-    <div class="footer-bottom">
-        <div class="container">
-            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     function openLightbox(src) {

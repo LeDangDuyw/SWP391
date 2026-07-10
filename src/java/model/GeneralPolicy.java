@@ -10,6 +10,8 @@ public class GeneralPolicy {
     private boolean status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private boolean showInFooter;
+    private int footerOrder;
 
     public GeneralPolicy() {
     }
@@ -22,6 +24,20 @@ public class GeneralPolicy {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.showInFooter = true; // default
+        this.footerOrder = 0;
+    }
+
+    public GeneralPolicy(int policyId, String title, String policyType, String content, boolean status, Timestamp createdAt, Timestamp updatedAt, boolean showInFooter, int footerOrder) {
+        this.policyId = policyId;
+        this.title = title;
+        this.policyType = policyType;
+        this.content = content;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.showInFooter = showInFooter;
+        this.footerOrder = footerOrder;
     }
 
     public int getPolicyId() {
@@ -78,5 +94,21 @@ public class GeneralPolicy {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isShowInFooter() {
+        return showInFooter;
+    }
+
+    public void setShowInFooter(boolean showInFooter) {
+        this.showInFooter = showInFooter;
+    }
+
+    public int getFooterOrder() {
+        return footerOrder;
+    }
+
+    public void setFooterOrder(int footerOrder) {
+        this.footerOrder = footerOrder;
     }
 }
