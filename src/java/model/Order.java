@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Order {
     private int orderId;
@@ -13,6 +14,8 @@ public class Order {
     private String orderCode;
     private Integer userId;
     private Integer voucherId;
+    private java.time.LocalDateTime completedAt;
+    private List<OrderDetail> details;
 
     public Order() {
     }
@@ -110,5 +113,65 @@ public class Order {
 
     public void setVoucherId(Integer voucherId) {
         this.voucherId = voucherId;
+    }
+
+    public java.time.LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(java.time.LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    private String shippingPartner;
+    private String trackingNumber;
+
+    public List<OrderDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<OrderDetail> details) {
+        this.details = details;
+    }
+
+    public String getFormattedCompletedAt() {
+        if (completedAt == null) return "N/A";
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return completedAt.format(formatter);
+    }
+
+    private String invoicePath;
+    private int invoiceEmailSent;
+
+    public String getShippingPartner() {
+        return shippingPartner;
+    }
+
+    public void setShippingPartner(String shippingPartner) {
+        this.shippingPartner = shippingPartner;
+    }
+
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
+
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
+
+    public String getInvoicePath() {
+        return invoicePath;
+    }
+
+    public void setInvoicePath(String invoicePath) {
+        this.invoicePath = invoicePath;
+    }
+
+    public int getInvoiceEmailSent() {
+        return invoiceEmailSent;
+    }
+
+    public void setInvoiceEmailSent(int invoiceEmailSent) {
+        this.invoiceEmailSent = invoiceEmailSent;
     }
 }

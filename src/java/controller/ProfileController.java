@@ -49,6 +49,34 @@ public class ProfileController extends HttpServlet {
         }
 
         request.setAttribute("profileUser", freshUser);
+        
+        // Load student verification status if customer or student
+        if (freshUser.getRoleId() == 3 || freshUser.getRoleId() == 4) {
+            dal.StudentVerificationDAO svDAO = new dal.StudentVerificationDAO();
+            model.StudentVerification sv = svDAO.getByUserId(freshUser.getUserId());
+            request.setAttribute("studentVerify", sv);
+
+            // Load purchase history (orders & details)
+            dal.OrderDAO orderDAO = new dal.OrderDAO();
+            java.util.List<model.Order> userOrders = orderDAO.getOrdersByUserId(freshUser.getUserId());
+            for (model.Order o : userOrders) {
+                o.setDetails(orderDAO.getOrderDetails(o.getOrderId()));
+            }
+            request.setAttribute("userOrders", userOrders);
+        }
+
+        // Support flash message notifications
+        String tempSuccess = (String) session.getAttribute("tempSuccess");
+        if (tempSuccess != null) {
+            request.setAttribute("success", tempSuccess);
+            session.removeAttribute("tempSuccess");
+        }
+        String tempError = (String) session.getAttribute("tempError");
+        if (tempError != null) {
+            request.setAttribute("error", tempError);
+            session.removeAttribute("tempError");
+        }
+        
         request.getRequestDispatcher("/auth/profile.jsp").forward(request, response);
     }
 

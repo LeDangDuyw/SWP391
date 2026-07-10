@@ -13,6 +13,7 @@ public class ProductVariant {
     private boolean serialized;
     private String status;
     private int availableQuantity;
+    private String thumbnail;
 
     public ProductVariant() {
     }
@@ -122,5 +123,13 @@ public class ProductVariant {
 
     public void setAvailableQuantity(int availableQuantity) {
         this.availableQuantity = availableQuantity;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

@@ -17,7 +17,7 @@ import model.CartItem;
 import model.Users;
 import model.UserVoucherDTO;
 
-@WebServlet(name = "CartServlet", urlPatterns = {"/CartServlet"})
+@WebServlet(name = "CartServlet", urlPatterns = { "/CartServlet" })
 public class CartServlet extends HttpServlet {
 
     @SuppressWarnings("unchecked")
@@ -31,7 +31,11 @@ public class CartServlet extends HttpServlet {
     }
 
     private int parseInt(String s, int def) {
-        try { return Integer.parseInt(s); } catch (Exception e) { return def; }
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return def;
+        }
     }
 
     @Override
@@ -45,7 +49,8 @@ public class CartServlet extends HttpServlet {
         }
         List<CartItem> cart = getCart(session);
         BigDecimal total = BigDecimal.ZERO;
-        for (CartItem it : cart) total = total.add(it.getSubtotal());
+        for (CartItem it : cart)
+            total = total.add(it.getSubtotal());
 
         // Lấy danh sách voucher cá nhân hóa (hoặc voucher dùng chung nếu chưa đăng nhập)
         List<UserVoucherDTO> userVouchers = new ArrayList<>();
@@ -115,9 +120,11 @@ public class CartServlet extends HttpServlet {
         }
 
         BigDecimal discountAmount = (BigDecimal) session.getAttribute("discountAmount");
-        if (discountAmount == null) discountAmount = BigDecimal.ZERO;
+        if (discountAmount == null)
+            discountAmount = BigDecimal.ZERO;
         BigDecimal finalTotal = total.subtract(discountAmount);
-        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) finalTotal = BigDecimal.ZERO;
+        if (finalTotal.compareTo(BigDecimal.ZERO) < 0)
+            finalTotal = BigDecimal.ZERO;
 
         request.setAttribute("cart", cart);
         request.setAttribute("total", total);
@@ -139,13 +146,14 @@ public class CartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) action = "add";
+        if (action == null)
+            action = "add";
         HttpSession session = request.getSession();
         List<CartItem> cart = getCart(session);
         Users user = (Users) session.getAttribute("user");
 
         switch (action) {
-            case "add"    -> addToCart(request, cart, user);
+            case "add" -> addToCart(request, cart, user);
             case "update" -> updateQty(request, cart, user);
             case "remove" -> removeItem(request, cart, user);
             case "coupon" -> applyCoupon(request);
@@ -260,12 +268,15 @@ public class CartServlet extends HttpServlet {
             java.io.PrintWriter out = response.getWriter();
 
             BigDecimal discount = (BigDecimal) session.getAttribute("discountAmount");
-            if (discount == null) discount = BigDecimal.ZERO;
+            if (discount == null)
+                discount = BigDecimal.ZERO;
             BigDecimal finalTotal = total.subtract(discount);
-            if (finalTotal.compareTo(BigDecimal.ZERO) < 0) finalTotal = BigDecimal.ZERO;
+            if (finalTotal.compareTo(BigDecimal.ZERO) < 0)
+                finalTotal = BigDecimal.ZERO;
 
             int totalItems = 0;
-            for (CartItem it : cart) totalItems += it.getQuantity();
+            for (CartItem it : cart)
+                totalItems += it.getQuantity();
 
             // Lấy thông tin của sản phẩm vừa cập nhật
             BigDecimal itemSubtotal = BigDecimal.ZERO;
@@ -282,9 +293,11 @@ public class CartServlet extends HttpServlet {
             }
 
             String couponMessage = (String) session.getAttribute("couponMessage");
-            if (couponMessage == null) couponMessage = "";
+            if (couponMessage == null)
+                couponMessage = "";
             Boolean couponSuccess = (Boolean) session.getAttribute("couponSuccess");
-            if (couponSuccess == null) couponSuccess = false;
+            if (couponSuccess == null)
+                couponSuccess = false;
 
             // Xây dựng JSON danh sách voucher cá nhân
             StringBuilder vouchersJson = new StringBuilder("[");
@@ -331,8 +344,10 @@ public class CartServlet extends HttpServlet {
     private void addToCart(HttpServletRequest request, List<CartItem> cart, Users user) {
         int variantId = parseInt(request.getParameter("variantId"), 0);
         int qty = parseInt(request.getParameter("quantity"), 1);
-        if (variantId == 0) return;
-        if (qty < 1) qty = 1;
+        if (variantId == 0)
+            return;
+        if (qty < 1)
+            qty = 1;
 
         if (user != null) {
             CartDAO cartDAO = new CartDAO();
@@ -340,7 +355,7 @@ public class CartServlet extends HttpServlet {
             cart.clear();
             cart.addAll(cartDAO.getCart(user.getUserId()));
         } else {
-            for (CartItem it : cart) {              // if exists, add quantity and cap at stock
+            for (CartItem it : cart) { // if exists, add quantity and cap at stock
                 if (it.getVariantId() == variantId) {
                     it.setQuantity(Math.min(it.getQuantity() + qty, it.getAvailableQuantity()));
                     return;
@@ -357,7 +372,7 @@ public class CartServlet extends HttpServlet {
     private void updateQty(HttpServletRequest request, List<CartItem> cart, Users user) {
         int variantId = parseInt(request.getParameter("variantId"), 0);
         int qty = parseInt(request.getParameter("quantity"), 1);
-        
+
         if (user != null) {
             CartDAO cartDAO = new CartDAO();
             cartDAO.updateQuantity(user.getUserId(), variantId, qty);
@@ -366,8 +381,10 @@ public class CartServlet extends HttpServlet {
         } else {
             for (CartItem it : cart) {
                 if (it.getVariantId() == variantId) {
-                    if (qty < 1) qty = 1;
-                    if (qty > it.getAvailableQuantity()) qty = it.getAvailableQuantity();
+                    if (qty < 1)
+                        qty = 1;
+                    if (qty > it.getAvailableQuantity())
+                        qty = it.getAvailableQuantity();
                     it.setQuantity(qty);
                     return;
                 }
@@ -393,7 +410,8 @@ public class CartServlet extends HttpServlet {
         Users user = (Users) session.getAttribute("user");
         List<CartItem> cart = getCart(session);
         BigDecimal total = BigDecimal.ZERO;
-        for (CartItem it : cart) total = total.add(it.getSubtotal());
+        for (CartItem it : cart)
+            total = total.add(it.getSubtotal());
 
         BigDecimal discount = BigDecimal.ZERO;
         String message = "";
@@ -438,7 +456,8 @@ public class CartServlet extends HttpServlet {
 
     private void recalculateDiscount(HttpSession session, List<CartItem> cart, String code) {
         BigDecimal total = BigDecimal.ZERO;
-        for (CartItem it : cart) total = total.add(it.getSubtotal());
+        for (CartItem it : cart)
+            total = total.add(it.getSubtotal());
         BigDecimal discount = BigDecimal.ZERO;
         Users user = (Users) session.getAttribute("user");
         if (code != null && !code.trim().isEmpty()) {

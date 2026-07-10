@@ -17,12 +17,11 @@ public class InventoryItem {
     private String importDate;
     private LocalDate soldDate;
     private LocalDate warrantyExpiredDate;
-    private String warehouseLocation;
     private String note;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public InventoryItem(int itemId, String serialNumber, String imei, String barcode, String status, String importDate, LocalDate soldDate, LocalDate warrantyExpiredDate, String warehouseLocation, String note, LocalDate createdAt, LocalDate updatedAt) {
+    public InventoryItem(int itemId, String serialNumber, String imei, String barcode, String status, String importDate, LocalDate soldDate, LocalDate warrantyExpiredDate, String note, LocalDate createdAt, LocalDate updatedAt) {
         this.itemId = itemId;
         this.serialNumber = serialNumber;
         this.imei = imei;
@@ -31,7 +30,6 @@ public class InventoryItem {
         this.importDate = importDate;
         this.soldDate = soldDate;
         this.warrantyExpiredDate = warrantyExpiredDate;
-        this.warehouseLocation = warehouseLocation;
         this.note = note;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -121,13 +119,6 @@ public class InventoryItem {
         this.warrantyExpiredDate = warrantyExpiredDate;
     }
 
-    public String getWarehouseLocation() {
-        return warehouseLocation;
-    }
-
-    public void setWarehouseLocation(String warehouseLocation) {
-        this.warehouseLocation = warehouseLocation;
-    }
 
     public String getNote() {
         return note;

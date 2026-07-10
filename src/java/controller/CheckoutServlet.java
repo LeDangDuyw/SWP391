@@ -83,12 +83,8 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         // Calculate shipping fee on first load:
-        // Default shippingMethod is HOME_DELIVERY.
-        // If subtotal (total) < 500,000, then shippingFee = 15,000, else 0.
-        BigDecimal shippingFee = BigDecimal.ZERO;
-        if (total.compareTo(new BigDecimal("500000")) < 0) {
-            shippingFee = new BigDecimal("15000");
-        }
+        // Default shippingMethod is HOME_DELIVERY. We set it to 30,000 VND as a starting default.
+        BigDecimal shippingFee = new BigDecimal("30000");
 
         BigDecimal finalTotal = total.subtract(discountAmount).add(shippingFee);
         if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
@@ -102,6 +98,59 @@ public class CheckoutServlet extends HttpServlet {
         request.setAttribute("finalTotal", finalTotal);
 
         request.getRequestDispatcher("customer/checkout.jsp").forward(request, response);
+    }
+
+    private BigDecimal getViettelPostShippingFee(String provinceId, String districtId, BigDecimal totalAmount) {
+        if (provinceId == null || districtId == null || provinceId.trim().isEmpty() || districtId.trim().isEmpty()) {
+            return new BigDecimal("30000");
+        }
+        try {
+            java.net.URL url = new java.net.URL("https://partner.viettelpost.vn/v2/order/getPriceAll");
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            long total = totalAmount.longValue();
+
+            String jsonInputString = "{" +
+                    "\"PRODUCT_WEIGHT\": 2000," +
+                    "\"PRODUCT_PRICE\": " + total + "," +
+                    "\"MONEY_COLLECTION\": 0," +
+                    "\"SENDER_PROVINCE\": 1," +
+                    "\"SENDER_DISTRICT\": 25," +
+                    "\"RECEIVER_PROVINCE\": " + provinceId.trim() + "," +
+                    "\"RECEIVER_DISTRICT\": " + districtId.trim() + "," +
+                    "\"PRODUCT_TYPE\": \"HH\"," +
+                    "\"TYPE_LOOP\": 1" +
+                    "}";
+
+            try (java.io.OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                try (java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), "UTF-8"))) {
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    String resp = response.toString();
+                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"GIA_CUOC\"\\s*:\\s*(\\d+)");
+                    java.util.regex.Matcher matcher = pattern.matcher(resp);
+                    if (matcher.find()) {
+                        return new BigDecimal(matcher.group(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error calling Viettel Post getPriceAll API: " + e.getMessage());
+        }
+        return new BigDecimal("30000"); // default fallback fee
     }
 
     @Override
@@ -126,10 +175,12 @@ public class CheckoutServlet extends HttpServlet {
         // Retrieve shipping details
         String fullName = request.getParameter("fullName");
         String phone = request.getParameter("phone");
-        String address = request.getParameter("address");
         String paymentMethod = request.getParameter("paymentMethod");
         String notes = request.getParameter("notes");
         String shippingMethod = request.getParameter("shippingMethod");
+
+        String address = "";
+        BigDecimal shippingFee = BigDecimal.ZERO;
 
         // Calculate totals
         BigDecimal total = BigDecimal.ZERO;
@@ -139,13 +190,23 @@ public class CheckoutServlet extends HttpServlet {
         BigDecimal discountAmount = (BigDecimal) session.getAttribute("discountAmount");
         if (discountAmount == null) discountAmount = BigDecimal.ZERO;
 
-        // Calculate shipping fee based on subtotal (before voucher discount)
-        BigDecimal shippingFee = BigDecimal.ZERO;
-        if (!"STORE_PICKUP".equals(shippingMethod)) {
+        if ("STORE_PICKUP".equals(shippingMethod)) {
+            address = "Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội";
+            shippingFee = BigDecimal.ZERO;
+        } else {
             // Home delivery
-            if (total.compareTo(new BigDecimal("500000")) < 0) {
-                shippingFee = new BigDecimal("15000");
-            }
+            String provinceId = request.getParameter("provinceId");
+            String districtId = request.getParameter("districtId");
+            String wardId = request.getParameter("wardId");
+            String provinceName = request.getParameter("provinceName");
+            String districtName = request.getParameter("districtName");
+            String wardName = request.getParameter("wardName");
+            String detailedAddress = request.getParameter("detailedAddress");
+
+            address = detailedAddress + ", " + wardName + ", " + districtName + ", " + provinceName;
+
+            // Fetch dynamic shipping fee from Viettel Post API
+            shippingFee = getViettelPostShippingFee(provinceId, districtId, total);
         }
 
         BigDecimal finalTotal = total.subtract(discountAmount).add(shippingFee);

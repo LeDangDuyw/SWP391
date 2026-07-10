@@ -9,9 +9,9 @@ public class TicketDetail {
     private int quantity;
     private BigDecimal expectedPrice;
     
-    // For convenience when joining
     private String variantName;
     private String sku;
+    private int importedQuantity;
 
     public TicketDetail() {
     }
@@ -78,5 +78,13 @@ public class TicketDetail {
 
     public void setSku(String sku) {
         this.sku = sku;
+    }
+
+    public int getImportedQuantity() {
+        return importedQuantity;
+    }
+
+    public void setImportedQuantity(int importedQuantity) {
+        this.importedQuantity = importedQuantity;
     }
 }
