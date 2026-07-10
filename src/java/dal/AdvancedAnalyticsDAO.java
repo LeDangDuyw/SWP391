@@ -903,4 +903,22 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         return new double[]{cogs, avgInventoryVal, ratio};
     }
+
+    private String normalizeStatus(String status) {
+        if (status == null) return "Unknown";
+        status = status.trim().toUpperCase();
+        switch (status) {
+            case "PENDING":
+                return "Pending";
+            case "COMPLETED":
+                return "Completed";
+            case "SHIPPED":
+                return "Shipped";
+            case "CANCELLED":
+                return "Cancelled";
+            default:
+                if (status.isEmpty()) return "";
+                return status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+        }
+    }
 }
