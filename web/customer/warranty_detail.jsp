@@ -45,7 +45,7 @@
         /* ── Header (synced with warranty_center.jsp) ── */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .header {
-            background: rgba(255,255,255,0.8);
+            background: #ffffff;
             backdrop-filter: blur(12px);
             position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid rgba(255,255,255,0.3);

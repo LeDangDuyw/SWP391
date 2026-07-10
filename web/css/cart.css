@@ -42,7 +42,7 @@ a { text-decoration: none; color: inherit; }
    HEADER
    ============================================================ */
 .header {
-    background: rgba(255, 255, 255, 0.8) !important;
+    background: #ffffff !important;
     backdrop-filter: blur(12px) !important;
     position: sticky !important;
     top: 0 !important;

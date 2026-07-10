@@ -54,7 +54,7 @@
                 padding: 0 20px;
             }
             .header {
-                background: rgba(255, 255, 255, 0.8);
+                background: #ffffff;
                 backdrop-filter: blur(12px);
                 position: sticky;
                 top: 0;
