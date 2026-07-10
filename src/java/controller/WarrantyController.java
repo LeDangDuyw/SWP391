@@ -62,7 +62,7 @@ public class WarrantyController extends HttpServlet {
 
         Users user = getUser(request);
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
             return;
         }
 

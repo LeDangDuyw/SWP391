@@ -1,0 +1,65 @@
+<%@page pageEncoding="UTF-8"%>
+<%
+    String sidebarURI = request.getRequestURI();
+    String sidebarContextPath = request.getContextPath();
+    String sidebarPath = sidebarURI.substring(sidebarContextPath.length());
+%>
+
+<!-- Desktop Sidebar Navigation -->
+<div class="policy-sidebar">
+    <a href="${pageContext.request.contextPath}/policy/privacy" class="sidebar-item <%= "/policy/privacy".equals(sidebarPath) ? "active" : "" %>">
+        <i class="fas fa-shield-alt"></i> <span>Chính sách bảo mật</span> <i class="fas fa-chevron-right chevron"></i>
+    </a>
+    <a href="${pageContext.request.contextPath}/policy/terms" class="sidebar-item <%= "/policy/terms".equals(sidebarPath) ? "active" : "" %>">
+        <i class="fas fa-file-contract"></i> <span>Điều khoản sử dụng</span> <i class="fas fa-chevron-right chevron"></i>
+    </a>
+    <a href="${pageContext.request.contextPath}/policy/shopping-guide" class="sidebar-item <%= "/policy/shopping-guide".equals(sidebarPath) ? "active" : "" %>">
+        <i class="fas fa-shopping-bag"></i> <span>Hướng dẫn mua hàng</span> <i class="fas fa-chevron-right chevron"></i>
+    </a>
+    <a href="${pageContext.request.contextPath}/policy/warranty" class="sidebar-item <%= "/policy/warranty".equals(sidebarPath) ? "active" : "" %>">
+        <i class="fas fa-tools"></i> <span>Chính sách bảo hành</span> <i class="fas fa-chevron-right chevron"></i>
+    </a>
+    <a href="${pageContext.request.contextPath}/about" class="sidebar-item <%= "/about".equals(sidebarPath) ? "active" : "" %>">
+        <i class="fas fa-info-circle"></i> <span>Về chúng tôi</span> <i class="fas fa-chevron-right chevron"></i>
+    </a>
+</div>
+
+<!-- Mobile Dropdown Accordion Navigation (Pure HTML/CSS) -->
+<details class="policy-mobile-menu">
+    <summary class="policy-mobile-summary">
+        <i class="fas fa-bars"></i> 
+        <span>
+            <% if ("/policy/privacy".equals(sidebarPath)) { %>
+                Chính sách bảo mật
+            <% } else if ("/policy/terms".equals(sidebarPath)) { %>
+                Điều khoản sử dụng
+            <% } else if ("/policy/shopping-guide".equals(sidebarPath)) { %>
+                Hướng dẫn mua hàng
+            <% } else if ("/policy/warranty".equals(sidebarPath)) { %>
+                Chính sách bảo hành
+            <% } else if ("/about".equals(sidebarPath)) { %>
+                Về chúng tôi
+            <% } else { %>
+                Chính sách &amp; Hỗ trợ
+            <% } %>
+        </span>
+        <i class="fas fa-chevron-down summary-chevron"></i>
+    </summary>
+    <div class="policy-sidebar-mobile-content">
+        <a href="${pageContext.request.contextPath}/policy/privacy" class="sidebar-item <%= "/policy/privacy".equals(sidebarPath) ? "active" : "" %>">
+            <i class="fas fa-shield-alt"></i> <span>Chính sách bảo mật</span>
+        </a>
+        <a href="${pageContext.request.contextPath}/policy/terms" class="sidebar-item <%= "/policy/terms".equals(sidebarPath) ? "active" : "" %>">
+            <i class="fas fa-file-contract"></i> <span>Điều khoản sử dụng</span>
+        </a>
+        <a href="${pageContext.request.contextPath}/policy/shopping-guide" class="sidebar-item <%= "/policy/shopping-guide".equals(sidebarPath) ? "active" : "" %>">
+            <i class="fas fa-shopping-bag"></i> <span>Hướng dẫn mua hàng</span>
+        </a>
+        <a href="${pageContext.request.contextPath}/policy/warranty" class="sidebar-item <%= "/policy/warranty".equals(sidebarPath) ? "active" : "" %>">
+            <i class="fas fa-tools"></i> <span>Chính sách bảo hành</span>
+        </a>
+        <a href="${pageContext.request.contextPath}/about" class="sidebar-item <%= "/about".equals(sidebarPath) ? "active" : "" %>">
+            <i class="fas fa-info-circle"></i> <span>Về chúng tôi</span>
+        </a>
+    </div>
+</details>

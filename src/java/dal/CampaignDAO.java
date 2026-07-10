@@ -28,6 +28,11 @@ public class CampaignDAO extends DBContext {
         this.con = super.connection;
     }
 
+    public CampaignDAO(ServletContext context) {
+        super(context);
+        this.con = super.connection;
+    }
+
   
 
     /**

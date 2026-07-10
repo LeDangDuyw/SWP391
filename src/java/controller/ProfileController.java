@@ -55,6 +55,14 @@ public class ProfileController extends HttpServlet {
             dal.StudentVerificationDAO svDAO = new dal.StudentVerificationDAO();
             model.StudentVerification sv = svDAO.getByUserId(freshUser.getUserId());
             request.setAttribute("studentVerify", sv);
+
+            // Load purchase history (orders & details)
+            dal.OrderDAO orderDAO = new dal.OrderDAO();
+            java.util.List<model.Order> userOrders = orderDAO.getOrdersByUserId(freshUser.getUserId());
+            for (model.Order o : userOrders) {
+                o.setDetails(orderDAO.getOrderDetails(o.getOrderId()));
+            }
+            request.setAttribute("userOrders", userOrders);
         }
 
         // Support flash message notifications

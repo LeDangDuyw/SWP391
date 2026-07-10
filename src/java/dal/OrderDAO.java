@@ -1,6 +1,7 @@
 package dal;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -141,5 +142,100 @@ public class OrderDAO extends DBContext {
             System.out.println("insertOrderDetail error: " + e.getMessage());
             return false;
         }
+    }
+
+    public List<Order> getOrdersByUserId(int userId) {
+        List<Order> list = new java.util.ArrayList<>();
+        try {
+            String sql = "SELECT * FROM [Order] WHERE user_id = ? ORDER BY order_id DESC";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                order.setShippingFee(rs.getBigDecimal("shipping_fee"));
+                order.setOrderStatus(rs.getString("order_status"));
+                order.setShippingReceiver(rs.getString("shipping_receiver"));
+                order.setShippingPhone(rs.getString("shipping_phone"));
+                order.setShippingAddress(rs.getString("shipping_address"));
+                order.setOrderCode(rs.getString("order_code"));
+                int uId = rs.getInt("user_id");
+                order.setUserId(rs.wasNull() ? null : uId);
+                int vId = rs.getInt("voucher_id");
+                order.setVoucherId(rs.wasNull() ? null : vId);
+                if (rs.getTimestamp("completed_at") != null) {
+                    order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                }
+                list.add(order);
+            }
+        } catch (Exception e) {
+            System.out.println("getOrdersByUserId error: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public List<model.OrderDetail> getOrderDetails(int orderId) {
+        List<model.OrderDetail> list = new java.util.ArrayList<>();
+        try {
+            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail " +
+                         "FROM OrderDetail od " +
+                         "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
+                         "JOIN Product p ON pv.product_id = p.product_id " +
+                         "WHERE od.order_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                model.OrderDetail detail = new model.OrderDetail();
+                detail.setOrderDetailId(rs.getInt("order_detail_id"));
+                detail.setQuantity(rs.getInt("quantity"));
+                detail.setUnitPrice(rs.getBigDecimal("unit_price"));
+                detail.setOrderId(rs.getInt("order_id"));
+                detail.setVariantId(rs.getInt("variant_id"));
+                
+                detail.setProductName(rs.getString("product_name"));
+                detail.setVariantName(rs.getString("variant_name"));
+                detail.setSku(rs.getString("sku"));
+                detail.setThumbnail(rs.getString("thumbnail"));
+                
+                list.add(detail);
+            }
+        } catch (Exception e) {
+            System.out.println("getOrderDetails error: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public Order getOrderById(int orderId) {
+        try {
+            String sql = "SELECT * FROM [Order] WHERE order_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                order.setShippingFee(rs.getBigDecimal("shipping_fee"));
+                order.setOrderStatus(rs.getString("order_status"));
+                order.setShippingReceiver(rs.getString("shipping_receiver"));
+                order.setShippingPhone(rs.getString("shipping_phone"));
+                order.setShippingAddress(rs.getString("shipping_address"));
+                order.setOrderCode(rs.getString("order_code"));
+                int uId = rs.getInt("user_id");
+                order.setUserId(rs.wasNull() ? null : uId);
+                int vId = rs.getInt("voucher_id");
+                order.setVoucherId(rs.wasNull() ? null : vId);
+                if (rs.getTimestamp("completed_at") != null) {
+                    order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                }
+                return order;
+            }
+        } catch (Exception e) {
+            System.out.println("getOrderById error: " + e.getMessage());
+        }
+        return null;
     }
 }
