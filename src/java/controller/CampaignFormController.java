@@ -167,6 +167,7 @@ public class CampaignFormController extends PromotionServlet {
         campaign.setDiscountValue(parseMoney(request.getParameter("discountValue")));
         campaign.setMinOrderValue(parseMoney(request.getParameter("minOrderValue")));
         campaign.setUsageLimit(parseNullableInt(request.getParameter("usageLimit")));
+        campaign.setUserUsageLimit(parseNullableInt(request.getParameter("userUsageLimit")));
         campaign.setStatus(req(request, "status").isBlank() ? "scheduled" : req(request, "status"));
         campaign.setStartDate(parseDateStart(request.getParameter("startDate")));
         campaign.setEndDate(parseDateEnd(request.getParameter("endDate")));
@@ -203,6 +204,14 @@ public class CampaignFormController extends PromotionServlet {
         }
         if (campaign.getUsageLimit() != null && campaign.getUsageLimit() < 0) {
             throw new IllegalArgumentException("Giới hạn sử dụng không được nhập số âm!");
+        }
+        if (campaign.getUserUsageLimit() != null && campaign.getUserUsageLimit() < 0) {
+            throw new IllegalArgumentException("Giới hạn sử dụng mỗi user không được nhập số âm!");
+        }
+        if ("percentage".equals(type)) {
+            if (campaign.getUsageLimit() != null && campaign.getUserUsageLimit() != null) {
+                throw new IllegalArgumentException("Chỉ được nhập 1 trong 2 ô: Giới hạn toàn chiến dịch (Usage Limit) HOẶC Giới hạn mỗi User (User Usage Limit)!");
+            }
         }
 
         // Limit values
