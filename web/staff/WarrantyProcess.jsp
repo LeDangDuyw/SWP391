@@ -759,6 +759,9 @@
                 <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
                     <span class="nav-icon">🛠</span>Warranty
                 </a>
+                <a href="${pageContext.request.contextPath}/staff/verifications">
+                    <span class="nav-icon">🎓</span>Student Verify
+                </a>
             </nav>
             <div class="profile">
                 <a href="${pageContext.request.contextPath}/profile" class="profile-link">
@@ -984,6 +987,25 @@
                             <div class="detail-section">
                                 <div class="section-title">📝 Issue Description</div>
                                 <div class="customer-quote"><c:out value="${sc.description}"/></div>
+                            </div>
+
+                            <%-- Images --%>
+                            <div class="detail-section">
+                                <div class="section-title">📷 Evidence Images</div>
+                                <c:choose>
+                                    <c:when test="${empty selectedImages}">
+                                        <div style="color:#9ca3af;font-size:12px;">No images uploaded.</div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+                                            <c:forEach var="img" items="${selectedImages}">
+                                                <a href="${pageContext.request.contextPath}${img.imageUrl}" target="_blank" style="display:block; width:100px; height:100px; border-radius:6px; overflow:hidden; border:1px solid #e5e7eb;">
+                                                    <img src="${pageContext.request.contextPath}${img.imageUrl}" style="width:100%; height:100%; object-fit:cover;" alt="Evidence">
+                                                </a>
+                                            </c:forEach>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
 
                             <%-- History Timeline --%>

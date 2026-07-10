@@ -685,5 +685,6 @@
         if (e.key === 'Escape') closeLightbox();
     });
 </script>
+<jsp:include page="chatbot.jsp" />
 </body>
 </html>

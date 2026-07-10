@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -123,6 +124,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
@@ -255,8 +257,9 @@
                                     <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
                                         <th class="py-3 px-4 border-b border-outline-variant/20">SKU</th>
                                         <th class="py-3 px-4 border-b border-outline-variant/20">Product Name</th>
-                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Quantity</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Quantity (Imported / Expected)</th>
                                         <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Expected Price</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="font-body-sm text-body-sm">
@@ -266,13 +269,51 @@
                                             <td class="py-3 px-4 font-bold text-on-surface">${d.variantName}</td>
                                             <td class="py-3 px-4 text-center">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[12px] font-bold">
-                                                    ${d.quantity}
+                                                    ${d.importedQuantity} / ${d.quantity}
                                                 </span>
                                             </td>
                                             <td class="py-3 px-4 text-right font-bold">${d.expectedPrice}</td>
+                                            <td class="py-3 px-4 text-center">
+                                                <c:choose>
+                                                    <c:when test="${ticket.status == 'CARGO_RECEIVED'}">
+                                                        <c:choose>
+                                                            <c:when test="${d.importedQuantity < d.quantity}">
+                                                                <a href="${pageContext.request.contextPath}/staff/imei/add?ticketId=${ticket.ticketId}&variantId=${d.variantId}" 
+                                                                   class="inline-flex items-center gap-1 px-3 py-1 bg-primary text-white font-bold text-xs rounded hover:bg-primary/95 transition-colors">
+                                                                    <span class="material-symbols-outlined text-[14px]">qr_code_scanner</span>
+                                                                    Register IMEI
+                                                                </a>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
+                                                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                                    Registered
+                                                                </span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
+                                                    <c:when test="${ticket.status == 'COMPLETED'}">
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
+                                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                            Registered
+                                                        </span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-on-surface-variant italic text-xs">—</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                         </tr>
                                     </c:forEach>
                                 </tbody>
+                                <tfoot>
+                                    <tr class="bg-surface-container-high font-bold text-on-surface text-[14px]">
+                                        <td colspan="4" class="py-3 px-4 text-right">Tổng giá trị dự kiến:</td>
+                                        <td class="py-3 px-4 text-right text-primary">
+                                            <fmt:formatNumber value="${ticket.totalValue}" pattern="#,###"/> VNĐ
+                                        </td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -316,14 +357,9 @@
                                     <c:when test="${ticket.status == 'CARGO_RECEIVED'}">
                                         <div class="flex flex-col gap-3">
                                             <div class="px-4 py-3 bg-[#E6F4EA] rounded-lg text-[#137333] font-body-sm text-body-sm flex items-start gap-2">
-                                                <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">check_circle</span>
-                                                The system has opened the barcode scanning form.
+                                                <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">info</span>
+                                                Please click "Register IMEI" next to each product variant in the table to register Serial/IMEI numbers.
                                             </div>
-                                            <a href="${pageContext.request.contextPath}/staff/imei/add?ticketId=${ticket.ticketId}&variantId=${ticket.details[0].variantId}" 
-                                               class="w-full px-4 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all font-label-md text-label-md flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
-                                                <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
-                                                Register Serial/IMEI now
-                                            </a>
                                             <div class="border-t border-outline-variant/20 pt-3">
                                                 <button type="submit" name="action" value="request_edit" 
                                                         class="w-full px-4 py-3 bg-[#FEF7E0] text-[#B06000] border border-[#FBBC04]/30 font-bold rounded-lg hover:bg-[#FEF7E0]/80 transition-all font-label-md text-label-md flex items-center justify-center gap-2">

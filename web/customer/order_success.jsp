@@ -376,5 +376,6 @@
         });
     });
 </script>
+<jsp:include page="chatbot.jsp" />
 </body>
 </html>

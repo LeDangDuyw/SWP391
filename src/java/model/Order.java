@@ -13,6 +13,7 @@ public class Order {
     private String orderCode;
     private Integer userId;
     private Integer voucherId;
+    private java.time.LocalDateTime completedAt;
 
     public Order() {
     }
@@ -110,5 +111,13 @@ public class Order {
 
     public void setVoucherId(Integer voucherId) {
         this.voucherId = voucherId;
+    }
+
+    public java.time.LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(java.time.LocalDateTime completedAt) {
+        this.completedAt = completedAt;
     }
 }

@@ -262,6 +262,7 @@
         .badge-admin    { background: #fef9c3; color: #854d0e; }
         .badge-staff    { background: #dcfce7; color: #166534; }
         .badge-customer { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+        .badge-student  { background: #e0f2fe; color: #0369a1; }
 
         .sidebar-nav {
             padding: 12px 0;
@@ -880,6 +881,9 @@
                     <c:when test="${profileUser.roleId == 2}">
                         <span class="role-badge badge-staff"><i class="fas fa-user-tie"></i> Nhân viên</span>
                     </c:when>
+                    <c:when test="${profileUser.roleId == 4}">
+                        <span class="role-badge badge-student"><i class="fas fa-graduation-cap"></i> Sinh viên</span>
+                    </c:when>
                     <c:otherwise>
                         <span class="role-badge badge-customer"><i class="fas fa-user"></i> Khách hàng</span>
                     </c:otherwise>
@@ -899,7 +903,7 @@
                     Đổi mật khẩu
                 </div>
 
-                <c:if test="${profileUser.roleId == 3}">
+                <c:if test="${profileUser.roleId == 3 || profileUser.roleId == 4}">
                 <div class="nav-label">Dịch vụ</div>
 
                 <div class="nav-item" id="nav-warranty" onclick="switchTab('warranty')">
@@ -910,6 +914,11 @@
                 <div class="nav-item" id="nav-orders" onclick="switchTab('orders')">
                     <div class="nav-icon"><i class="fas fa-shopping-bag"></i></div>
                     Đơn hàng của tôi
+                </div>
+
+                <div class="nav-item" id="nav-student-verify" onclick="switchTab('student-verify')">
+                    <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
+                    Xác minh sinh viên
                 </div>
                 </c:if>
 
@@ -1164,7 +1173,7 @@
                         </div>
                     </div>
                     <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2;">
-                        <li>Sử dụng mật khẩu ít nhất 6 ký tự gồm chữ hoa, chữ thường, số.</li>
+                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số.</li>
                         <li>Không sử dụng cùng một mật khẩu cho nhiều tài khoản.</li>
                         <li>Không chia sẻ mật khẩu với bất kỳ ai.</li>
                         <li>Thay đổi mật khẩu định kỳ 3-6 tháng một lần.</li>
@@ -1172,7 +1181,7 @@
                 </div>
             </div>
 
-            <c:if test="${profileUser.roleId == 3}">
+            <c:if test="${profileUser.roleId == 3 || profileUser.roleId == 4}">
             <!-- ══════════════════════════════════
                  TAB 3 – BẢO HÀNH
             ══════════════════════════════════ -->
@@ -1205,21 +1214,14 @@
                     </div>
 
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                        <a href="${pageContext.request.contextPath}/warranty?action=list" class="quick-card" id="warranty-list-btn">
+                        <a href="${pageContext.request.contextPath}/warranty?action=list#recent-activity" class="quick-card" id="warranty-list-btn">
                             <div class="quick-card-icon" style="background:#dcfce7;color:#16a34a;">
                                 <i class="fas fa-list-ul"></i>
                             </div>
                             <span class="quick-card-label">Xem Yêu Cầu Của Tôi</span>
                         </a>
 
-                        <a href="${pageContext.request.contextPath}/warranty?action=checkEligibility" class="quick-card" id="warranty-check-btn">
-                            <div class="quick-card-icon" style="background:#dbeafe;color:#1d4ed8;">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <span class="quick-card-label">Kiểm Tra Còn Bảo Hành</span>
-                        </a>
-
-                        <a href="${pageContext.request.contextPath}/warranty?action=list" class="quick-card" id="warranty-submit-btn" style="grid-column:1/-1;">
+                        <a href="${pageContext.request.contextPath}/warranty?action=checkEligibility" class="quick-card" id="warranty-submit-btn">
                             <div class="quick-card-icon" style="background:#fef3c7;color:#d97706;">
                                 <i class="fas fa-plus-circle"></i>
                             </div>
@@ -1273,6 +1275,92 @@
                            class="btn btn-primary" style="margin-top:20px; display:inline-flex;" id="btn-shop-now">
                             <i class="fas fa-store"></i> Mua Sắm Ngay
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════
+                 TAB 5 – XÁC MINH SINH VIÊN
+            ══════════════════════════════════ -->
+            <div class="tab-panel" id="tab-student-verify">
+                <div class="card">
+                    <div class="card-header" style="background:#f0f9ff;color:#0284c7;">
+                        <div class="card-header-icon" style="background:#e0f2fe;color:#0284c7;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Xác Minh Sinh Viên</div>
+                            <div class="card-subtitle">Xác minh danh tính sinh viên để nhận ưu đãi đặc biệt</div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="padding: 24px;">
+                        <c:choose>
+                            <c:when test="${profileUser.roleId == 4}">
+                                <div class="alert alert-success" style="background:#f0fdf4; border-left:4px solid #15803d; color:#166534; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                                    <i class="fas fa-check-circle" style="font-size:24px;"></i>
+                                    <div>
+                                        <h4 style="font-weight:600; margin-bottom:4px;">Tài khoản đã xác minh thành công!</h4>
+                                        <p style="font-size:14px; opacity:0.9;">Tài khoản của bạn đã được duyệt vai trò Sinh viên. Bạn có thể sử dụng các ưu đãi dành riêng cho sinh viên tại UNILAP.</p>
+                                    </div>
+                                </div>
+                                <c:if test="${not empty studentVerify}">
+                                    <div style="margin-top:20px;">
+                                        <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên của bạn:</p>
+                                        <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                    </div>
+                                </c:if>
+                            </c:when>
+
+                            <c:when test="${not empty studentVerify && studentVerify.status == 'pending'}">
+                                <div class="alert alert-warning" style="background:#fffbeb; border-left:4px solid #b45309; color:#92400e; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                                    <i class="fas fa-clock" style="font-size:24px;"></i>
+                                    <div>
+                                        <h4 style="font-weight:600; margin-bottom:4px;">Yêu cầu đang chờ duyệt</h4>
+                                        <p style="font-size:14px; opacity:0.9;">Hệ thống đang tiến hành kiểm tra ảnh thẻ sinh viên của bạn. Vui lòng chờ nhân viên kiểm duyệt.</p>
+                                    </div>
+                                </div>
+                                <div style="margin-top:20px;">
+                                    <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên đã gửi:</p>
+                                    <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                </div>
+                            </c:when>
+
+                            <c:when test="${not empty studentVerify && studentVerify.status == 'rejected'}">
+                                <div class="alert alert-error" style="background:#fef2f2; border-left:4px solid #b91c1c; color:#991b1b; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                                    <i class="fas fa-times-circle" style="font-size:24px;"></i>
+                                    <div>
+                                        <h4 style="font-weight:600; margin-bottom:4px;">Yêu cầu xác minh bị từ chối</h4>
+                                        <p style="font-size:14px; opacity:0.9;"><strong>Lý do từ chối:</strong> ${studentVerify.staffNote}</p>
+                                    </div>
+                                </div>
+                                <p style="margin-bottom:20px; color:var(--gray-700);">Vui lòng tải lên ảnh thẻ sinh viên hợp lệ khác dưới đây để gửi lại yêu cầu xác minh.</p>
+                                
+                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
+                                    <div class="form-group" style="margin-bottom:20px;">
+                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên mới</label>
+                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu xác minh
+                                    </button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <p style="margin-bottom:20px; color:var(--gray-700);">Để kích hoạt tài khoản Sinh viên, vui lòng chụp ảnh thẻ sinh viên của bạn rõ ràng các thông tin cá nhân và tải lên tại đây. Nhân viên của chúng tôi sẽ tiến hành phê duyệt.</p>
+                                
+                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
+                                    <div class="form-group" style="margin-bottom:20px;">
+                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên</label>
+                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Gửi yêu cầu xác minh
+                                    </button>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>

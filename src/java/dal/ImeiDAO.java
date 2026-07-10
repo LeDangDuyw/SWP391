@@ -59,7 +59,6 @@ public class ImeiDAO extends DBContext {
                 java.sql.Date warrantyExpiredDateSql = rs.getDate("warranty_expired_date");
                 if(warrantyExpiredDateSql != null) item.setWarrantyExpiredDate(warrantyExpiredDateSql.toLocalDate());
                 
-                item.setWarehouseLocation(rs.getString("warehouse_location"));
                 item.setNote(rs.getString("note"));
                 
                 java.sql.Date createdAtSql = rs.getDate("created_at");
@@ -144,8 +143,8 @@ public class ImeiDAO extends DBContext {
         if (items == null || items.isEmpty()) return;
         try {
             connection.setAutoCommit(false);
-            String sql = "INSERT INTO InventoryItem (variant_id, serial_number, imei, barcode, status, import_date, warranty_expired_date, warehouse_location, note, ticket_id) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO InventoryItem (variant_id, serial_number, imei, barcode, status, import_date, warranty_expired_date, note, ticket_id) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stm = connection.prepareStatement(sql);
             for (InventoryItem item : items) {
                 stm.setInt(1, item.getVariantId());
@@ -166,13 +165,12 @@ public class ImeiDAO extends DBContext {
                     stm.setNull(7, java.sql.Types.DATE);
                 }
                 
-                stm.setString(8, item.getWarehouseLocation());
-                stm.setString(9, item.getNote());
+                stm.setString(8, item.getNote());
                 
                 if (item.getTicketId() > 0) {
-                    stm.setInt(10, item.getTicketId());
+                    stm.setInt(9, item.getTicketId());
                 } else {
-                    stm.setNull(10, java.sql.Types.INTEGER);
+                    stm.setNull(9, java.sql.Types.INTEGER);
                 }
                 
                 stm.addBatch();

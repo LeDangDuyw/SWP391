@@ -135,7 +135,8 @@ public class TicketDAO extends DBContext {
 
     public List<TicketDetail> getTicketDetails(int ticketId) {
         List<TicketDetail> list = new ArrayList<>();
-        String sql = "SELECT td.*, pv.variant_name, pv.sku " +
+        String sql = "SELECT td.*, pv.variant_name, pv.sku, " +
+                     "  (SELECT COUNT(*) FROM InventoryItem ii WHERE ii.ticket_id = td.ticket_id AND ii.variant_id = td.variant_id) as imported_quantity " +
                      "FROM TicketDetails td " +
                      "LEFT JOIN ProductVariant pv ON td.variant_id = pv.variant_id " +
                      "WHERE td.ticket_id = ?";
@@ -151,6 +152,7 @@ public class TicketDAO extends DBContext {
                     td.setExpectedPrice(rs.getBigDecimal("expected_price"));
                     td.setVariantName(rs.getString("variant_name"));
                     td.setSku(rs.getString("sku"));
+                    td.setImportedQuantity(rs.getInt("imported_quantity"));
                     list.add(td);
                 }
             }
@@ -160,19 +162,35 @@ public class TicketDAO extends DBContext {
         return list;
     }
     /**
-     * Khi Ticket hoàn tất (COMPLETED), cập nhật import_price trong ProductVariant
-     * bằng giá nhập (ExpectedPrice) từ TicketDetails.
+     * [ĐÃ VÔ HIỆU HÓA] Không còn ghi đè import_price trong ProductVariant.
+     * Giá nhập theo lô hàng được giữ nguyên trong TicketDetails.expected_price,
+     * liên kết với từng IMEI/Serial qua InventoryItem.ticket_id.
+     * Khi cần tính giá vốn: JOIN InventoryItem -> TicketDetails qua (ticket_id, variant_id).
      */
     public void updateImportPriceFromTicket(int ticketId) {
-        String sql = "UPDATE pv SET pv.import_price = td.expected_price " +
-                     "FROM ProductVariant pv " +
-                     "JOIN TicketDetails td ON pv.variant_id = td.variant_id " +
-                     "WHERE td.ticket_id = ? AND td.expected_price IS NOT NULL AND td.expected_price > 0";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, ticketId);
-            ps.executeUpdate();
+        // Đã vô hiệu hóa - giá nhập theo lô được lưu ở TicketDetails, không ghi đè lên ProductVariant
+    }
+
+    public boolean isTicketFullyImported(int ticketId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM TicketDetails td " +
+                         "WHERE td.ticket_id = ? " +
+                         "AND td.quantity > ( " +
+                         "    SELECT COUNT(*) FROM InventoryItem ii " +
+                         "    WHERE ii.ticket_id = td.ticket_id " +
+                         "    AND ii.variant_id = td.variant_id " +
+                         ")";
+            try (PreparedStatement stm = connection.prepareStatement(sql)) {
+                stm.setInt(1, ticketId);
+                try (ResultSet rs = stm.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1) == 0;
+                    }
+                }
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("isTicketFullyImported error: " + e.getMessage());
         }
+        return false;
     }
 }

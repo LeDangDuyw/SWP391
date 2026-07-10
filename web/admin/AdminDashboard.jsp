@@ -901,7 +901,6 @@
                         
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
-                            <input type="hidden" name="groupBy" value="${groupBy}">
                             <div style="display:flex; align-items:center; gap:4px;">
                                 <label style="font-size:12px; font-weight:600; color:#475569;">From:</label>
                                 <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">

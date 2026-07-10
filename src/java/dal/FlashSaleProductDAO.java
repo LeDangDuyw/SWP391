@@ -58,7 +58,8 @@ public class FlashSaleProductDAO extends DBContext {
                                  * 100.0 / pv.selling_price,
                                  0
                              ) AS INT
-                         ) AS discount_percent
+                         ) AS discount_percent,
+                         c.campaign_description
                      FROM FlashSaleItem fsi
                      JOIN FlashSale fs
                          ON fsi.flashsale_id = fs.flashsale_id
@@ -66,6 +67,8 @@ public class FlashSaleProductDAO extends DBContext {
                          ON fsi.variant_id = pv.variant_id
                      JOIN Product p
                          ON pv.product_id = p.product_id
+                     LEFT JOIN Campaign c
+                         ON fs.flashsale_id = c.flashsale_id
                      WHERE GETDATE() >= fs.start_time
                      AND GETDATE() <= fs.end_time
                      ORDER BY fs.end_time ASC;
@@ -84,6 +87,7 @@ public class FlashSaleProductDAO extends DBContext {
                 fl.setSoldQuantity(rs.getInt(7));
                 fl.setEndTime(rs.getTimestamp(8));
                 fl.setDiscountPercent(rs.getInt(9));
+                fl.setCampaignDescription(rs.getString(10));
                 
                 data.add(fl);
             }

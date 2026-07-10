@@ -123,6 +123,7 @@
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
@@ -187,7 +188,7 @@
             </c:if>
 
             <!-- Create Form Card -->
-            <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm max-w-2xl">
+            <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm max-w-5xl">
                 <div class="px-6 py-4 border-b border-outline-variant/20">
                     <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">edit_note</span>
@@ -195,60 +196,79 @@
                     </h3>
                 </div>
 
-                <form action="${pageContext.request.contextPath}/staff/ticket/create" method="post" class="p-6 flex flex-col gap-6">
+                <form action="${pageContext.request.contextPath}/staff/ticket/create" method="post" id="ticketForm" class="p-6 flex flex-col gap-6">
                     
                     <!-- Title -->
                     <div>
-                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Ticket Title</label>
-                        <input type="text" name="title" required placeholder="Ex: October Batch 1 Inbound" value="${title}"
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Tiêu đề phiếu nhập</label>
+                        <input type="text" name="title" required placeholder="VD: Nhập lô chuột Logitech tháng 7" value="${title}"
                                class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-sm text-body-sm">
                     </div>
                     
-                    <!-- Variant Select -->
-                    <div>
-                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Select Product (Variant)</label>
-                        <div class="relative">
-                            <select name="variantId" required
-                                    class="w-full appearance-none px-4 py-3 pr-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-sm text-body-sm">
-                                <c:forEach var="v" items="${variants}">
-                                    <option value="${v.variantId}" ${v.variantId == selectedVariantId ? 'selected' : ''}>
-                                        ${v.sku} - ${v.variantName} (Fixed Import Price: ${v.importPrice})
-                                    </option>
-                                </c:forEach>
-                            </select>
-                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                    <!-- Product Select with Add Button -->
+                    <div class="flex items-end gap-3">
+                        <div class="flex-1">
+                            <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Chọn sản phẩm nhập kho</label>
+                            <div class="relative">
+                                <select id="productSelect"
+                                        class="w-full appearance-none px-4 py-3 pr-10 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-sm text-body-sm">
+                                    <option value="">-- Chọn sản phẩm --</option>
+                                    <c:forEach var="p" items="${products}">
+                                        <option value="${p.productId}">${p.productName}</option>
+                                    </c:forEach>
+                                </select>
+                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Quantity -->
-                    <div>
-                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Expected Quantity</label>
-                        <input type="number" name="quantity" min="1" required value="${quantity}"
-                               class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-sm text-body-sm"
-                               placeholder="Enter quantity">
+                        <button type="button" id="addProductBtn"
+                                class="px-5 py-3 bg-[#d0e1fb] text-[#003ec7] font-bold hover:bg-blue-200 transition-all rounded-lg flex items-center gap-1.5 h-[48px]">
+                            <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                            Thêm
+                        </button>
                     </div>
 
-                    <!-- Expected Price -->
-                    <div>
-                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Expected Import Price</label>
-                        <input type="number" name="expectedPrice" min="0" step="1000" placeholder="Ex: 22000000" value="${expectedPrice}"
-                               class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-sm text-body-sm">
-                        <p class="mt-2 text-on-surface-variant text-[12px] flex items-start gap-1.5">
+                    <!-- Variant Table (rendered dynamically by JS) -->
+                    <div id="variantSection" class="hidden">
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Danh sách biến thể đã thêm</label>
+                        <p class="text-[12px] text-on-surface-variant mb-3 flex items-start gap-1.5">
                             <span class="material-symbols-outlined text-[14px] mt-0.5 flex-shrink-0">info</span>
-                            Purchase price from the supplier. Must be less than or equal to the fixed import price of the product.
+                            Nhập số lượng (> 0) và giá nhập cho các dòng biến thể. Bấm biểu tượng Thùng rác nếu muốn gỡ bỏ biến thể khỏi phiếu.
                         </p>
+                        <div class="border border-outline-variant/30 rounded-xl overflow-hidden">
+                            <table class="w-full text-left">
+                                <thead class="bg-[#2d3133] text-white text-xs font-bold tracking-wider">
+                                    <tr>
+                                        <th class="px-4 py-3 uppercase">SKU</th>
+                                        <th class="px-4 py-3 uppercase">Tên biến thể</th>
+                                        <th class="px-4 py-3 uppercase text-center w-[120px]">Số lượng nhập</th>
+                                        <th class="px-4 py-3 uppercase text-center w-[160px]">Giá nhập (VNĐ)</th>
+                                        <th class="px-4 py-3 uppercase text-center w-[80px]">Gỡ bỏ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="variantTableBody" class="divide-y divide-outline-variant/30">
+                                    <!-- Dynamic rows rendered by JS -->
+                                </tbody>
+                                <tfoot id="totalFooter" class="hidden">
+                                    <tr class="bg-surface-container-high font-bold text-on-surface text-[14px]">
+                                        <td colspan="3" class="px-4 py-3 text-right">Tổng giá trị dự kiến:</td>
+                                        <td class="px-4 py-3 text-center text-primary" id="totalValueDisplay">0 VNĐ</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                     
                     <!-- Submit Buttons -->
                     <div class="flex justify-end gap-3 pt-2 border-t border-outline-variant/20">
                         <a href="${pageContext.request.contextPath}/staff/ticket/list"
                            class="px-6 py-2.5 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md">
-                            Cancel
+                            Hủy bỏ
                         </a>
                         <button type="submit" 
                                 class="px-6 py-2.5 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 font-label-md text-label-md flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px]">send</span>
-                            Submit for Approval
+                            Gửi phê duyệt
                         </button>
                     </div>
                 </form>
@@ -257,6 +277,103 @@
         </main>
     </div>
 </div>
+
+<!-- JavaScript: Chuyển dữ liệu variants từ Server sang JSON để lọc phía client -->
+<script>
+    const allVariants = [
+        <c:forEach var="v" items="${variants}" varStatus="loop">
+            {
+                variantId: ${v.variantId},
+                productId: ${v.productId},
+                sku: "<c:out value="${v.sku}"/>",
+                variantName: "<c:out value="${v.variantName}"/>",
+                importPrice: parseFloat("<c:out value="${empty v.importPrice ? 0 : v.importPrice}"/>")
+            }<c:if test="${!loop.last}">,</c:if>
+        </c:forEach>
+    ];
+
+    const productSelect = document.getElementById('productSelect');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const variantSection = document.getElementById('variantSection');
+    const variantTableBody = document.getElementById('variantTableBody');
+
+    addProductBtn.addEventListener('click', function() {
+        const selectedProductId = parseInt(productSelect.value);
+        if (!selectedProductId) {
+            alert('Vui lòng chọn một sản phẩm trước khi bấm Thêm.');
+            return;
+        }
+
+        // Lọc các biến thể thuộc sản phẩm được chọn
+        const filtered = allVariants.filter(v => v.productId === selectedProductId);
+
+        if (filtered.length === 0) {
+            alert('Sản phẩm này không có biến thể nào để nhập.');
+            return;
+        }
+
+        variantSection.classList.remove('hidden');
+
+        filtered.forEach(v => {
+            // Kiểm tra xem variant này đã được thêm vào bảng hay chưa
+            const isExist = document.querySelector('input[name="variantId"][value="' + v.variantId + '"]');
+            if (isExist) {
+                return; // Nếu đã tồn tại thì không thêm trùng lặp
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-surface-container-lowest/50';
+            tr.innerHTML = 
+                '<td class="px-4 py-3 font-mono text-sm text-on-surface-variant">' + v.sku + '</td>' +
+                '<td class="px-4 py-3 text-sm text-on-surface font-medium">' + v.variantName + '</td>' +
+                '<td class="px-4 py-3 text-center">' +
+                    '<input type="hidden" name="variantId" value="' + v.variantId + '">' +
+                    '<input type="number" name="quantity" min="0" value="0" onchange="updateTotal()" onkeyup="updateTotal()" ' +
+                           'class="w-[100px] px-3 py-2 border border-outline-variant/50 rounded-lg bg-white text-on-surface text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">' +
+                '</td>' +
+                '<td class="px-4 py-3 text-center">' +
+                    '<input type="number" name="expectedPrice" min="0" step="1000" value="' + v.importPrice + '" onchange="updateTotal()" onkeyup="updateTotal()" ' +
+                           'class="w-[150px] px-3 py-2 border border-outline-variant/50 rounded-lg bg-white text-on-surface text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">' +
+                '</td>' +
+                '<td class="px-4 py-3 text-center">' +
+                    '<button type="button" onclick="removeVariantRow(this)" class="text-error hover:text-red-700 transition-colors p-1 flex items-center justify-center mx-auto">' +
+                        '<span class="material-symbols-outlined text-[20px]">delete</span>' +
+                    '</button>' +
+                '</td>';
+            variantTableBody.appendChild(tr);
+        });
+
+        // Reset dropdown
+        productSelect.value = '';
+    });
+
+    // Hàm gỡ bỏ một dòng biến thể khỏi bảng
+    window.removeVariantRow = function(button) {
+        button.closest('tr').remove();
+        
+        // Nếu không còn biến thể nào trong bảng, ẩn bảng đi
+        if (variantTableBody.children.length === 0) {
+            variantSection.classList.add('hidden');
+        }
+        updateTotal();
+    };
+
+    function updateTotal() {
+        let total = 0;
+        const rows = variantTableBody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const qty = parseInt(row.querySelector('input[name="quantity"]').value) || 0;
+            const price = parseFloat(row.querySelector('input[name="expectedPrice"]').value) || 0;
+            total += qty * price;
+        });
+        document.getElementById('totalValueDisplay').innerText = total.toLocaleString('vi-VN') + ' VNĐ';
+        if (rows.length > 0) {
+            document.getElementById('totalFooter').classList.remove('hidden');
+        } else {
+            document.getElementById('totalFooter').classList.add('hidden');
+        }
+    }
+</script>
 
 </body>
 </html>

@@ -84,7 +84,6 @@ public class AddProductImeiController extends HttpServlet {
         String[] imeis = request.getParameterValues("serials");
         String[] serialNumbers = request.getParameterValues("serialNumbers");
         String[] barcodes = request.getParameterValues("barcodes");
-        String warehouseLocation = request.getParameter("warehouseLocation");
         String receivedDate = request.getParameter("receivedDate");
         String ticketIdStr = request.getParameter("ticketId");
         
@@ -185,7 +184,6 @@ public class AddProductImeiController extends HttpServlet {
             item.setStatus("in_stock");
             item.setImportDate(receivedDate);
             item.setWarrantyExpiredDate(warrantyExpiredDate);
-            item.setWarehouseLocation(warehouseLocation);
             item.setTicketId(ticketId != null ? ticketId : 0);
             items.add(item);
         }
@@ -194,9 +192,12 @@ public class AddProductImeiController extends HttpServlet {
         imeiDao.insertInventoryItems(items);
         
         if (ticketId != null) {
-            // Update ticket status to COMPLETED and sync import_price
-            ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and IMEIs registered");
-            response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
+            if (ticketDao.isTicketFullyImported(ticketId)) {
+                ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and all IMEIs registered");
+                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=VariantImported");
+            }
         } else {
             response.sendRedirect(request.getContextPath() + "/staff/imei?success=Added");
         }
