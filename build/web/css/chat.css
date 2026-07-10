@@ -585,3 +585,166 @@
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1.0); }
 }
+
+/* ==========================================================================
+   5. PRODUCT RECOMMENDATIONS & REDIRECTION ALERT
+   ========================================================================== */
+
+.chat-recommendations-wrapper {
+    margin-top: 10px;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    max-width: 340px; /* fit perfectly inside chatbot popup */
+    box-sizing: border-box;
+    align-self: flex-start;
+}
+
+/* For full screen panel, allow slightly wider cards */
+.chat-full-messages-inner .chat-recommendations-wrapper {
+    max-width: 500px;
+}
+
+.chat-recommendations-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--chat-text-main);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chat-recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-product-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-product-card:hover {
+    border-color: var(--chat-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
+}
+
+.chat-product-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f1f5f9;
+    flex-shrink: 0;
+}
+
+.chat-product-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-product-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--chat-text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-product-price-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.chat-product-price {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #ef4444;
+}
+
+.chat-product-original-price {
+    font-size: 11px;
+    color: var(--chat-text-muted);
+    text-decoration: line-through;
+}
+
+/* Auto redirection alert */
+.chat-redirect-alert {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(29, 78, 216, 0.08));
+    border: 1px dashed var(--chat-primary);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    animation: msg-appear 0.3s ease forwards;
+    width: 100%;
+    max-width: 340px;
+    box-sizing: border-box;
+    align-self: flex-start;
+}
+
+.chat-full-messages-inner .chat-redirect-alert {
+    max-width: 500px;
+}
+
+.chat-redirect-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--chat-text-main);
+    min-width: 0;
+}
+
+.chat-redirect-content span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-redirect-content i {
+    color: var(--chat-primary);
+    flex-shrink: 0;
+}
+
+.chat-redirect-cancel-btn {
+    background: var(--chat-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.chat-redirect-cancel-btn:hover {
+    background: var(--chat-primary-hover);
+    transform: translateY(-1px);
+}
+
+.chat-redirect-cancel-btn:active {
+    transform: translateY(0);
+}

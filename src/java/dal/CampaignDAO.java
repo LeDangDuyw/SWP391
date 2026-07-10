@@ -45,10 +45,7 @@ public class CampaignDAO extends DBContext {
         }
     }
 
-    public CampaignDAO(ServletContext context) {
-        super(context);
-        this.con = super.connection;
-    }
+
 
   
 
