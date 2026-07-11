@@ -32,6 +32,7 @@ public class CampaignDAO extends DBContext {
 
     public CampaignDAO(ServletContext context) {
         super(context);
+        this.context = context;
         this.con = super.connection;
         ensureUserUsageLimitColumnExists();
     }
@@ -44,13 +45,6 @@ public class CampaignDAO extends DBContext {
         } catch (SQLException e) {
             // Quietly ignore
         }
-    }
-
-
-
-    public CampaignDAO(ServletContext context) {
-        this.context = context;
-        this.con = super.connection;
     }
 
   

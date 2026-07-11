@@ -58,7 +58,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         return valid;
     }
 
-    private String normalizeStatus(String status) {
+    @Override
+    protected String normalizeStatus(String status) {
         if (status == null) return "Unknown";
         status = status.trim().toUpperCase();
         switch (status) {
