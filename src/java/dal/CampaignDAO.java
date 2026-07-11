@@ -15,6 +15,7 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
+    private ServletContext context;
 
     /**
      * 
@@ -46,6 +47,11 @@ public class CampaignDAO extends DBContext {
     }
 
 
+
+    public CampaignDAO(ServletContext context) {
+        this.context = context;
+        this.con = super.connection;
+    }
 
   
 

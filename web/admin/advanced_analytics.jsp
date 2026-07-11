@@ -643,7 +643,7 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">🍩 Revenue Share by Category</div>
+                                <div class="chart-card-hd">📊 Revenue Share by Category</div>
                                 <div class="chart-container">
                                     <canvas id="revenueCategoryChart"></canvas>
                                 </div>
@@ -1145,20 +1145,34 @@
                 }
             });
 
-            // Draw Category Pie/Doughnut Chart
+            // Draw Category Bar Chart
             new Chart(document.getElementById('revenueCategoryChart'), {
-                type: 'doughnut',
+                type: 'bar',
                 data: {
                     labels: catLabels,
                     datasets: [{
+                        label: 'Revenue (₫)',
                         data: catData,
-                        backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
-                        borderWidth: 1
+                        backgroundColor: ['rgba(37, 99, 235, 0.85)', 'rgba(16, 185, 129, 0.85)', 'rgba(245, 158, 11, 0.85)', 'rgba(139, 92, 246, 0.85)', 'rgba(239, 68, 68, 0.85)', 'rgba(6, 182, 212, 0.85)'],
+                        borderColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
+                        borderWidth: 1,
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(value) + ' ₫';
+                                }
+                            }
+                        }
+                    }
                 }
             });
 

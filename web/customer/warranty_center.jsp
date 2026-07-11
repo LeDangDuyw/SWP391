@@ -6,7 +6,7 @@
     // Bảo vệ trang: chỉ cho customer (roleId = 3) truy cập
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 %>
@@ -840,7 +840,7 @@
                                             <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                            <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                         </c:otherwise>
                                     </c:choose>
                                     <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -1257,52 +1257,8 @@
         </table>
     </section>
 
-    <!-- ════ FOOTER (synced with home.jsp) ════ -->
-    <%
-        if (request.getAttribute("footerPages") == null) {
-            try {
-                dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                request.setAttribute("footerPages", footerPagesList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    %>
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-col">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-                <div class="footer-contact-info">
-                    <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình, Hà Nội</p>
-                    <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                    <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-                </div>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h3>Chính sách & Hỗ trợ</h3>
-                <ul>
-                    <c:if test="${not empty footerPages}">
-                        <c:forEach items="${footerPages}" var="pageItem">
-                            <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                        </c:forEach>
-                    </c:if>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-            </div>
-        </div>
-    </footer>
+    <!-- ════ FOOTER ════ -->
+    <%@include file="_footer.jspf" %>
     <!-- ════ STEP 1 PRODUCT PICKER SCRIPT ════ -->
     <script>
         (function () {
@@ -1625,6 +1581,108 @@
                 if (selectedFiles.length > MAX_IMAGES) {
                     e.preventDefault();
                     showError('Chỉ được tải lên tối đa ' + MAX_IMAGES + ' ảnh.');
+                }
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            document.addEventListener('DOMContentLoaded', function () {
+                var table = document.querySelector('.activity-table');
+                if (!table) return;
+                var tbody = table.querySelector('tbody');
+                if (!tbody) return;
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                // Exclude the 'no-claims' row if present
+                if (rows.length === 1 && rows[0].querySelector('.no-claims')) {
+                    return;
+                }
+                
+                var itemsPerPage = 6;
+                var totalPages = Math.ceil(rows.length / itemsPerPage);
+                var currentPage = 1;
+                
+                var paginationContainer = document.getElementById('activity-pagination');
+                if (!paginationContainer && rows.length > itemsPerPage) {
+                    paginationContainer = document.createElement('div');
+                    paginationContainer.id = 'activity-pagination';
+                    paginationContainer.style.cssText = 'display:flex; justify-content:center; align-items:center; gap:8px; margin-top:20px;';
+                    table.parentNode.insertBefore(paginationContainer, table.nextSibling);
+                }
+                
+                function showPage(page) {
+                    currentPage = page;
+                    var start = (page - 1) * itemsPerPage;
+                    var end = start + itemsPerPage;
+                    
+                    rows.forEach(function (row, idx) {
+                        if (idx >= start && idx < end) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                    
+                    renderPaginationControls();
+                }
+                
+                function renderPaginationControls() {
+                    if (!paginationContainer) return;
+                    paginationContainer.innerHTML = '';
+                    
+                    if (totalPages <= 1) {
+                        paginationContainer.style.display = 'none';
+                        return;
+                    }
+                    paginationContainer.style.display = 'flex';
+                    
+                    // Prev button
+                    var prevBtn = document.createElement('button');
+                    prevBtn.innerHTML = '&laquo;';
+                    prevBtn.disabled = currentPage === 1;
+                    prevBtn.style.cssText = 'padding:6px 12px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-weight:600; color:#475569;';
+                    if (currentPage > 1) {
+                        prevBtn.addEventListener('click', function () { showPage(currentPage - 1); });
+                    } else {
+                        prevBtn.style.opacity = '0.5';
+                        prevBtn.style.cursor = 'default';
+                    }
+                    paginationContainer.appendChild(prevBtn);
+                    
+                    // Page numbers
+                    for (var i = 1; i <= totalPages; i++) {
+                        (function (pageIndex) {
+                            var pageBtn = document.createElement('button');
+                            pageBtn.innerText = pageIndex;
+                            pageBtn.style.cssText = 'padding:6px 12px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-weight:600;';
+                            if (pageIndex === currentPage) {
+                                pageBtn.style.background = '#1a56db';
+                                pageBtn.style.color = '#fff';
+                                pageBtn.style.borderColor = '#1a56db';
+                            } else {
+                                pageBtn.style.color = '#475569';
+                                pageBtn.addEventListener('click', function () { showPage(pageIndex); });
+                            }
+                            paginationContainer.appendChild(pageBtn);
+                        })(i);
+                    }
+                    
+                    // Next button
+                    var nextBtn = document.createElement('button');
+                    nextBtn.innerHTML = '&raquo;';
+                    nextBtn.disabled = currentPage === totalPages;
+                    nextBtn.style.cssText = 'padding:6px 12px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-weight:600; color:#475569;';
+                    if (currentPage < totalPages) {
+                        nextBtn.addEventListener('click', function () { showPage(currentPage + 1); });
+                    } else {
+                        nextBtn.style.opacity = '0.5';
+                        nextBtn.style.cursor = 'default';
+                    }
+                    paginationContainer.appendChild(nextBtn);
+                }
+                
+                if (rows.length > itemsPerPage) {
+                    showPage(1);
                 }
             });
         })();

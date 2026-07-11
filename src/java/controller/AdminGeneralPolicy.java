@@ -49,17 +49,57 @@ public class AdminGeneralPolicy extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
-        String idParam = request.getParameter("policyId");
-
-        if (idParam == null || idParam.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/admin/general-policy");
-            return;
-        }
 
         try {
+            if ("create".equals(action)) {
+                String title = request.getParameter("title");
+                String type = request.getParameter("policyType");
+                String content = request.getParameter("content");
+
+                if (title == null || title.trim().isEmpty()) {
+                    request.setAttribute("error", "Tiêu đề không được để trống!");
+                    doGet(request, response);
+                    return;
+                }
+                if (type == null || type.trim().isEmpty()) {
+                    type = title.trim().toUpperCase().replace(" ", "_").replaceAll("[^A-Z0-9_]", "");
+                } else {
+                    type = type.trim().toUpperCase().replaceAll("[^A-Z0-9_]", "");
+                }
+
+                GeneralPolicy p = new GeneralPolicy();
+                p.setTitle(title.trim());
+                p.setPolicyType(type);
+                p.setContent(content != null ? content.trim() : "");
+                p.setShowInFooter(true);
+                p.setFooterOrder(1);
+
+                boolean success = dao.insertPolicy(p);
+                if (success) {
+                    response.sendRedirect(request.getContextPath() + "/admin/general-policy");
+                } else {
+                    request.setAttribute("error", "Tạo chính sách mới thất bại!");
+                    doGet(request, response);
+                }
+                return;
+            }
+
+            String idParam = request.getParameter("policyId");
+            if (idParam == null || idParam.trim().isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/admin/general-policy");
+                return;
+            }
             int id = Integer.parseInt(idParam.trim());
 
-            if ("updateContent".equals(action)) {
+            if ("delete".equals(action)) {
+                boolean success = dao.deletePolicy(id);
+                if (success) {
+                    response.sendRedirect(request.getContextPath() + "/admin/general-policy");
+                } else {
+                    request.setAttribute("error", "Xóa chính sách thất bại!");
+                    doGet(request, response);
+                }
+            } else if ("updateContent".equals(action)) {
                 String title = request.getParameter("title");
                 String content = request.getParameter("content");
 

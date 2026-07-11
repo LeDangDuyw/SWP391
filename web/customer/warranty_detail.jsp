@@ -5,7 +5,7 @@
 <%
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 %>
@@ -323,6 +323,7 @@
                                     min-width:150px;box-shadow:0 8px 16px rgba(0,0,0,0.15);
                                     z-index:1000;border-radius:8px;margin-top:8px;
                                     border:1px solid #e2e8f0;padding:6px 0;">
+                            <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                             <a href="${pageContext.request.contextPath}/warranty?action=list"
                                style="color:#1e293b;padding:8px 16px;display:block;font-size:13px;text-decoration:none;">
                                 Bảo hành của tôi
@@ -671,17 +672,7 @@
 </div>
 
 <!-- ════ FOOTER ════ -->
-<footer class="footer">
-    <div class="container">
-        <p style="font-size:14px;font-weight:700;color:#1a56db;margin-bottom:8px;">UniLap</p>
-        <p style="font-size:13px;color:#64748b;">Nền tảng mua sắm công nghệ cao cấp hàng đầu.</p>
-    </div>
-    <div class="footer-bottom">
-        <div class="container">
-            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     function openLightbox(src) {

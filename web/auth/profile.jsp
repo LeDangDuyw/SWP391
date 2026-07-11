@@ -1230,25 +1230,6 @@
                         </a>
                     </div>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-header-icon amber">
-                            <i class="fas fa-info-circle"></i>
-                        </div>
-                        <div>
-                            <div class="card-title">Chính Sách Bảo Hành</div>
-                            <div class="card-subtitle">Điều khoản và điều kiện bảo hành sản phẩm UNILAP</div>
-                        </div>
-                    </div>
-                    <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2.2;">
-                        <li>Bảo hành chính hãng theo thời gian ghi trên phiếu bảo hành.</li>
-                        <li>Bảo hành áp dụng cho lỗi kỹ thuật do nhà sản xuất.</li>
-                        <li>Không bảo hành trong trường hợp hư hỏng do va đập, nước, hoặc tự ý sửa chữa.</li>
-                        <li>Khách hàng cần cung cấp số serial sản phẩm khi gửi yêu cầu.</li>
-                        <li>Thời gian xử lý trung bình từ 3–7 ngày làm việc.</li>
-                    </ul>
-                </div>
             </div>
 
             <!-- ══════════════════════════════════

@@ -39,7 +39,7 @@ public class GeneralPolicyDAO extends DBContext {
     public List<GeneralPolicy> getAllPolicies() {
         List<GeneralPolicy> list = new ArrayList<>();
         String sql = "SELECT policy_id, title, policy_type, content, status, created_at, updated_at, show_in_footer, footer_order "
-                   + "FROM Policy WHERE policy_type IN ('PRIVACY', 'TERMS', 'SHOPPING_GUIDE', 'ABOUT') ORDER BY footer_order ASC, policy_id ASC";
+                   + "FROM Policy ORDER BY footer_order ASC, policy_id ASC";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 GeneralPolicy p = new GeneralPolicy();
@@ -58,6 +58,33 @@ public class GeneralPolicyDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean insertPolicy(GeneralPolicy p) {
+        String sql = "INSERT INTO Policy (title, policy_type, content, status, created_at, updated_at, show_in_footer, footer_order) "
+                   + "VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?)";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, p.getTitle());
+            ps.setString(2, p.getPolicyType());
+            ps.setString(3, p.getContent());
+            ps.setBoolean(4, p.isShowInFooter());
+            ps.setInt(5, p.getFooterOrder());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean deletePolicy(int id) {
+        String sql = "DELETE FROM Policy WHERE policy_id = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public GeneralPolicy getPolicyById(int id) {
