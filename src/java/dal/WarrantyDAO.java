@@ -350,7 +350,7 @@ public class WarrantyDAO extends DBContext {
                 + "FROM ProductSerials ps "
                 + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
-                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.order_status = 'COMPLETED'";
+                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered')";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             ps.setInt(2, customerId);
@@ -438,7 +438,7 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
-                + "WHERE o.customer_id = ? AND o.order_status = 'COMPLETED' "
+                + "WHERE o.customer_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
                 + "ORDER BY o.completed_at DESC, ps.serial_number ASC";
 
         List<model.WarrantyPurchasedProduct> list = new ArrayList<>();
