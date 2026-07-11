@@ -15,9 +15,18 @@ public class OrderDetail {
     private String variantName;
     private String sku;
     private String thumbnail;
+    private int warrantyPeriod;
     
     // For outbound fulfillment tracking
     private List<InventoryItem> assignedItems;
+
+    public int getWarrantyPeriod() {
+        return warrantyPeriod;
+    }
+
+    public void setWarrantyPeriod(int warrantyPeriod) {
+        this.warrantyPeriod = warrantyPeriod;
+    }
 
     public OrderDetail() {
     }
