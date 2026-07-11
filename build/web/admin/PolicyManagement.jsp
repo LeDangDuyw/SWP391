@@ -702,8 +702,15 @@
                             <div class="page-sub">Manage terms of service, privacy, and warranty documentation.</div>
                         </div>
                         <div class="page-actions">
-                            <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
-                            <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
+                            <c:choose>
+                                <c:when test="${empty isFooterTab}">
+                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
+                                    <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; New Footer Policy</button>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>
@@ -740,29 +747,72 @@
                                                     </c:choose>
                                                 </div>
                                             </div>
-                                        </a>
-                                    </c:forEach>
-                                </c:when>
-                                <c:otherwise>
-                                    <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No policies found.</div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <c:if test="${totalPages > 1}">
-                            <div class="pagination">
-
-                                <c:forEach begin="1" end="${totalPages}" var="i">
-
-                                    <a href="${pageContext.request.contextPath}/admin/policy?page=${i}
-                                       <c:if test='${not empty keyword}'>&keyword=${keyword}</c:if>"
-                                       class="${currentPage == i ? 'active' : ''}">
-
-                                        ${i}
-
-                                    </a>
-
-                                </c:forEach>
-
+                                        </div>
+                                        
+                                        <div class="editor-footer">
+                                            <button class="btn btn-danger btn-sm" onclick="openDeleteGeneralConfirm(${selectedGeneralPolicy.policyId})">&#128465; Delete</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editGeneralModal')">&#9998; Edit Content</button>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="empty-state">
+                                            <div class="empty-icon">&#128196;</div>
+                                            <h3>No Policy Selected</h3>
+                                            <p>Select a footer policy from the list to manage settings and edit content.</p>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- Left pane -->
+                            <div class="doc-pane">
+                                <div class="doc-pane-header"><h3>Active Documents</h3></div>
+                                <div class="search-wrap">
+                                    <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
+                                        <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
+                                        <button type="submit">Go</button>
+                                    </form>
+                                </div>
+                                <div class="doc-list">
+                                    <c:choose>
+                                        <c:when test="${not empty policies}">
+                                            <c:forEach items="${policies}" var="p">
+                                                <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
+                                                    <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
+                                                        <div class="doc-item-top">
+                                                            <span class="doc-item-name">${p.policyName}</span>
+                                                            <span class="badge
+                                                                  <c:choose>
+                                                                      <c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when>
+                                                                      <c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when>
+                                                                      <c:otherwise>badge-disabled</c:otherwise>
+                                                                  </c:choose>">${p.status}</span>
+                                                        </div>
+                                                        <div class="doc-item-meta">
+                                                            <c:choose>
+                                                                <c:when test="${p.updatedAt != null}">Updated <fmt:formatDate value="${p.updatedAt}" pattern="dd MMM yyyy"/></c:when>
+                                                                <c:otherwise>No update info</c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No policies found.</div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <c:if test="${totalPages > 1}">
+                                    <div class="pagination">
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <a href="${pageContext.request.contextPath}/admin/policy?page=${i}<c:if test='${not empty keyword}'>&keyword=${keyword}</c:if>" class="${currentPage == i ? 'active' : ''}">
+                                                ${i}
+                                            </a>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
                             </div>
                         </c:if>
                     </div>
@@ -1039,6 +1089,97 @@
             </div>
         </div>
 
+        <!-- Modal: Create General Policy -->
+        <div class="modal-overlay" id="createGeneralModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Create New Footer Policy</h2>
+                    <button class="modal-close" onclick="closeModal('createGeneralModal')">&#215;</button>
+                </div>
+                <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
+                    <input type="hidden" name="action" value="create">
+                    <div class="modal-body">
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger">
+                                ${error}
+                            </div>
+                        </c:if>
+                        <div class="form-group">
+                            <label>Tiêu đề *</label>
+                            <input type="text" name="title" placeholder="e.g. Chính sách vận chuyển" required pattern=".*\S.*" title="Title cannot be empty">
+                        </div>
+                        <div class="form-group">
+                            <label>Mã chính sách (Code / Type) <span style="font-weight:400;color:#9ca3af;">(Optional)</span></label>
+                            <input type="text" name="policyType" placeholder="e.g. SHIPPING_POLICY" pattern="[A-Za-z0-9_]*" title="Only letters, numbers, and underscores allowed">
+                        </div>
+                        <div class="form-group">
+                            <label>Nội dung chính sách</label>
+                            <input type="hidden" id="createGeneralPolicyContent" name="content" value="">
+                            <div id="createGeneralQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('createGeneralModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Policy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Delete General Policy Confirm -->
+        <div class="modal-overlay" id="deleteGeneralModal">
+            <div class="modal confirm-modal" style="max-width: 450px;">
+                <div class="modal-header"><h2>Delete Footer Policy</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-body">
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Are you sure you want to delete this footer policy? This action cannot be undone.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display:inline;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="policyId" id="deleteGeneralPolicyId" value="">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit General Policy Content -->
+        <c:if test="${selectedGeneralPolicy != null}">
+            <div class="modal-overlay" id="editGeneralModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Edit Footer Policy Content</h2>
+                        <button class="modal-close" onclick="closeModal('editGeneralModal')">&#215;</button>
+                    </div>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
+                        <input type="hidden" name="action" value="updateContent">
+                        <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
+                        <div class="modal-body">
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger">
+                                    ${error}
+                                </div>
+                            </c:if>
+                            <div class="form-group">
+                                <label>Tiêu đề *</label>
+                                <input type="text" name="title" value="${selectedGeneralPolicy.title}" required pattern=".*\S.*" title="Title cannot be empty">
+                            </div>
+                            <div class="form-group">
+                                <label>Nội dung chính sách</label>
+                                <input type="hidden" id="editGeneralPolicyContent" name="content" value="${selectedGeneralPolicy.content}">
+                                <div id="editGeneralQuillEditor" style="height: 250px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" onclick="closeModal('editGeneralModal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </c:if>
+
         <script>
             function openModal(id) {
                 document.getElementById(id).classList.add('open');
@@ -1157,6 +1298,55 @@
                     }
                     document.getElementById('editPolicyContent').value = editQuill.root.innerHTML;
                 });
+            }
+
+            // Initialize Edit General Editor
+            var editGeneralPolicyInput = document.getElementById('editGeneralPolicyContent');
+            if (editGeneralPolicyInput) {
+                var editGeneralQuill = new Quill('#editGeneralQuillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'clean']
+                        ]
+                    }
+                });
+                var initialEditGeneral = editGeneralPolicyInput.value;
+                if (initialEditGeneral) {
+                    editGeneralQuill.root.innerHTML = initialEditGeneral;
+                }
+                document.querySelector('#editGeneralModal form').addEventListener('submit', function(event) {
+                    document.getElementById('editGeneralPolicyContent').value = editGeneralQuill.root.innerHTML;
+                });
+            }
+
+            // Initialize Create General Editor
+            var createGeneralPolicyInput = document.getElementById('createGeneralPolicyContent');
+            if (createGeneralPolicyInput) {
+                var createGeneralQuill = new Quill('#createGeneralQuillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'clean']
+                        ]
+                    }
+                });
+                document.querySelector('#createGeneralModal form').addEventListener('submit', function(event) {
+                    document.getElementById('createGeneralPolicyContent').value = createGeneralQuill.root.innerHTML;
+                });
+            }
+
+            function openDeleteGeneralConfirm(id) {
+                document.getElementById('deleteGeneralPolicyId').value = id;
+                openModal('deleteGeneralModal');
             }
 
             (function () {
