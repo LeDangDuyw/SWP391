@@ -715,36 +715,74 @@
                     </div>
                 </div>
 
+                <div class="tabs-container" style="display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; padding: 0 28px;">
+                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Warranty Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${not empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${not empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Footer Policies</a>
+                </div>
+
                 <div class="pane-body">
-                    <!-- Left pane -->
-                    <div class="doc-pane">
-                        <div class="doc-pane-header"><h3>Active Documents</h3></div>
-                        <div class="search-wrap">
-                            <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
-                                <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
-                                <button type="submit">Go</button>
-                            </form>
-                        </div>
-                        <div class="doc-list">
-                            <c:choose>
-                                <c:when test="${not empty policies}">
-                                    <c:forEach items="${policies}" var="p">
-                                        <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
-                                            <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
-                                                <div class="doc-item-top">
-                                                    <span class="doc-item-name">${p.policyName}</span>
-                                                    <span class="badge
-                                                          <c:choose>
-                                                              <c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when>
-                                                              <c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when>
-                                                              <c:otherwise>badge-disabled</c:otherwise>
-                                                          </c:choose>">${p.status}</span>
-                                                </div>
-                                                <div class="doc-item-meta">
-                                                    <c:choose>
-                                                        <c:when test="${p.updatedAt != null}">Updated <fmt:formatDate value="${p.updatedAt}" pattern="dd MMM yyyy"/></c:when>
-                                                        <c:otherwise>No update info</c:otherwise>
-                                                    </c:choose>
+                    <c:choose>
+                        <c:when test="${not empty isFooterTab}">
+                            <!-- Left pane -->
+                            <div class="doc-pane">
+                                <div class="doc-pane-header"><h3>Footer Documents</h3></div>
+                                <div class="search-wrap">
+                                    <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
+                                        <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
+                                        <button type="submit">Go</button>
+                                    </form>
+                                </div>
+                                <div class="doc-list">
+                                    <c:choose>
+                                        <c:when test="${not empty generalPolicies}">
+                                            <c:forEach items="${generalPolicies}" var="gp">
+                                                <a href="${pageContext.request.contextPath}/admin/general-policy?id=${gp.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
+                                                    <div class="doc-item ${selectedGeneralPolicy != null && selectedGeneralPolicy.policyId == gp.policyId ? 'active' : ''}">
+                                                        <div class="doc-item-top">
+                                                            <span class="doc-item-name">${gp.title}</span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No policies found.</div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+
+                            <!-- Right pane -->
+                            <div class="editor-pane">
+                                <c:choose>
+                                    <c:when test="${selectedGeneralPolicy != null}">
+                                        <div class="editor-content">
+                                            <!-- Footer Display Settings Form -->
+                                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
+                                                <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 16px;">
+                                                    <input type="hidden" name="action" value="updateSettings">
+                                                    <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
+                                                    
+                                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                                        <input type="checkbox" id="showInFooter" name="showInFooter" value="true" ${selectedGeneralPolicy.showInFooter ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                                                        <label for="showInFooter" style="font-size: 14px; color: #334155; font-weight: 500; cursor: pointer;">Hiển thị ở Footer</label>
+                                                    </div>
+                                                    
+                                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                        <label for="footerOrder" style="font-size: 13px; color: #475569; font-weight: 500;">Thứ tự hiển thị (Order)</label>
+                                                        <input type="number" id="footerOrder" name="footerOrder" value="${selectedGeneralPolicy.footerOrder}" min="0" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none;">
+                                                    </div>
+                                                    
+                                                    <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 8px 16px; font-size: 13px;">Save Settings</button>
+                                                </form>
+                                            </div>
+                                            
+                                            <!-- Content Preview -->
+                                            <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Content Preview</h3>
+                                                <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0; max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 12px; border-radius: 8px;">
+                                                    ${selectedGeneralPolicy.content}
                                                 </div>
                                             </div>
                                         </div>
@@ -764,6 +802,7 @@
                                 </c:choose>
                             </div>
                         </c:when>
+                        
                         <c:otherwise>
                             <!-- Left pane -->
                             <div class="doc-pane">
@@ -814,8 +853,6 @@
                                     </div>
                                 </c:if>
                             </div>
-                        </c:if>
-                    </div>
 
                     <!-- Right pane -->
                     <div class="editor-pane">
@@ -928,9 +965,11 @@
                             </c:otherwise>
                         </c:choose>
                     </div>
-                </div>
-            </div>
+                </c:otherwise>
+            </c:choose>
         </div>
+    </div>
+</div>
 
         <!-- Modal: Create -->
         <div class="modal-overlay" id="createModal">
@@ -1368,3 +1407,4 @@
         </script>
     </body>
 </html>
+<!-- touch -->

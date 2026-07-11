@@ -269,10 +269,13 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
             dynamicParams.add(filter.getPaymentMethod().trim());
         }
+        // Do NOT apply Category filter here so the chart remains an overview of all categories!
+        /*
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             sql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
+        */
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
             dynamicParams.add(filter.getBrandId());
@@ -336,10 +339,13 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             sql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
+        // Do NOT apply Brand filter here so the chart remains an overview of all brands!
+        /*
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
             dynamicParams.add(filter.getBrandId());
         }
+        */
         
         appendCustomerTypeCondition(sql, filter.getCustomerType(), validStatuses);
         appendStatusCondition(sql, validStatuses);
