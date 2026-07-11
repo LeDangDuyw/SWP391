@@ -327,7 +327,7 @@ public class WarrantyDAO extends DBContext {
      * @throws Exception on SQL error
      */
     public boolean serialExists(String serialNumber) throws Exception {
-        String sql = "SELECT 1 FROM ProductSerials WHERE serial_number = ?";
+        String sql = "SELECT 1 FROM InventoryItem WHERE serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -347,10 +347,11 @@ public class WarrantyDAO extends DBContext {
      */
     public boolean productBelongsToCustomer(String serialNumber, int customerId) throws Exception {
         String sql = "SELECT 1 "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
-                + "WHERE ps.serial_number = ? AND o.customer_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered')";
+                + "WHERE ii.serial_number = ? AND o.customer_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered')";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             ps.setInt(2, customerId);
@@ -374,13 +375,18 @@ public class WarrantyDAO extends DBContext {
      */
     public boolean isUnderWarranty(String serialNumber) throws Exception {
         String sql = "SELECT 1 "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "WHERE ps.serial_number = ? "
-                + "AND DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE()";
+                + "WHERE ii.serial_number = ? "
+                + "AND ( "
+                + "    (ii.warranty_expired_date IS NOT NULL AND ii.warranty_expired_date >= GETDATE()) "
+                + "    OR "
+                + "    (ii.warranty_expired_date IS NULL AND DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE()) "
+                + ")";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -421,25 +427,26 @@ public class WarrantyDAO extends DBContext {
      * @throws Exception on SQL error
      */
     public List<model.WarrantyPurchasedProduct> findPurchasedProductsByCustomer(int customerId) throws Exception {
-        String sql = "SELECT ps.serial_number AS serialNumber, "
+        String sql = "SELECT ii.serial_number AS serialNumber, "
                 + "p.product_name AS productName, "
                 + "o.completed_at AS purchaseDate, "
-                + "DATEADD(MONTH, p.warranty_period, o.completed_at) AS warrantyExpiry, "
+                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
                 + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName, "
-                + "CASE WHEN DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE() "
+                + "CASE WHEN ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) >= GETDATE() "
                 + "     THEN 1 ELSE 0 END AS underWarranty, "
                 + "CASE WHEN EXISTS (SELECT 1 FROM WarrantyClaims wc "
-                + "                  WHERE wc.serial_number = ps.serial_number "
+                + "                  WHERE wc.serial_number = ii.serial_number "
                 + "                  AND wc.status IN ('PENDING','PROCESSING','APPROVED')) "
                 + "     THEN 1 ELSE 0 END AS hasActiveClaim "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE o.customer_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
-                + "ORDER BY o.completed_at DESC, ps.serial_number ASC";
+                + "ORDER BY o.completed_at DESC, ii.serial_number ASC";
 
         List<model.WarrantyPurchasedProduct> list = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -474,15 +481,16 @@ public class WarrantyDAO extends DBContext {
      */
     public model.WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
         String sql = "SELECT p.product_name AS productName, "
-                + "DATEADD(MONTH, p.warranty_period, o.completed_at) AS warrantyExpiry, "
+                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
                 + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
-                + "WHERE ps.serial_number = ?";
+                + "WHERE ii.serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -507,9 +515,10 @@ public class WarrantyDAO extends DBContext {
      */
     public int getOrderDetailIdBySerial(String serialNumber) throws Exception {
         String sql = "SELECT od.order_detail_id, od.order_id "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
-                + "WHERE ps.serial_number = ?";
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
+                + "WHERE ii.serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -530,9 +539,10 @@ public class WarrantyDAO extends DBContext {
      */
     public int getOrderIdBySerial(String serialNumber) throws Exception {
         String sql = "SELECT od.order_id "
-                + "FROM ProductSerials ps "
-                + "JOIN OrderDetail od ON ps.order_detail_id = od.order_detail_id "
-                + "WHERE ps.serial_number = ?";
+                + "FROM InventoryItem ii "
+                + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
+                + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
+                + "WHERE ii.serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             try (ResultSet rs = ps.executeQuery()) {
