@@ -15,6 +15,7 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
+    private ServletContext context;
 
     /**
      * 
@@ -25,6 +26,11 @@ public class CampaignDAO extends DBContext {
      * Action/Luồng đi: Gọi constructor của lớp cha DBContext để kết nối CSDL, sau đó gán kết nối.
      */
     public CampaignDAO() {
+        this.con = super.connection;
+    }
+
+    public CampaignDAO(ServletContext context) {
+        this.context = context;
         this.con = super.connection;
     }
 

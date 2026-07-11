@@ -734,10 +734,15 @@
                             <div class="page-sub">Manage terms of service, privacy, and warranty documentation.</div>
                         </div>
                         <div class="page-actions">
-                            <c:if test="${empty isFooterTab}">
-                                <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
-                                <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
-                            </c:if>
+                            <c:choose>
+                                <c:when test="${empty isFooterTab}">
+                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
+                                    <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; New Footer Policy</button>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>
@@ -817,6 +822,7 @@
                                         </div>
                                         
                                         <div class="editor-footer">
+                                            <button class="btn btn-danger btn-sm" onclick="openDeleteGeneralConfirm(${selectedGeneralPolicy.policyId})">&#128465; Delete</button>
                                             <button class="btn btn-primary btn-sm" onclick="openModal('editGeneralModal')">&#9998; Edit Content</button>
                                         </div>
                                     </c:when>
@@ -1146,6 +1152,61 @@
             </div>
         </div>
 
+        <!-- Modal: Create General Policy -->
+        <div class="modal-overlay" id="createGeneralModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Create New Footer Policy</h2>
+                    <button class="modal-close" onclick="closeModal('createGeneralModal')">&#215;</button>
+                </div>
+                <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
+                    <input type="hidden" name="action" value="create">
+                    <div class="modal-body">
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger">
+                                ${error}
+                            </div>
+                        </c:if>
+                        <div class="form-group">
+                            <label>Tiêu đề *</label>
+                            <input type="text" name="title" placeholder="e.g. Chính sách vận chuyển" required pattern=".*\S.*" title="Title cannot be empty">
+                        </div>
+                        <div class="form-group">
+                            <label>Mã chính sách (Code / Type) <span style="font-weight:400;color:#9ca3af;">(Optional)</span></label>
+                            <input type="text" name="policyType" placeholder="e.g. SHIPPING_POLICY" pattern="[A-Za-z0-9_]*" title="Only letters, numbers, and underscores allowed">
+                        </div>
+                        <div class="form-group">
+                            <label>Nội dung chính sách</label>
+                            <input type="hidden" id="createGeneralPolicyContent" name="content" value="">
+                            <div id="createGeneralQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('createGeneralModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Policy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Delete General Policy Confirm -->
+        <div class="modal-overlay" id="deleteGeneralModal">
+            <div class="modal confirm-modal" style="max-width: 450px;">
+                <div class="modal-header"><h2>Delete Footer Policy</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-body">
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Are you sure you want to delete this footer policy? This action cannot be undone.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display:inline;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="policyId" id="deleteGeneralPolicyId" value="">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal: Edit General Policy Content -->
         <c:if test="${selectedGeneralPolicy != null}">
             <div class="modal-overlay" id="editGeneralModal">
@@ -1336,6 +1397,31 @@
                 document.querySelector('#editGeneralModal form').addEventListener('submit', function(event) {
                     document.getElementById('editGeneralPolicyContent').value = editGeneralQuill.root.innerHTML;
                 });
+            }
+
+            // Initialize Create General Editor
+            var createGeneralPolicyInput = document.getElementById('createGeneralPolicyContent');
+            if (createGeneralPolicyInput) {
+                var createGeneralQuill = new Quill('#createGeneralQuillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'clean']
+                        ]
+                    }
+                });
+                document.querySelector('#createGeneralModal form').addEventListener('submit', function(event) {
+                    document.getElementById('createGeneralPolicyContent').value = createGeneralQuill.root.innerHTML;
+                });
+            }
+
+            function openDeleteGeneralConfirm(id) {
+                document.getElementById('deleteGeneralPolicyId').value = id;
+                openModal('deleteGeneralModal');
             }
 
             (function () {
