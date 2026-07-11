@@ -6,7 +6,7 @@
     // Bảo vệ trang: chỉ Admin (roleId=1)
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null || currentUser.getRoleId() != 1) {
-        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 %>
@@ -741,13 +741,13 @@
                 <small>System Controller</small>
             </div>
                         <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="#"><span>▣</span>Orders</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>

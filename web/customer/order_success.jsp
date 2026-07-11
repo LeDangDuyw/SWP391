@@ -3,16 +3,6 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%
-    if (request.getAttribute("footerPages") == null) {
-        try {
-            dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-            java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-            request.setAttribute("footerPages", footerPagesList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -372,34 +362,7 @@
 </main>
 
 <!-- ===== FOOTER ===== -->
-<footer class="footer">
-    <div class="container footer-inner">
-        <div class="footer-brand">
-            <a href="${pageContext.request.contextPath}/HomeServlet" class="footer-logo">UniLap</a>
-            <p class="footer-desc">Trải nghiệm công nghệ đỉnh cao với các dòng laptop gaming và văn phòng cao cấp nhất hiện nay.</p>
-        </div>
-        <nav class="footer-links">
-            <c:if test="${not empty footerPages}">
-                <c:forEach items="${footerPages}" var="pageItem">
-                    <a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}">${pageItem.title}</a>
-                </c:forEach>
-            </c:if>
-            <c:if test="${empty footerPages}">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Shipping Info</a>
-                <a href="#">Returns</a>
-            </c:if>
-        </nav>
-        <div class="footer-right">
-            <p>&copy; 2024 UniLap Technologies. All rights reserved.</p>
-            <div class="footer-icons">
-                <a href="#" aria-label="Language"><i class="fas fa-globe"></i></a>
-                <a href="#" aria-label="Share"><i class="fas fa-share-nodes"></i></a>
-            </div>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     // Header user menu dropdown toggle

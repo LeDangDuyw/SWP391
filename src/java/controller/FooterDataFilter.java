@@ -34,6 +34,9 @@ public class FooterDataFilter implements Filter {
             try {
                 List<GeneralPolicy> footerPolicies = generalPolicyDAO.getFooterPolicies();
                 request.setAttribute("footerPolicies", footerPolicies);
+                
+                dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+                request.setAttribute("categories", categoryDAO.getAllCategories());
             } catch (Exception e) {
                 e.printStackTrace();
             }
