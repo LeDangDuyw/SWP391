@@ -15,6 +15,7 @@ import dal.CartDAO;
 import dal.VoucherDAO;
 import model.CartItem;
 import model.Users;
+import model.UserVoucherDTO;
 
 @WebServlet(name = "CartServlet", urlPatterns = { "/CartServlet" })
 public class CartServlet extends HttpServlet {
@@ -51,7 +52,68 @@ public class CartServlet extends HttpServlet {
         for (CartItem it : cart)
             total = total.add(it.getSubtotal());
 
-        // Recalculate discount based on current cart state
+        // Lấy danh sách voucher cá nhân hóa (hoặc voucher dùng chung nếu chưa đăng nhập)
+        List<UserVoucherDTO> userVouchers = new ArrayList<>();
+        int userId = (user != null) ? user.getUserId() : 0;
+        VoucherDAO voucherDAO = new VoucherDAO();
+        List<UserVoucherDTO> rawVouchers = voucherDAO.getUserVouchers(userId);
+        
+        System.out.println("=== DEBUG CART SERVLET ===");
+        System.out.println("User ID: " + userId + ", Cart Total: " + total + ", Cart Size: " + cart.size());
+        System.out.println("Raw Vouchers retrieved count: " + (rawVouchers != null ? rawVouchers.size() : "null"));
+        if (rawVouchers != null) {
+            for (UserVoucherDTO v : rawVouchers) {
+                System.out.println("Voucher: Code = " + v.getVoucherCode() + ", Discount = " + v.getDiscountValue() + ", MinOrder = " + v.getMinOrderValue() + ", Used = " + v.isUsed());
+            }
+        }
+        System.out.println("==========================");
+        
+        // Tính toán động trạng thái khả dụng cho từng voucher
+        for (UserVoucherDTO v : rawVouchers) {
+            BigDecimal minVal = v.getMinOrderValue();
+            if (minVal == null) minVal = BigDecimal.ZERO;
+            
+            if (v.isUsed()) {
+                v.setAvailable(false);
+                v.setDiscountAmountActual(BigDecimal.ZERO);
+                v.setMissingAmount(BigDecimal.ZERO);
+                v.setStatusMessage("Bạn đã sử dụng mã giảm giá này");
+            } else if (total.compareTo(minVal) >= 0) {
+                v.setAvailable(true);
+                BigDecimal actualDiscount = voucherDAO.calculateActualDiscount(
+                    v.getVoucherId(),
+                    (v.getDiscountValue().compareTo(new BigDecimal("100")) <= 0 ? "percentage" : "fixed"),
+                    v.getDiscountValue(),
+                    cart
+                );
+                v.setDiscountAmountActual(actualDiscount);
+                v.setMissingAmount(BigDecimal.ZERO);
+                v.setStatusMessage("Đủ điều kiện áp dụng");
+            } else {
+                v.setAvailable(false);
+                v.setDiscountAmountActual(BigDecimal.ZERO);
+                BigDecimal missing = minVal.subtract(total);
+                v.setMissingAmount(missing);
+                v.setStatusMessage("Chưa đủ điều kiện nhận khuyến mãi (Cần mua thêm " + String.format("%,.0f", missing) + "₫)");
+            }
+            userVouchers.add(v);
+        }
+        
+        // TỰ ĐỘNG ÁP DỤNG VOUCHER TỐT NHẤT nếu chưa có voucher nào đang hoạt động
+        if (session.getAttribute("couponCode") == null) {
+            UserVoucherDTO bestVoucher = voucherDAO.getBestVoucherForOrder(userId, total, cart);
+            if (bestVoucher != null) {
+                session.setAttribute("couponCode", bestVoucher.getVoucherCode());
+                session.setAttribute("discountAmount", bestVoucher.getDiscountAmountActual());
+                session.setAttribute("couponId", bestVoucher.getVoucherId());
+                session.setAttribute("isCampaign", true);
+                session.setAttribute("couponSuccess", true);
+                session.setAttribute("couponMessage", "Hệ thống đã tự động chọn mã giảm giá tốt nhất cho bạn!");
+            }
+        }
+        request.setAttribute("userVouchers", userVouchers);
+
+        // Recalculate discount based on current cart state (nếu có mã được gán trong session)
         String activeCoupon = (String) session.getAttribute("couponCode");
         if (activeCoupon != null) {
             recalculateDiscount(session, cart, activeCoupon);
@@ -71,6 +133,7 @@ public class CartServlet extends HttpServlet {
         request.setAttribute("couponCode", activeCoupon);
         request.setAttribute("couponMessage", session.getAttribute("couponMessage"));
         request.setAttribute("couponSuccess", session.getAttribute("couponSuccess"));
+        request.setAttribute("userVouchers", userVouchers);
 
         // Clear temporary messages to avoid display on refresh
         session.removeAttribute("couponMessage");
@@ -96,19 +159,113 @@ public class CartServlet extends HttpServlet {
             case "coupon" -> applyCoupon(request);
         }
 
-        // Recalculate discount automatically on cart changes
-        String activeCoupon = (String) session.getAttribute("couponCode");
-        if (activeCoupon != null) {
-            recalculateDiscount(session, cart, activeCoupon);
+        // Tải lại thông tin giỏ hàng và tính tổng tiền mới
+        BigDecimal total = BigDecimal.ZERO;
+        for (CartItem it : cart) total = total.add(it.getSubtotal());
+
+        // Tính toán lại danh sách voucher cá nhân hoá dựa trên tổng tiền mới
+        List<UserVoucherDTO> userVouchers = new ArrayList<>();
+        if (user != null) {
+            VoucherDAO voucherDAO = new VoucherDAO();
+            List<UserVoucherDTO> rawVouchers = voucherDAO.getUserVouchers(user.getUserId());
+            for (UserVoucherDTO v : rawVouchers) {
+                BigDecimal minVal = v.getMinOrderValue();
+                if (minVal == null) minVal = BigDecimal.ZERO;
+                
+                if (v.isUsed()) {
+                    v.setAvailable(false);
+                    v.setDiscountAmountActual(BigDecimal.ZERO);
+                    v.setMissingAmount(BigDecimal.ZERO);
+                    v.setStatusMessage("Bạn đã sử dụng mã giảm giá này");
+                } else if (total.compareTo(minVal) >= 0) {
+                    v.setAvailable(true);
+                    BigDecimal discVal = v.getDiscountValue();
+                    if (discVal == null) discVal = BigDecimal.ZERO;
+                    BigDecimal actualDiscount = BigDecimal.ZERO;
+                    if (discVal.compareTo(new BigDecimal("100")) <= 0) {
+                        actualDiscount = total.multiply(discVal).divide(new BigDecimal("100"));
+                    } else {
+                        actualDiscount = discVal;
+                    }
+                    if (actualDiscount.compareTo(total) > 0) actualDiscount = total;
+                    v.setDiscountAmountActual(actualDiscount);
+                    v.setMissingAmount(BigDecimal.ZERO);
+                    v.setStatusMessage("Đủ điều kiện áp dụng");
+                } else {
+                    v.setAvailable(false);
+                    v.setDiscountAmountActual(BigDecimal.ZERO);
+                    BigDecimal missing = minVal.subtract(total);
+                    v.setMissingAmount(missing);
+                    v.setStatusMessage("Chưa đủ điều kiện nhận khuyến mãi (Cần mua thêm " + String.format("%,.0f", missing) + "₫)");
+                }
+                userVouchers.add(v);
+            }
+
+            // Nếu chưa áp dụng mã nào hoặc mã hiện tại bị mất hiệu lực do giảm số lượng sản phẩm, tự chọn mã tốt nhất
+            String activeCoupon = (String) session.getAttribute("couponCode");
+            boolean currentCouponValid = false;
+            int currentUserId = (user != null) ? user.getUserId() : 0;
+            VoucherDAO voucherDAO = new VoucherDAO();
+            if (activeCoupon != null) {
+                VoucherDAO.VoucherInfo info = (user != null) 
+                    ? voucherDAO.getVoucher(activeCoupon, total, user.getUserId())
+                    : voucherDAO.getVoucher(activeCoupon, total);
+                currentCouponValid = info.isValid;
+            }
+
+            if (!currentCouponValid) {
+                // Mã cũ không còn hiệu lực hoặc chưa chọn mã nào, tự động chọn mã tốt nhất
+                UserVoucherDTO bestVoucher = voucherDAO.getBestVoucherForOrder(currentUserId, total, cart);
+                if (bestVoucher != null) {
+                    session.setAttribute("couponCode", bestVoucher.getVoucherCode());
+                    session.setAttribute("discountAmount", bestVoucher.getDiscountAmountActual());
+                    session.setAttribute("couponId", bestVoucher.getVoucherId());
+                    session.setAttribute("isCampaign", true);
+                    session.setAttribute("couponSuccess", true);
+                    session.setAttribute("couponMessage", "Đã tự động đổi sang mã giảm giá tốt nhất phù hợp!");
+                } else {
+                    session.removeAttribute("couponCode");
+                    session.removeAttribute("discountAmount");
+                    session.removeAttribute("couponId");
+                    session.removeAttribute("isCampaign");
+                }
+            } else {
+                // Tính lại mức giảm của mã hiện tại (vì số lượng sản phẩm thay đổi làm tổng tiền thay đổi)
+                recalculateDiscount(session, cart, activeCoupon);
+            }
+        } else {
+            // Trường hợp khách vãng lai (chưa đăng nhập) - Đồng bộ tính năng tự chọn voucher tốt nhất
+            String activeCoupon = (String) session.getAttribute("couponCode");
+            boolean currentCouponValid = false;
+            VoucherDAO voucherDAO = new VoucherDAO();
+            if (activeCoupon != null) {
+                VoucherDAO.VoucherInfo info = voucherDAO.getVoucher(activeCoupon, total);
+                currentCouponValid = info.isValid;
+            }
+
+            if (!currentCouponValid) {
+                UserVoucherDTO bestVoucher = voucherDAO.getBestVoucherForOrder(0, total, cart);
+                if (bestVoucher != null) {
+                    session.setAttribute("couponCode", bestVoucher.getVoucherCode());
+                    session.setAttribute("discountAmount", bestVoucher.getDiscountAmountActual());
+                    session.setAttribute("couponId", bestVoucher.getVoucherId());
+                    session.setAttribute("isCampaign", true);
+                    session.setAttribute("couponSuccess", true);
+                    session.setAttribute("couponMessage", "Đã tự động đổi sang mã giảm giá tốt nhất phù hợp!");
+                } else {
+                    session.removeAttribute("couponCode");
+                    session.removeAttribute("discountAmount");
+                    session.removeAttribute("couponId");
+                    session.removeAttribute("isCampaign");
+                }
+            } else {
+                recalculateDiscount(session, cart, activeCoupon);
+            }
         }
 
         if ("true".equals(request.getParameter("ajax"))) {
             response.setContentType("application/json;charset=UTF-8");
             java.io.PrintWriter out = response.getWriter();
-
-            BigDecimal total = BigDecimal.ZERO;
-            for (CartItem it : cart)
-                total = total.add(it.getSubtotal());
 
             BigDecimal discount = (BigDecimal) session.getAttribute("discountAmount");
             if (discount == null)
@@ -121,7 +278,7 @@ public class CartServlet extends HttpServlet {
             for (CartItem it : cart)
                 totalItems += it.getQuantity();
 
-            // Find details for current item
+            // Lấy thông tin của sản phẩm vừa cập nhật
             BigDecimal itemSubtotal = BigDecimal.ZERO;
             int currentQty = 0;
             int availableQty = 0;
@@ -142,25 +299,46 @@ public class CartServlet extends HttpServlet {
             if (couponSuccess == null)
                 couponSuccess = false;
 
+            // Xây dựng JSON danh sách voucher cá nhân
+            StringBuilder vouchersJson = new StringBuilder("[");
+            for (int i = 0; i < userVouchers.size(); i++) {
+                UserVoucherDTO v = userVouchers.get(i);
+                vouchersJson.append("{")
+                    .append("\"voucherId\":").append(v.getVoucherId()).append(",")
+                    .append("\"voucherCode\":\"").append(v.getVoucherCode()).append("\",")
+                    .append("\"discountValue\":").append(v.getDiscountValue()).append(",")
+                    .append("\"minOrderValue\":").append(v.getMinOrderValue()).append(",")
+                    .append("\"isAvailable\":").append(v.isAvailable()).append(",")
+                    .append("\"isUsed\":").append(v.isUsed()).append(",")
+                    .append("\"discountAmountActual\":\"").append(String.format("%,.0f", v.getDiscountAmountActual())).append("\",")
+                    .append("\"missingAmount\":\"").append(String.format("%,.0f", v.getMissingAmount())).append("\",")
+                    .append("\"statusMessage\":\"").append(v.getStatusMessage()).append("\"")
+                    .append("}");
+                if (i < userVouchers.size() - 1) {
+                    vouchersJson.append(",");
+                }
+            }
+            vouchersJson.append("]");
+
             out.print("{"
-                    + "\"success\": true,"
-                    + "\"cartSize\": " + cart.size() + ","
-                    + "\"totalItems\": " + totalItems + ","
-                    + "\"itemSubtotal\": \"" + String.format("%,.0f", itemSubtotal) + "\","
-                    + "\"currentQty\": " + currentQty + ","
-                    + "\"availableQty\": " + availableQty + ","
-                    + "\"total\": \"" + String.format("%,.0f", total) + "\","
-                    + "\"discount\": \"" + String.format("%,.0f", discount) + "\","
-                    + "\"finalTotal\": \"" + String.format("%,.0f", finalTotal) + "\","
-                    + "\"couponSuccess\": " + couponSuccess + ","
-                    + "\"couponMessage\": \"" + couponMessage + "\","
-                    + "\"message\": \"" + couponMessage + "\","
-                    + "\"successCoupon\": " + couponSuccess
-                    + "}");
+                + "\"success\": true,"
+                + "\"cartSize\": " + cart.size() + ","
+                + "\"totalItems\": " + totalItems + ","
+                + "\"itemSubtotal\": \"" + String.format("%,.0f", itemSubtotal) + "\","
+                + "\"currentQty\": " + currentQty + ","
+                + "\"availableQty\": " + availableQty + ","
+                + "\"total\": \"" + String.format("%,.0f", total) + "\","
+                + "\"discount\": \"" + String.format("%,.0f", discount) + "\","
+                + "\"finalTotal\": \"" + String.format("%,.0f", finalTotal) + "\","
+                + "\"couponSuccess\": " + couponSuccess + ","
+                + "\"couponMessage\": \"" + couponMessage + "\","
+                + "\"couponCode\": \"" + (session.getAttribute("couponCode") != null ? session.getAttribute("couponCode") : "") + "\","
+                + "\"userVouchers\": " + vouchersJson.toString()
+                + "}");
             return;
         }
 
-        response.sendRedirect("CartServlet"); // redirect to prevent resubmission on refresh
+        response.sendRedirect("CartServlet");
     }
 
     private void addToCart(HttpServletRequest request, List<CartItem> cart, Users user) {
@@ -229,6 +407,7 @@ public class CartServlet extends HttpServlet {
     private void applyCoupon(HttpServletRequest request) {
         String code = request.getParameter("couponCode");
         HttpSession session = request.getSession();
+        Users user = (Users) session.getAttribute("user");
         List<CartItem> cart = getCart(session);
         BigDecimal total = BigDecimal.ZERO;
         for (CartItem it : cart)
@@ -242,15 +421,16 @@ public class CartServlet extends HttpServlet {
 
         if (code != null && !code.trim().isEmpty()) {
             VoucherDAO voucherDAO = new VoucherDAO();
-            VoucherDAO.VoucherInfo info = voucherDAO.getVoucher(code, total);
+            VoucherDAO.VoucherInfo info;
+            if (user != null) {
+                info = voucherDAO.getVoucher(code, total, user.getUserId());
+            } else {
+                info = voucherDAO.getVoucher(code, total);
+            }
             message = info.message;
             success = info.isValid;
             if (success) {
-                if ("percentage".equalsIgnoreCase(info.type)) {
-                    discount = total.multiply(info.discountValue).divide(new BigDecimal("100"));
-                } else {
-                    discount = info.discountValue;
-                }
+                discount = voucherDAO.calculateActualDiscount(info.id, info.type, info.discountValue, cart);
                 couponId = info.id;
                 isCampaign = info.isCampaign;
             }
@@ -279,15 +459,17 @@ public class CartServlet extends HttpServlet {
         for (CartItem it : cart)
             total = total.add(it.getSubtotal());
         BigDecimal discount = BigDecimal.ZERO;
+        Users user = (Users) session.getAttribute("user");
         if (code != null && !code.trim().isEmpty()) {
             VoucherDAO voucherDAO = new VoucherDAO();
-            VoucherDAO.VoucherInfo info = voucherDAO.getVoucher(code, total);
+            VoucherDAO.VoucherInfo info;
+            if (user != null) {
+                info = voucherDAO.getVoucher(code, total, user.getUserId());
+            } else {
+                info = voucherDAO.getVoucher(code, total);
+            }
             if (info.isValid) {
-                if ("percentage".equalsIgnoreCase(info.type)) {
-                    discount = total.multiply(info.discountValue).divide(new BigDecimal("100"));
-                } else {
-                    discount = info.discountValue;
-                }
+                discount = voucherDAO.calculateActualDiscount(info.id, info.type, info.discountValue, cart);
                 session.setAttribute("discountAmount", discount);
                 session.setAttribute("couponId", info.id);
                 session.setAttribute("isCampaign", info.isCampaign);

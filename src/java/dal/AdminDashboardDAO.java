@@ -184,29 +184,15 @@ public class AdminDashboardDAO extends DBContext {
         return 0;
     }
 
-    public long getTotalRevenue() {
-        return getTotalRevenue(null, null);
-    }
-
     /**
      * Total number of orders.
      */
-    public int getTotalOrderCount(String from, String to) {
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
+    public int getTotalOrderCount() {
         String sql = "SELECT COUNT(*) FROM [Order]";
-        if (hasFilter) {
-            sql += " WHERE CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ?";
-        }
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getTotalOrderCount: " + e.getMessage());
@@ -214,40 +200,20 @@ public class AdminDashboardDAO extends DBContext {
         return 0;
     }
 
-    public int getTotalOrderCount() {
-        return getTotalOrderCount(null, null);
-    }
-
     /**
      * Number of new customers registered (role_id = 3).
      */
-    public int getNewCustomers(String from, String to) {
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sql = "SELECT COUNT(*) FROM [User] WHERE role_id = 3";
-        if (hasFilter) {
-            sql += " AND CAST(created_at AS DATE) >= ? AND CAST(created_at AS DATE) <= ?";
-        } else {
-            sql += " AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
-        }
+    public int getNewCustomers() {
+        String sql = "SELECT COUNT(*) FROM [User] WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE) AND role_id = 3";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getNewCustomers: " + e.getMessage());
         }
         return 0;
-    }
-
-    public int getNewCustomers() {
-        return getNewCustomers(null, null);
     }
 
     /**
@@ -386,27 +352,16 @@ public class AdminDashboardDAO extends DBContext {
     /**
      * Orders grouped by status with count.
      */
-    public Map<String, Integer> getOrdersByStatus(String from, String to) {
+    public Map<String, Integer> getOrdersByStatus() {
         Map<String, Integer> map = new LinkedHashMap<>();
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sql = "SELECT order_status, COUNT(*) FROM [Order] ";
-        if (hasFilter) {
-            sql += "WHERE CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ? ";
-        }
-        sql += "GROUP BY order_status";
+        String sql = "SELECT order_status, COUNT(*) FROM [Order] GROUP BY order_status";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String rawStatus = rs.getString(1);
-                    String normStatus = normalizeStatus(rawStatus);
-                    int count = rs.getInt(2);
-                    map.put(normStatus, map.getOrDefault(normStatus, 0) + count);
-                }
+                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String rawStatus = rs.getString(1);
+                String normStatus = normalizeStatus(rawStatus);
+                int count = rs.getInt(2);
+                map.put(normStatus, map.getOrDefault(normStatus, 0) + count);
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getOrdersByStatus: " + e.getMessage());
@@ -422,44 +377,21 @@ public class AdminDashboardDAO extends DBContext {
         return sortedMap;
     }
 
-    public Map<String, Integer> getOrdersByStatus() {
-        return getOrdersByStatus(null, null);
-    }
-
     /**
-     * Top 10 products by total units sold or revenue.
+     * Top 5 products by total units sold.
      */
-    public Map<String, Long> getTopProducts(String from, String to, String criteria) {
-        Map<String, Long> map = new LinkedHashMap<>();
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sumExpr = "SUM(od.quantity)";
-        if ("revenue".equalsIgnoreCase(criteria)) {
-            sumExpr = "CAST(SUM(od.quantity * od.unit_price) AS BIGINT)";
-        }
-        String sql = "SELECT TOP 10 p.product_name, " + sumExpr + " AS metric "
+    public Map<String, Integer> getTopProducts() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT TOP 5 p.product_name, SUM(od.quantity) AS total_sold "
                 + "FROM OrderDetail od "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
-                + "WHERE o.order_status NOT IN ('cancelled', 'Cancelled') ";
-        if (hasFilter) {
-            sql += "AND CAST(o.completed_at AS DATE) >= ? AND CAST(o.completed_at AS DATE) <= ? ";
-        }
-        sql += "GROUP BY p.product_name ORDER BY metric DESC";
+                + "GROUP BY p.product_name ORDER BY total_sold DESC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String name = rs.getString(1);
-                    if (name != null) {
-                        name = name.replace("'", "\\'").replace("\"", "\\\"");
-                    }
-                    map.put(name, rs.getLong(2));
-                }
+                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getTopProducts: " + e.getMessage());
@@ -467,74 +399,24 @@ public class AdminDashboardDAO extends DBContext {
         return map;
     }
 
-    public Map<String, Long> getTopProducts() {
-        return getTopProducts(null, null, "units");
-    }
-
     /**
-     * Top 10 customers by total spending (excluding cancelled orders).
+     * Top 5 customers by total spending (excluding cancelled orders).
      */
-    public Map<String, Long> getTopCustomers(String from, String to) {
+    public Map<String, Long> getTopCustomers() {
         Map<String, Long> map = new LinkedHashMap<>();
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sql = "SELECT TOP 10 u.full_name, CAST(SUM(o.total_amount) AS BIGINT) AS total_spent "
+        String sql = "SELECT TOP 5 u.full_name, CAST(SUM(o.total_amount) AS BIGINT) AS total_spent "
                 + "FROM [Order] o JOIN [User] u ON o.user_id = u.user_id "
-                + "WHERE o.order_status NOT IN ('cancelled', 'Cancelled') ";
-        if (hasFilter) {
-            sql += "AND CAST(o.completed_at AS DATE) >= ? AND CAST(o.completed_at AS DATE) <= ? ";
-        }
-        sql += "GROUP BY u.full_name ORDER BY total_spent DESC";
+                + "WHERE o.order_status NOT IN ('cancelled', 'Cancelled') "
+                + "GROUP BY u.full_name ORDER BY total_spent DESC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String name = rs.getString(1);
-                    if (name != null) {
-                        name = name.replace("'", "\\'").replace("\"", "\\\"");
-                    }
-                    map.put(name, rs.getLong(2));
-                }
+                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getLong(2));
             }
         } catch (Exception e) {
             System.out.println("DashboardService.getTopCustomers: " + e.getMessage());
         }
         return map;
-    }
-
-    public Map<String, Long> getTopCustomers() {
-        return getTopCustomers(null, null);
-    }
-
-    public List<String[]> getAllOrdersForDashboard() {
-        List<String[]> list = new ArrayList<>();
-        String sql = "SELECT order_id, order_code, shipping_receiver, order_status, CAST(total_amount AS VARCHAR), CONVERT(VARCHAR(19), completed_at, 120) FROM [Order] ORDER BY completed_at DESC";
-        try (Connection con = getConnection();
-                PreparedStatement ps = con.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String receiver = rs.getString(3);
-                if (receiver != null) {
-                    receiver = receiver.replace("'", "\\'").replace("\"", "\\\"");
-                } else {
-                    receiver = "";
-                }
-                list.add(new String[]{
-                    rs.getString(1),
-                    rs.getString(2),
-                    receiver,
-                    rs.getString(4),
-                    rs.getString(5),
-                    rs.getString(6)
-                });
-            }
-        } catch (Exception e) {
-            System.out.println("DashboardService.getAllOrdersForDashboard: " + e.getMessage());
-        }
-        return list;
     }
 
     /**
@@ -596,60 +478,4 @@ public class AdminDashboardDAO extends DBContext {
         return days + " day ago";
     }
 
-    /**
-     * Get revenue stats for month, quarter, and year with growth comparisons.
-     */
-    public java.util.Map<String, Object> getRevenueStats() {
-        java.util.Map<String, Object> stats = new java.util.HashMap<>();
-        
-        long curMonth = 0;
-        long prevMonth = 0;
-        long curQuarter = 0;
-        long prevQuarter = 0;
-        long curYear = 0;
-        long prevYear = 0;
-
-        String sqlMonthCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE()) AND MONTH(completed_at) = MONTH(GETDATE())";
-        String sqlMonthPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(month, -1, GETDATE())) AND MONTH(completed_at) = MONTH(DATEADD(month, -1, GETDATE()))";
-        
-        String sqlQuarterCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE()) AND DATEPART(quarter, completed_at) = DATEPART(quarter, GETDATE())";
-        String sqlQuarterPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(quarter, -1, GETDATE())) AND DATEPART(quarter, completed_at) = DATEPART(quarter, DATEADD(quarter, -1, GETDATE()))";
-        
-        String sqlYearCur = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(GETDATE())";
-        String sqlYearPrev = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled') AND YEAR(completed_at) = YEAR(DATEADD(year, -1, GETDATE()))";
-
-        try (Connection con = getConnection()) {
-            try (PreparedStatement ps = con.prepareStatement(sqlMonthCur); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) curMonth = rs.getLong(1);
-            }
-            try (PreparedStatement ps = con.prepareStatement(sqlMonthPrev); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) prevMonth = rs.getLong(1);
-            }
-            try (PreparedStatement ps = con.prepareStatement(sqlQuarterCur); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) curQuarter = rs.getLong(1);
-            }
-            try (PreparedStatement ps = con.prepareStatement(sqlQuarterPrev); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) prevQuarter = rs.getLong(1);
-            }
-            try (PreparedStatement ps = con.prepareStatement(sqlYearCur); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) curYear = rs.getLong(1);
-            }
-            try (PreparedStatement ps = con.prepareStatement(sqlYearPrev); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) prevYear = rs.getLong(1);
-            }
-        } catch (Exception e) {
-            System.out.println("AdminDashboardDAO.getRevenueStats: " + e.getMessage());
-        }
-
-        stats.put("monthRevenue", curMonth);
-        stats.put("monthGrowth", prevMonth == 0 ? (curMonth == 0 ? 0.0 : 100.0) : (double)(curMonth - prevMonth) * 100.0 / prevMonth);
-        
-        stats.put("quarterRevenue", curQuarter);
-        stats.put("quarterGrowth", prevQuarter == 0 ? (curQuarter == 0 ? 0.0 : 100.0) : (double)(curQuarter - prevQuarter) * 100.0 / prevQuarter);
-        
-        stats.put("yearRevenue", curYear);
-        stats.put("yearGrowth", prevYear == 0 ? (curYear == 0 ? 0.0 : 100.0) : (double)(curYear - prevYear) * 100.0 / prevYear);
-
-        return stats;
-    }
 }

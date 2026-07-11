@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%-- isCustomer: true khi roleId == 3 --%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1235,27 +1236,188 @@
                  TAB 4 – ĐƠN HÀNG
             ══════════════════════════════════ -->
             <div class="tab-panel" id="tab-orders">
-                <div class="card">
-                    <div class="card-header">
+                <div class="card" style="padding: 28px;">
+                    <div class="card-header" style="margin-bottom: 20px;">
                         <div class="card-header-icon amber">
                             <i class="fas fa-shopping-bag"></i>
                         </div>
                         <div>
                             <div class="card-title">Đơn Hàng Của Tôi</div>
-                            <div class="card-subtitle">Lịch sử và trạng thái các đơn hàng</div>
+                            <div class="card-subtitle">Lịch sử và trạng thái các đơn hàng của bạn</div>
                         </div>
                     </div>
 
-                    <div class="empty-state" id="orders-empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-shopping-bag"></i>
+                    <!-- Status Filter Tabs -->
+                    <div class="order-status-tabs" style="display: flex; gap: 24px; border-bottom: 2px solid var(--gray-200); padding-bottom: 12px; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <span class="status-tab active" data-status="all" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Tất cả</span>
+                        <span class="status-tab" data-status="Pending" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Chờ xác nhận</span>
+                        <span class="status-tab" data-status="processing" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Đang xử lý</span>
+                        <span class="status-tab" data-status="shipped" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Đang vận chuyển</span>
+                        <span class="status-tab" data-status="delivered" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Đã nhận hàng</span>
+                        <span class="status-tab" data-status="cancelled" style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-500); padding-bottom: 12px; position: relative;">Đã huỷ</span>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 24px; flex-wrap: wrap;">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--gray-700);">Lịch sử mua hàng</span>
+                        <div style="display: flex; align-items: center; border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 6px 12px; background: #fff; gap: 10px;">
+                            <input type="date" id="order-start-date" value="2020-12-01" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
+                            <span style="color: var(--gray-400); font-size: 13px;"><i class="fas fa-arrow-right"></i></span>
+                            <input type="date" id="order-end-date" value="2026-07-10" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
                         </div>
-                        <h3>Chưa có đơn hàng nào</h3>
-                        <p>Bạn chưa thực hiện đơn hàng nào. Hãy khám phá sản phẩm của chúng tôi!</p>
-                        <a href="${pageContext.request.contextPath}/ProductListServlet"
-                           class="btn btn-primary" style="margin-top:20px; display:inline-flex;" id="btn-shop-now">
-                            <i class="fas fa-store"></i> Mua Sắm Ngay
-                        </a>
+                    </div>
+
+                    <!-- CSS styles for tabs -->
+                    <style>
+                        .status-tab {
+                            transition: color var(--transition);
+                            white-space: nowrap;
+                        }
+                        .status-tab.active {
+                            color: var(--red-600) !important;
+                        }
+                        .status-tab.active::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -14px;
+                            left: 0;
+                            width: 100%;
+                            height: 3px;
+                            background-color: var(--red-600);
+                            border-radius: 2px;
+                        }
+                        .order-card {
+                            border: 1px solid var(--gray-200);
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin-bottom: 16px;
+                            background: #fff;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+                            transition: transform 0.2s ease, box-shadow 0.2s ease;
+                        }
+                        .order-card:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                        }
+                        .order-badge {
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+                        .badge-pending-order { background-color: #fef3c7; color: #d97706; }
+                        .badge-processing-order { background-color: #e0f2fe; color: #0369a1; }
+                        .badge-shipping-order { background-color: #e0e7ff; color: #4338ca; }
+                        .badge-delivered-order { background-color: #dcfce7; color: #166534; }
+                        .badge-cancelled-order { background-color: #fee2e2; color: #991b1b; }
+                    </style>
+
+                    <!-- Order Cards List -->
+                    <div id="orders-list-container">
+                        <c:choose>
+                            <c:when test="${empty userOrders}">
+                                <div class="empty-state" id="orders-empty-state" style="display: block;">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                    <h3>Chưa có đơn hàng nào</h3>
+                                    <p>Bạn chưa thực hiện đơn hàng nào. Hãy khám phá sản phẩm của chúng tôi!</p>
+                                    <a href="${pageContext.request.contextPath}/ProductListServlet"
+                                       class="btn btn-primary" style="margin-top:20px; display:inline-flex;" id="btn-shop-now">
+                                        <i class="fas fa-store"></i> Mua Sắm Ngay
+                                    </a>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="empty-state" id="orders-empty-state" style="display: none;">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                    <h3>Không tìm thấy đơn hàng nào</h3>
+                                    <p>Không có đơn hàng nào khớp với điều kiện lọc của bạn.</p>
+                                </div>
+                                
+                                <c:forEach items="${userOrders}" var="ord">
+                                    <c:set var="details" value="${ord.details}" />
+                                    <c:set var="firstDetail" value="${details[0]}" />
+                                    <c:set var="itemCount" value="${fn:length(details)}" />
+                                    
+                                    <div class="order-card" data-status="${ord.orderStatus}" data-date="${ord.completedAt != null ? ord.completedAt.toLocalDate() : '2026-07-10'}">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                                            <div style="font-size: 13px; color: var(--gray-500);">
+                                                Đơn hàng: <strong style="color: var(--gray-700);">#${ord.orderCode}</strong>
+                                                <span style="margin: 0 8px; color: #cbd5e1;">•</span>
+                                                Ngày đặt hàng: <strong>
+                                                    <c:choose>
+                                                        <c:when test="${not empty ord.completedAt}">
+                                                            ${ord.completedAt.dayOfMonth}/${ord.completedAt.monthValue}/${ord.completedAt.year}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            10/07/2026
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </strong>
+                                            </div>
+                                            <div>
+                                                <c:choose>
+                                                    <c:when test="${ord.orderStatus == 'Pending'}">
+                                                        <span class="order-badge badge-pending-order">Chờ xác nhận</span>
+                                                    </c:when>
+                                                    <c:when test="${ord.orderStatus == 'processing'}">
+                                                        <span class="order-badge badge-processing-order">Đang xử lý</span>
+                                                    </c:when>
+                                                    <c:when test="${ord.orderStatus == 'shipped'}">
+                                                        <span class="order-badge badge-shipping-order">Đang vận chuyển</span>
+                                                    </c:when>
+                                                    <c:when test="${ord.orderStatus == 'delivered' || ord.orderStatus == 'Completed'}">
+                                                        <span class="order-badge badge-delivered-order">Đã nhận hàng</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="order-badge badge-cancelled-order">Đã huỷ</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: flex; gap: 16px; align-items: flex-start; justify-content: space-between;">
+                                            <div style="display: flex; gap: 16px; flex: 1; min-width: 0;">
+                                                <img src="${pageContext.request.contextPath}/images/${firstDetail.thumbnail}" 
+                                                     onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" 
+                                                     alt="product" style="width: 80px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; flex-shrink: 0;">
+                                                <div style="min-width: 0;">
+                                                    <h4 style="font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${firstDetail.productName}">
+                                                        ${firstDetail.productName}
+                                                    </h4>
+                                                    <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 2px;">Cấu hình: ${firstDetail.variantName}</p>
+                                                    <div style="font-size: 13px; font-weight: 500; color: var(--gray-700);">
+                                                        <fmt:formatNumber value="${firstDetail.unitPrice}" pattern="#,##0"/>₫ 
+                                                        <span style="font-size: 12px; color: var(--gray-500); font-weight: 400; margin-left: 5px;">x ${firstDetail.quantity}</span>
+                                                    </div>
+                                                    <c:if test="${itemCount > 1}">
+                                                        <p style="font-size: 12px; color: var(--blue-600); font-weight: 500; margin-top: 6px;">
+                                                            <i class="fas fa-boxes" style="margin-right: 4px;"></i> Cùng ${itemCount - 1} sản phẩm khác
+                                                        </p>
+                                                    </c:if>
+                                                    <c:if test="${ord.orderStatus == 'delivered' || ord.orderStatus == 'Completed'}">
+                                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; font-size: 10px; font-weight: 600; border-radius: 4px; margin-top: 6px;">Đã xuất VAT</span>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+
+                                            <div style="text-align: right; flex-shrink: 0;">
+                                                <p style="font-size: 12px; color: var(--gray-500); margin-bottom: 4px;">Tổng thanh toán</p>
+                                                <p style="font-size: 16px; font-weight: 800; color: var(--red-600); margin-bottom: 12px;">
+                                                    <fmt:formatNumber value="${ord.totalAmount}" pattern="#,##0"/>₫
+                                                </p>
+                                                <a href="${pageContext.request.contextPath}/order-detail?id=${ord.orderId}" class="btn btn-outline btn-sm" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center;">
+                                                    Xem chi tiết <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px;"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
@@ -1306,7 +1468,6 @@
                                     <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
                                 </div>
                             </c:when>
-
                             <c:when test="${not empty studentVerify && studentVerify.status == 'rejected'}">
                                 <div class="alert alert-error" style="background:#fef2f2; border-left:4px solid #b91c1c; color:#991b1b; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
                                     <i class="fas fa-times-circle" style="font-size:24px;"></i>
@@ -1354,6 +1515,70 @@
     <footer class="footer">
         <p>© 2026 UNILAP Precision Engineering. All rights reserved.</p>
     </footer>
+
+    <!-- ── ORDER DETAIL MODAL ────────────────────────────────────────── -->
+    <div id="orderDetailModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease;">
+        <div style="background: #fff; width: 100%; max-width: 650px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; max-height: 85vh; animation: zoomIn 0.2s ease;">
+            <!-- Modal Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--gray-900);" id="modal-order-code">Chi tiết đơn hàng</h3>
+                <button type="button" onclick="closeOrderDetailModal()" style="border: none; background: none; font-size: 20px; color: var(--gray-500); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div style="padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Receiver Info -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-map-marker-alt" style="color: var(--blue-600);"></i> Thông tin nhận hàng</h4>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--gray-700);">
+                        <p>Người nhận: <strong id="modal-receiver">...</strong></p>
+                        <p>Số điện thoại: <strong id="modal-phone">...</strong></p>
+                        <p>Địa chỉ: <strong id="modal-address">...</strong></p>
+                    </div>
+                </div>
+
+                <!-- Products list -->
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-box" style="color: var(--blue-600);"></i> Sản phẩm đã mua</h4>
+                    <div id="modal-products-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Cost Summary -->
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--gray-600);">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tạm tính:</span>
+                        <span id="modal-subtotal" style="font-weight: 600; color: var(--gray-800);">0₫</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Phí vận chuyển:</span>
+                        <span id="modal-shipping-fee" style="font-weight: 600; color: var(--gray-800);">0₫</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <span>Giảm giá:</span>
+                        <span id="modal-discount" style="font-weight: 600; color: var(--red-600);">-0₫</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: var(--gray-900); padding-top: 4px;">
+                        <span>Tổng thanh toán:</span>
+                        <span id="modal-final-total" style="color: var(--red-600);">0₫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Animations -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
 
     <script>
         // ── TAB SWITCHING ──────────────────────────────────────────────
@@ -1458,8 +1683,197 @@
             fill.style.background = '';
         }
 
+        // ── PURCHASE HISTORY LOGIC ──────────────────────────────────────
+        function formatCurrency(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Map orderId -> details data
+        const orderDetailsData = {
+            <c:forEach items="${userOrders}" var="ord" varStatus="status">
+                "${ord.orderId}": {
+                    "orderCode": "${ord.orderCode}",
+                    "receiver": "${fn:replace(ord.shippingReceiver, '"', '\\"')}",
+                    "phone": "${ord.shippingPhone}",
+                    "address": "${fn:replace(ord.shippingAddress, '"', '\\"')}",
+                    "shippingFee": ${ord.shippingFee},
+                    "totalAmount": ${ord.totalAmount},
+                    "items": [
+                        <c:forEach items="${ord.details}" var="item" varStatus="iStatus">
+                            {
+                                "productName": "${fn:replace(item.productName, '"', '\\"')}",
+                                "variantName": "${fn:replace(item.variantName, '"', '\\"')}",
+                                "quantity": ${item.quantity},
+                                "unitPrice": ${item.unitPrice},
+                                "thumbnail": "${item.thumbnail}"
+                            }${not iStatus.last ? ',' : ''}
+                        </c:forEach>
+                    ]
+                }${not status.last ? ',' : ''}
+            </c:forEach>
+        };
+
+        function showOrderDetail(orderId) {
+            const ord = orderDetailsData[orderId];
+            if (!ord) return;
+
+            document.getElementById('modal-order-code').innerText = "Chi tiết đơn hàng #" + ord.orderCode;
+            document.getElementById('modal-receiver').innerText = ord.receiver;
+            document.getElementById('modal-phone').innerText = ord.phone;
+            document.getElementById('modal-address').innerText = ord.address;
+
+            // Render products
+            const productsContainer = document.getElementById('modal-products-list');
+            productsContainer.innerHTML = '';
+            
+            let subtotal = 0;
+            ord.items.forEach(item => {
+                const itemSub = item.quantity * item.unitPrice;
+                subtotal += itemSub;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.style.display = 'flex';
+                itemDiv.style.gap = '12px';
+                itemDiv.style.alignItems = 'center';
+                itemDiv.style.justifyContent = 'space-between';
+                itemDiv.style.padding = '8px 0';
+                itemDiv.style.borderBottom = '1px solid #f1f5f9';
+
+                itemDiv.innerHTML = `
+                    <div style="display: flex; gap: 12px; align-items: center; min-width: 0; flex: 1;">
+                        <img src="${pageContext.request.contextPath}/images/\${item.thumbnail}" 
+                             onerror="this.src='https://placehold.co/60x50/f1f5f9/94a3b8?text=UniLap'" 
+                             alt="product" style="width: 50px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0; flex-shrink:0;">
+                        <div style="min-width: 0;">
+                            <p style="font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="\${item.productName}">\${item.productName}</p>
+                            <p style="font-size: 12px; color: var(--gray-500);">Phân loại: \${item.variantName}</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0; font-size: 13px; margin-left: 10px;">
+                        <p style="font-weight: 600; color: var(--gray-800);">\${formatCurrency(item.unitPrice)}₫</p>
+                        <p style="color: var(--gray-500); font-size: 11px;">x\${item.quantity}</p>
+                    </div>
+                `;
+                productsContainer.appendChild(itemDiv);
+            });
+
+            // Calculate costs
+            const shippingFee = ord.shippingFee;
+            const finalTotal = ord.totalAmount;
+            const discount = subtotal + shippingFee - finalTotal;
+
+            document.getElementById('modal-subtotal').innerText = formatCurrency(subtotal) + '₫';
+            document.getElementById('modal-shipping-fee').innerText = formatCurrency(shippingFee) + '₫';
+            document.getElementById('modal-discount').innerText = (discount > 0 ? "- " + formatCurrency(discount) : "0") + '₫';
+            document.getElementById('modal-final-total').innerText = formatCurrency(finalTotal) + '₫';
+
+            const modal = document.getElementById('orderDetailModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').style.display = 'none';
+        }
+
+        // Close modal clicking outside
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('orderDetailModal');
+            if (e.target === modal) {
+                closeOrderDetailModal();
+            }
+        });
+
+        // Filter functionality
+        const statusTabs = document.querySelectorAll('.status-tab');
+        const orderCards = document.querySelectorAll('.order-card');
+        const emptyState = document.getElementById('orders-empty-state');
+        const startDateInput = document.getElementById('order-start-date');
+        const endDateInput = document.getElementById('order-end-date');
+
+        statusTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                statusTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                filterOrders();
+            });
+        });
+
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener('change', filterOrders);
+            endDateInput.addEventListener('change', filterOrders);
+        }
+
+        function filterOrders() {
+            const activeTab = document.querySelector('.status-tab.active');
+            const selectedStatus = activeTab ? activeTab.getAttribute('data-status') : 'all';
+            
+            const startVal = startDateInput ? startDateInput.value : '';
+            const endVal = endDateInput ? endDateInput.value : '';
+            
+            const startDate = startVal ? new Date(startVal) : null;
+            const endDate = endVal ? new Date(endVal) : null;
+            if (endDate) {
+                endDate.setHours(23, 59, 59, 999);
+            }
+
+            let visibleCount = 0;
+
+            orderCards.forEach(card => {
+                const cardStatus = card.getAttribute('data-status');
+                const cardDateStr = card.getAttribute('data-date');
+                const cardDate = new Date(cardDateStr);
+
+                // Check status
+                let statusMatch = false;
+                if (selectedStatus === 'all') {
+                    statusMatch = true;
+                } else if (selectedStatus === 'delivered') {
+                    statusMatch = (cardStatus === 'delivered' || cardStatus === 'Completed');
+                } else if (selectedStatus === 'cancelled') {
+                    statusMatch = (cardStatus === 'cancelled' || cardStatus === 'Cancelled');
+                } else {
+                    statusMatch = (cardStatus === selectedStatus);
+                }
+
+                // Check date
+                let dateMatch = true;
+                if (startDate && cardDate < startDate) {
+                    dateMatch = false;
+                }
+                if (endDate && cardDate > endDate) {
+                    dateMatch = false;
+                }
+
+                if (statusMatch && dateMatch) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (emptyState) {
+                if (visibleCount === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
+        }
+
         // ── ON LOAD ─────────────────────────────────────────────────────
         window.addEventListener('load', function() {
+            // Set current date to end date filter input dynamically
+            if (endDateInput && !endDateInput.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                let mm = today.getMonth() + 1;
+                let dd = today.getDate();
+                if (dd < 10) dd = '0' + dd;
+                if (mm < 10) mm = '0' + mm;
+                endDateInput.value = yyyy + '-' + mm + '-' + dd;
+            }
+
             // Auto-switch tab based on server messages or URL hash
             var hash = window.location.hash.replace('#', '');
 

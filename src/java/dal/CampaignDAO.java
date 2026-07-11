@@ -27,6 +27,28 @@ public class CampaignDAO extends DBContext {
      */
     public CampaignDAO() {
         this.con = super.connection;
+        ensureUserUsageLimitColumnExists();
+    }
+
+    public CampaignDAO(ServletContext context) {
+        super(context);
+        this.con = super.connection;
+        ensureUserUsageLimitColumnExists();
+    }
+
+    private void ensureUserUsageLimitColumnExists() {
+        if (this.con == null) return;
+        try (java.sql.Statement s = this.con.createStatement()) {
+            s.execute("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[dbo].[Campaign]') AND name = 'user_usage_limit') " +
+                      "BEGIN ALTER TABLE [dbo].[Campaign] ADD [user_usage_limit] INT NULL; END");
+        } catch (SQLException e) {
+            // Quietly ignore
+        }
+    }
+
+    public CampaignDAO(ServletContext context) {
+        super(context);
+        this.con = super.connection;
     }
 
     public CampaignDAO(ServletContext context) {
@@ -133,6 +155,17 @@ public class CampaignDAO extends DBContext {
             c.setUsageLimit(null);
         } else {
             c.setUsageLimit(usageLimit);
+        }
+
+        try {
+            int userUsageLimit = rs.getInt("user_usage_limit");
+            if (rs.wasNull()) {
+                c.setUserUsageLimit(null);
+            } else {
+                c.setUserUsageLimit(userUsageLimit);
+            }
+        } catch (SQLException e) {
+            c.setUserUsageLimit(null);
         }
 
         c.setUsedCount(rs.getInt("used_count"));

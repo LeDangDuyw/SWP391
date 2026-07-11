@@ -646,23 +646,6 @@
                 margin-top: 4px;
                 display: block;
             }
-
-            /* Sidebar dropdown style */
-            .sidebar-dropdown {
-                display: flex;
-                flex-direction: column;
-            }
-            .sidebar-dropdown-container {
-                display: none;
-                flex-direction: column;
-                gap: 4px;
-                margin-top: 4px;
-            }
-            .sidebar nav .sidebar-dropdown-container a {
-                padding: 8px 14px 8px 30px !important;
-                font-size: 13px !important;
-                font-weight: 500 !important;
-            }
         </style>
     </head>
     <body>
@@ -674,22 +657,7 @@
                     <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="#"><span>▣</span>Orders</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    
-                    <div class="sidebar-dropdown">
-                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
-                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
-                        </a>
-                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
-                            <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
-                            </a>
-                            <a href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Advanced Analytics
-                            </a>
-                        </div>
-                    </div>
-
+                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
@@ -747,76 +715,36 @@
                     </div>
                 </div>
 
-                <div class="tabs-container" style="display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; padding: 0 28px;">
-                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Warranty Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${not empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${not empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Footer Policies</a>
-                </div>
-
                 <div class="pane-body">
-                    <c:choose>
-                        <c:when test="${not empty isFooterTab}">
-                            <!-- Left pane for Footer Policies -->
-                            <div class="doc-pane">
-                                <div class="doc-pane-header"><h3>Footer Documents</h3></div>
-                                <div class="doc-list">
-                                    <c:choose>
-                                        <c:when test="${not empty generalPolicies}">
-                                            <c:forEach items="${generalPolicies}" var="gp">
-                                                <a href="${pageContext.request.contextPath}/admin/general-policy?id=${gp.policyId}">
-                                                    <div class="doc-item ${selectedGeneralPolicy != null && selectedGeneralPolicy.policyId == gp.policyId ? 'active' : ''}">
-                                                        <div class="doc-item-top">
-                                                            <span class="doc-item-name">${gp.title}</span>
-                                                            <span class="badge ${gp.status ? 'badge-live' : 'badge-disabled'}">
-                                                                ${gp.status ? 'ACTIVE' : 'DISABLED'}
-                                                            </span>
-                                                        </div>
-                                                        <div class="doc-item-meta">
-                                                            Type: ${gp.policyType} | Order: ${gp.footerOrder} | Footer: ${gp.showInFooter ? 'YES' : 'NO'}
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No general policies found.</div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                            </div>
-
-                            <!-- Right pane for Footer Policies -->
-                            <div class="editor-pane">
-                                <c:choose>
-                                    <c:when test="${selectedGeneralPolicy != null}">
-                                        <div class="editor-content">
-                                            <h1 class="policy-doc-title">${selectedGeneralPolicy.title}</h1>
-                                            
-                                            <!-- Toggle Settings Card -->
-                                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-bottom: 24px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
-                                                <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 14px;">
-                                                    <input type="hidden" name="action" value="updateFooterSettings">
-                                                    <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
-                                                    
-                                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                                        <input type="checkbox" id="showInFooter" name="showInFooter" value="true" ${selectedGeneralPolicy.showInFooter ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
-                                                        <label for="showInFooter" style="font-size: 14px; font-weight: 500; color: #334155; cursor: pointer;">Hiển thị ở Footer</label>
-                                                    </div>
-                                                    
-                                                    <div style="display: flex; flex-direction: column; gap: 6px; max-width: 200px;">
-                                                        <label for="footerOrder" style="font-size: 13px; font-weight: 600; color: #475569;">Thứ tự hiển thị (Order)</label>
-                                                        <input type="number" id="footerOrder" name="footerOrder" value="${selectedGeneralPolicy.footerOrder}" min="0" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none;">
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 8px 16px; font-size: 13px;">Save Settings</button>
-                                                </form>
-                                            </div>
-                                            
-                                            <!-- Content Preview -->
-                                            <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Content Preview</h3>
-                                                <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0; max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 12px; border-radius: 8px;">
-                                                    ${selectedGeneralPolicy.content}
+                    <!-- Left pane -->
+                    <div class="doc-pane">
+                        <div class="doc-pane-header"><h3>Active Documents</h3></div>
+                        <div class="search-wrap">
+                            <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
+                                <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
+                                <button type="submit">Go</button>
+                            </form>
+                        </div>
+                        <div class="doc-list">
+                            <c:choose>
+                                <c:when test="${not empty policies}">
+                                    <c:forEach items="${policies}" var="p">
+                                        <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
+                                            <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
+                                                <div class="doc-item-top">
+                                                    <span class="doc-item-name">${p.policyName}</span>
+                                                    <span class="badge
+                                                          <c:choose>
+                                                              <c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when>
+                                                              <c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when>
+                                                              <c:otherwise>badge-disabled</c:otherwise>
+                                                          </c:choose>">${p.status}</span>
+                                                </div>
+                                                <div class="doc-item-meta">
+                                                    <c:choose>
+                                                        <c:when test="${p.updatedAt != null}">Updated <fmt:formatDate value="${p.updatedAt}" pattern="dd MMM yyyy"/></c:when>
+                                                        <c:otherwise>No update info</c:otherwise>
+                                                    </c:choose>
                                                 </div>
                                             </div>
                                         </div>
@@ -886,111 +814,120 @@
                                     </div>
                                 </c:if>
                             </div>
+                        </c:if>
+                    </div>
 
-                            <!-- Right pane -->
-                            <div class="editor-pane">
-                                <div class="editor-toolbar">
-                                    <div class="status-indicator">
-                                        <c:if test="${selectedPolicy != null}">
-                                            <span>Status:</span>
-                                            <select id="statusSelect" onchange="changeStatus(${selectedPolicy.policyId}, this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; margin-left: 4px;">
-                                                <option value="DRAFT" ${selectedPolicy.status eq 'DRAFT' ? 'selected' : ''}>Draft</option>
-                                                <option value="LIVE" ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Live</option>
-                                                <option value="DISABLED" ${selectedPolicy.status eq 'DISABLED' ? 'selected' : ''}>Disabled</option>
-                                            </select>
-                                        </c:if>
-                                        <c:if test="${selectedPolicy == null}">
-                                            <span style="color:#9ca3af;font-size:13px;">No document selected</span>
-                                        </c:if>
-                                    </div>
-                                </div>
-
-                                <c:choose>
-                                    <c:when test="${selectedPolicy != null}">
-                                        <div class="editor-content" id="policyView">
-                                            <h1 class="policy-doc-title">${selectedPolicy.policyName}</h1>
-                                            <div class="policy-meta-row">
-                                                <div class="meta-item">
-                                                    <label>VERSION</label>
-                                                    <span class="meta-chip">${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}</span>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <label>ACTIVE PERIOD</label>
-                                                    <span class="meta-chip">
-                                                        <c:choose>
-                                                            <c:when test="${selectedPolicy.effectiveDate != null}">
-                                                                <fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="dd/MM/yyyy"/>
-                                                                →
-                                                                <c:choose>
-                                                                    <c:when test="${selectedPolicy.expiryDate != null}">
-                                                                        <fmt:formatDate value="${selectedPolicy.expiryDate}" pattern="dd/MM/yyyy"/>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ∞
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </c:when>
-                                                            <c:otherwise>—</c:otherwise>
-                                                        </c:choose>
-                                                    </span>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <label>APPLICABLE REGIONS</label>
-                                                    <div class="region-chips">
-                                                        <c:choose>
-                                                            <c:when test="${not empty selectedPolicy.applicableRegions}">
-                                                                <c:forEach items="${fn:split(selectedPolicy.applicableRegions, ',')}" var="region">
-                                                                    <span class="region-chip">${fn:trim(region)}</span>
-                                                                </c:forEach>
-                                                            </c:when>
-                                                            <c:otherwise><span class="meta-chip" style="color:#9ca3af;">—</span></c:otherwise>
-                                                        </c:choose>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <c:choose>
-                                                <c:when test="${not empty selectedPolicy.policyContent}">
-                                                     <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0;">${selectedPolicy.policyContent}</div>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <div class="policy-text" style="color:#9ca3af;font-style:italic;">No policy content yet. Use Edit Policy to add body text.</div>
-                                                </c:otherwise>
-                                            </c:choose>
-                                            <c:if test="${not empty selectedPolicy.description}">
-                                                <div class="policy-highlight">
-                                                    <div class="hl-title">Note (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
-                                                    <div class="hl-body">${selectedPolicy.description}</div>
-                                                </div>
-                                            </c:if>
-                                        </div>
-                                        <div class="editor-footer">
-                                            <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Delete</button>
-                                            <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Edit Policy</button>
-                                            <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
-                                                <input type="hidden" name="action" value="saveDraft">
-                                                <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
-                                                <input type="hidden" name="page" value="${currentPage}">
-                                                <button type="submit" class="btn btn-outline btn-sm">&#128190; Save Draft</button>
-                                            </form>
-                                            <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
-                                                <input type="hidden" name="action" value="publish">
-                                                <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
-                                                <input type="hidden" name="page" value="${currentPage}">
-                                                <button type="submit" class="btn btn-primary btn-sm">&#9650; Publish</button>
-                                            </form>
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="empty-state">
-                                            <div class="empty-icon">&#128196;</div>
-                                            <h3>No Policy Selected</h3>
-                                            <p>Select a policy from the list or create a new one.</p>
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
+                    <!-- Right pane -->
+                    <div class="editor-pane">
+                        <div class="editor-toolbar">
+                            <div class="status-indicator">
+                                <c:if test="${selectedPolicy != null}">
+                                    <span>Status:</span>
+                                    <select id="statusSelect" onchange="changeStatus(${selectedPolicy.policyId}, this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; margin-left: 4px;">
+                                        <option value="DRAFT" ${selectedPolicy.status eq 'DRAFT' ? 'selected' : ''}>Draft</option>
+                                        <option value="LIVE" ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Live</option>
+                                        <option value="DISABLED" ${selectedPolicy.status eq 'DISABLED' ? 'selected' : ''}>Disabled</option>
+                                    </select>
+                                </c:if>
+                                <c:if test="${selectedPolicy == null}">
+                                    <span style="color:#9ca3af;font-size:13px;">No document selected</span>
+                                </c:if>
                             </div>
-                        </c:otherwise>
-                    </c:choose>
+                        </div>
+
+                        <c:choose>
+                            <c:when test="${selectedPolicy != null}">
+                                <div class="editor-content" id="policyView">
+                                    <h1 class="policy-doc-title">${selectedPolicy.policyName}</h1>
+                                    <div class="policy-meta-row">
+                                        <div class="meta-item">
+                                            <label>VERSION</label>
+                                            <span class="meta-chip">${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}</span>
+                                        </div>
+                                        <!--                                        <div class="meta-item">
+                                                                                    <label>EFFECTIVE DATE</label>
+                                                                                    <span class="meta-chip">
+                                        <c:choose>
+                                            <c:when test="${selectedPolicy.effectiveDate != null}"><fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="MM/dd/yyyy"/></c:when>
+                                            <c:otherwise>—</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </div>-->
+                                        <div class="meta-item">
+                                            <label>ACTIVE PERIOD</label>
+                                            <span class="meta-chip">
+                                                <c:choose>
+                                                    <c:when test="${selectedPolicy.effectiveDate != null}">
+                                                        <fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="dd/MM/yyyy"/>
+                                                        →
+                                                        <c:choose>
+                                                            <c:when test="${selectedPolicy.expiryDate != null}">
+                                                                <fmt:formatDate value="${selectedPolicy.expiryDate}" pattern="dd/MM/yyyy"/>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ∞
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
+                                                    <c:otherwise>—</c:otherwise>
+                                                </c:choose>
+                                            </span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <label>APPLICABLE REGIONS</label>
+                                            <div class="region-chips">
+                                                <c:choose>
+                                                    <c:when test="${not empty selectedPolicy.applicableRegions}">
+                                                        <c:forEach items="${fn:split(selectedPolicy.applicableRegions, ',')}" var="region">
+                                                            <span class="region-chip">${fn:trim(region)}</span>
+                                                        </c:forEach>
+                                                    </c:when>
+                                                    <c:otherwise><span class="meta-chip" style="color:#9ca3af;">—</span></c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <c:choose>
+                                        <c:when test="${not empty selectedPolicy.policyContent}">
+                                             <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0;">${selectedPolicy.policyContent}</div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="policy-text" style="color:#9ca3af;font-style:italic;">No policy content yet. Use Edit Policy to add body text.</div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <c:if test="${not empty selectedPolicy.description}">
+                                        <div class="policy-highlight">
+                                            <div class="hl-title">Note (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
+                                            <div class="hl-body">${selectedPolicy.description}</div>
+                                        </div>
+                                    </c:if>
+                                </div>
+                                <div class="editor-footer">
+                                    <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Delete</button>
+                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Edit Policy</button>
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
+                                        <input type="hidden" name="action" value="saveDraft">
+                                        <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
+                                        <button type="submit" class="btn btn-outline btn-sm">&#128190; Save Draft</button>
+                                    </form>
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
+                                        <input type="hidden" name="action" value="publish">
+                                        <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
+                                        <input type="hidden" name="page" value="${currentPage}">
+                                        <button type="submit" class="btn btn-primary btn-sm">&#9650; Publish</button>
+                                    </form>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="empty-state">
+                                    <div class="empty-icon">&#128196;</div>
+                                    <h3>No Policy Selected</h3>
+                                    <p>Select a policy from the list or create a new one.</p>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1244,18 +1181,6 @@
         </c:if>
 
         <script>
-            function toggleSidebarDropdown(btn) {
-                const container = btn.nextElementSibling;
-                const arrow = btn.querySelector('.dropdown-arrow');
-                if (container.style.display === 'flex') {
-                    container.style.display = 'none';
-                    arrow.style.transform = 'rotate(0deg)';
-                } else {
-                    container.style.display = 'flex';
-                    arrow.style.transform = 'rotate(180deg)';
-                }
-            }
-
             function openModal(id) {
                 document.getElementById(id).classList.add('open');
             }
@@ -1426,24 +1351,16 @@
 
             (function () {
                 var params = new URLSearchParams(window.location.search);
-                if (params.get('edit') === '1') {
-                    if ('${isFooterTab}' === 'true') {
-                        openModal('editGeneralModal');
-                    } else {
-                        openModal('editModal');
-                    }
-                }
+                if (params.get('edit') === '1')
+                    openModal('editModal');
 
             <c:if test="${not empty error}">
                 <c:choose>
-                    <c:when test="${not empty isFooterTab}">
-                        openModal('editGeneralModal');
-                    </c:when>
                     <c:when test="${not empty formData}">
-                        openModal('createModal');
+                openModal('createModal');
                     </c:when>
                     <c:otherwise>
-                        openModal('editModal');
+                openModal('editModal');
                     </c:otherwise>
                 </c:choose>
             </c:if>
