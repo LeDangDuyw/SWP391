@@ -322,7 +322,7 @@ public class VoucherDAO extends DBContext {
         // Query: Lấy các campaign dành riêng cho user hoặc dùng chung (user_id IS NULL)
         // Đồng thời đếm số lần sử dụng của chính user này đối với campaign đó trong bảng Order
         // Nếu campaign chỉ áp dụng cho người dùng mới (is_new_user_only = 1), ta loại trừ nếu user đã có lịch sử đặt hàng
-        String sql = "SELECT c.campaign_id AS voucher_id, c.promo_code AS voucher_code, c.discount_value, c.min_order_value, c.end_date AS expiry_date, c.user_usage_limit, " +
+        String sql = "SELECT c.campaign_id AS voucher_id, c.promo_code AS voucher_code, c.discount_value, c.min_order_value, c.end_date AS expiry_date, c.user_usage_limit, c.campaign_description, " +
                      "  (SELECT COUNT(*) FROM [Order] o " +
                      "   WHERE o.user_id = ? AND o.voucher_id = c.campaign_id AND o.order_status <> 'cancelled') as used_count " +
                      "FROM [Campaign] c " +
@@ -346,6 +346,7 @@ public class VoucherDAO extends DBContext {
                     dto.setDiscountValue(rs.getBigDecimal("discount_value"));
                     dto.setMinOrderValue(rs.getBigDecimal("min_order_value"));
                     dto.setExpiryDate(rs.getTimestamp("expiry_date"));
+                    dto.setDescription(rs.getString("campaign_description"));
                     
                     int usedCount = rs.getInt("used_count");
                     Object userLimitObj = rs.getObject("user_usage_limit");

@@ -17,6 +17,8 @@ public class UserVoucherDTO {
     private BigDecimal missingAmount = BigDecimal.ZERO;
     private String statusMessage = "";
 
+    private String description = "";
+
     public UserVoucherDTO() {}
 
     public int getVoucherId() { return voucherId; }
@@ -48,4 +50,7 @@ public class UserVoucherDTO {
 
     public String getStatusMessage() { return statusMessage; }
     public void setStatusMessage(String statusMessage) { this.statusMessage = statusMessage; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }

@@ -15,10 +15,36 @@
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/AdminDashboard.jsp</file>
         </group>
         <group>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/AdminDashboard.jsp</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/dal/AdminDashboardDAO.java</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/controller/AdminDashboardServlet.java</file>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/WarrantyProcess.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/product_list.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/chat-full.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/home.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/js/compare.js</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/ProductCompareDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CompareServlet.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/product_detail.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/InventoryListController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/ProductDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/ProductListServlet.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CampaignFormController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CampaignDetailController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/compareProducts.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/customer/checkout.jsp</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/AddProductController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/RegisterController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/PromotionsController.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignFormDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/AdminDashboardServlet.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/CampaignDetailDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/PromotionsDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/filter/AuthFilter.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/service/WarrantyService.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/web/js/chat.js</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/service/PdfInvoiceService.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/dal/AdvancedAnalyticsDAO.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/controller/CartServlet.java</file>
+            <file>file:/C:/Users/NC/Desktop/UNILA%7B/SWP391/src/java/service/MockAnalyticsService.java</file>
         </group>
     </open-files>
 </project-private>

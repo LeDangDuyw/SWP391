@@ -505,8 +505,13 @@
                                     <button type="button" class="qty-btn btn-qty-plus" data-variant-id="${item.variantId}" ${item.quantity >= item.availableQuantity ? 'disabled' : ''}>+</button>
                                 </form>
                                 <!-- Price -->
-                                <div class="cart-card-price-block">
-                                    <span class="cart-card-price" data-variant-id="${item.variantId}"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                <div class="cart-card-price-block" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                    <span class="cart-card-price" data-variant-id="${item.variantId}" style="font-weight: 700; color: #ef4444;"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                    <c:if test="${not empty item.originalPrice && item.unitPrice < item.originalPrice}">
+                                        <span class="cart-card-original-price" data-variant-id="${item.variantId}" data-original-unit-price="${item.originalPrice}" style="text-decoration: line-through; color: #94a3b8; font-size: 13px;">
+                                            <fmt:formatNumber value="${item.originalPrice * item.quantity}" pattern="#,##0"/>₫
+                                        </span>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -682,41 +687,43 @@
                 </c:if>
 
                 <div class="vouchers-list" id="vouchers-list">
-                    <!-- Sẽ được JS render động khi thay đổi số lượng, ở đây là render ban đầu của JSTL -->
-                    <c:forEach items="${userVouchers}" var="v">
-                        <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
-                             data-code="${v.voucherCode}">
-                            <div class="voucher-left">
-                                <div class="v-code">${v.voucherCode}</div>
-                                <div class="v-discount">
-                                    Giảm <fmt:formatNumber value="${v.discountValue}" pattern="#,##0"/>${v.discountValue <= 100 ? '%' : '₫'}
-                                </div>
-                                <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
-                                <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
-                                    ${v.statusMessage}
-                                </div>
-                            </div>
-                            <div class="voucher-right">
-                                <c:choose>
-                                    <c:when test="${v.voucherCode == couponCode}">
-                                        <div class="promo-select-indicator active">
-                                            <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
-                                        </div>
-                                    </c:when>
-                                    <c:when test="${v.used || !v.available}">
-                                        <div class="promo-select-indicator disabled">
-                                            <i class="fas fa-plus-circle" style="color: #cbd5e1; font-size: 20px; cursor: not-allowed;"></i>
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
-                                            <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
-                                        </button>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </div>
-                    </c:forEach>
+                     <c:forEach items="${userVouchers}" var="v">
+                         <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
+                              data-code="${v.voucherCode}">
+                             <div class="voucher-left">
+                                 <div class="v-code">${v.voucherCode}</div>
+                                 <div class="v-discount">
+                                     Giảm <fmt:formatNumber value="${v.discountValue}" pattern="#,##0"/>${v.discountValue <= 100 ? '%' : '₫'}
+                                 </div>
+                                 <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
+                                 <c:if test="${not empty v.description}">
+                                     <div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">
+                                         ${v.description}
+                                     </div>
+                                 </c:if>
+                                 <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
+                                     ${v.statusMessage}
+                                 </div>
+                             </div>
+                             <div class="voucher-right">
+                                 <c:choose>
+                                     <c:when test="${v.voucherCode == couponCode}">
+                                         <div class="promo-select-indicator active">
+                                             <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                                         </div>
+                                     </c:when>
+                                     <c:when test="${v.used || !v.available}">
+                                         <!-- Ẩn hoàn toàn nút + -->
+                                     </c:when>
+                                     <c:otherwise>
+                                         <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                                             <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
+                                         </button>
+                                     </c:otherwise>
+                                 </c:choose>
+                             </div>
+                         </div>
+                     </c:forEach>
                     <c:if test="${empty userVouchers}">
                         <p style="font-size: 12.5px; color: #64748b; font-style: italic; text-align: center; margin: 15px 0;">Bạn không sở hữu mã giảm giá nào.</p>
                     </c:if>
