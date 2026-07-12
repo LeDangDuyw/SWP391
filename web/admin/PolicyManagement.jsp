@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="fn"  uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -763,7 +763,7 @@
                                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
                                                 <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
                                                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 16px;">
-                                                    <input type="hidden" name="action" value="updateSettings">
+                                                    <input type="hidden" name="action" value="updateFooterSettings">
                                                     <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
                                                     
                                                     <div style="display: flex; align-items: center; gap: 10px;">
