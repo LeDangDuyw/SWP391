@@ -1,4 +1,14 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%-- 
+    Page: advanced_analytics.jsp
+    Mo ta: Trang giao diện phân tích báo cáo nâng cao tích hợp biểu đồ Chart.js.
+    
+    Created: 2026-07-09 18:10:23 +0700
+    Updated: 2026-07-12 00:05:15 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>

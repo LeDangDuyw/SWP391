@@ -1,20 +1,32 @@
-package dal;
+﻿/**
+ * Class: WarrantyHistoryDAO
+ * Description: Data Access Object ghi nhận lịch sử thay đổi trạng thái phiếu bảo hành.
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
+
+/**
+ * Class: WarrantyHistoryDAO
+ * Description: Data Access Object ghi nhận lịch sử thay đổi trạng thái phiếu bảo hành.
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
 
 import model.WarrantyHistory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * WarrantyHistoryDAO manages records in the existing WarrantyHistory table.
- *
- * Schema (do NOT modify):
- *   history_id, warranty_id, issue_description,
- *   repair_status, repair_date, repair_note, created_at
- *
- * Version 1.0
- * Author DuyLD
- */
+
 public class WarrantyHistoryDAO extends DBContext {
 
     // ── INSERT ────────────────────────────────────────────────────────────────
@@ -34,6 +46,9 @@ public class WarrantyHistoryDAO extends DBContext {
                 + "(warranty_id, issue_description, repair_status, repair_date, repair_note, created_at) "
                 + "VALUES (?, ?, ?, GETDATE(), ?, GETDATE())";
 
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, history.getWarrantyId());
@@ -61,9 +76,15 @@ public class WarrantyHistoryDAO extends DBContext {
                 + "ORDER BY created_at DESC";
 
         List<WarrantyHistory> list = new ArrayList<>();
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, warrantyId);
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapHistory(rs));
@@ -85,6 +106,9 @@ public class WarrantyHistoryDAO extends DBContext {
      */
     public void deleteByWarrantyId(int warrantyId) throws Exception {
         String sql = "DELETE FROM WarrantyHistory WHERE warranty_id = ?";
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, warrantyId);

@@ -1,4 +1,14 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%-- 
+    Page: WarrantyProcess.jsp
+    Mo ta: Trang giao diện nhân viên/admin xử lý các phiếu bảo hành.
+    
+    Created: 2026-06-22 21:12:34 +0700
+    Updated: 2026-07-12 00:05:15 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
