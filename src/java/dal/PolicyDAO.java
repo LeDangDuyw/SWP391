@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: PolicyDAO
  * Description: Data Access Object xử lý truy vấn chính sách bảo hành trong CSDL.
  * 

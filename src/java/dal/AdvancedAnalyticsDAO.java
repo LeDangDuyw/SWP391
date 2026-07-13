@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: AdvancedAnalyticsDAO
  * Description: Data Access Object truy vấn số liệu doanh số, sản phẩm bán chạy, tồn kho và hệ số vòng quay.
  * 

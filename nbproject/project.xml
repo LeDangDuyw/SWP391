@@ -37,6 +37,9 @@
                 <library dirs="200">
                     <file>${file.reference.sqljdbc42.jar}</file>
                 </library>
+                <library dirs="200">
+                    <file>${file.reference.itext-2.1.7.jar}</file>
+                </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
             <source-roots>

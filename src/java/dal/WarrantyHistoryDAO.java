@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: WarrantyHistoryDAO
  * Description: Data Access Object ghi nhận lịch sử thay đổi trạng thái phiếu bảo hành.
  * 

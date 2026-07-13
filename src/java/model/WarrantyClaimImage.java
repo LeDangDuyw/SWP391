@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: WarrantyClaimImage
  * Description: Model ảnh đính kèm phiếu bảo hành.
  * 

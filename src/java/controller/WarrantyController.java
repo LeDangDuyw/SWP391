@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: WarrantyController
  * Description: Controller tiếp nhận các yêu cầu bảo hành từ khách hàng và nhân viên.
  * 

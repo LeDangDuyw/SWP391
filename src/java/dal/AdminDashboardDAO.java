@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: AdminDashboardDAO
  * Description: Data Access Object truy xuất số liệu thống kê tổng quan cho Dashboard.
  * 

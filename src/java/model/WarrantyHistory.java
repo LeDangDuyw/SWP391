@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: WarrantyHistory
  * Description: Model lịch sử xử lý và thay đổi trạng thái bảo hành.
  * 

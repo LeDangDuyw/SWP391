@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: WarrantyClaimImageDAO
  * Description: Data Access Object xử lý hình ảnh minh chứng đính kèm phiếu bảo hành.
  * 

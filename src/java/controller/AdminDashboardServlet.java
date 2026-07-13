@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Class: AdminDashboardServlet
  * Description: Controller xử lý điều hướng hiển thị và dữ liệu cho trang tổng quan (Dashboard).
  * 
