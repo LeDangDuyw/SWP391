@@ -1,22 +1,12 @@
-﻿/**
- * Class: AdvancedAnalyticsServlet
- * Description: Controller xử lý báo cáo phân tích chuyên sâu nâng cao (Advanced Analytics).
- * 
- * Created: 2026-07-09 18:10:23 +0700
- * Updated: 2026-07-11 23:00:12 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
+package controller;
 
 /**
  * Class: AdvancedAnalyticsServlet
  * Description: Controller xử lý báo cáo phân tích chuyên sâu nâng cao (Advanced Analytics).
  * 
- * Created: 2026-07-09 18:10:23 +0700
- * Updated: 2026-07-11 23:00:12 +0700
- * Version: v1.0
+ * Created: 2026-07-09
+ * Updated: 2026-07-11
+ * Version: v1.3
  *
  * @author DuyLD
  */
@@ -38,7 +28,6 @@ import model.Brand;
 import model.Category;
 import model.Users;
 
-
 @WebServlet("/admin/analytics")
 public class AdvancedAnalyticsServlet extends HttpServlet {
 
@@ -54,23 +43,17 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
         Users user = null;
 
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (session != null) {
             user = (Users) session.getAttribute("user");
         }
 
         // Defensive auth fallback (AuthorizationFilter should already handle this)
         // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             analyticsDAO = new AdvancedAnalyticsDAO();
@@ -86,8 +69,6 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             // Get active section anchor so the JSP can auto-focus the active tab
             String activeSection = request.getParameter("section");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (activeSection == null || activeSection.isEmpty()) {
                 activeSection = "revenue";
             }
@@ -101,11 +82,7 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             String revFrom = request.getParameter("revenueFrom");
             String revTo = request.getParameter("revenueTo");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (revFrom == null || revFrom.trim().isEmpty()) revFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (revTo == null || revTo.trim().isEmpty()) revTo = defaultToDate;
             
@@ -117,8 +94,6 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
                 request.getParameter("revenuePaymentMethod")
             );
             String revenueGroupBy = request.getParameter("revenueGroupBy");
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (revenueGroupBy == null || revenueGroupBy.trim().isEmpty()) {
                 revenueGroupBy = "month";
@@ -133,11 +108,7 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             String salesFrom = request.getParameter("salesFrom");
             String salesTo = request.getParameter("salesTo");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (salesFrom == null || salesFrom.trim().isEmpty()) salesFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (salesTo == null || salesTo.trim().isEmpty()) salesTo = defaultToDate;
 
@@ -149,8 +120,6 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
                 request.getParameter("salesPaymentMethod")
             );
             String salesGroupBy = request.getParameter("salesGroupBy");
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (salesGroupBy == null || salesGroupBy.trim().isEmpty()) {
                 salesGroupBy = "month";
@@ -165,11 +134,7 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             String custFrom = request.getParameter("customerFrom");
             String custTo = request.getParameter("customerTo");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (custFrom == null || custFrom.trim().isEmpty()) custFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (custTo == null || custTo.trim().isEmpty()) custTo = defaultToDate;
 
@@ -182,19 +147,13 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             );
             String customerGroupBy = request.getParameter("customerGroupBy");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (customerGroupBy == null || customerGroupBy.trim().isEmpty()) {
                 customerGroupBy = "month";
             }
             String custTopNParam = request.getParameter("customerTopN");
             int customerTopN = 10;
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (custTopNParam != null && !custTopNParam.isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try { customerTopN = Integer.parseInt(custTopNParam); } catch (Exception ignored) {}
             }
@@ -209,11 +168,7 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             String prodFrom = request.getParameter("productFrom");
             String prodTo = request.getParameter("productTo");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (prodFrom == null || prodFrom.trim().isEmpty()) prodFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (prodTo == null || prodTo.trim().isEmpty()) prodTo = defaultToDate;
 
@@ -227,17 +182,11 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             String prodTopNParam = request.getParameter("productTopN");
             int productTopN = 10;
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (prodTopNParam != null && !prodTopNParam.isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try { productTopN = Integer.parseInt(prodTopNParam); } catch (Exception ignored) {}
             }
             String productSortBy = request.getParameter("productSortBy");
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (productSortBy == null || productSortBy.isEmpty()) {
                 productSortBy = "quantity";
@@ -254,8 +203,6 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             request.getRequestDispatcher("/admin/advanced_analytics.jsp").forward(request, response);
 
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException("Cannot load advanced analytics panel", e);
         }
@@ -269,18 +216,12 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
 
     private Integer getIntegerParam(String value) {
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (value == null || value.trim().isEmpty() || "all".equalsIgnoreCase(value.trim())) {
             return null;
         }
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             return Integer.parseInt(value.trim());
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (NumberFormatException e) {
             return null;

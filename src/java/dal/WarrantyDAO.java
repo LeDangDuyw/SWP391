@@ -1,22 +1,12 @@
-﻿/**
- * Class: WarrantyDAO
- * Description: Data Access Object truy xuất và cập nhật trạng thái yêu cầu bảo hành.
- * 
- * Created: 2026-06-22 21:12:34 +0700
- * Updated: 2026-07-12 18:00:49 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
+package dal;
 
 /**
  * Class: WarrantyDAO
  * Description: Data Access Object truy xuất và cập nhật trạng thái yêu cầu bảo hành.
  * 
- * Created: 2026-06-22 21:12:34 +0700
- * Updated: 2026-07-12 18:00:49 +0700
- * Version: v1.0
+ * Created: 2026-06-22
+ * Updated: 2026-07-12
+ * Version: v1.7
  *
  * @author DuyLD
  */
@@ -25,7 +15,6 @@ import model.WarrantyClaim;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class WarrantyDAO extends DBContext {
 
@@ -44,8 +33,6 @@ public class WarrantyDAO extends DBContext {
                 + "VALUES (?, ?, ?, ?, ?, ?, 'PENDING', GETDATE(), GETDATE())";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, claim.getOrderId());
@@ -57,11 +44,7 @@ public class WarrantyDAO extends DBContext {
             ps.executeUpdate();
 
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet keys = ps.getGeneratedKeys()) {
-                // Kiểm tra điều kiện
-                // Kiểm tra điều kiện
                 // Kiểm tra điều kiện
                 if (keys.next()) {
                     return keys.getInt(1);
@@ -87,8 +70,6 @@ public class WarrantyDAO extends DBContext {
                 : "UPDATE WarrantyClaims SET status = ?, updated_at = GETDATE() WHERE claim_id = ?";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, newStatus);
             ps.setInt(2, claimId);
@@ -108,8 +89,6 @@ public class WarrantyDAO extends DBContext {
         String sql = "UPDATE WarrantyClaims "
                 + "SET staff_id = ?, status = 'PROCESSING', updated_at = GETDATE() "
                 + "WHERE claim_id = ? AND status = 'PENDING'";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, staffId);
@@ -140,16 +119,10 @@ public class WarrantyDAO extends DBContext {
                 + "WHERE wc.claim_id = ?";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return mapClaimWithJoin(rs);
@@ -181,12 +154,8 @@ public class WarrantyDAO extends DBContext {
 
         List<WarrantyClaim> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -219,13 +188,9 @@ public class WarrantyDAO extends DBContext {
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         List<WarrantyClaim> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, offset);
             ps.setInt(2, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -252,21 +217,13 @@ public class WarrantyDAO extends DBContext {
                 : "SELECT COUNT(*) FROM WarrantyClaims";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (hasStatus) {
                 ps.setString(1, status);
             }
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -305,16 +262,12 @@ public class WarrantyDAO extends DBContext {
 
         List<WarrantyClaim> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
             ps.setInt(4, offset);
             ps.setInt(5, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -338,18 +291,12 @@ public class WarrantyDAO extends DBContext {
                 + "WHERE wc.title LIKE ? OR wc.description LIKE ? OR wc.serial_number LIKE ?";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -384,14 +331,10 @@ public class WarrantyDAO extends DBContext {
 
         List<WarrantyClaim> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, offset);
             ps.setInt(3, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -413,12 +356,8 @@ public class WarrantyDAO extends DBContext {
     public boolean serialExists(String serialNumber) throws Exception {
         String sql = "SELECT 1 FROM InventoryItem WHERE serial_number = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -443,14 +382,10 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "WHERE ii.serial_number = ? AND (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered')";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             ps.setInt(2, customerId);
             ps.setInt(3, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -485,12 +420,8 @@ public class WarrantyDAO extends DBContext {
                 + "    (ii.warranty_expired_date IS NULL AND DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE()) "
                 + ")";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -510,12 +441,8 @@ public class WarrantyDAO extends DBContext {
         String sql = "SELECT 1 FROM WarrantyClaims "
                 + "WHERE serial_number = ? AND status IN ('PENDING','PROCESSING','APPROVED')";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -559,13 +486,9 @@ public class WarrantyDAO extends DBContext {
 
         List<model.WarrantyPurchasedProduct> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
             ps.setInt(2, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -608,16 +531,10 @@ public class WarrantyDAO extends DBContext {
                 + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE ii.serial_number = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return new model.WarrantyEligibilityInfo(
@@ -645,16 +562,10 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "WHERE ii.serial_number = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt("order_detail_id");
@@ -678,16 +589,10 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "WHERE ii.serial_number = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt("order_id");
