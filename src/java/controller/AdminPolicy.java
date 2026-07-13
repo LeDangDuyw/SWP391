@@ -1,3 +1,5 @@
+package controller;
+
 /**
  * Class: AdminPolicy
  * Description: Controller quản lý CRUD các chính sách bảo hành (Warranty Policy).

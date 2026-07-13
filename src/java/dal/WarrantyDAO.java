@@ -1,3 +1,5 @@
+package dal;
+
 /**
  * Class: WarrantyDAO
  * Description: Data Access Object truy xuất và cập nhật trạng thái yêu cầu bảo hành.

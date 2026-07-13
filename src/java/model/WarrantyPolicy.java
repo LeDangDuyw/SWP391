@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Class: WarrantyPolicy
  * Description: Model lưu trữ thông tin về một chính sách bảo hành (Warranty Policy).

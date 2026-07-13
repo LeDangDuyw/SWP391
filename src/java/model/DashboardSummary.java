@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Class: DashboardSummary
  * Description: Model đại diện cho số liệu thống kê tổng quan hiển thị trên Dashboard.

@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Class: WarrantyClaim
  * Description: Model thông tin chi tiết một phiếu yêu cầu bảo hành (Warranty Claim).
