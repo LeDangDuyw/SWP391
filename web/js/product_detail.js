@@ -31,6 +31,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 priceEl.textContent = this.dataset.price;
             }
 
+            // Update original price, discount, and savings if flash sale is active
+            const isFlashSale = this.dataset.flashSale === 'true';
+            const priceOriginalEl = document.getElementById('pdPriceOriginal');
+            const priceDiscountEl = document.getElementById('pdPriceDiscount');
+            const savingsEl = document.getElementById('pdSavings');
+
+            if (isFlashSale) {
+                if (priceOriginalEl && this.dataset.originalPrice) {
+                    priceOriginalEl.textContent = this.dataset.originalPrice;
+                    priceOriginalEl.style.display = '';
+                }
+                if (priceDiscountEl && this.dataset.discountPercent) {
+                    priceDiscountEl.textContent = '-' + this.dataset.discountPercent + '%';
+                    priceDiscountEl.style.display = '';
+                }
+                if (savingsEl && this.dataset.savings) {
+                    savingsEl.textContent = 'Tiết kiệm: ' + this.dataset.savings;
+                    savingsEl.style.display = '';
+                }
+            } else {
+                if (priceOriginalEl) priceOriginalEl.style.display = 'none';
+                if (priceDiscountEl) priceDiscountEl.style.display = 'none';
+                if (savingsEl) savingsEl.style.display = 'none';
+            }
+
             // Update hidden variant ID
             if (variantIdInput && this.dataset.variantId) {
                 variantIdInput.value = this.dataset.variantId;

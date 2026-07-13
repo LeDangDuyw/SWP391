@@ -81,7 +81,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update item subtotal
                 const priceEl = document.querySelector(`.cart-card-price[data-variant-id="${variantId}"]`);
-                if (priceEl) priceEl.textContent = data.itemSubtotal + '₫';
+                if (priceEl) {
+                    priceEl.textContent = data.itemSubtotal + '₫';
+                    
+                    // Update crossed-out original price if it exists
+                    const card = priceEl.closest('.cart-card');
+                    const origEl = card ? card.querySelector(`.cart-card-original-price[data-variant-id="${variantId}"]`) : null;
+                    if (origEl && origEl.dataset.originalUnitPrice) {
+                        const unitOrig = parseFloat(origEl.dataset.originalUnitPrice);
+                        const newOrigSub = unitOrig * data.currentQty;
+                        origEl.textContent = formatMoney(newOrigSub) + '₫';
+                    }
+                }
 
                 // Update minus & plus buttons state
                 const form = document.querySelector(`.qty-form[data-variant-id="${variantId}"]`);
@@ -331,46 +342,43 @@ document.addEventListener('DOMContentLoaded', function () {
             const discValFormatted = formatMoney(v.discountValue);
             const minValFormatted = formatMoney(v.minOrderValue);
 
-            let rightContent = '';
-            if (isActive) {
-                rightContent = `
-                    <div class="promo-select-indicator active">
-                        <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
-                    </div>
-                `;
-            } else if (v.isUsed || !v.isAvailable) {
-                rightContent = `
-                    <div class="promo-select-indicator disabled">
-                        <i class="fas fa-plus-circle" style="color: #cbd5e1; font-size: 20px; cursor: not-allowed;"></i>
-                    </div>
-                `;
-            } else {
-                rightContent = `
-                    <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
-                        <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
-                    </button>
-                `;
-            }
-
-            const statusColor = v.isAvailable ? '#10b981' : '#dc2626';
-
-            html += `
-                <div class="${itemClass}" data-code="${v.voucherCode}">
-                    <div class="voucher-left">
-                         <div class="v-code">${v.voucherCode}</div>
-                         <div class="v-discount">
-                             Giảm ${discValFormatted}${v.discountValue <= 100 ? '%' : '₫'}
-                         </div>
-                         <div class="v-min">Đơn tối thiểu: ${minValFormatted}₫</div>
-                         <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${statusColor}; font-weight: 500;">
-                             ${v.statusMessage || ''}
-                         </div>
-                    </div>
-                    <div class="voucher-right">
-                        ${rightContent}
-                    </div>
-                </div>
-            `;
+             let rightContent = '';
+             if (isActive) {
+                 rightContent = `
+                     <div class="promo-select-indicator active">
+                         <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                     </div>
+                 `;
+             } else if (v.isUsed || !v.isAvailable) {
+                 rightContent = ''; // Ẩn hoàn toàn nút +
+             } else {
+                 rightContent = `
+                     <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                         <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
+                     </button>
+                 `;
+             }
+ 
+             const statusColor = v.isAvailable ? '#10b981' : '#dc2626';
+ 
+             html += `
+                 <div class="${itemClass}" data-code="${v.voucherCode}">
+                     <div class="voucher-left">
+                          <div class="v-code">${v.voucherCode}</div>
+                          <div class="v-discount">
+                              Giảm ${discValFormatted}${v.discountValue <= 100 ? '%' : '₫'}
+                          </div>
+                          <div class="v-min">Đơn tối thiểu: ${minValFormatted}₫</div>
+                          ${v.description ? `<div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">${v.description}</div>` : ''}
+                          <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${statusColor}; font-weight: 500;">
+                              ${v.statusMessage || ''}
+                          </div>
+                     </div>
+                     <div class="voucher-right">
+                         ${rightContent}
+                     </div>
+                 </div>
+             `;
         });
         container.innerHTML = html;
     }

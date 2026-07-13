@@ -19,6 +19,7 @@ public class CartItem {
     private BigDecimal unitPrice;
     private int quantity;
     private int availableQuantity;   // tồn kho, để chặn vượt quá
+    private BigDecimal originalPrice;
 
     public CartItem() {
     }
@@ -112,5 +113,13 @@ public class CartItem {
 
     public void setWarrantyPeriod(int warrantyPeriod) {
         this.warrantyPeriod = warrantyPeriod;
+    }
+
+    public BigDecimal getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(BigDecimal originalPrice) {
+        this.originalPrice = originalPrice;
     }
 }
