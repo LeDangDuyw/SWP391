@@ -1,4 +1,4 @@
-<%-- 
+﻿<%-- 
     Document   : ReviewsManagement
     Created on : Jun 22, 2026, 4:14:24 AM
     Author     : MINHBQ
@@ -300,7 +300,7 @@
                     <c:otherwise>
                         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
                         <nav>
-                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
                             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
                             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
                             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
