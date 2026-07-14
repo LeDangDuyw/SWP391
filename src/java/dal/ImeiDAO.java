@@ -143,6 +143,8 @@ public class ImeiDAO extends DBContext {
         if (items == null || items.isEmpty()) return;
         try {
             connection.setAutoCommit(false);
+            
+            // 1. Insert individual serialized items
             String sql = "INSERT INTO InventoryItem (variant_id, serial_number, imei, barcode, status, import_date, warranty_expired_date, note, ticket_id) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stm = connection.prepareStatement(sql);
@@ -176,14 +178,35 @@ public class ImeiDAO extends DBContext {
                 stm.addBatch();
             }
             stm.executeBatch();
+            
+            // 2. Update available_quantity in Inventory table
+            java.util.Map<Integer, Integer> countMap = new java.util.HashMap<>();
+            for (InventoryItem item : items) {
+                countMap.put(item.getVariantId(), countMap.getOrDefault(item.getVariantId(), 0) + 1);
+            }
+            String updateInvSql = "UPDATE [Inventory] SET available_quantity = available_quantity + ? WHERE variant_id = ?";
+            try (PreparedStatement psInv = connection.prepareStatement(updateInvSql)) {
+                for (java.util.Map.Entry<Integer, Integer> entry : countMap.entrySet()) {
+                    psInv.setInt(1, entry.getValue());
+                    psInv.setInt(2, entry.getKey());
+                    psInv.addBatch();
+                }
+                psInv.executeBatch();
+            }
+            
             connection.commit();
-            connection.setAutoCommit(true);
         } catch (SQLException e) {
             System.out.println("insertInventoryItems Error: " + e.getMessage());
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 System.out.println("Rollback Error: " + ex.getMessage());
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                System.out.println("SetAutoCommit Error: " + ex.getMessage());
             }
         }
     }

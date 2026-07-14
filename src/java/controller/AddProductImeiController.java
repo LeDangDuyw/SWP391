@@ -159,7 +159,7 @@ public class AddProductImeiController extends HttpServlet {
             try {
                 LocalDate importDate = LocalDate.parse(receivedDate);
                 LocalDate today = LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
-                if (!importDate.isAfter(today)) {
+                if (importDate.isAfter(today)) {
                     response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=InvalidImportDate" + 
                         (ticketId != null ? "&ticketId=" + ticketId : "") + 
                         "&variantId=" + variantId);
