@@ -205,7 +205,7 @@ public class CartServlet extends HttpServlet {
             String activeCoupon = (String) session.getAttribute("couponCode");
             boolean currentCouponValid = false;
             int currentUserId = (user != null) ? user.getUserId() : 0;
-            VoucherDAO voucherDAO = new VoucherDAO();
+            voucherDAO = new VoucherDAO();
             if (activeCoupon != null) {
                 VoucherDAO.VoucherInfo info = (user != null) 
                     ? voucherDAO.getVoucher(activeCoupon, total, user.getUserId())
