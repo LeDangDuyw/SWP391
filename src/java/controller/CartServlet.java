@@ -79,16 +79,23 @@ public class CartServlet extends HttpServlet {
                 v.setMissingAmount(BigDecimal.ZERO);
                 v.setStatusMessage("Bạn đã sử dụng mã giảm giá này");
             } else if (total.compareTo(minVal) >= 0) {
-                v.setAvailable(true);
                 BigDecimal actualDiscount = voucherDAO.calculateActualDiscount(
                     v.getVoucherId(),
                     (v.getDiscountValue().compareTo(new BigDecimal("100")) <= 0 ? "percentage" : "fixed"),
                     v.getDiscountValue(),
                     cart
                 );
-                v.setDiscountAmountActual(actualDiscount);
-                v.setMissingAmount(BigDecimal.ZERO);
-                v.setStatusMessage("Đủ điều kiện áp dụng");
+                if (actualDiscount.compareTo(BigDecimal.ZERO) > 0) {
+                    v.setAvailable(true);
+                    v.setDiscountAmountActual(actualDiscount);
+                    v.setMissingAmount(BigDecimal.ZERO);
+                    v.setStatusMessage("Đủ điều kiện áp dụng");
+                } else {
+                    v.setAvailable(false);
+                    v.setDiscountAmountActual(BigDecimal.ZERO);
+                    v.setMissingAmount(BigDecimal.ZERO);
+                    v.setStatusMessage("Không đủ điều kiện áp dụng");
+                }
             } else {
                 v.setAvailable(false);
                 v.setDiscountAmountActual(BigDecimal.ZERO);
@@ -134,6 +141,16 @@ public class CartServlet extends HttpServlet {
                 session.removeAttribute("isCampaign");
             }
         }
+        // Sắp xếp danh sách voucher cá nhân hóa: khả dụng lên đầu, không khả dụng xuống dưới
+        userVouchers.sort((v1, v2) -> {
+            boolean active1 = v1.isAvailable() && !v1.isUsed();
+            boolean active2 = v2.isAvailable() && !v2.isUsed();
+            if (active1 && !active2) return -1;
+            if (!active1 && active2) return 1;
+            BigDecimal d1 = v1.getDiscountValue() != null ? v1.getDiscountValue() : BigDecimal.ZERO;
+            BigDecimal d2 = v2.getDiscountValue() != null ? v2.getDiscountValue() : BigDecimal.ZERO;
+            return d2.compareTo(d1);
+        });
         request.setAttribute("userVouchers", userVouchers);
 
         BigDecimal discountAmount = (BigDecimal) session.getAttribute("discountAmount");
@@ -195,19 +212,21 @@ public class CartServlet extends HttpServlet {
                     v.setMissingAmount(BigDecimal.ZERO);
                     v.setStatusMessage("Bạn đã sử dụng mã giảm giá này");
                 } else if (total.compareTo(minVal) >= 0) {
-                    v.setAvailable(true);
                     BigDecimal discVal = v.getDiscountValue();
                     if (discVal == null) discVal = BigDecimal.ZERO;
-                    BigDecimal actualDiscount = BigDecimal.ZERO;
-                    if (discVal.compareTo(new BigDecimal("100")) <= 0) {
-                        actualDiscount = total.multiply(discVal).divide(new BigDecimal("100"));
+                    String vType = (discVal.compareTo(new BigDecimal("100")) <= 0) ? "percentage" : "fixed";
+                    BigDecimal actualDiscount = voucherDAO.calculateActualDiscount(v.getVoucherId(), vType, discVal, cart);
+                    if (actualDiscount.compareTo(BigDecimal.ZERO) > 0) {
+                        v.setAvailable(true);
+                        v.setDiscountAmountActual(actualDiscount);
+                        v.setMissingAmount(BigDecimal.ZERO);
+                        v.setStatusMessage("Đủ điều kiện áp dụng");
                     } else {
-                        actualDiscount = discVal;
+                        v.setAvailable(false);
+                        v.setDiscountAmountActual(BigDecimal.ZERO);
+                        v.setMissingAmount(BigDecimal.ZERO);
+                        v.setStatusMessage("Không đủ điều kiện áp dụng");
                     }
-                    if (actualDiscount.compareTo(total) > 0) actualDiscount = total;
-                    v.setDiscountAmountActual(actualDiscount);
-                    v.setMissingAmount(BigDecimal.ZERO);
-                    v.setStatusMessage("Đủ điều kiện áp dụng");
                 } else {
                     v.setAvailable(false);
                     v.setDiscountAmountActual(BigDecimal.ZERO);
@@ -217,6 +236,17 @@ public class CartServlet extends HttpServlet {
                 }
                 userVouchers.add(v);
             }
+            
+            // Sắp xếp danh sách voucher cá nhân hóa
+            userVouchers.sort((v1, v2) -> {
+                boolean active1 = v1.isAvailable() && !v1.isUsed();
+                boolean active2 = v2.isAvailable() && !v2.isUsed();
+                if (active1 && !active2) return -1;
+                if (!active1 && active2) return 1;
+                BigDecimal d1 = v1.getDiscountValue() != null ? v1.getDiscountValue() : BigDecimal.ZERO;
+                BigDecimal d2 = v2.getDiscountValue() != null ? v2.getDiscountValue() : BigDecimal.ZERO;
+                return d2.compareTo(d1);
+            });
         }
 
         // TỰ ĐỘNG ÁP DỤNG VOUCHER TỐT NHẤT HOẶC TÍNH TOÁN LẠI VOUCHER USER CHỌN
@@ -306,7 +336,8 @@ public class CartServlet extends HttpServlet {
                     .append("\"isUsed\":").append(v.isUsed()).append(",")
                     .append("\"discountAmountActual\":\"").append(String.format("%,.0f", v.getDiscountAmountActual())).append("\",")
                     .append("\"missingAmount\":\"").append(String.format("%,.0f", v.getMissingAmount())).append("\",")
-                    .append("\"statusMessage\":\"").append(v.getStatusMessage()).append("\"")
+                    .append("\"statusMessage\":\"").append(v.getStatusMessage()).append("\",")
+                    .append("\"description\":\"").append(v.getDescription() != null ? v.getDescription().replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "") : "").append("\"")
                     .append("}");
                 if (i < userVouchers.size() - 1) {
                     vouchersJson.append(",");

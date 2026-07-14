@@ -191,19 +191,38 @@
                             <span id="pdPrice" class="pd-price-selling">
                                 <c:choose>
                                     <c:when test="${not empty variants}">
-                                        <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                        <c:choose>
+                                            <c:when test="${not empty variants[0].flashSalePrice}">
+                                                <fmt:formatNumber value="${variants[0].flashSalePrice}" pattern="#,##0"/>₫
+                                            </c:when>
+                                            <c:otherwise>
+                                                <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:when>
                                     <c:otherwise>Liên hệ</c:otherwise>
                                 </c:choose>
                             </span>
-                            <c:if test="${product.originalPrice > 0 && (empty variants || product.originalPrice > variants[0].sellingPrice)}">
-                                <span class="pd-price-original"><fmt:formatNumber value="${product.originalPrice}" pattern="#,##0"/>₫</span>
-                                <span class="pd-price-discount">-${product.discountPercent}%</span>
+                            
+                            <!-- Hiển thị giá gốc gạch ngang khi có flash sale -->
+                            <span id="pdPriceOriginal" class="pd-price-original" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                                <c:if test="${not empty variants}">
+                                    <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                </c:if>
+                            </span>
+                            <span id="pdPriceDiscount" class="pd-price-discount" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                                <c:if test="${not empty variants}">
+                                    -${variants[0].discountPercent}%
+                                </c:if>
+                            </span>
+                        </div>
+                        
+                        <!-- Hiển thị tiết kiệm khi có flash sale -->
+                        <div id="pdSavings" class="pd-savings" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                            <c:if test="${not empty variants and not empty variants[0].flashSalePrice}">
+                                Tiết kiệm: <fmt:formatNumber value="${variants[0].sellingPrice - variants[0].flashSalePrice}" pattern="#,##0"/>₫
                             </c:if>
                         </div>
-                        <c:if test="${product.originalPrice > 0 && not empty variants && product.originalPrice > variants[0].sellingPrice}">
-                            <div class="pd-savings">Tiết kiệm: <fmt:formatNumber value="${product.originalPrice - variants[0].sellingPrice}" pattern="#,##0"/>₫</div>
-                        </c:if>
                     </div>
 
                     <!-- Spec summary grid -->
@@ -296,7 +315,11 @@
                                     <button type="button"
                                             class="pd-option-btn pd-variant-btn ${st.first ? 'active' : ''}"
                                             data-variant-id="${v.variantId}"
-                                            data-price="<fmt:formatNumber value='${v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-price="<fmt:formatNumber value='${not empty v.flashSalePrice ? v.flashSalePrice : v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-flash-sale="${not empty v.flashSalePrice}"
+                                            data-original-price="<fmt:formatNumber value='${v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-discount-percent="${v.discountPercent}"
+                                            data-savings="<fmt:formatNumber value='${not empty v.flashSalePrice ? v.sellingPrice - v.flashSalePrice : 0}' pattern='#,##0'/>₫"
                                             data-stock="${v.availableQuantity}"
                                             ${v.availableQuantity == 0 ? 'disabled' : ''}>
                                         ${v.variantName}

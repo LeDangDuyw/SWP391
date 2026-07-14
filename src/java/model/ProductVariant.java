@@ -14,6 +14,8 @@ public class ProductVariant {
     private String status;
     private int availableQuantity;
     private String thumbnail;
+    private BigDecimal flashSalePrice;
+    private int discountPercent;
 
     public ProductVariant() {
     }
@@ -131,5 +133,21 @@ public class ProductVariant {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public BigDecimal getFlashSalePrice() {
+        return flashSalePrice;
+    }
+
+    public void setFlashSalePrice(BigDecimal flashSalePrice) {
+        this.flashSalePrice = flashSalePrice;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
     }
 }

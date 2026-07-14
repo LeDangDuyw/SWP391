@@ -256,15 +256,7 @@
                         </c:forEach>
                     </div>
 
-                    <!-- Coupon Code Input -->
-                    <div class="coupon-section" style="margin: 20px 0; padding-top: 15px; border-top: 1px solid #f1f5f9;">
-                        <h3 style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;"><i class="fas fa-ticket" style="margin-right: 4px; color: #2563eb;"></i> Mã ưu đãi / Mã giảm giá</h3>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="couponCodeInput" class="form-control" placeholder="Nhập mã ưu đãi (VD: UNILAP10)" style="margin: 0; padding: 8px 12px; font-size: 13px; text-transform: uppercase;" value="${sessionScope.couponCode}">
-                            <button type="button" id="btnApplyCoupon" class="btn-submit-order" style="margin: 0; width: auto; font-size: 13px; padding: 0 16px; white-space: nowrap;">Áp dụng</button>
-                        </div>
-                        <div id="couponMessageLabel" style="font-size: 12px; margin-top: 6px; font-weight: 500; display: none;"></div>
-                    </div>
+
 
                     <!-- Cost Summary lines -->
                     <div class="summary-totals">
@@ -617,79 +609,7 @@
             });
         }
 
-        // Coupon code handling
-        const btnApplyCoupon = document.getElementById('btnApplyCoupon');
-        const couponInput = document.getElementById('couponCodeInput');
-        const couponMessageLabel = document.getElementById('couponMessageLabel');
 
-        if (btnApplyCoupon && couponInput) {
-            btnApplyCoupon.addEventListener('click', function() {
-                const code = couponInput.value.trim();
-                if (!code) {
-                    showCouponMessage('Vui lòng nhập mã giảm giá.', false);
-                    return;
-                }
-
-                btnApplyCoupon.disabled = true;
-                btnApplyCoupon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-                fetch("${pageContext.request.contextPath}/CartServlet?action=coupon&ajax=true", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'couponCode=' + encodeURIComponent(code)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP Status ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    btnApplyCoupon.disabled = false;
-                    btnApplyCoupon.innerText = 'Áp dụng';
-
-                    showCouponMessage(data.couponMessage, data.couponSuccess);
-
-                    if (data.success) {
-                        updateTotalsUI(data.total, data.discount, data.finalTotal);
-                    }
-                })
-                .catch(err => {
-                    btnApplyCoupon.disabled = false;
-                    btnApplyCoupon.innerText = 'Áp dụng';
-                    showCouponMessage('Đã xảy ra lỗi khi áp dụng mã.', false);
-                    console.error(err);
-                });
-            });
-        }
-
-        function showCouponMessage(text, success) {
-            if (!couponMessageLabel) return;
-            couponMessageLabel.innerText = text;
-            couponMessageLabel.style.display = 'block';
-            if (success) {
-                couponMessageLabel.style.color = '#15803d'; // Green
-            } else {
-                couponMessageLabel.style.color = '#b91c1c'; // Red
-            }
-        }
-
-        function updateTotalsUI(totalStr, discountStr, finalTotalStr) {
-            const discountLine = document.getElementById('checkout-discount-line');
-            const discountValSpan = document.getElementById('checkout-discount-val');
-
-            discountVal = parseFloat(discountStr.replace(/[^0-9]/g, '')) || 0;
-            if (discountVal > 0) {
-                if (discountLine) discountLine.style.display = 'flex';
-                if (discountValSpan) discountValSpan.innerText = '- ' + formatCurrency(discountVal) + '₫';
-            } else {
-                if (discountLine) discountLine.style.display = 'none';
-            }
-
-            recalculateCheckoutTotals();
-        }
     });
 </script>
 <jsp:include page="chatbot.jsp" />

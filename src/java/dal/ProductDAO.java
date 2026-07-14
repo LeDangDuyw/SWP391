@@ -855,9 +855,17 @@ public List<Product> GetAllProducts() {
         List<ProductVariant> variants = new ArrayList<>();
         try {
             String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
-                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity " +
+                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
+                         "fsi.sale_price as flash_sale_price, " +
+                         "cast(round((pv.selling_price - fsi.sale_price) * 100.0 / pv.selling_price, 0) as int) as discount_percent " +
                          "from ProductVariant pv " +
                          "left join Inventory i on pv.variant_id = i.variant_id " +
+                         "left join ( " +
+                         "    select fsi.variant_id, fsi.sale_price " +
+                         "    from FlashSaleItem fsi " +
+                         "    join FlashSale fs on fsi.flashsale_id = fs.flashsale_id " +
+                         "    where getdate() >= fs.start_time and getdate() <= fs.end_time " +
+                         ") fsi on pv.variant_id = fsi.variant_id " +
                          "where pv.product_id = ? and pv.status = 'active' " +
                          "order by pv.variant_id";
             ps = cnn.prepareStatement(sql);
@@ -875,6 +883,8 @@ public List<Product> GetAllProducts() {
                         rs.getString("status"),
                         rs.getInt("available_quantity")
                 );
+                variant.setFlashSalePrice(rs.getBigDecimal("flash_sale_price"));
+                variant.setDiscountPercent(rs.getInt("discount_percent"));
                 variants.add(variant);
             }
         } catch (Exception e) {
@@ -889,7 +899,16 @@ public List<Product> GetAllProducts() {
      */
     public model.ProductVariant getVariantById(int variantId) {
         try {
-            String sql = "SELECT * FROM ProductVariant WHERE variant_id = ?";
+            String sql = "SELECT pv.*, fsi.sale_price AS flash_sale_price, " +
+                         "CAST(ROUND((pv.selling_price - fsi.sale_price) * 100.0 / pv.selling_price, 0) AS INT) AS discount_percent " +
+                         "FROM ProductVariant pv " +
+                         "LEFT JOIN ( " +
+                         "    SELECT fsi.variant_id, fsi.sale_price " +
+                         "    FROM FlashSaleItem fsi " +
+                         "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id " +
+                         "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
+                         ") fsi ON pv.variant_id = fsi.variant_id " +
+                         "WHERE pv.variant_id = ?";
             ps = cnn.prepareStatement(sql);
             ps.setInt(1, variantId);
             rs = ps.executeQuery();
@@ -905,6 +924,8 @@ public List<Product> GetAllProducts() {
                         rs.getString("status")
                 );
                 pv.setThumbnail(rs.getString("thumbnail"));
+                pv.setFlashSalePrice(rs.getBigDecimal("flash_sale_price"));
+                pv.setDiscountPercent(rs.getInt("discount_percent"));
                 return pv;
             }
         } catch (Exception e) {
@@ -915,10 +936,18 @@ public List<Product> GetAllProducts() {
 
     public CartItem getCartItemByVariantId(int variantId) {
         try {
-            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, pv.selling_price, p.warranty_period, isnull(inv.available_quantity, 0) AS available_quantity " +
+            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, " +
+                         "ISNULL(fsi.sale_price, pv.selling_price) AS selling_price, pv.selling_price AS original_price, " +
+                         "p.warranty_period, isnull(inv.available_quantity, 0) AS available_quantity " +
                          "FROM ProductVariant pv " +
                          "JOIN Product p ON pv.product_id = p.product_id " +
                          "LEFT JOIN Inventory inv ON pv.variant_id = inv.variant_id " +
+                         "LEFT JOIN ( " +
+                         "    SELECT fsi.variant_id, fsi.sale_price " +
+                         "    FROM FlashSaleItem fsi " +
+                         "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id " +
+                         "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
+                         ") fsi ON pv.variant_id = fsi.variant_id " +
                          "WHERE pv.variant_id = ?";
             ps = cnn.prepareStatement(sql);
             ps.setInt(1, variantId);
@@ -935,6 +964,7 @@ public List<Product> GetAllProducts() {
                         rs.getInt("available_quantity")
                 );
                 item.setWarrantyPeriod(rs.getInt("warranty_period"));
+                item.setOriginalPrice(rs.getBigDecimal("original_price"));
                 return item;
             }
         } catch (Exception e) {
