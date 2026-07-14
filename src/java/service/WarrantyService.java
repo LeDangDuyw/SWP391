@@ -322,11 +322,14 @@ public class WarrantyService {
 
     // ── APPROVE ───────────────────────────────────────────────────────────────
 
-    private void approveWarranty(int claimId, String note)
+    private void approveWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PROCESSING", "APPROVED");
+
+        // Chỉ staff được gán (staff_id) mới được phép approve claim
+        assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "APPROVED");
 
@@ -336,11 +339,14 @@ public class WarrantyService {
 
     // ── REJECT ────────────────────────────────────────────────────────────────
 
-    private void rejectWarranty(int claimId, String note)
+    private void rejectWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PROCESSING", "REJECTED");
+
+        // Chỉ staff được gán (staff_id) mới được phép reject claim
+        assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "REJECTED");
 
@@ -350,11 +356,14 @@ public class WarrantyService {
 
     // ── COMPLETE ──────────────────────────────────────────────────────────────
 
-    private void completeWarranty(int claimId, String note)
+    private void completeWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "APPROVED", "COMPLETED");
+
+        // Chỉ staff được gán (staff_id) mới được phép complete claim
+        assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "COMPLETED");
 
@@ -374,13 +383,16 @@ public class WarrantyService {
                 processWarranty(claimId, staffId, note);
                 break;
             case "APPROVED":
-                approveWarranty(claimId, note);
+                // Truyền staffId để kiểm tra ownership trước khi approve
+                approveWarranty(claimId, staffId, note);
                 break;
             case "REJECTED":
-                rejectWarranty(claimId, note);
+                // Truyền staffId để kiểm tra ownership trước khi reject
+                rejectWarranty(claimId, staffId, note);
                 break;
             case "COMPLETED":
-                completeWarranty(claimId, note);
+                // Truyền staffId để kiểm tra ownership trước khi complete
+                completeWarranty(claimId, staffId, note);
                 break;
             case "CANCELLED":
                 // Staff cancel: không check ownership, chỉ cho phép từ PENDING
@@ -502,6 +514,60 @@ public class WarrantyService {
         if (claim.getCustomerId() != customerId) {
             throw new ValidationException("Bạn không có quyền thao tác trên yêu cầu này.");
         }
+    }
+
+    /**
+     * Kiểm tra staff đang thực hiện action có phải là staff được gán cho claim không.
+     * Admin (roleId = 1) được phép bypass — nhưng phải Take Over trước (xem takeOverClaim).
+     * Phương thức này chỉ kiểm tra ownership thuần túy, không phân biệt role.
+     */
+    private void assertStaffOwner(WarrantyClaim claim, int staffId) throws ValidationException {
+        // Kiểm tra điều kiện
+        if (claim.getStaffId() == null || claim.getStaffId() != staffId) {
+            throw new ValidationException(
+                    "Bạn không phải nhân viên đang xử lý yêu cầu bảo hành này. "
+                    + "Admin vui lòng dùng 'Take Over' hoặc 'Reassign' trước khi xử lý.");
+        }
+    }
+
+    // ── TAKE OVER / REASSIGN (Admin only) ────────────────────────────────
+
+    /**
+     * Admin tự tiếp nhận claim (Take Over) hoặc gán lại cho staff khác (Reassign).
+     * Chỉ áp dụng khi claim đang ở PROCESSING hoặc APPROVED.
+     *
+     * @param claimId     ID claim cần chuyển
+     * @param newStaffId  ID nhân viên mới được gán (có thể là Admin tự gán cho mình)
+     * @param note        Ghi chú lý do chuyển giao
+     * @throws ValidationException nếu claim không ở trạng thái hợp lệ
+     */
+    public void takeOverClaim(int claimId, int newStaffId, String note)
+            throws ValidationException, Exception {
+
+        WarrantyClaim claim = getClaim(claimId);
+
+        // Chỉ cho phép Take Over khi đang PROCESSING hoặc APPROVED
+        if (!"PROCESSING".equals(claim.getStatus()) && !"APPROVED".equals(claim.getStatus())) {
+            throw new ValidationException(
+                    "Chỉ có thể chuyển giao yêu cầu khi đang ở trạng thái PROCESSING hoặc APPROVED. "
+                    + "Trạng thái hiện tại: " + claim.getStatus());
+        }
+
+        warrantyDAO.reassignStaff(claimId, newStaffId);
+
+        String historyNote = (note != null && !note.trim().isEmpty())
+                ? note.trim()
+                : "Admin đã chuyển giao yêu cầu bảo hành cho nhân viên khác.";
+
+        insertHistory(claimId, claim.getDescription(), claim.getStatus(), historyNote);
+    }
+
+    /**
+     * Lấy danh sách toàn bộ nhân viên (role_id = 2) đang active,
+     * dùng cho dropdown Reassign trong giao diện Admin.
+     */
+    public List<model.Users> getStaffList() throws Exception {
+        return warrantyDAO.findStaffList();
     }
 
     private void assertTransition(String currentStatus,

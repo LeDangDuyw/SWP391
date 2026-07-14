@@ -135,6 +135,9 @@ public class WarrantyController extends HttpServlet {
                 case "process":
                     handleProcess(request, response, user);
                     break;
+                case "takeOver":
+                    handleTakeOver(request, response, user);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/warranty?action=list");
             }
@@ -377,6 +380,37 @@ public class WarrantyController extends HttpServlet {
     }
 
     /**
+     * POST takeOver: Admin tiếp nhận (Take Over) hoặc gán lại (Reassign) claim cho staff khác.
+     * Chỉ Admin (roleId == 1) mới được gọi action này.
+     */
+    private void handleTakeOver(HttpServletRequest request, HttpServletResponse response, Users user)
+            throws ValidationException, Exception, IOException {
+
+        // Chỉ Admin mới được phép take over / reassign
+        if (user.getRoleId() != 1) {
+            throw new ValidationException("Chỉ Admin mới có quyền thực hiện thao tác này.");
+        }
+
+        int claimId = parseId(request.getParameter("id"));
+        String newStaffIdParam = request.getParameter("newStaffId");
+        String note = request.getParameter("note");
+
+        // Nếu không chọn staff cụ thể (hoặc chọn -1), tự gán cho Admin hiện tại (Take Over)
+        int newStaffId;
+        try {
+            newStaffId = Integer.parseInt(newStaffIdParam);
+            if (newStaffId <= 0) newStaffId = user.getUserId();
+        } catch (Exception e) {
+            newStaffId = user.getUserId();
+        }
+
+        warrantyService.takeOverClaim(claimId, newStaffId, note);
+
+        response.sendRedirect(request.getContextPath()
+                + "/warranty?action=list&selectedId=" + claimId + "&msg=takeover");
+    }
+
+    /**
      * Loads claims cho customer view (warranty-center.jsp).
      */
     private void loadCustomerClaims(HttpServletRequest request, Users user) throws Exception {
@@ -424,6 +458,13 @@ public class WarrantyController extends HttpServlet {
         request.setAttribute("total", total);
         request.setAttribute("page", page);
         request.setAttribute("totalPages", totalPages);
+
+        // Load staff list để Admin có dropdown Reassign
+        try {
+            request.setAttribute("staffList", warrantyService.getStaffList());
+        } catch (Exception ignored) {
+            // Nếu query thất bại thì dropdown rỗng, không ảnh hưởng luồng chính
+        }
 
         // Load selected claim vào detail panel
         // Kiểm tra điều kiện

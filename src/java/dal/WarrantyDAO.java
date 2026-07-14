@@ -638,4 +638,52 @@ public class WarrantyDAO extends DBContext {
         c.setProductName(rs.getString("product_name"));
         return c;
     }
+
+    /**
+     * Reassigns a claim to a different staff member (used by Admin for Take Over / Reassign).
+     * Does NOT check status — caller is responsible for validating.
+     *
+     * @param claimId    ID of the claim
+     * @param newStaffId ID of the new staff to assign
+     * @return rows affected
+     * @throws Exception on SQL error
+     */
+    public int reassignStaff(int claimId, int newStaffId) throws Exception {
+        String sql = "UPDATE WarrantyClaims "
+                + "SET staff_id = ?, updated_at = GETDATE() "
+                + "WHERE claim_id = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, newStaffId);
+            ps.setInt(2, claimId);
+            return ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Returns all active staff users (role_id = 2) for the Reassign dropdown in Admin view.
+     *
+     * @return list of staff Users
+     * @throws Exception on SQL error
+     */
+    public List<model.Users> findStaffList() throws Exception {
+        String sql = "SELECT user_id, full_name, email, phone, password, status, role_id "
+                + "FROM [User] WHERE role_id = 2 AND status = 'active' ORDER BY full_name";
+        List<model.Users> list = new ArrayList<>();
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new model.Users(
+                            rs.getInt("user_id"),
+                            rs.getString("full_name"),
+                            rs.getString("email"),
+                            rs.getString("phone"),
+                            rs.getString("password"),
+                            rs.getString("status"),
+                            rs.getInt("role_id")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
 }
