@@ -84,15 +84,11 @@ Connection cnn;
      * Version: 2.0
      * Description: Thêm mới một danh mục (Category) vào cơ sở dữ liệu.
      */
-    public void insertCategory(String categoryName) {
-        try {
-            String sql = "INSERT INTO Category (category_name) VALUES (?)";
-            ps = cnn.prepareStatement(sql);
-            ps.setString(1, categoryName);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            System.out.println("insertCategory: " + e.getMessage());
-        }
+    public void insertCategory(String categoryName) throws Exception {
+        String sql = "INSERT INTO Category (category_name) VALUES (?)";
+        ps = cnn.prepareStatement(sql);
+        ps.setString(1, categoryName);
+        ps.executeUpdate();
     }
 
     /*
@@ -102,16 +98,12 @@ Connection cnn;
      * Version: 2.0
      * Description: Cập nhật tên của một danh mục (Category) dựa trên ID.
      */
-    public void updateCategory(int categoryId, String categoryName) {
-        try {
-            String sql = "UPDATE Category SET category_name = ? WHERE category_id = ?";
-            ps = cnn.prepareStatement(sql);
-            ps.setString(1, categoryName);
-            ps.setInt(2, categoryId);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            System.out.println("updateCategory: " + e.getMessage());
-        }
+    public void updateCategory(int categoryId, String categoryName) throws Exception {
+        String sql = "UPDATE Category SET category_name = ? WHERE category_id = ?";
+        ps = cnn.prepareStatement(sql);
+        ps.setString(1, categoryName);
+        ps.setInt(2, categoryId);
+        ps.executeUpdate();
     }
 
     /*
@@ -121,15 +113,43 @@ Connection cnn;
      * Version: 2.0
      * Description: Xóa cứng một danh mục (Category) khỏi cơ sở dữ liệu dựa trên ID.
      */
-    public void deleteCategory(int categoryId) {
+    public void deleteCategory(int categoryId) throws Exception {
+        String sql = "DELETE FROM Category WHERE category_id = ?";
+        ps = cnn.prepareStatement(sql);
+        ps.setInt(1, categoryId);
+        ps.executeUpdate();
+    }
+
+    public int countProductsByCategory(int categoryId) {
+        int count = 0;
         try {
-            String sql = "DELETE FROM Category WHERE category_id = ?";
+            String sql = "SELECT COUNT(*) FROM Product WHERE category_id = ?";
             ps = cnn.prepareStatement(sql);
             ps.setInt(1, categoryId);
-            ps.executeUpdate();
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
         } catch (Exception e) {
-            System.out.println("deleteCategory: " + e.getMessage());
+            System.out.println("countProductsByCategory: " + e.getMessage());
         }
+        return count;
+    }
+
+    public boolean isCategoryExist(String categoryName, int excludeId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM Category WHERE LOWER(category_name) = LOWER(?) AND category_id != ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, categoryName.trim());
+            ps.setInt(2, excludeId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            System.out.println("isCategoryExist: " + e.getMessage());
+        }
+        return false;
     }
 
     /*

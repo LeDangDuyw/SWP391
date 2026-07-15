@@ -149,8 +149,8 @@ public class AddProductImeiController extends HttpServlet {
             }
         }
 
-        if (expectedQuantity != -1 && validImeis.size() > expectedQuantity) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=TooManyImeis&expected=" + expectedQuantity + "&actual=" + validImeis.size());
+        if (expectedQuantity != -1 && validImeis.size() != expectedQuantity) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchImeisQuantity&expected=" + expectedQuantity + "&actual=" + validImeis.size());
             return;
         }
 
