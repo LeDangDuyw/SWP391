@@ -1,4 +1,4 @@
-<%-- 
+﻿<%-- 
     Document   : ImeiManagement
     Created on : Jun 13, 2026, 10:18:05 PM
     Author     : huy
@@ -127,7 +127,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>

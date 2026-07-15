@@ -315,22 +315,42 @@ public class OutboundDAO extends DBContext {
                     }
                 }
                 
-                if ("shipped".equalsIgnoreCase(currentStatus)) {
-                    // Revert inventory items to in_stock
-                    String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL " +
-                                          "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
-                                          "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
-                                          "WHERE od.order_id = ?)";
-                    try (PreparedStatement psRevert = connection.prepareStatement(revertInvSql)) {
-                        psRevert.setInt(1, orderId);
-                        psRevert.executeUpdate();
+                // Do not allow cancellation if order is already delivered or completed
+                if ("delivered".equalsIgnoreCase(currentStatus) || "Completed".equalsIgnoreCase(currentStatus)) {
+                    connection.rollback();
+                    return false;
+                }
+                
+                // If not already cancelled, proceed with reversion
+                if (!"cancelled".equalsIgnoreCase(currentStatus)) {
+                    if ("shipped".equalsIgnoreCase(currentStatus)) {
+                        // Revert inventory items to in_stock
+                        String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL " +
+                                              "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
+                                              "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
+                                              "WHERE od.order_id = ?)";
+                        try (PreparedStatement psRevert = connection.prepareStatement(revertInvSql)) {
+                            psRevert.setInt(1, orderId);
+                            psRevert.executeUpdate();
+                        }
+                        
+                        // Delete order item serial entries
+                        String deleteSerialSql = "DELETE FROM OrderItemSerial WHERE order_detail_id IN (SELECT order_detail_id FROM OrderDetail WHERE order_id = ?)";
+                        try (PreparedStatement psDelete = connection.prepareStatement(deleteSerialSql)) {
+                            psDelete.setInt(1, orderId);
+                            psDelete.executeUpdate();
+                        }
                     }
                     
-                    // Delete order item serial entries
-                    String deleteSerialSql = "DELETE FROM OrderItemSerial WHERE order_detail_id IN (SELECT order_detail_id FROM OrderDetail WHERE order_id = ?)";
-                    try (PreparedStatement psDelete = connection.prepareStatement(deleteSerialSql)) {
-                        psDelete.setInt(1, orderId);
-                        psDelete.executeUpdate();
+                    // Revert stock count in Inventory table for the variants in this order
+                    String incrementInventorySql = "UPDATE [Inventory] " +
+                                                   "SET available_quantity = [Inventory].available_quantity + od.quantity " +
+                                                   "FROM [Inventory] " +
+                                                   "JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
+                                                   "WHERE od.order_id = ?";
+                    try (PreparedStatement psInc = connection.prepareStatement(incrementInventorySql)) {
+                        psInc.setInt(1, orderId);
+                        psInc.executeUpdate();
                     }
                 }
             }

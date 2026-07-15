@@ -15,7 +15,6 @@ import model.Campaign;
 
 public class CampaignDAO extends DBContext {
     protected Connection con;
-    private ServletContext context;
 
     /**
      * 
@@ -32,7 +31,6 @@ public class CampaignDAO extends DBContext {
 
     public CampaignDAO(ServletContext context) {
         super(context);
-        this.context = context;
         this.con = super.connection;
         ensureUserUsageLimitColumnExists();
     }
@@ -46,6 +44,8 @@ public class CampaignDAO extends DBContext {
             // Quietly ignore
         }
     }
+
+
 
   
 

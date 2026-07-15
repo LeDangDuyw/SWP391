@@ -45,7 +45,7 @@ public class StaffWarrantyController extends HttpServlet {
 
         Users user = getUser(request);
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
             return;
         }
 
@@ -87,7 +87,7 @@ public class StaffWarrantyController extends HttpServlet {
 
         Users user = getUser(request);
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
             return;
         }
 

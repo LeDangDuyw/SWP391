@@ -139,7 +139,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
@@ -212,7 +212,7 @@
                 Lỗi: Số lượng IMEI, Serial Number và Barcode nhập vào không khớp nhau. Vui lòng kiểm tra lại.
             </c:when>
             <c:when test="${param.error == 'InvalidImportDate'}">
-                Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.
+                Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.
             </c:when>
             <c:otherwise>
                 Đã xảy ra lỗi: ${param.error}
@@ -290,15 +290,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
-                    <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                    <input type="text" name="serials" required pattern="[A-Za-z0-9_\-]{5,50}" title="IMEI phải từ 5-50 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
                 </div>
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
-                    <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9]{5,20}" title="Serial chỉ gồm 5-20 chữ và số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                    <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
                 </div>
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
-                    <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
+                    <input type="text" name="barcodes" required pattern="[A-Za-z0-9_\-]{3,30}" title="Barcode phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
                 </div>
             </div>
         </c:forEach>
@@ -345,15 +345,15 @@
         row.innerHTML = `
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
-                <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+                <input type="text" name="serials" required pattern="[A-Za-z0-9_\\-]{5,50}" title="IMEI phải từ 5-50 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
             </div>
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
-                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9]{5,20}" title="Serial chỉ gồm 5-20 chữ và số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
             </div>
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
-                <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
+                <input type="text" name="barcodes" required pattern="[A-Za-z0-9_\\-]{3,30}" title="Barcode phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
             </div>
         `;
         container.appendChild(row);
@@ -413,8 +413,8 @@
                 const selectedDate = new Date(year, month - 1, day);
                 selectedDate.setHours(0, 0, 0, 0);
                 
-                if (selectedDate <= today) {
-                    alert("Lỗi: Ngày nhập sản phẩm (Import Date) phải sau ngày hôm nay.");
+                if (selectedDate > today) {
+                    alert("Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.");
                     event.preventDefault();
                     return false;
                 }
