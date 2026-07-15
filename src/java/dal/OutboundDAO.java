@@ -78,6 +78,56 @@ public class OutboundDAO extends DBContext {
         return list;
     }
 
+    public int getTotalPendingOrders() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('Pending', 'processing')";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return count;
+    }
+
+    public List<Order> getPendingOrders(int offset, int fetchSize) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, fetchSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setOrderId(rs.getInt("order_id"));
+                    order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                    order.setShippingFee(rs.getBigDecimal("shipping_fee"));
+                    order.setOrderStatus(rs.getString("order_status"));
+                    order.setShippingReceiver(rs.getString("shipping_receiver"));
+                    order.setShippingPhone(rs.getString("shipping_phone"));
+                    order.setShippingAddress(rs.getString("shipping_address"));
+                    order.setOrderCode(rs.getString("order_code"));
+                    
+                    if (rs.getTimestamp("completed_at") != null) {
+                        order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                    }
+                    list.add(order);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int getTotalOutboundHistory() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled')";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return count;
+    }
+
     public List<Order> getOutboundHistory() {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled') ORDER BY completed_at DESC, order_id DESC";
@@ -103,6 +153,41 @@ public class OutboundDAO extends DBContext {
                     order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
                 }
                 list.add(order);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Order> getOutboundHistory(int offset, int limit) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled') ORDER BY completed_at DESC, order_id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setOrderId(rs.getInt("order_id"));
+                    order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                    order.setShippingFee(rs.getBigDecimal("shipping_fee"));
+                    order.setOrderStatus(rs.getString("order_status"));
+                    order.setShippingReceiver(rs.getString("shipping_receiver"));
+                    order.setShippingPhone(rs.getString("shipping_phone"));
+                    order.setShippingAddress(rs.getString("shipping_address"));
+                    order.setOrderCode(rs.getString("order_code"));
+                    order.setShippingPartner(rs.getString("shipping_partner"));
+                    order.setTrackingNumber(rs.getString("tracking_number"));
+                    order.setInvoicePath(rs.getString("invoice_path"));
+                    order.setInvoiceEmailSent(rs.getInt("invoice_email_sent"));
+                    int uId = rs.getInt("user_id");
+                    order.setUserId(rs.wasNull() ? null : uId);
+                    if (rs.getTimestamp("completed_at") != null) {
+                        order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                    }
+                    list.add(order);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
