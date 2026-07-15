@@ -142,6 +142,18 @@ public class ImeiDAO extends DBContext {
     public void insertInventoryItems(List<InventoryItem> items) {
         if (items == null || items.isEmpty()) return;
         try {
+            // Check for duplicates first
+            String checkSql = "SELECT COUNT(*) FROM InventoryItem WHERE imei = ? OR serial_number = ?";
+            PreparedStatement checkStm = connection.prepareStatement(checkSql);
+            for (InventoryItem item : items) {
+                checkStm.setString(1, item.getImei());
+                checkStm.setString(2, item.getSerialNumber());
+                ResultSet rs = checkStm.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new RuntimeException("Duplicate IMEI or Serial Number found: " + item.getImei() + " / " + item.getSerialNumber());
+                }
+            }
+
             connection.setAutoCommit(false);
             
             // 1. Insert individual serialized items

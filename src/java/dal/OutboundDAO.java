@@ -160,12 +160,12 @@ public class OutboundDAO extends DBContext {
         return list;
     }
 
-    public List<Order> getOutboundHistory(int offset, int limit) {
+    public List<Order> getOutboundHistory(int offset, int fetchSize) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled') ORDER BY completed_at DESC, order_id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, offset);
-            ps.setInt(2, limit);
+            ps.setInt(2, fetchSize);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Order order = new Order();
@@ -357,7 +357,16 @@ public class OutboundDAO extends DBContext {
                 }
             }
 
-            // 3. Update Order status to 'shipped'
+            // 3. Update Inventory (decrement available_quantity)
+            String decrementInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity " +
+                                           "FROM [Inventory] JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
+                                           "WHERE od.order_id = ?";
+            try (PreparedStatement psDec = connection.prepareStatement(decrementInventorySql)) {
+                psDec.setInt(1, orderId);
+                psDec.executeUpdate();
+            }
+
+            // 4. Update Order status to 'shipped'
             String updateOrderSql = "UPDATE [Order] SET order_status = 'shipped', completed_at = GETDATE() WHERE order_id = ?";
             try (PreparedStatement psOrder = connection.prepareStatement(updateOrderSql)) {
                 psOrder.setInt(1, orderId);

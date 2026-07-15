@@ -124,10 +124,9 @@ public class EditProductController extends HttpServlet {
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
                 java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
-                int stock = Integer.parseInt(request.getParameter("stock"));
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                dao.updateProductVariant(variantId, sku, variantName, price, stock);
+                dao.updateProductVariant(variantId, sku, variantName, price);
                 response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
                 return;
             } catch (Exception e) {
