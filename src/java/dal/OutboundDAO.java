@@ -275,7 +275,7 @@ public class OutboundDAO extends DBContext {
 
     public List<InventoryItem> getAvailableImeisForVariant(int variantId) {
         List<InventoryItem> list = new ArrayList<>();
-        String sql = "SELECT item_id, serial_number, imei, barcode " +
+        String sql = "SELECT item_id, serial_number " +
                      "FROM InventoryItem " +
                      "WHERE variant_id = ? AND status = 'in_stock' " +
                      "ORDER BY item_id ASC";
@@ -286,8 +286,6 @@ public class OutboundDAO extends DBContext {
                     InventoryItem item = new InventoryItem();
                     item.setItemId(rs.getInt("item_id"));
                     item.setSerialNumber(rs.getString("serial_number"));
-                    item.setImei(rs.getString("imei"));
-                    item.setBarcode(rs.getString("barcode"));
                     list.add(item);
                 }
             }
@@ -309,7 +307,6 @@ public class OutboundDAO extends DBContext {
                     InventoryItem item = new InventoryItem();
                     item.setItemId(rs.getInt("item_id"));
                     item.setSerialNumber(rs.getString("serial_number"));
-                    item.setImei(rs.getString("imei"));
                     list.add(item);
                 }
             }

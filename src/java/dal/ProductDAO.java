@@ -1316,11 +1316,10 @@ public List<Product> GetAllProducts() {
                 variantId = rs.getInt(1);
             }
             if (variantId != -1) {
-                String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
+                String sqlInv = "INSERT INTO Inventory (variant_id, available_quantity) VALUES (?, ?)";
                 PreparedStatement psInv = cnn.prepareStatement(sqlInv);
                 psInv.setInt(1, variantId);
-                psInv.setInt(2, 0);
-                psInv.setInt(3, stock);
+                psInv.setInt(2, stock);
                 psInv.executeUpdate();
             }
         } catch (Exception e) {
@@ -1357,11 +1356,10 @@ public List<Product> GetAllProducts() {
                 variantId = rs.getInt(1);
             }
             if (variantId != -1) {
-                String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
+                String sqlInv = "INSERT INTO Inventory (variant_id, available_quantity) VALUES (?, ?)";
                 PreparedStatement psInv = cnn.prepareStatement(sqlInv);
                 psInv.setInt(1, variantId);
-                psInv.setInt(2, 0);
-                psInv.setInt(3, stock);
+                psInv.setInt(2, stock);
                 psInv.executeUpdate();
             }
         } catch (Exception e) {

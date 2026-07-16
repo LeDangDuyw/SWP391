@@ -19,7 +19,7 @@ public class ImeiDAO extends DBContext {
                          "WHERE 1=1 ";
             
             if (search != null && !search.trim().isEmpty()) {
-                sql += " AND (ii.serial_number LIKE ? OR ii.imei LIKE ? OR p.product_name LIKE ? OR pv.sku LIKE ?) ";
+                sql += " AND (ii.serial_number LIKE ? OR p.product_name LIKE ? OR pv.sku LIKE ?) ";
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                 sql += " AND ii.status = ? ";
@@ -35,7 +35,6 @@ public class ImeiDAO extends DBContext {
                 stm.setString(idx++, likeSearch);
                 stm.setString(idx++, likeSearch);
                 stm.setString(idx++, likeSearch);
-                stm.setString(idx++, likeSearch);
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                 stm.setString(idx++, statusFilter);
@@ -48,8 +47,6 @@ public class ImeiDAO extends DBContext {
                 InventoryItem item = new InventoryItem();
                 item.setItemId(rs.getInt("item_id"));
                 item.setSerialNumber(rs.getString("serial_number"));
-                item.setImei(rs.getString("imei"));
-                item.setBarcode(rs.getString("barcode"));
                 item.setStatus(rs.getString("status"));
                 item.setImportDate(rs.getString("import_date"));
                 
@@ -89,7 +86,7 @@ public class ImeiDAO extends DBContext {
                          "WHERE 1=1 ";
             
             if (search != null && !search.trim().isEmpty()) {
-                sql += " AND (ii.serial_number LIKE ? OR ii.imei LIKE ? OR p.product_name LIKE ? OR pv.sku LIKE ?) ";
+                sql += " AND (ii.serial_number LIKE ? OR p.product_name LIKE ? OR pv.sku LIKE ?) ";
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                 sql += " AND ii.status = ? ";
@@ -99,7 +96,6 @@ public class ImeiDAO extends DBContext {
             int idx = 1;
             if (search != null && !search.trim().isEmpty()) {
                 String likeSearch = "%" + search + "%";
-                stm.setString(idx++, likeSearch);
                 stm.setString(idx++, likeSearch);
                 stm.setString(idx++, likeSearch);
                 stm.setString(idx++, likeSearch);
@@ -143,48 +139,45 @@ public class ImeiDAO extends DBContext {
         if (items == null || items.isEmpty()) return;
         try {
             // Check for duplicates first
-            String checkSql = "SELECT COUNT(*) FROM InventoryItem WHERE imei = ? OR serial_number = ?";
+            String checkSql = "SELECT COUNT(*) FROM InventoryItem WHERE serial_number = ?";
             PreparedStatement checkStm = connection.prepareStatement(checkSql);
             for (InventoryItem item : items) {
-                checkStm.setString(1, item.getImei());
-                checkStm.setString(2, item.getSerialNumber());
+                checkStm.setString(1, item.getSerialNumber());
                 ResultSet rs = checkStm.executeQuery();
                 if (rs.next() && rs.getInt(1) > 0) {
-                    throw new RuntimeException("Duplicate IMEI or Serial Number found: " + item.getImei() + " / " + item.getSerialNumber());
+                    throw new RuntimeException("Duplicate Serial Number found: " + item.getSerialNumber());
                 }
             }
 
             connection.setAutoCommit(false);
             
             // 1. Insert individual serialized items
-            String sql = "INSERT INTO InventoryItem (variant_id, serial_number, imei, barcode, status, import_date, warranty_expired_date, note, ticket_id) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO InventoryItem (variant_id, serial_number, status, import_date, warranty_expired_date, note, ticket_id) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stm = connection.prepareStatement(sql);
             for (InventoryItem item : items) {
                 stm.setInt(1, item.getVariantId());
                 stm.setString(2, item.getSerialNumber());
-                stm.setString(3, item.getImei());
-                stm.setString(4, item.getBarcode());
-                stm.setString(5, item.getStatus());
+                stm.setString(3, item.getStatus());
                 
                 if (item.getImportDate() != null && !item.getImportDate().isEmpty()) {
-                    stm.setString(6, item.getImportDate());
+                    stm.setString(4, item.getImportDate());
                 } else {
-                    stm.setNull(6, java.sql.Types.VARCHAR);
+                    stm.setNull(4, java.sql.Types.VARCHAR);
                 }
                 
                 if (item.getWarrantyExpiredDate() != null) {
-                    stm.setDate(7, java.sql.Date.valueOf(item.getWarrantyExpiredDate()));
+                    stm.setDate(5, java.sql.Date.valueOf(item.getWarrantyExpiredDate()));
                 } else {
-                    stm.setNull(7, java.sql.Types.DATE);
+                    stm.setNull(5, java.sql.Types.DATE);
                 }
                 
-                stm.setString(8, item.getNote());
+                stm.setString(6, item.getNote());
                 
                 if (item.getTicketId() > 0) {
-                    stm.setInt(9, item.getTicketId());
+                    stm.setInt(7, item.getTicketId());
                 } else {
-                    stm.setNull(9, java.sql.Types.INTEGER);
+                    stm.setNull(7, java.sql.Types.INTEGER);
                 }
                 
                 stm.addBatch();

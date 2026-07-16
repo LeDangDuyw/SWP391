@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -42,8 +42,8 @@
             const allSelects = document.querySelectorAll('select[name^="detail_"]');
             const chosen = new Set();
             for (const sel of allSelects) {
-                if (!sel.value) { alert("Vui lòng chọn IMEI cho tất cả sản phẩm."); event.preventDefault(); return false; }
-                if (chosen.has(sel.value)) { alert("Lỗi: Bạn đã chọn trùng 1 IMEI/Serial cho 2 dòng khác nhau!"); event.preventDefault(); return false; }
+                if (!sel.value) { alert("Vui lòng chọn Serial Number cho tất cả sản phẩm."); event.preventDefault(); return false; }
+                if (chosen.has(sel.value)) { alert("Lỗi: Bạn đã chọn trùng 1 Serial Number cho 2 dòng khác nhau!"); event.preventDefault(); return false; }
                 chosen.add(sel.value);
             }
             return true;
@@ -155,7 +155,7 @@
                                     </div>
 
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
-                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã IMEI/Serial cụ thể:</p>
+                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã Serial Number cụ thể:</p>
                                         <c:choose>
                                             <c:when test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
                                                 <div style="background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
@@ -168,10 +168,10 @@
                                                     <div class="flex items-center gap-3">
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>
                                                         <select name="detail_${detail.orderDetailId}" required class="flex-1 py-2 px-3 bg-white border border-outline-variant/50 rounded-lg text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                                            <option value="">-- Chọn IMEI / Serial --</option>
+                                                            <option value="">-- Chọn Serial Number --</option>
                                                             <c:forEach var="item" items="${availableImeisMap[detail.variantId]}" varStatus="status">
                                                                 <option value="${item.itemId}" ${status.count == i ? 'selected' : ''}>
-                                                                    SN: ${item.serialNumber} | IMEI: ${item.imei}
+                                                                    SN: ${item.serialNumber}
                                                                 </option>
                                                             </c:forEach>
                                                         </select>
