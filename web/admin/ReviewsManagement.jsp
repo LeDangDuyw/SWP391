@@ -302,7 +302,7 @@
                     <c:otherwise>
                         <div class="brand"><span>UNILAP Staff</span><small>Quản trị hệ thống</small></div>
                         <nav>
-                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Kho hàng</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
                             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
                             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
                             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
@@ -324,10 +324,10 @@
                 <div class="breadcrumb">
                     <c:choose>
                         <c:when test="${sessionScope.user.roleId == 1}">
-                            <a href="${pageContext.request.contextPath}/admin/dashboard">Bảng điều khiển</a> / Quản lý đánh giá
+                            <a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a> / Quản lý đánh giá
                         </c:when>
                         <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/staff/inventory">Kho hàng</a> / Quản lý đánh giá
+                            <a href="${pageContext.request.contextPath}/staff/inventory">Inventory</a> / Quản lý đánh giá
                         </c:otherwise>
                     </c:choose>
                 </div>

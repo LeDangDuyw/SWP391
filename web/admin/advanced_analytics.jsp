@@ -555,8 +555,8 @@
 
                     <!-- ══ TAB NAV CONTROLLER ══ -->
                     <div class="tab-nav">
-                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Phân tích doanh thu</button>
-                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Phân tích doanh số</button>
+                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Revenue Analysis</button>
+                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Sales Analysis</button>
                         <button class="tab-btn" onclick="switchTab('customer')">👤 Customer Analytics</button>
                         <button class="tab-btn" onclick="switchTab('product')">📦 Product &amp; Inventory</button>
                     </div>
@@ -580,7 +580,7 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Danh mục</label>
-                                        <select name="revenueDanh mụcId" class="filter-input">
+                                        <select name="revenueCategoryId" class="filter-input">
                                             <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${revFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
@@ -589,8 +589,8 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Thương hiệu</label>
-                                        <select name="revenueThương hiệuId" class="filter-input">
-                                            <option value="all">-- All Thương hiệus --</option>
+                                        <select name="revenueBrandId" class="filter-input">
+                                            <option value="all">-- Tất cả thương hiệu --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${revFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
@@ -655,17 +655,17 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">📊 Revenue Share by Danh mục</div>
+                                <div class="chart-card-hd">📊 Cơ cấu doanh thu theo danh mục</div>
                                 <div class="chart-container">
-                                    <canvas id="revenueDanh mụcChart"></canvas>
+                                    <canvas id="revenueCategoryChart"></canvas>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="chart-card" style="margin-bottom:24px;">
-                            <div class="chart-card-hd">📊 Revenue Share by Thương hiệu</div>
+                            <div class="chart-card-hd">📊 Cơ cấu doanh thu theo thương hiệu</div>
                             <div class="chart-container" style="min-height:220px;">
-                                <canvas id="revenueThương hiệuChart"></canvas>
+                                <canvas id="revenueBrandChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -689,7 +689,7 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Danh mục</label>
-                                        <select name="salesDanh mụcId" class="filter-input">
+                                        <select name="salesCategoryId" class="filter-input">
                                             <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${salesFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
@@ -698,8 +698,8 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Thương hiệu</label>
-                                        <select name="salesThương hiệuId" class="filter-input">
-                                            <option value="all">-- All Thương hiệus --</option>
+                                        <select name="salesBrandId" class="filter-input">
+                                            <option value="all">-- Tất cả thương hiệu --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${salesFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
@@ -771,7 +771,7 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">💳 Share by Phương thức thanh toán</div>
+                                <div class="chart-card-hd">💳 Share by Payment Method</div>
                                 <div class="chart-container">
                                     <canvas id="paymentMethodChart"></canvas>
                                 </div>
@@ -798,7 +798,7 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Danh mục</label>
-                                        <select name="customerDanh mụcId" class="filter-input">
+                                        <select name="customerCategoryId" class="filter-input">
                                             <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${custFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
@@ -807,8 +807,8 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Thương hiệu</label>
-                                        <select name="customerThương hiệuId" class="filter-input">
-                                            <option value="all">-- All Thương hiệus --</option>
+                                        <select name="customerBrandId" class="filter-input">
+                                            <option value="all">-- Tất cả thương hiệu --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${custFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
@@ -917,7 +917,7 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Danh mục</label>
-                                        <select name="productDanh mụcId" class="filter-input">
+                                        <select name="productCategoryId" class="filter-input">
                                             <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${prodFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
@@ -926,8 +926,8 @@
                                     </div>
                                     <div class="filter-group">
                                         <label>Thương hiệu</label>
-                                        <select name="productThương hiệuId" class="filter-input">
-                                            <option value="all">-- All Thương hiệus --</option>
+                                        <select name="productBrandId" class="filter-input">
+                                            <option value="all">-- Tất cả thương hiệu --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${prodFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
@@ -958,8 +958,8 @@
                                     <div class="filter-group">
                                         <label>Rank By</label>
                                         <select name="productSortBy" class="filter-input">
-                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Số lượng đã bán</option>
-                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Doanh thu mang lại</option>
+                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Quantity Sold</option>
+                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Revenue Generated</option>
                                         </select>
                                     </div>
                                     <div class="filter-actions">
@@ -1121,14 +1121,14 @@
 
             const catLabels = [];
             const catData = [];
-            <c:forEach items="${revenueByDanh mục}" var="entry">
+            <c:forEach items="${revenueByCategory}" var="entry">
                 catLabels.push("${entry.key}");
                 catData.push(${entry.value});
             </c:forEach>
 
             const brandLabels = [];
             const brandData = [];
-            <c:forEach items="${revenueByThương hiệu}" var="entry">
+            <c:forEach items="${revenueByBrand}" var="entry">
                 brandLabels.push("${entry.key}");
                 brandData.push(${entry.value});
             </c:forEach>
@@ -1157,8 +1157,8 @@
                 }
             });
 
-            // Draw Danh mục Bar Chart
-            new Chart(document.getElementById('revenueDanh mụcChart'), {
+            // Draw Category Bar Chart
+            new Chart(document.getElementById('revenueCategoryChart'), {
                 type: 'bar',
                 data: {
                     labels: catLabels,
@@ -1188,8 +1188,8 @@
                 }
             });
 
-            // Draw Thương hiệu Bar Chart
-            new Chart(document.getElementById('revenueThương hiệuChart'), {
+            // Draw Brand Bar Chart
+            new Chart(document.getElementById('revenueBrandChart'), {
                 type: 'bar',
                 data: {
                     labels: brandLabels,
@@ -1248,7 +1248,7 @@
                 }
             });
 
-            // Draw Phương thức thanh toán Bar
+            // Draw Payment Method Bar
             new Chart(document.getElementById('paymentMethodChart'), {
                 type: 'bar',
                 data: {

@@ -25,7 +25,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin – Hệ thống xử lý bảo hành</title>
+        <title>UNILAP Admin – Warranty Console</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -877,9 +877,9 @@
                                             </td>
                                             <td><span class="badge badge-${claim.status}"><c:out value="${claim.status}"/></span></td>
                                             <td class="date-cell">
-                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="MMM dd,"/>
+                                                <fmt:formatDate value="${claim.createdAt}" pattern="MMM dd,"/>
                                                 <br>
-                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="yyyy"/>
+                                                <fmt:formatDate value="${claim.createdAt}" pattern="yyyy"/>
                                             </td>
                                             <td>
                                                 <a class="claim-id-link"
@@ -955,11 +955,11 @@
                             <%-- Meta --%>
                             <div class="detail-meta">
                                 <div class="meta-group">
-                                    <label>Khách hàng</label>
+                                    <label>Customer</label>
                                     <span><c:out value="${sc.customerName}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Sản phẩm</label>
+                                    <label>Product</label>
                                     <span><c:out value="${sc.productName}"/></span>
                                 </div>
                                 <div class="meta-group">
@@ -968,7 +968,7 @@
                                 </div>
                                 <div class="meta-group">
                                     <label>Created</label>
-                                    <span><fmt:formatNgày gửi value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
+                                    <span><fmt:formatDate value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
                                 </div>
                             </div>
 
@@ -1009,9 +1009,9 @@
                                             <c:forEach var="h" items="${selectedHistory}">
                                                 <div class="tl-item">
                                                     <div class="tl-dot"></div>
-                                                    <div class="tl-status"><c:out value="${h.repairTrạng thái}"/></div>
+                                                    <div class="tl-status"><c:out value="${h.repairStatus}"/></div>
                                                     <div class="tl-date">
-                                                        <fmt:formatNgày gửi value="${h.repairNgày gửi}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        <fmt:formatDate value="${h.repairDate}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </div>
                                                     <c:if test="${not empty h.repairNote}">
                                                         <div class="tl-note"><c:out value="${h.repairNote}"/></div>
@@ -1033,7 +1033,7 @@
                                 <c:otherwise>
                                     <%--
                                         PENDING → 2 lựa chọn: PROCESSING hoặc CANCELLED
-                                        Mỗi action dùng form riêng với hidden newTrạng thái cứng
+                                        Mỗi action dùng form riêng với hidden newStatus cứng
                                         → không cần onclick overwrite select, không bị race condition
                                     --%>
                                     <c:choose>
@@ -1051,7 +1051,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newTrạng thái"  value="CANCELLED">
+                                                    <input type="hidden" name="newStatus"  value="CANCELLED">
                                                     <input type="hidden" name="note"       id="note-cancel">
                                                     <button type="submit" class="btn-reject"
                                                             onclick="return confirm('Huỷ claim #${sc.claimId}?')">
@@ -1064,7 +1064,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newTrạng thái"  value="PROCESSING">
+                                                    <input type="hidden" name="newStatus"  value="PROCESSING">
                                                     <input type="hidden" name="note"       id="note-process">
                                                     <button type="submit" class="btn-approve">
                                                         Accept ✓
@@ -1073,7 +1073,7 @@
                                             </div>
                                         </c:when>
 
-                                        <%-- ── PROCESSING: Approve hoặc Từ chối ── --%>
+                                        <%-- ── PROCESSING: Approve hoặc Reject ── --%>
                                         <c:when test="${sc.status == 'PROCESSING'}">
                                             <c:choose>
                                                 <%-- Chỉ staff được gán mới thấy nút action --%>
@@ -1089,7 +1089,7 @@
                                                             <input type="hidden" name="action"     value="process">
                                                             <input type="hidden" name="id"         value="${sc.claimId}">
                                                             <input type="hidden" name="redirectTo" value="console">
-                                                            <input type="hidden" name="newTrạng thái"  value="REJECTED">
+                                                            <input type="hidden" name="newStatus"  value="REJECTED">
                                                             <input type="hidden" name="note"       id="note-reject">
                                                             <button type="submit" class="btn-reject">Từ chối</button>
                                                         </form>
@@ -1099,7 +1099,7 @@
                                                             <input type="hidden" name="action"     value="process">
                                                             <input type="hidden" name="id"         value="${sc.claimId}">
                                                             <input type="hidden" name="redirectTo" value="console">
-                                                            <input type="hidden" name="newTrạng thái"  value="APPROVED">
+                                                            <input type="hidden" name="newStatus"  value="APPROVED">
                                                             <input type="hidden" name="note"       id="note-approve">
                                                             <button type="submit" class="btn-approve">Duyệt ✓</button>
                                                         </form>
@@ -1153,7 +1153,7 @@
                                                         <input type="hidden" name="action"     value="process">
                                                         <input type="hidden" name="id"         value="${sc.claimId}">
                                                         <input type="hidden" name="redirectTo" value="console">
-                                                        <input type="hidden" name="newTrạng thái"  value="COMPLETED">
+                                                        <input type="hidden" name="newStatus"  value="COMPLETED">
                                                         <label>Staff Note</label>
                                                         <textarea name="note" placeholder="Enter completion note..."></textarea>
                                                         <div style="padding:0 0 14px;">

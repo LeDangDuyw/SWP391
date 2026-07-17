@@ -891,7 +891,7 @@
                             </div>
                         </div>
 
-                        <!-- Khách hàng mới -->
+                        <!-- New Customers -->
                         <div class="kpi-card c-blue" onclick="window.location.href='${pageContext.request.contextPath}/admin/users?role=3&from=${not empty from ? from : todayDate}&to=${not empty to ? to : todayDate}'" style="cursor:pointer;">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-blue">👤</div>
@@ -909,7 +909,7 @@
                             </div>
                             <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Low stock, claims &amp; ticket reviews</div>
+                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket chờ duyệt</div>
                         </div>
                     </div>
 
@@ -1015,16 +1015,16 @@
                         <!-- Low Stock Panel — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
-                                ⚠️ Sản phẩm sắp hết hàng
+                                ⚠️ Low Stock Products
                             </div>
                             <c:choose>
                                 <c:when test="${not empty lowStockProducts}">
                                     <table class="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Product</th>
-                                                <th>Category</th>
-                                                <th>Qty</th>
+                                                <th>Sản phẩm</th>
+                                                <th>Danh mục</th>
+                                                <th>Số lượng</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1049,11 +1049,11 @@
                         </div>
                     </div>
 
-                    <!-- ══ ROW 4: Sản phẩm bán chạy + Khách hàng tiêu biểu + Hoạt động gần đây ══ -->
-                    <div class="section-hd"><span class="dot"></span>Rankings &amp; Activity</div>
+                    <!-- ══ ROW 4: Top Products + Top Customers + Recent Activities ══ -->
+                    <div class="section-hd"><span class="dot"></span>Bảng xếp hạng &amp; Hoạt động</div>
                     <div class="grid-3b">
 
-                        <!-- Sản phẩm bán chạy Horizontal Bar -->
+                        <!-- Top Products Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
                                 <div class="chart-card-title" style="margin-bottom:0;">🏆 Sản phẩm bán chạy</div>
@@ -1080,12 +1080,12 @@
                                     <canvas id="topProductsChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No product sales data for this period</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu bán hàng trong khoảng thời gian này</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
  
-                        <!-- Khách hàng tiêu biểu Horizontal Bar -->
+                        <!-- Top Customers Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
                                 <div class="chart-card-title" style="margin-bottom:0;">👑 Khách hàng tiêu biểu</div>
@@ -1109,15 +1109,15 @@
                                     <canvas id="topCustomersChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No customer spending data for this period</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu chi tiêu khách hàng trong khoảng thời gian này</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
 
-                        <!-- Hoạt động gần đây — REAL -->
+                        <!-- Recent Activities — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
-                                🕐 Hoạt động gần đây
+                                🕐 Recent Activities
                             </div>
                             <div class="activity-feed">
                                 <c:forEach items="${recentActivities}" var="act">
@@ -1361,7 +1361,7 @@
                 document.getElementById('ordersDetailModal').style.display = 'none';
             }
 
-        // ── Sản phẩm bán chạy Horizontal Bar ──────────────────────
+        // ── Top Products Horizontal Bar ──────────────────────
             const tpLabels = [<c:forEach items="${topProducts}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tpValues = [<c:forEach items="${topProducts}" var="e" varStatus="s">${topProductsCriteria == 'revenue' ? e.value / 1000000.0 : e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
  
@@ -1391,7 +1391,7 @@
                 });
             }
 
-        // ── Khách hàng tiêu biểu Horizontal Bar — REAL DATA ─────────
+        // ── Top Customers Horizontal Bar — REAL DATA ─────────
             const tcLabels = [<c:forEach items="${topCustomers}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tcValues = [<c:forEach items="${topCustomers}" var="e" varStatus="s">${e.value / 1000000}<c:if test="${!s.last}">,</c:if></c:forEach>];
 
