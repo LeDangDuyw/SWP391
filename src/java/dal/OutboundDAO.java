@@ -243,7 +243,7 @@ public class OutboundDAO extends DBContext {
 
     public List<OrderDetail> getOrderDetails(int orderId) {
         List<OrderDetail> list = new ArrayList<>();
-        String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, pv.thumbnail " +
+        String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, pv.thumbnail, pv.product_id " +
                      "FROM OrderDetail od " +
                      "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
                      "JOIN Product p ON pv.product_id = p.product_id " +
@@ -263,6 +263,7 @@ public class OutboundDAO extends DBContext {
                     detail.setVariantName(rs.getString("variant_name"));
                     detail.setSku(rs.getString("sku"));
                     detail.setThumbnail(rs.getString("thumbnail"));
+                    detail.setProductId(rs.getInt("product_id"));
                     
                     list.add(detail);
                 }

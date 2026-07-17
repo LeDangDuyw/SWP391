@@ -476,7 +476,7 @@ public class CartServlet extends HttpServlet {
                 session.removeAttribute("discountAmount");
                 session.removeAttribute("couponId");
                 session.removeAttribute("isCampaign");
-                session.removeAttribute("isUserSelected");
+                session.setAttribute("isUserSelected", true);
             }
         } else {
             session.removeAttribute("couponCode");

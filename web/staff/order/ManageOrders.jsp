@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -230,6 +230,19 @@
                 </div>
             </div>
 
+            <!-- Delivery Method Tabs -->
+            <div class="mb-6 flex border-b border-outline-variant/30">
+                <button id="delivery-tab-all" class="px-5 py-2.5 font-semibold text-sm border-b-2 border-primary text-primary transition-all duration-150 flex items-center gap-2" onclick="filterDelivery('all')">
+                    <span class="material-symbols-outlined text-[18px]">all_inbox</span> Tất cả đơn hàng
+                </button>
+                <button id="delivery-tab-home" class="px-5 py-2.5 font-semibold text-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-all duration-150 flex items-center gap-2" onclick="filterDelivery('home')">
+                    <span class="material-symbols-outlined text-[18px]">home</span> Giao hàng tận nơi (Nhận tại nhà)
+                </button>
+                <button id="delivery-tab-store" class="px-5 py-2.5 font-semibold text-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-all duration-150 flex items-center gap-2" onclick="filterDelivery('store')">
+                    <span class="material-symbols-outlined text-[18px]">store</span> Nhận tại cửa hàng
+                </button>
+            </div>
+
             <!-- ── Stats count từ server ── -->
             <c:set var="cntAll"        value="0"/>
             <c:set var="cntPending"    value="0"/>
@@ -280,7 +293,7 @@
 
             <!-- ── Table Card ── -->
             <div class="table-card">
-                <div class="table-toolbar">
+                <div class="table-toolbar bg-surface-container-lowest flex flex-wrap gap-4 items-center justify-between">
                     <!-- Filter tabs -->
                     <div class="filter-tabs">
                         <button class="filter-tab active" onclick="filterStatus('all',this)">
@@ -302,11 +315,23 @@
                             Đã huỷ <span class="cnt">${cntCancelled}</span>
                         </button>
                     </div>
-                    <!-- Search -->
-                    <div class="search-box">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" id="search-input" placeholder="Tìm mã đơn, tên người nhận..."
-                               oninput="applyFilters()">
+                    <!-- Date Range Filter & Search Box -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex items-center gap-2 border border-outline-variant/60 rounded-lg px-3 py-1.5 bg-[#f8fafc] text-xs">
+                            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_month</span>
+                            <span class="text-on-surface-variant">Từ:</span>
+                            <input type="date" id="filter-from-date" class="border-0 bg-transparent p-0 text-xs focus:ring-0 focus:outline-none w-28 text-on-surface font-semibold" onchange="applyFilters()">
+                            <span class="text-on-surface-variant">Đến:</span>
+                            <input type="date" id="filter-to-date" class="border-0 bg-transparent p-0 text-xs focus:ring-0 focus:outline-none w-28 text-on-surface font-semibold" onchange="applyFilters()">
+                            <button onclick="clearDates()" title="Xoá bộ lọc thời gian" class="hover:text-red-500 text-on-surface-variant transition-colors flex items-center">
+                                <span class="material-symbols-outlined text-[14px]">close</span>
+                            </button>
+                        </div>
+                        <div class="search-box">
+                            <span class="material-symbols-outlined">search</span>
+                            <input type="text" id="search-input" placeholder="Tìm mã đơn, tên người nhận..."
+                                   oninput="applyFilters()">
+                        </div>
                     </div>
                 </div>
 
@@ -315,24 +340,33 @@
                         <thead>
                             <tr>
                                 <th>MÃ ĐƠN HÀNG</th>
+                                <th>THỜI GIAN</th>
                                 <th>NGƯỜI NHẬN</th>
                                 <th>TỔNG TIỀN</th>
                                 <th>TRẠNG THÁI</th>
-                                <th>MÃ VẬN ĐƠN</th>
+                                <th class="tracking-col">MÃ VẬN ĐƠN</th>
                                 <th style="text-align:right;">HÀNH ĐỘNG</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="order" items="${orders}">
+                                <c:set var="isPickup" value="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}" />
                                 <tr class="order-row"
                                     data-status="${order.orderStatus}"
-                                    data-search="${order.orderCode} ${order.shippingReceiver} ${order.shippingPhone}">
+                                    data-search="${order.orderCode} ${order.shippingReceiver} ${order.shippingPhone}"
+                                    data-date="${order.completedAt}"
+                                    data-pickup="${isPickup}">
                                     <td>
                                         <a href="${pageContext.request.contextPath}/staff/order/detail?orderId=${order.orderId}"
                                            class="order-code-link">
                                             <span class="material-symbols-outlined" style="font-size:14px;color:#94a3b8;">tag</span>
                                             ${order.orderCode}
                                         </a>
+                                    </td>
+                                    <td class="whitespace-nowrap">
+                                        <span class="text-body-sm font-medium text-on-surface-variant">
+                                            ${order.formattedCompletedAt}
+                                        </span>
                                     </td>
                                     <td>
                                         <div class="receiver-name">${order.shippingReceiver}</div>
@@ -362,7 +396,7 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
+                                    <td class="tracking-col">
                                         <c:choose>
                                             <c:when test="${not empty order.trackingNumber}">
                                                 <span style="font-size:12px;font-family:monospace;color:#6d28d9;font-weight:600;">
@@ -399,7 +433,7 @@
 
                             <c:if test="${empty orders}">
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="7">
                                         <div class="empty-state">
                                             <span class="material-symbols-outlined">inbox</span>
                                             <p>Hiện không có đơn hàng nào.</p>
@@ -418,6 +452,7 @@
 
 <script>
     var currentStatus = 'all';
+    var currentDelivery = 'all';
 
     function filterStatus(status, btn) {
         currentStatus = status;
@@ -426,12 +461,57 @@
         applyFilters();
     }
 
+    function filterDelivery(delivery) {
+        currentDelivery = delivery;
+        
+        // Update tab styles
+        const tabs = ['all', 'home', 'store'];
+        tabs.forEach(t => {
+            const btn = document.getElementById('delivery-tab-' + t);
+            if (t === delivery) {
+                btn.classList.add('border-primary', 'text-primary');
+                btn.classList.remove('border-transparent', 'text-on-surface-variant');
+            } else {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-on-surface-variant');
+            }
+        });
+
+        // Dynamic column hiding: hide waybill column when in 'store' pickup view
+        const trackingHeaders = document.querySelectorAll('th.tracking-col');
+        const trackingCells = document.querySelectorAll('td.tracking-col');
+        if (delivery === 'store') {
+            trackingHeaders.forEach(el => el.style.display = 'none');
+            trackingCells.forEach(el => el.style.display = 'none');
+        } else {
+            trackingHeaders.forEach(el => el.style.display = '');
+            trackingCells.forEach(el => el.style.display = '');
+        }
+
+        applyFilters();
+    }
+
+    function clearDates() {
+        document.getElementById('filter-from-date').value = '';
+        document.getElementById('filter-to-date').value = '';
+        applyFilters();
+    }
+
     function applyFilters() {
         var q = document.getElementById('search-input').value.toLowerCase().trim();
+        var fromDateStr = document.getElementById('filter-from-date').value;
+        var toDateStr = document.getElementById('filter-to-date').value;
+
+        var fromDate = fromDateStr ? new Date(fromDateStr + 'T00:00:00') : null;
+        var toDate = toDateStr ? new Date(toDateStr + 'T23:59:59') : null;
+
         document.querySelectorAll('.order-row').forEach(row => {
             var rowStatus = row.getAttribute('data-status').toLowerCase();
             var searchText = row.getAttribute('data-search').toLowerCase();
+            var isPickup = row.getAttribute('data-pickup') === 'true';
+            var rawDate = row.getAttribute('data-date');
 
+            // 1. Status Filter
             var statusMatch = currentStatus === 'all'
                 || (currentStatus === 'pending'    && rowStatus === 'pending')
                 || (currentStatus === 'processing' && rowStatus === 'processing')
@@ -439,8 +519,33 @@
                 || (currentStatus === 'delivered'  && (rowStatus === 'delivered' || rowStatus === 'completed'))
                 || (currentStatus === 'cancelled'  && rowStatus === 'cancelled');
 
+            // 2. Delivery Method Filter
+            var deliveryMatch = currentDelivery === 'all'
+                || (currentDelivery === 'store' && isPickup)
+                || (currentDelivery === 'home' && !isPickup);
+
+            // 3. Search text match
             var searchMatch = q === '' || searchText.includes(q);
-            row.style.display = (statusMatch && searchMatch) ? '' : 'none';
+
+            // 4. Date range filter
+            var dateMatch = true;
+            if (rawDate && rawDate !== '') {
+                var orderDate = new Date(rawDate);
+                if (!isNaN(orderDate.getTime())) {
+                    if (fromDate && orderDate < fromDate) {
+                        dateMatch = false;
+                    }
+                    if (toDate && orderDate > toDate) {
+                        dateMatch = false;
+                    }
+                }
+            } else {
+                if (fromDate || toDate) {
+                    dateMatch = false;
+                }
+            }
+
+            row.style.display = (statusMatch && deliveryMatch && searchMatch && dateMatch) ? '' : 'none';
         });
     }
 </script>

@@ -15,6 +15,7 @@ public class OrderDetail {
     private String variantName;
     private String sku;
     private String thumbnail;
+    private int productId;
     
     // For outbound fulfillment tracking
     private List<InventoryItem> assignedItems;
@@ -108,5 +109,13 @@ public class OrderDetail {
 
     public void setAssignedItems(List<InventoryItem> assignedItems) {
         this.assignedItems = assignedItems;
+    }
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 }

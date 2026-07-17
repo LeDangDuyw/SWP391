@@ -661,11 +661,15 @@
                         
                         <div class="product-item">
                             <div class="product-info-wrap">
-                                <img src="${pageContext.request.contextPath}/images/${item.thumbnail}" 
-                                     onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" 
-                                     alt="product" class="product-img">
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}">
+                                    <img src="${pageContext.request.contextPath}/images/${item.thumbnail}" 
+                                         onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" 
+                                         alt="product" class="product-img">
+                                </a>
                                 <div class="product-details">
-                                    <h4 class="product-title" title="${item.productName}">${item.productName}</h4>
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}" style="text-decoration: none; color: inherit;">
+                                        <h4 class="product-title" title="${item.productName}">${item.productName}</h4>
+                                    </a>
                                     <p class="product-variant">Phân loại: ${item.variantName}</p>
                                     <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 2px;">Thời hạn bảo hành đến: 10/07/2027</p>
                                     <div class="product-price-qty">
@@ -675,7 +679,7 @@
                                 </div>
                             </div>
                             <div class="btn-action-right">
-                                <a href="${pageContext.request.contextPath}/ProductListServlet" class="btn-buy-again">
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}" class="btn-buy-again">
                                     <i class="fas fa-redo" style="margin-right: 4px; font-size: 10px;"></i> Mua lại
                                 </a>
                             </div>
@@ -694,7 +698,14 @@
                         <ul class="info-list">
                             <li>Họ và tên: <strong>${order.shippingReceiver}</strong></li>
                             <li>Số điện thoại: <strong>${order.shippingPhone}</strong></li>
-                            <li>Địa chỉ: <strong>${order.shippingAddress}</strong></li>
+                            <c:choose>
+                                <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                    <li>Phương thức nhận hàng: <strong>Nhận trực tiếp tại showroom UniLap (Hà Nội)</strong></li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li>Địa chỉ nhận hàng: <strong>${order.shippingAddress}</strong></li>
+                                </c:otherwise>
+                            </c:choose>
                             <li>Ghi chú: <strong>-</strong></li>
                         </ul>
                     </div>
