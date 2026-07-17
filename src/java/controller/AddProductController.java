@@ -95,11 +95,33 @@ public class AddProductController extends HttpServlet {
             return;
         }
 
+        ProductDAO productDAO = new ProductDAO();
+
         for (int i = 0; i < skus.length; i++) {
             if (skus[i] == null || skus[i].trim().isEmpty() ||
                 importPrices == null || importPrices.length <= i || importPrices[i] == null || importPrices[i].trim().isEmpty() ||
                 prices[i] == null || prices[i].trim().isEmpty()) {
                 request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin cho các biến thể (SKU, Giá Nhập, Giá Bán)!");
+                doGet(request, response);
+                return;
+            }
+            
+            try {
+                java.math.BigDecimal ip = new java.math.BigDecimal(importPrices[i]);
+                java.math.BigDecimal sp = new java.math.BigDecimal(prices[i]);
+                if (sp.compareTo(ip) < 0) {
+                    request.setAttribute("errorMessage", "Giá bán không được nhỏ hơn giá nhập (SKU: " + skus[i] + ")!");
+                    doGet(request, response);
+                    return;
+                }
+            } catch (Exception e) {
+                request.setAttribute("errorMessage", "Giá nhập hoặc giá bán không hợp lệ!");
+                doGet(request, response);
+                return;
+            }
+
+            if (productDAO.isSkuExist(skus[i])) {
+                request.setAttribute("errorMessage", "SKU " + skus[i] + " đã tồn tại trong hệ thống!");
                 doGet(request, response);
                 return;
             }
@@ -154,7 +176,6 @@ public class AddProductController extends HttpServlet {
 
         // Tạo đối tượng Product mới và gọi hàm insert vào CSDL
         Product p = new Product(0, productName, description, 0, fileName, categoryId, brandId);
-        ProductDAO productDAO = new ProductDAO();
         int productId = productDAO.insertProduct(p);
 
         // Nếu lưu sản phẩm thành công, tiếp tục lưu các biến thể (variants) của sản phẩm

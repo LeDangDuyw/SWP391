@@ -78,9 +78,11 @@ public class OutboundUpdateStatusController extends HttpServlet {
                             
                             dao.updateInvoiceDetails(orderId, dbInvoicePath, emailSentStatus);
                         }
+                    } else {
+                        session.setAttribute("error", "Không thể cập nhật trạng thái đơn hàng. Vui lòng kiểm tra lại trạng thái hiện tại.");
                     }
                 }
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

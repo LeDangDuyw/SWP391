@@ -149,8 +149,8 @@ public class AddProductImeiController extends HttpServlet {
             }
         }
 
-        if (expectedQuantity != -1 && validImeis.size() > expectedQuantity) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=TooManyImeis&expected=" + expectedQuantity + "&actual=" + validImeis.size());
+        if (expectedQuantity != -1 && validImeis.size() != expectedQuantity) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchImeisQuantity&expected=" + expectedQuantity + "&actual=" + validImeis.size());
             return;
         }
 
@@ -159,7 +159,7 @@ public class AddProductImeiController extends HttpServlet {
             try {
                 LocalDate importDate = LocalDate.parse(receivedDate);
                 LocalDate today = LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
-                if (!importDate.isAfter(today)) {
+                if (importDate.isAfter(today)) {
                     response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=InvalidImportDate" + 
                         (ticketId != null ? "&ticketId=" + ticketId : "") + 
                         "&variantId=" + variantId);

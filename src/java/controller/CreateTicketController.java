@@ -73,6 +73,8 @@ public class CreateTicketController extends HttpServlet {
         }
 
         List<TicketDetail> details = new ArrayList<>();
+        java.util.Set<Integer> processedVariantIds = new java.util.HashSet<>();
+        
         for (int i = 0; i < variantIds.length; i++) {
             try {
                 if (quantities == null || i >= quantities.length || quantities[i] == null || quantities[i].trim().isEmpty()) {
@@ -90,6 +92,12 @@ public class CreateTicketController extends HttpServlet {
                 if (expectedPrices != null && i < expectedPrices.length && expectedPrices[i] != null && !expectedPrices[i].trim().isEmpty()) {
                     expectedPrice = new BigDecimal(expectedPrices[i].trim());
                 }
+
+                if (processedVariantIds.contains(variantId)) {
+                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=DuplicateVariant");
+                    return;
+                }
+                processedVariantIds.add(variantId);
 
                 TicketDetail detail = new TicketDetail();
                 detail.setVariantId(variantId);

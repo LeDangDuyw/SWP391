@@ -6,7 +6,7 @@
     // Bảo vệ trang: chỉ Staff (roleId=2)
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null || currentUser.getRoleId() != 2) {
-        response.sendRedirect(request.getContextPath() + "/login");
+        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
         return;
     }
 %>

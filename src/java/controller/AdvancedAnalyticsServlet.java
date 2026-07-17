@@ -49,6 +49,13 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
     private BrandDao brandDao;
 
     @Override
+    public void init() {
+        analyticsDAO = new AdvancedAnalyticsDAO();
+        categoryDAO = new CategoryDAO();
+        brandDao = new BrandDao();
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -75,10 +82,6 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
-            analyticsDAO = new AdvancedAnalyticsDAO();
-            categoryDAO = new CategoryDAO();
-            brandDao = new BrandDao();
-
             // Load Category and Brand dropdown lists (shared across all section filters)
             List<Category> categories = categoryDAO.getAllCategories();
             List<Brand> brands = brandDao.getAllBrands();

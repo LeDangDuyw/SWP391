@@ -178,64 +178,34 @@ public class OrderDAO extends DBContext {
 
     public List<model.OrderDetail> getOrderDetails(int orderId) {
         List<model.OrderDetail> list = new java.util.ArrayList<>();
-        String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, p.warranty_period " +
-                     "FROM OrderDetail od " +
-                     "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
-                     "JOIN Product p ON pv.product_id = p.product_id " +
-                     "WHERE od.order_id = ?";
-        try (PreparedStatement localPs = cnn.prepareStatement(sql)) {
-            localPs.setInt(1, orderId);
-            try (ResultSet localRs = localPs.executeQuery()) {
-                while (localRs.next()) {
-                    model.OrderDetail detail = new model.OrderDetail();
-                    detail.setOrderDetailId(localRs.getInt("order_detail_id"));
-                    detail.setQuantity(localRs.getInt("quantity"));
-                    detail.setUnitPrice(localRs.getBigDecimal("unit_price"));
-                    detail.setOrderId(localRs.getInt("order_id"));
-                    detail.setVariantId(localRs.getInt("variant_id"));
-                    
-                    detail.setProductName(localRs.getString("product_name"));
-                    detail.setVariantName(localRs.getString("variant_name"));
-                    detail.setSku(localRs.getString("sku"));
-                    detail.setThumbnail(localRs.getString("thumbnail"));
-                    detail.setWarrantyPeriod(localRs.getInt("warranty_period"));
-                    
-                    // Fetch assigned serials/IMEIs
-                    detail.setAssignedItems(getAssignedSerials(detail.getOrderDetailId()));
-                    
-                    list.add(detail);
-                }
+        try {
+            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail " +
+                         "FROM OrderDetail od " +
+                         "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
+                         "JOIN Product p ON pv.product_id = p.product_id " +
+                         "WHERE od.order_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                model.OrderDetail detail = new model.OrderDetail();
+                detail.setOrderDetailId(rs.getInt("order_detail_id"));
+                detail.setQuantity(rs.getInt("quantity"));
+                detail.setUnitPrice(rs.getBigDecimal("unit_price"));
+                detail.setOrderId(rs.getInt("order_id"));
+                detail.setVariantId(rs.getInt("variant_id"));
+                
+                detail.setProductName(rs.getString("product_name"));
+                detail.setVariantName(rs.getString("variant_name"));
+                detail.setSku(rs.getString("sku"));
+                detail.setThumbnail(rs.getString("thumbnail"));
+                
+                list.add(detail);
             }
         } catch (Exception e) {
             System.out.println("getOrderDetails error: " + e.getMessage());
         }
         return list;
-    }
-
-    public List<model.InventoryItem> getAssignedSerials(int orderDetailId) {
-        List<model.InventoryItem> items = new java.util.ArrayList<>();
-        String sql = "SELECT ii.item_id, ii.serial_number, ii.imei, ii.warranty_expired_date " +
-                     "FROM InventoryItem ii " +
-                     "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id " +
-                     "WHERE ois.order_detail_id = ?";
-        try (PreparedStatement localPs = cnn.prepareStatement(sql)) {
-            localPs.setInt(1, orderDetailId);
-            try (ResultSet localRs = localPs.executeQuery()) {
-                while (localRs.next()) {
-                    model.InventoryItem item = new model.InventoryItem();
-                    item.setItemId(localRs.getInt("item_id"));
-                    item.setSerialNumber(localRs.getString("serial_number"));
-                    item.setImei(localRs.getString("imei"));
-                    if (localRs.getDate("warranty_expired_date") != null) {
-                        item.setWarrantyExpiredDate(localRs.getDate("warranty_expired_date").toLocalDate());
-                    }
-                    items.add(item);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("getAssignedSerials error: " + e.getMessage());
-        }
-        return items;
     }
 
     public Order getOrderById(int orderId) {

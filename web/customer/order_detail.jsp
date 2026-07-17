@@ -667,34 +667,7 @@
                                 <div class="product-details">
                                     <h4 class="product-title" title="${item.productName}">${item.productName}</h4>
                                     <p class="product-variant">Phân loại: ${item.variantName}</p>
-                                    <c:choose>
-                                        <c:when test="${order.orderStatus == 'delivered' || order.orderStatus == 'Completed' || order.orderStatus == 'COMPLETED'}">
-                                            <c:choose>
-                                                <c:when test="${not empty item.assignedItems}">
-                                                    <c:forEach var="subItem" items="${item.assignedItems}">
-                                                        <p style="font-size: 11.5px; color: #16a34a; margin-bottom: 2px; font-weight: 500;">
-                                                            <i class="fas fa-shield-alt"></i> S/N: <c:out value="${subItem.serialNumber}"/>
-                                                            <c:if test="${not empty subItem.warrantyExpiredDate}">
-                                                                - Hạn bảo hành: 
-                                                                <fmt:parseDate value="${subItem.warrantyExpiredDate}" pattern="yyyy-MM-dd" var="parsedDate"/>
-                                                                <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy"/>
-                                                            </c:if>
-                                                        </p>
-                                                    </c:forEach>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <p style="font-size: 11.5px; color: var(--gray-500); margin-bottom: 2px;">
-                                                        Bảo hành: ${item.warrantyPeriod} tháng (Chờ gán Serial / kích hoạt khi giao)
-                                                    </p>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <p style="font-size: 11.5px; color: var(--gray-500); margin-bottom: 2px;">
-                                                Bảo hành: ${item.warrantyPeriod} tháng
-                                            </p>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 2px;">Thời hạn bảo hành đến: 10/07/2027</p>
                                     <div class="product-price-qty">
                                         <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0"/>₫
                                         <span>Số lượng: ${item.quantity}</span>

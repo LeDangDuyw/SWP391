@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!doctype html>
@@ -18,6 +18,7 @@
         <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
         <nav>
             <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+            <a href="#"><span>▣</span>Orders</a>
             <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
             <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
             <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
