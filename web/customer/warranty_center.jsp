@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: warranty_center.jsp
     Mo ta: Trang trung tâm bảo hành dành cho khách hàng.
     
@@ -850,7 +850,7 @@
                                             <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="#" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
+                                            <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                         </c:otherwise>
                                     </c:choose>
                                     <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
@@ -1268,51 +1268,7 @@
     </section>
 
     <!-- ════ FOOTER (synced with home.jsp) ════ -->
-    <%
-        if (request.getAttribute("footerPages") == null) {
-            try {
-                dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                request.setAttribute("footerPages", footerPagesList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    %>
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-col">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-                <div class="footer-contact-info">
-                    <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình, Hà Nội</p>
-                    <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                    <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-                </div>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h3>Chính sách & Hỗ trợ</h3>
-                <ul>
-                    <c:if test="${not empty footerPages}">
-                        <c:forEach items="${footerPages}" var="pageItem">
-                            <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                        </c:forEach>
-                    </c:if>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-            </div>
-        </div>
-    </footer>
+    <%@include file="_footer.jspf" %>
     <!-- ════ STEP 1 PRODUCT PICKER SCRIPT ════ -->
     <script>
         (function () {
