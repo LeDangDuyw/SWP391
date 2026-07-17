@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: advanced_analytics.jsp
     Mo ta: Trang giao diện phân tích báo cáo nâng cao tích hợp biểu đồ Chart.js.
     
@@ -490,34 +490,35 @@
             <aside class="sidebar">
                 <div class="brand">
                     <span>UNILAP Admin</span>
-                    <small>Quản trị hệ thống</small>
+                    <small>System Controller</small>
                 </div>
                 <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     
                     <div class="sidebar-dropdown">
                         <a href="javascript:void(0)" class="sidebar-dropdown-btn active" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Phân tích</span>
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
                             <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(180deg);">▼</span>
                         </a>
                         <div class="sidebar-dropdown-container" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
                             <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Khuyến mãi
+                                <span>▥</span>Voucher & Promotion
                             </a>
-                            <a href="${pageContext.request.contextPath}/admin/analytics" class="active">
-                                <span>📈</span>Phân tích nâng cao
+                            <a class="active" href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
                             </a>
                         </div>
                     </div>
                     
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
+                    <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
                     <div class="profile-info">
@@ -532,7 +533,7 @@
                         <% } %>
                         <span>Admin Profile</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
                 </div>
             </aside>
 
@@ -599,7 +600,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="revenueCustomerType" class="filter-input">
-                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- All Types --</option>
                                             <option value="new" ${revFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${revFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -607,7 +608,7 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="revenuePaymentMethod" class="filter-input">
-                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
+                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
                                             <option value="cod" ${revFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${revFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${revFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -708,7 +709,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="salesCustomerType" class="filter-input">
-                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- All Types --</option>
                                             <option value="new" ${salesFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${salesFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -716,7 +717,7 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="salesPaymentMethod" class="filter-input">
-                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
+                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
                                             <option value="cod" ${salesFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${salesFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${salesFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -817,7 +818,7 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="customerPaymentMethod" class="filter-input">
-                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
+                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
                                             <option value="cod" ${custFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${custFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${custFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -854,7 +855,7 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">👥 New vs Khách hàng quay lạis Share</div>
+                                <div class="chart-card-hd">👥 Tỷ lệ khách hàng mới vs khách hàng quay lại</div>
                                 <div class="chart-container">
                                     <canvas id="customerCohortChart"></canvas>
                                 </div>
@@ -936,7 +937,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="productCustomerType" class="filter-input">
-                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- All Types --</option>
                                             <option value="new" ${prodFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${prodFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -944,7 +945,7 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="productPaymentMethod" class="filter-input">
-                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
+                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
                                             <option value="cod" ${prodFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${prodFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${prodFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
