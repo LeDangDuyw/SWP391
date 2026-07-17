@@ -70,20 +70,39 @@ public class CategoryManagementController extends HttpServlet {
             if ("add".equals(action)) {
                 String categoryName = request.getParameter("categoryName");
                 if (categoryName != null && !categoryName.trim().isEmpty()) {
+                    if (categoryDAO.isCategoryExist(categoryName.trim(), -1)) {
+                        request.setAttribute("errorMessage", "Tên danh mục đã tồn tại.");
+                        doGet(request, response);
+                        return;
+                    }
                     categoryDAO.insertCategory(categoryName.trim());
                 }
             } else if ("update".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryId"));
                 String categoryName = request.getParameter("categoryName");
                 if (categoryName != null && !categoryName.trim().isEmpty()) {
+                    if (categoryDAO.isCategoryExist(categoryName.trim(), categoryId)) {
+                        request.setAttribute("errorMessage", "Tên danh mục đã tồn tại.");
+                        doGet(request, response);
+                        return;
+                    }
                     categoryDAO.updateCategory(categoryId, categoryName.trim());
                 }
             } else if ("delete".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryIdToDelete"));
+                int productCount = categoryDAO.countProductsByCategory(categoryId);
+                if (productCount > 0) {
+                    request.setAttribute("errorMessage", "Không thể xóa danh mục đang có " + productCount + " sản phẩm.");
+                    doGet(request, response);
+                    return;
+                }
                 categoryDAO.deleteCategory(categoryId);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            request.setAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            doGet(request, response);
+            return;
         }
         
         // Preserve search input if present

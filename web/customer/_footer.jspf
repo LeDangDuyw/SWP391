@@ -67,11 +67,11 @@
                         <c:when test="${p.policyType == 'TERMS'}"><c:set var="pUrl" value="/policy/terms"/></c:when>
                         <c:when test="${p.policyType == 'SHOPPING_GUIDE'}"><c:set var="pUrl" value="/policy/shopping-guide"/></c:when>
                         <c:when test="${p.policyType == 'ABOUT'}"><c:set var="pUrl" value="/about"/></c:when>
-                        <c:when test="${p.policyType == 'WARRANTY'}"><c:set var="pUrl" value="/policy/warranty"/></c:when>
                         <c:otherwise><c:set var="pUrl" value="#"/></c:otherwise>
                     </c:choose>
                     <li><a href="${pageContext.request.contextPath}${pUrl}"><i class="fas fa-chevron-right"></i> ${p.title}</a></li>
                 </c:forEach>
+                <li><a href="${pageContext.request.contextPath}/policy/warranty"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
             </ul>
         </div>
     </div>

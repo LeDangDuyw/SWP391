@@ -127,7 +127,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
@@ -228,7 +228,7 @@
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Search Serial or IMEI..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Search Serial..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                             <button type="submit" class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-sm">search</span>
                             </button>
@@ -252,7 +252,7 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
-                                <th class="px-6 py-4">Serial / IMEI Number</th>
+                                <th class="px-6 py-4">Serial Number</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4">Received Date</th>
                                 <th class="px-6 py-4">Linked Order</th>
@@ -266,7 +266,6 @@
                                         <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest group">
                                             <td class="px-6 py-4">
                                                 <p class="font-code-sm text-code-sm font-bold text-primary">${item.serialNumber != null ? item.serialNumber : "N/A"}</p>
-                                                <p class="text-[11px] text-on-surface-variant font-code-sm">IMEI: ${item.imei != null ? item.imei : "N/A"}</p>
                                                 <p class="text-[11px] text-on-surface-variant font-code-sm mt-1">Product: ${item.productName} (${item.sku})</p>
                                             </td>
                                             <td class="px-6 py-4">

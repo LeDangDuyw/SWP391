@@ -828,7 +828,7 @@ public List<Product> GetAllProducts() {
     public List<model.ProductVariant> getAllVariants() {
         List<model.ProductVariant> variants = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM ProductVariant";
+            String sql = "SELECT * FROM ProductVariant WHERE status = 'active'";
             ps = cnn.prepareStatement(sql);
             rs  = ps.executeQuery();
             while (rs.next()) {
@@ -994,7 +994,7 @@ public List<Product> GetAllProducts() {
                         "from Product p join Category c on p.category_id = c.category_id\n" +
                         "	join Brand b on p.brand_id = b.brand_id\n" +
                         "	join ProductVariant pv on p.product_id = pv.product_id\n" +
-                        "	join Inventory i on pv.variant_id = i.variant_id\n"
+                        "	left join Inventory i on pv.variant_id = i.variant_id\n"
                     + "where pv.status = 'active'";
         ps = cnn.prepareStatement(sql);
         rs = ps.executeQuery();
@@ -1038,7 +1038,7 @@ public List<Product> GetAllProducts() {
                         "from Product p join Category c on p.category_id = c.category_id\n" +
                         "	join Brand b on p.brand_id = b.brand_id\n" +
                         "	join ProductVariant pv on p.product_id = pv.product_id\n" +
-                        "	join Inventory i on pv.variant_id = i.variant_id\n" +
+                        "	left join Inventory i on pv.variant_id = i.variant_id\n" +
                         // Lß╗ìc theo tß╗½ kh├│a t├¼m kiß║┐m (so khß╗¢p t╞░╞íng ─æß╗æi bß║▒ng LIKE)
                         "where (p.product_name like '%' + ? + '%' or c.category_name like '%' + ? + '%' or pv.sku like '%' + ? + '%')\n" +
                     "and pv.status = 'active'\n" +
@@ -1101,7 +1101,7 @@ public List<Product> GetAllProducts() {
                          "JOIN Category c ON p.category_id = c.category_id " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
-                         "JOIN Inventory i ON pv.variant_id = i.variant_id " +
+                         "LEFT JOIN Inventory i ON pv.variant_id = i.variant_id " +
                          "WHERE 1=1";
 
             if (itemStatus != null && itemStatus.equals("hidden")) {
@@ -1183,7 +1183,7 @@ public List<Product> GetAllProducts() {
                          "JOIN Category c ON p.category_id = c.category_id " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
-                         "JOIN Inventory i ON pv.variant_id = i.variant_id " +
+                         "LEFT JOIN Inventory i ON pv.variant_id = i.variant_id " +
                          "WHERE 1=1";
 
             if (itemStatus != null && itemStatus.equals("hidden")) {
@@ -1316,11 +1316,10 @@ public List<Product> GetAllProducts() {
                 variantId = rs.getInt(1);
             }
             if (variantId != -1) {
-                String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
+                String sqlInv = "INSERT INTO Inventory (variant_id, available_quantity) VALUES (?, ?)";
                 PreparedStatement psInv = cnn.prepareStatement(sqlInv);
                 psInv.setInt(1, variantId);
-                psInv.setInt(2, 0);
-                psInv.setInt(3, stock);
+                psInv.setInt(2, stock);
                 psInv.executeUpdate();
             }
         } catch (Exception e) {
@@ -1357,11 +1356,10 @@ public List<Product> GetAllProducts() {
                 variantId = rs.getInt(1);
             }
             if (variantId != -1) {
-                String sqlInv = "INSERT INTO Inventory (variant_id, reserved_quantity, available_quantity) VALUES (?, ?, ?)";
+                String sqlInv = "INSERT INTO Inventory (variant_id, available_quantity) VALUES (?, ?)";
                 PreparedStatement psInv = cnn.prepareStatement(sqlInv);
                 psInv.setInt(1, variantId);
-                psInv.setInt(2, 0);
-                psInv.setInt(3, stock);
+                psInv.setInt(2, stock);
                 psInv.executeUpdate();
             }
         } catch (Exception e) {
@@ -1376,7 +1374,7 @@ public List<Product> GetAllProducts() {
      * Version: 2.0
      * Description: Cß║¡p nhß║¡t th├┤ng tin cß╗ºa mß╗Öt ProductVariant v├á tß╗ôn kho cß╗ºa n├│ dß╗▒a tr├¬n giao diß╗çn.
      */
-    public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal price, int stock) {
+    public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal price) {
         try {
             // Update ProductVariant table
             String sql = "UPDATE ProductVariant SET sku = ?, variant_name = ?, selling_price = ? WHERE variant_id = ?";
@@ -1387,12 +1385,7 @@ public List<Product> GetAllProducts() {
             ps.setInt(4, variantId);
             ps.executeUpdate();
             
-            // Update Inventory table
-            String sqlInv = "UPDATE Inventory SET available_quantity = ? WHERE variant_id = ?";
-            PreparedStatement psInv = cnn.prepareStatement(sqlInv);
-            psInv.setInt(1, stock);
-            psInv.setInt(2, variantId);
-            psInv.executeUpdate();
+            // Removed direct update to Inventory.available_quantity to enforce Inbound flow.
         } catch (Exception e) {
             System.out.println("Update ProductVariant Error: " + e.getMessage());
         }
@@ -1484,5 +1477,20 @@ public List<Product> GetAllProducts() {
             System.out.println("getProductCompareDetail: " + e.getMessage());
         }
         return p;
+    }
+
+    public boolean isSkuExist(String sku) {
+        try {
+            String sql = "SELECT COUNT(*) FROM ProductVariant WHERE sku = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, sku.trim());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            System.out.println("isSkuExist: " + e.getMessage());
+        }
+        return false;
     }
 }

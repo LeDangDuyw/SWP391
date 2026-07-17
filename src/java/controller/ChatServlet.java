@@ -101,6 +101,33 @@ public class ChatServlet extends HttpServlet {
             requestBody = requestBody.substring(0, requestBody.length() - 1) + ", \"user_id\": " + user.getUserId() + "}";
         }
 
+        // === KIỂM TRA SPAM (GIỚI HẠN 10 TIN NHẮN / PHÚT) ===
+        long now = System.currentTimeMillis();
+        java.util.List<Long> msgTimes = (java.util.List<Long>) session.getAttribute("chat_message_times");
+        if (msgTimes == null) {
+            msgTimes = new java.util.ArrayList<>();
+        }
+        // Loại bỏ các mốc thời gian cũ hơn 1 phút (60,000ms)
+        msgTimes.removeIf(time -> time < now - 60000);
+
+        if (msgTimes.size() >= 10) {
+            // Khóa tài khoản người dùng sử dụng chatbot trong database
+            chatbotDAO.blockUser(user.getUserId(), "Hệ thống tự động khóa do spam chatbot liên tục (Quá 10 tin nhắn/phút).");
+            
+            // Ghi nhật ký vi phạm bảo mật loại SPAM vào database
+            chatbotDAO.insertSecurityLog(user.getUserId(), userSessionId, "SPAM", userMessage);
+            
+            // Trả về lỗi 403 Forbidden chặn quyền truy cập
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("{\"error\": \"Tài khoản của bạn đã bị chặn sử dụng tính năng chatbot do vi phạm điều khoản.\"}");
+            return;
+        }
+        
+        // Lưu mốc thời gian nhắn tin mới vào session
+        msgTimes.add(now);
+        session.setAttribute("chat_message_times", msgTimes);
+        // ==================================================
+
         try {
             // 4. Connect and send request to FastAPI Server
             URL url = java.net.URI.create(FASTAPI_URL).toURL();

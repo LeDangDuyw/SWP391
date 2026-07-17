@@ -1,0 +1,5 @@
+Review Ticket:
+Màn hình chi tiết phê duyệt dành riêng cho Admin để xem xét kỹ lưỡng và đưa ra quyết định chấp thuận hoặc từ chối các yêu cầu nhập kho từ nhân viên. Giúp Admin ghi nhận lý do phê duyệt/từ chối, cập nhật trạng thái phiếu tức thì và kiểm soát chặt chẽ quy trình luân chuyển hàng hóa vào kho.
+
+Add Product IMEI:
+Màn hình cập nhật thông tin chi tiết dành cho Staff để đăng ký số IMEI, Serial Number và mã vạch cho từng sản phẩm thực tế khi tiến hành nhập kho. Giúp Staff đối chiếu số lượng thực tế với yêu cầu của phiếu nhập, định vị vị trí lưu trữ và hoàn tất thủ tục nhập kho chính xác.
