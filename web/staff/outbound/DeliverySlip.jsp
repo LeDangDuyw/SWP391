@@ -130,10 +130,10 @@
                         <span class="product-variant">Phân loại: ${detail.variantName} (SKU: ${detail.sku})</span>
                         <c:if test="${not empty detail.assignedItems}">
                             <div class="imei-box">
-                                <strong>Mã Serial / IMEI:</strong>
+                                <strong>Mã Serial:</strong>
                                 <ul>
                                     <c:forEach var="item" items="${detail.assignedItems}">
-                                        <li><code>${item.imei}</code> (SN: ${item.serialNumber})</li>
+                                        <li><code>${item.serialNumber}</code></li>
                                     </c:forEach>
                                 </ul>
                             </div>
