@@ -210,6 +210,6 @@
         </script>
 
         <script src="${pageContext.request.contextPath}/js/home.js?v=3"></script>
-        <script src="${pageContext.request.contextPath}/js/chat.js?v=2"></script>
+        <script src="${pageContext.request.contextPath}/js/chat.js?v=3"></script>
     </body>
 </html>
