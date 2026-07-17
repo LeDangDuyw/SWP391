@@ -1,4 +1,5 @@
-﻿/**
+package model;
+/**
  * Class: AnalyticsFilter
  * Description: Model lưu trữ cấu hình bộ lọc phân tích (Analytics Filter).
  * 

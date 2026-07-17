@@ -24,40 +24,47 @@ public class OutboundDAO extends DBContext {
     public OutboundDAO() {
         super();
         try {
-            String sql1 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'shipping_partner') " +
-                          "ALTER TABLE [Order] ADD shipping_partner NVARCHAR(100) NULL;";
-            String sql2 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'tracking_number') " +
-                          "ALTER TABLE [Order] ADD tracking_number NVARCHAR(100) NULL;";
-            String sql3 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'invoice_path') " +
-                          "ALTER TABLE [Order] ADD invoice_path NVARCHAR(255) NULL;";
-            String sql4 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'invoice_email_sent') " +
-                          "ALTER TABLE [Order] ADD invoice_email_sent INT DEFAULT 0;";
+            String sql1 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'shipping_partner') "
+                    +
+                    "ALTER TABLE [Order] ADD shipping_partner NVARCHAR(100) NULL;";
+            String sql2 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'tracking_number') "
+                    +
+                    "ALTER TABLE [Order] ADD tracking_number NVARCHAR(100) NULL;";
+            String sql3 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'invoice_path') "
+                    +
+                    "ALTER TABLE [Order] ADD invoice_path NVARCHAR(255) NULL;";
+            String sql4 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'invoice_email_sent') "
+                    +
+                    "ALTER TABLE [Order] ADD invoice_email_sent INT DEFAULT 0;";
             String sql5 = "IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'OrderLog') " +
-                          "CREATE TABLE OrderLog (" +
-                          "  log_id INT IDENTITY PRIMARY KEY," +
-                          "  order_id INT NOT NULL," +
-                          "  old_status VARCHAR(50) NULL," +
-                          "  new_status VARCHAR(50) NOT NULL," +
-                          "  action_by NVARCHAR(100) NOT NULL," +
-                          "  log_message NVARCHAR(500) NULL," +
-                          "  created_at DATETIME DEFAULT GETDATE()" +
-                          ");";
-            String sql6 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'shipping_method') " +
-                          "ALTER TABLE [Order] ADD shipping_method NVARCHAR(50) DEFAULT 'HOME_DELIVERY';";
+                    "CREATE TABLE OrderLog (" +
+                    "  log_id INT IDENTITY PRIMARY KEY," +
+                    "  order_id INT NOT NULL," +
+                    "  old_status VARCHAR(50) NULL," +
+                    "  new_status VARCHAR(50) NOT NULL," +
+                    "  action_by NVARCHAR(100) NOT NULL," +
+                    "  log_message NVARCHAR(500) NULL," +
+                    "  created_at DATETIME DEFAULT GETDATE()" +
+                    ");";
+            String sql6 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'shipping_method') "
+                    +
+                    "ALTER TABLE [Order] ADD shipping_method NVARCHAR(50) DEFAULT 'HOME_DELIVERY';";
             String sql7 = "UPDATE [Order] SET shipping_method = 'STORE_PICKUP' WHERE shipping_address LIKE N'%Nhận tại cửa hàng%' AND (shipping_method IS NULL OR shipping_method = 'HOME_DELIVERY');";
-            String sql8 = "IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderLog') AND name = 'action_by' AND system_type_id = TYPE_ID('varchar')) " +
-                          "ALTER TABLE OrderLog ALTER COLUMN action_by NVARCHAR(100) NOT NULL;";
-            String sql9 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'created_at') " +
-                          "ALTER TABLE [Order] ADD created_at DATETIME NOT NULL DEFAULT GETDATE();";
+            String sql8 = "IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderLog') AND name = 'action_by' AND system_type_id = TYPE_ID('varchar')) "
+                    +
+                    "ALTER TABLE OrderLog ALTER COLUMN action_by NVARCHAR(100) NOT NULL;";
+            String sql9 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'created_at') "
+                    +
+                    "ALTER TABLE [Order] ADD created_at DATETIME NOT NULL DEFAULT GETDATE();";
             try (PreparedStatement ps1 = connection.prepareStatement(sql1);
-                 PreparedStatement ps2 = connection.prepareStatement(sql2);
-                 PreparedStatement ps3 = connection.prepareStatement(sql3);
-                 PreparedStatement ps4 = connection.prepareStatement(sql4);
-                 PreparedStatement ps5 = connection.prepareStatement(sql5);
-                 PreparedStatement ps6 = connection.prepareStatement(sql6);
-                 PreparedStatement ps7 = connection.prepareStatement(sql7);
-                 PreparedStatement ps8 = connection.prepareStatement(sql8);
-                 PreparedStatement ps9 = connection.prepareStatement(sql9)) {
+                    PreparedStatement ps2 = connection.prepareStatement(sql2);
+                    PreparedStatement ps3 = connection.prepareStatement(sql3);
+                    PreparedStatement ps4 = connection.prepareStatement(sql4);
+                    PreparedStatement ps5 = connection.prepareStatement(sql5);
+                    PreparedStatement ps6 = connection.prepareStatement(sql6);
+                    PreparedStatement ps7 = connection.prepareStatement(sql7);
+                    PreparedStatement ps8 = connection.prepareStatement(sql8);
+                    PreparedStatement ps9 = connection.prepareStatement(sql9)) {
                 ps1.executeUpdate();
                 ps2.executeUpdate();
                 ps3.executeUpdate();
@@ -77,7 +84,7 @@ public class OutboundDAO extends DBContext {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
@@ -88,7 +95,7 @@ public class OutboundDAO extends DBContext {
                 order.setShippingPhone(rs.getString("shipping_phone"));
                 order.setShippingAddress(rs.getString("shipping_address"));
                 order.setOrderCode(rs.getString("order_code"));
-                
+
                 if (rs.getTimestamp("completed_at") != null) {
                     order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
                 }
@@ -108,9 +115,12 @@ public class OutboundDAO extends DBContext {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('Pending', 'processing')";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) count = rs.getInt(1);
-        } catch (SQLException e) { e.printStackTrace(); }
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next())
+                count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return count;
     }
 
@@ -131,7 +141,7 @@ public class OutboundDAO extends DBContext {
                     order.setShippingPhone(rs.getString("shipping_phone"));
                     order.setShippingAddress(rs.getString("shipping_address"));
                     order.setOrderCode(rs.getString("order_code"));
-                    
+
                     if (rs.getTimestamp("completed_at") != null) {
                         order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
                     }
@@ -148,9 +158,12 @@ public class OutboundDAO extends DBContext {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled')";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) count = rs.getInt(1);
-        } catch (SQLException e) { e.printStackTrace(); }
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next())
+                count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return count;
     }
 
@@ -158,7 +171,7 @@ public class OutboundDAO extends DBContext {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('shipped', 'delivered', 'Completed', 'cancelled', 'Cancelled') ORDER BY completed_at DESC, order_id DESC";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
@@ -278,10 +291,10 @@ public class OutboundDAO extends DBContext {
     public List<OrderDetail> getOrderDetails(int orderId) {
         List<OrderDetail> list = new ArrayList<>();
         String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, p.warranty_period " +
-                     "FROM OrderDetail od " +
-                     "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
-                     "JOIN Product p ON pv.product_id = p.product_id " +
-                     "WHERE od.order_id = ?";
+                "FROM OrderDetail od " +
+                "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
+                "JOIN Product p ON pv.product_id = p.product_id " +
+                "WHERE od.order_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -292,13 +305,13 @@ public class OutboundDAO extends DBContext {
                     detail.setUnitPrice(rs.getBigDecimal("unit_price"));
                     detail.setOrderId(rs.getInt("order_id"));
                     detail.setVariantId(rs.getInt("variant_id"));
-                    
+
                     detail.setProductName(rs.getString("product_name"));
                     detail.setVariantName(rs.getString("variant_name"));
                     detail.setSku(rs.getString("sku"));
                     detail.setThumbnail(rs.getString("thumbnail"));
                     detail.setWarrantyPeriod(rs.getInt("warranty_period"));
-                    
+
                     list.add(detail);
                 }
             }
@@ -310,10 +323,10 @@ public class OutboundDAO extends DBContext {
 
     public List<InventoryItem> getAvailableImeisForVariant(int variantId) {
         List<InventoryItem> list = new ArrayList<>();
-        String sql = "SELECT item_id, serial_number, imei, barcode " +
-                     "FROM InventoryItem " +
-                     "WHERE variant_id = ? AND status = 'in_stock' " +
-                     "ORDER BY item_id ASC";
+        String sql = "SELECT item_id, serial_number " +
+                "FROM InventoryItem " +
+                "WHERE variant_id = ? AND status = 'in_stock' " +
+                "ORDER BY item_id ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, variantId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -321,8 +334,6 @@ public class OutboundDAO extends DBContext {
                     InventoryItem item = new InventoryItem();
                     item.setItemId(rs.getInt("item_id"));
                     item.setSerialNumber(rs.getString("serial_number"));
-                    item.setImei(rs.getString("imei"));
-                    item.setBarcode(rs.getString("barcode"));
                     list.add(item);
                 }
             }
@@ -335,8 +346,8 @@ public class OutboundDAO extends DBContext {
     public List<InventoryItem> getAssignedImeisForOrderDetail(int orderDetailId) {
         List<InventoryItem> list = new ArrayList<>();
         String sql = "SELECT i.* FROM InventoryItem i " +
-                     "JOIN OrderItemSerial ois ON i.item_id = ois.item_id " +
-                     "WHERE ois.order_detail_id = ?";
+                "JOIN OrderItemSerial ois ON i.item_id = ois.item_id " +
+                "WHERE ois.order_detail_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderDetailId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -344,7 +355,6 @@ public class OutboundDAO extends DBContext {
                     InventoryItem item = new InventoryItem();
                     item.setItemId(rs.getInt("item_id"));
                     item.setSerialNumber(rs.getString("serial_number"));
-                    item.setImei(rs.getString("imei"));
                     list.add(item);
                 }
             }
@@ -356,34 +366,36 @@ public class OutboundDAO extends DBContext {
 
     // executeOutboundTransaction
     // Map<OrderDetailId, List<ItemId>> variantToItemIds
-    public boolean executeOutboundTransaction(int orderId, Map<Integer, List<Integer>> orderDetailToItemIds) throws Exception {
+    public boolean executeOutboundTransaction(int orderId, Map<Integer, List<Integer>> orderDetailToItemIds)
+            throws Exception {
         boolean success = false;
         try {
             connection.setAutoCommit(false);
 
             String updateInventorySql = "UPDATE InventoryItem SET status = 'sold', sold_date = GETDATE(), " +
-                                        "warranty_expired_date = DATEADD(month, (SELECT p.warranty_period FROM Product p " +
-                                        "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
-                                        "WHERE pv.variant_id = InventoryItem.variant_id), GETDATE()) " +
-                                        "WHERE item_id = ? AND status = 'in_stock'";
-            
+                    "warranty_expired_date = DATEADD(month, (SELECT p.warranty_period FROM Product p " +
+                    "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
+                    "WHERE pv.variant_id = InventoryItem.variant_id), GETDATE()) " +
+                    "WHERE item_id = ? AND status = 'in_stock'";
+
             String insertSerialSql = "INSERT INTO OrderItemSerial (order_detail_id, item_id, assigned_at) VALUES (?, ?, GETDATE())";
-            
+
             try (PreparedStatement psInv = connection.prepareStatement(updateInventorySql);
-                 PreparedStatement psSerial = connection.prepareStatement(insertSerialSql)) {
-                
+                    PreparedStatement psSerial = connection.prepareStatement(insertSerialSql)) {
+
                 for (Map.Entry<Integer, List<Integer>> entry : orderDetailToItemIds.entrySet()) {
                     int orderDetailId = entry.getKey();
                     List<Integer> itemIds = entry.getValue();
-                    
+
                     for (Integer itemId : itemIds) {
                         // 1. Update InventoryItem (Race condition check)
                         psInv.setInt(1, itemId);
                         int affected = psInv.executeUpdate();
                         if (affected == 0) {
-                            throw new Exception("Lỗi: IMEI/Serial có ID " + itemId + " không tồn tại hoặc đã bị xuất kho bởi người khác!");
+                            throw new Exception("Lỗi: IMEI/Serial có ID " + itemId
+                                    + " không tồn tại hoặc đã bị xuất kho bởi người khác!");
                         }
-                        
+
                         // 2. Insert OrderItemSerial
                         psSerial.setInt(1, orderDetailId);
                         psSerial.setInt(2, itemId);
@@ -393,9 +405,10 @@ public class OutboundDAO extends DBContext {
             }
 
             // 3. Update Inventory (decrement available_quantity)
-            String decrementInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity " +
-                                           "FROM [Inventory] JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
-                                           "WHERE od.order_id = ?";
+            String decrementInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity "
+                    +
+                    "FROM [Inventory] JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
+                    "WHERE od.order_id = ?";
             try (PreparedStatement psDec = connection.prepareStatement(decrementInventorySql)) {
                 psDec.setInt(1, orderId);
                 psDec.executeUpdate();
@@ -430,7 +443,7 @@ public class OutboundDAO extends DBContext {
     public boolean updateOrderStatus(int orderId, String status) {
         try {
             connection.setAutoCommit(false);
-            
+
             if ("cancelled".equalsIgnoreCase(status)) {
                 // Get current status
                 String getStatusSql = "SELECT order_status FROM [Order] WHERE order_id = ?";
@@ -443,26 +456,27 @@ public class OutboundDAO extends DBContext {
                         }
                     }
                 }
-                
+
                 // Do not allow cancellation if order is already delivered or completed
                 if ("delivered".equalsIgnoreCase(currentStatus) || "Completed".equalsIgnoreCase(currentStatus)) {
                     connection.rollback();
                     return false;
                 }
-                
+
                 // If not already cancelled, proceed with reversion
                 if (!"cancelled".equalsIgnoreCase(currentStatus)) {
                     if ("shipped".equalsIgnoreCase(currentStatus)) {
                         // Revert inventory items to in_stock
-                        String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL " +
-                                              "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
-                                              "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
-                                              "WHERE od.order_id = ?)";
+                        String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL "
+                                +
+                                "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
+                                "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
+                                "WHERE od.order_id = ?)";
                         try (PreparedStatement psRevert = connection.prepareStatement(revertInvSql)) {
                             psRevert.setInt(1, orderId);
                             psRevert.executeUpdate();
                         }
-                        
+
                         // Delete order item serial entries
                         String deleteSerialSql = "DELETE FROM OrderItemSerial WHERE order_detail_id IN (SELECT order_detail_id FROM OrderDetail WHERE order_id = ?)";
                         try (PreparedStatement psDelete = connection.prepareStatement(deleteSerialSql)) {
@@ -470,20 +484,20 @@ public class OutboundDAO extends DBContext {
                             psDelete.executeUpdate();
                         }
                     }
-                    
+
                     // Revert stock count in Inventory table for the variants in this order
                     String incrementInventorySql = "UPDATE [Inventory] " +
-                                                   "SET available_quantity = [Inventory].available_quantity + od.quantity " +
-                                                   "FROM [Inventory] " +
-                                                   "JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
-                                                   "WHERE od.order_id = ?";
+                            "SET available_quantity = [Inventory].available_quantity + od.quantity " +
+                            "FROM [Inventory] " +
+                            "JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
+                            "WHERE od.order_id = ?";
                     try (PreparedStatement psInc = connection.prepareStatement(incrementInventorySql)) {
                         psInc.setInt(1, orderId);
                         psInc.executeUpdate();
                     }
                 }
             }
-            
+
             // Update order status
             String updateSql = "UPDATE [Order] SET order_status = ? WHERE order_id = ?";
             if ("delivered".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) {
@@ -494,7 +508,7 @@ public class OutboundDAO extends DBContext {
                 ps.setInt(2, orderId);
                 ps.executeUpdate();
             }
-            
+
             connection.commit();
             return true;
         } catch (SQLException e) {
@@ -518,7 +532,7 @@ public class OutboundDAO extends DBContext {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] ORDER BY order_id DESC";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
