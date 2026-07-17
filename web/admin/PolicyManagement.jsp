@@ -716,11 +716,11 @@
                         <div class="page-actions">
                             <c:choose>
                                 <c:when test="${empty isFooterTab}">
-                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Lịch sử phiên bản</button>
+                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
                                     <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
                                 </c:when>
                                 <c:otherwise>
-                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; Chính sách chân trang mới</button>
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; New Footer Policy</button>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -769,9 +769,9 @@
                                 <c:choose>
                                     <c:when test="${selectedGeneralPolicy != null}">
                                         <div class="editor-content">
-                                            <!-- Cài đặt hiển thị chân trang Form -->
+                                            <!-- Footer Display Settings Form -->
                                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Cài đặt hiển thị chân trang</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
                                                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 16px;">
                                                     <input type="hidden" name="action" value="updateFooterSettings">
                                                     <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
@@ -790,9 +790,9 @@
                                                 </form>
                                             </div>
                                             
-                                            <!-- Xem trước nội dung -->
+                                            <!-- Content Preview -->
                                             <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Xem trước nội dung</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Content Preview</h3>
                                                 <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0; max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 12px; border-radius: 8px;">
                                                     ${selectedGeneralPolicy.content}
                                                 </div>
@@ -953,7 +953,7 @@
                                 </div>
                                 <div class="editor-footer">
                                     <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Delete</button>
-                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Chỉnh sửa chính sách</button>
+                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Edit Policy</button>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="saveDraft">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
@@ -1094,7 +1094,7 @@
             </div>
         </div>
 
-        <!-- Modal: Lịch sử phiên bản -->
+        <!-- Modal: Version History -->
         <div class="modal-overlay" id="vhModal">
             <div class="modal" style="width:460px;">
                 <div class="modal-header"><h2>Lịch sử phiên bản</h2><button class="modal-close" onclick="closeModal('vhModal')">&#215;</button></div>
@@ -1180,9 +1180,9 @@
         <!-- Modal: Delete General Policy Confirm -->
         <div class="modal-overlay" id="deleteGeneralModal">
             <div class="modal confirm-modal" style="max-width: 450px;">
-                <div class="modal-header"><h2>Delete Footer Policy</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Xóa chính sách chân trang</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
                 <div class="modal-body">
-                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Are you sure you want to delete this footer policy? Hành động này không thể hoàn tác.</div>
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Bạn có chắc chắn muốn xóa chính sách chân trang này? Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
@@ -1195,12 +1195,12 @@
             </div>
         </div>
 
-        <!-- Modal: Edit General Nội dung chính sách -->
+        <!-- Modal: Edit General Policy Content -->
         <c:if test="${selectedGeneralPolicy != null}">
             <div class="modal-overlay" id="editGeneralModal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h2>Edit Footer Nội dung chính sách</h2>
+                        <h2>Sửa nội dung chính sách chân trang</h2>
                         <button class="modal-close" onclick="closeModal('editGeneralModal')">&#215;</button>
                     </div>
                     <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
