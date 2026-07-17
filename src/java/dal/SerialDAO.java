@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.InventoryItem;
 
-public class ImeiDAO extends DBContext {
+public class SerialDAO extends DBContext {
     
     public List<InventoryItem> getInventoryItems(String search, String statusFilter, int offset, int fetchSize) {
         List<InventoryItem> items = new ArrayList<>();

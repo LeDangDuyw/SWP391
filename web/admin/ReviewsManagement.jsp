@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Document   : ReviewsManagement
     Created on : Jun 22, 2026, 4:14:24 AM
     Author     : MINHBQ
@@ -302,7 +302,7 @@
                         <nav>
                             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
                             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-                            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+                            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Serial</a>
                             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
                             <a class="active" href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
                             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>

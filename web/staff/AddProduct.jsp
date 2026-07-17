@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
     <%@page import="java.util.*" %>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <!DOCTYPE html>
@@ -7,7 +7,7 @@
             <head>
                 <meta charset="utf-8">
                 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-                <title>UNILAP Admin - Add Product</title>
+                <title>UNILAP Admin - Thêm sản phẩm mới</title>
                 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
                 <link
                     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
@@ -78,16 +78,16 @@
 <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -100,9 +100,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -114,15 +114,15 @@
                 <div class="flex justify-between items-end mb-6">
                     <div>
                         <div class="flex items-center text-sm text-on-surface-variant mb-2">
-                            <a href="${pageContext.request.contextPath}/staff/inventory" class="hover:text-primary transition-colors">Inventory</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory" class="hover:text-primary transition-colors">Kho hàng</a>
                             <span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
-                            <span class="text-primary font-medium">Add Product</span>
+                            <span class="text-primary font-medium">Thêm sản phẩm</span>
                         </div>
-                        <h2 class="font-headline-lg text-3xl font-bold text-on-surface">Add New Product</h2>
+                        <h2 class="font-headline-lg text-3xl font-bold text-on-surface">Thêm sản phẩm mới</h2>
                     </div>
                     <div class="flex items-center gap-3">
-                        <a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Cancel</a>
-                        <button type="submit" class="px-6 py-2 bg-[#003ec7] text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">Save Product</button>
+                        <a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 bg-surface border border-outline-variant rounded-lg text-on-surface font-medium text-sm hover:bg-surface-container-low transition-colors">Hủy</a>
+                        <button type="submit" class="px-6 py-2 bg-[#003ec7] text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">Lưu sản phẩm</button>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@
                             <!-- General Information -->
                             <div class="bg-surface border border-outline-variant/30 rounded-xl mb-6 shadow-sm">
                                 <div class="px-6 py-4 border-b border-outline-variant/30">
-                                    <h3 class="text-xl font-semibold text-on-surface">General Information</h3>
+                                    <h3 class="text-xl font-semibold text-on-surface">Thông tin chung</h3>
                                 </div>
 
                                 <div class="p-6 flex flex-col gap-8">
@@ -144,10 +144,9 @@
                                         <!-- Product Name -->
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-on-surface-variant mb-2">Product
-                                                Name</label>
+                                                class="block text-sm font-medium text-on-surface-variant mb-2">Tên sản phẩm</label>
                                             <input type="text" name="productName"
-                                                placeholder="e.g. ZenBook Pro 16X OLED"
+                                                placeholder="Ví dụ: ZenBook Pro 16X OLED"
                                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-on-surface-variant/50"
                                                 required>
                                         </div>
@@ -156,12 +155,12 @@
                                             <!-- Category -->
                                             <div class="flex-1">
                                                 <label
-                                                    class="block text-sm font-medium text-on-surface-variant mb-2">Category</label>
+                                                    class="block text-sm font-medium text-on-surface-variant mb-2">Danh mục</label>
                                                 <div class="relative">
                                                     <select name="categoryId"
                                                         class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                                         required>
-                                                        <option value="" disabled selected>Select Category</option>
+                                                        <option value="" disabled selected>Chọn danh mục</option>
                                                         <c:forEach var="c" items="${categories}">
                                                             <option value="${c.categoryId}">${c.categoryName}</option>
                                                         </c:forEach>
@@ -174,12 +173,12 @@
                                             <!-- Brand -->
                                             <div class="flex-1">
                                                 <label
-                                                    class="block text-sm font-medium text-on-surface-variant mb-2">Brand</label>
+                                                    class="block text-sm font-medium text-on-surface-variant mb-2">Thương hiệu</label>
                                                 <div class="relative">
                                                     <select name="brandId"
                                                         class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                                         required>
-                                                        <option value="" disabled selected>Select Brand</option>
+                                                        <option value="" disabled selected>Chọn thương hiệu</option>
                                                         <c:forEach var="b" items="${brands}">
                                                             <option value="${b.brandId}">${b.brandName}</option>
                                                         </c:forEach>
@@ -193,12 +192,12 @@
                                         <!-- Description -->
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-on-surface-variant mb-2">Description</label>
+                                                class="block text-sm font-medium text-on-surface-variant mb-2">Mô tả sản phẩm</label>
                                             <div
                                                 class="border border-outline-variant/50 rounded-lg overflow-hidden flex flex-col">
 
                                                 <textarea name="description" rows="5"
-                                                    placeholder="Describe the product technical specifications and highlights..."
+                                                    placeholder="Mô tả thông số kỹ thuật và điểm nổi bật của sản phẩm..."
                                                     class="w-full px-4 py-3 bg-surface text-on-surface resize-none focus:outline-none placeholder-on-surface-variant/50"></textarea>
                                             </div>
                                         </div>
@@ -206,8 +205,7 @@
 
                                     <!-- Thumbnail -->
                                     <div class="w-full lg:w-72 flex-shrink-0">
-                                        <label class="block text-sm font-medium text-on-surface-variant mb-2">Product
-                                            Thumbnail</label>
+                                        <label class="block text-sm font-medium text-on-surface-variant mb-2">Ảnh đại diện sản phẩm</label>
                                         <div
                                             class="border-2 border-dashed border-outline-variant/50 rounded-xl bg-surface-container-lowest flex flex-col items-center justify-center p-6 h-[280px] hover:bg-surface-container-low transition-colors cursor-pointer relative overflow-hidden group">
                                             <input type="file" name="thumbnail"
@@ -216,10 +214,8 @@
                                                 class="w-16 h-16 bg-[#0052ff] rounded-xl flex items-center justify-center text-white mb-4 shadow-sm group-hover:scale-105 transition-transform">
                                                 <span class="material-symbols-outlined text-3xl">cloud_upload</span>
                                             </div>
-                                            <p class="text-sm font-bold text-on-surface text-center mb-1">Click to
-                                                upload or drag and drop</p>
-                                            <p class="text-xs text-on-surface-variant text-center">SVG, PNG, JPG or
-                                                WEBP<br>(MAX. 800×400px)</p>
+                                            <p class="text-sm font-bold text-on-surface text-center mb-1">Nhấp để tải lên hoặc kéo thả</p>
+                                            <p class="text-xs text-on-surface-variant text-center">SVG, PNG, JPG hoặc WEBP<br>(Tối đa 800×400px)</p>
                                         </div>
                                     </div>
                                 </div>
@@ -229,11 +225,10 @@
                             <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm">
                                 <div
                                     class="px-6 py-4 flex justify-between items-center border-b border-outline-variant/30">
-                                    <h3 class="text-xl font-semibold text-on-surface">Product Variants</h3>
+                                    <h3 class="text-xl font-semibold text-on-surface">Biến thể sản phẩm</h3>
                                     <button type="button" onclick="addVariantRow()"
                                         class="flex items-center gap-2 px-4 py-2 bg-[#d0e1fb] text-[#003ec7] rounded-lg font-medium text-sm hover:bg-blue-200 transition-colors">
-                                        <span class="material-symbols-outlined text-[18px]">add_circle</span> Add
-                                        Variant
+                                        <span class="material-symbols-outlined text-[18px]">add_circle</span> Thêm biến thể
                                     </button>
                                 </div>
 
@@ -242,13 +237,13 @@
                                         <thead class="bg-[#2d3133] text-white text-xs font-bold tracking-wider">
                                             <tr>
                                                 <th class="px-6 py-4 uppercase">SKU</th>
-                                                <th class="px-6 py-4 uppercase">IMPORT PRICE</th>
-                                                <th class="px-6 py-4 uppercase">SELLING PRICE</th>
-                                                <th class="px-6 py-4 uppercase">ATTRIBUTES<br><span
-                                                        class="text-[10px] font-normal text-gray-300">(RAM/COLOR)</span>
+                                                <th class="px-6 py-4 uppercase">GIÁ NHẬP (VNĐ)</th>
+                                                <th class="px-6 py-4 uppercase">GIÁ BÁN (VNĐ)</th>
+                                                <th class="px-6 py-4 uppercase">THUỘC TÍNH<br><span
+                                                        class="text-[10px] font-normal text-gray-300">(RAM/MÀU SẮC)</span>
                                                 </th>
-                                                <th class="px-6 py-4 uppercase">THUMBNAIL</th>
-                                                <th class="px-6 py-4 uppercase text-right">ACTIONS</th>
+                                                <th class="px-6 py-4 uppercase">ẢNH ĐẠI DIỆN</th>
+                                                <th class="px-6 py-4 uppercase text-right">HÀNH ĐỘNG</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-outline-variant/30" id="variants-container">
@@ -259,7 +254,7 @@
 
                                 <div
                                     class="px-6 py-4 bg-surface-container-low rounded-b-xl border-t border-outline-variant/30 text-sm text-on-surface-variant italic">
-                                    * SKUs are automatically validated for uniqueness against the current catalog.
+                                    * Các mã SKU được tự động kiểm tra để tránh trùng lặp trong hệ thống.
                                 </div>
                             </div>
                         </form>
@@ -295,7 +290,7 @@
                                 previewDiv.innerHTML = `
                         <img src="\${e.target.result}" class="w-full h-full object-cover rounded-xl" alt="Preview">
                         <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-xl">
-                            <span class="font-bold">Change Image</span>
+                            <span class="font-bold">Thay đổi ảnh</span>
                         </div>
                     `;
                                 container.appendChild(previewDiv);
@@ -319,14 +314,14 @@
                 </td>
                 <td class="px-6 py-5 w-1/6">
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
-                        <input type="number" step="0.01" name="importPrice[]" placeholder="0.00" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">đ</span>
+                        <input type="number" step="1" name="importPrice[]" placeholder="0" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
                     </div>
                 </td>
                 <td class="px-6 py-5 w-1/6">
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
-                        <input type="number" step="0.01" name="price[]" placeholder="0.00" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">đ</span>
+                        <input type="number" step="1" name="price[]" placeholder="0" class="w-full pl-7 pr-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
                     </div>
                 </td>
                 <td class="px-6 py-5">
@@ -352,13 +347,13 @@
 
                     // Hàm thêm thuộc tính (màu sắc, RAM...) cho biến thể bằng cách bật hộp thoại prompt
                     function addAttribute(btn) {
-                        const attrName = prompt("Enter attribute (e.g. 32GB RAM, Midnight Black):");
+                        const attrName = prompt("Nhập thuộc tính (ví dụ: 32GB RAM, Màu đen):");
                         if (attrName && attrName.trim() !== "") {
                             // Tạo thẻ span chứa tên thuộc tính (hiển thị dưới dạng nhãn/badge)
                             const span = document.createElement('span');
                             span.className = 'px-2 py-1 bg-[#d0e1fb] text-[#003ec7] text-xs font-semibold rounded cursor-pointer attribute-badge';
                             span.textContent = attrName.trim();
-                            span.title = "Click to remove";
+                            span.title = "Nhấp để xóa";
                             span.onclick = function () { this.remove(); updateHiddenVariantName(btn.closest('td')); };
 
                             // Chèn nhãn thuộc tính vào trước nút Add (+)

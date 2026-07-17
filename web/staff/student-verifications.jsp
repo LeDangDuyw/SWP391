@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
@@ -428,7 +428,7 @@
         <nav>
             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>

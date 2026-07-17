@@ -39,11 +39,11 @@
         td.center { text-align: center; }
         .product-name { font-weight: 600; }
         .product-variant { color: #6b7280; }
-        .imei-box { margin-top: 8px; font-size: 12px; color: #4b5563; background: #f9fafb; padding: 8px 10px; border-radius: 6px; border: 1px solid #f3f4f6; }
-        .imei-box strong { display: block; margin-bottom: 4px; }
-        .imei-box ul { list-style: disc; padding-left: 18px; }
-        .imei-box li { margin: 3px 0; }
-        .imei-box code { font-family: monospace; background: white; padding: 1px 4px; border: 1px solid #e5e7eb; border-radius: 3px; }
+        .serial-box { margin-top: 8px; font-size: 12px; color: #4b5563; background: #f9fafb; padding: 8px 10px; border-radius: 6px; border: 1px solid #f3f4f6; }
+        .serial-box strong { display: block; margin-bottom: 4px; }
+        .serial-box ul { list-style: disc; padding-left: 18px; }
+        .serial-box li { margin: 3px 0; }
+        .serial-box code { font-family: monospace; background: white; padding: 1px 4px; border: 1px solid #e5e7eb; border-radius: 3px; }
         tfoot tr { border-top: 2px solid #111; }
         tfoot td { padding: 14px 0; font-size: 14px; font-weight: 700; }
         tfoot td:last-child { font-size: 18px; }
@@ -129,7 +129,7 @@
                         <span class="product-name">${detail.productName}</span><br>
                         <span class="product-variant">Phân loại: ${detail.variantName} (SKU: ${detail.sku})</span>
                         <c:if test="${not empty detail.assignedItems}">
-                            <div class="imei-box">
+                            <div class="serial-box">
                                 <strong>Mã Serial:</strong>
                                 <ul>
                                     <c:forEach var="item" items="${detail.assignedItems}">

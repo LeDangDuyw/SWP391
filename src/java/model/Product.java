@@ -133,6 +133,16 @@ public class Product {
         this.discountPercent = discountPercent;
     }
 
+    private boolean isHidden;
+
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(boolean isHidden) {
+        this.isHidden = isHidden;
+    }
+
     // Default getters for subclass properties to avoid PropertyNotFoundException in JSP EL
     public String getCpu() {
         return null;

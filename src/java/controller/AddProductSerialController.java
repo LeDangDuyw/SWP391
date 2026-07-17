@@ -1,13 +1,13 @@
 /*
- * Name: AddProductImeiController
+ * Name: AddProductSerialController
  * @Author: HuyDQ
  * Date: [05/06/2026]
  * Version: 1.0
- * Description: Controller xử lý việc đăng ký số IMEI, Serial Number và mã vạch cho sản phẩm thực tế khi nhập kho.
+ * Description: Controller xử lý việc đăng ký số Serial Number và mã vạch cho sản phẩm thực tế khi nhập kho.
  */
 package controller;
 
-import dal.ImeiDAO;
+import dal.SerialDAO;
 import dal.ProductDAO;
 import dal.TicketDAO;
 import java.io.IOException;
@@ -24,8 +24,8 @@ import model.Product;
 import model.ProductVariant;
 import model.TicketDetail;
 
-@WebServlet(name = "AddProductImeiController", urlPatterns = {"/staff/imei/add"})
-public class AddProductImeiController extends HttpServlet {
+@WebServlet(name = "AddProductSerialController", urlPatterns = {"/staff/serial/add"})
+public class AddProductSerialController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -74,7 +74,7 @@ public class AddProductImeiController extends HttpServlet {
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
         
-        request.getRequestDispatcher("/staff/AddProductImei.jsp").forward(request, response);
+        request.getRequestDispatcher("/staff/AddProductSerial.jsp").forward(request, response);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class AddProductImeiController extends HttpServlet {
         
         if (variantIdStr == null || variantIdStr.trim().isEmpty() ||
             serialNumbers == null) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+            response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
                 (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") + 
                 (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
             return;
@@ -97,7 +97,8 @@ public class AddProductImeiController extends HttpServlet {
         Integer ticketId = null;
         if (ticketIdStr != null && !ticketIdStr.trim().isEmpty()) {
             try {
-                ticketId = Integer.parseInt(ticketIdStr.trim());
+                int id = Integer.parseInt(ticketIdStr.trim());
+                ticketId = id;
             } catch (NumberFormatException e) {
                 // Ignore
             }
@@ -116,7 +117,7 @@ public class AddProductImeiController extends HttpServlet {
         }
         
         if (validSerials.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+            response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
                 (ticketId != null ? "&ticketId=" + ticketId : "") + 
                 "&variantId=" + variantId);
             return;
@@ -135,7 +136,7 @@ public class AddProductImeiController extends HttpServlet {
         }
 
         if (expectedQuantity != -1 && validSerials.size() != expectedQuantity) {
-            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchImeisQuantity&expected=" + expectedQuantity + "&actual=" + validSerials.size());
+            response.sendRedirect(request.getContextPath() + "/staff/serial/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchSerialsQuantity&expected=" + expectedQuantity + "&actual=" + validSerials.size());
             return;
         }
 
@@ -145,14 +146,14 @@ public class AddProductImeiController extends HttpServlet {
                 LocalDate importDate = LocalDate.parse(receivedDate);
                 LocalDate today = LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
                 if (importDate.isAfter(today)) {
-                    response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=InvalidImportDate" + 
+                    response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=InvalidImportDate" + 
                         (ticketId != null ? "&ticketId=" + ticketId : "") + 
                         "&variantId=" + variantId);
                     return;
                 }
                 warrantyExpiredDate = importDate.plusWeeks(2);
             } catch (java.time.format.DateTimeParseException e) {
-                response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+                response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
                     (ticketId != null ? "&ticketId=" + ticketId : "") + 
                     "&variantId=" + variantId);
                 return;
@@ -171,18 +172,18 @@ public class AddProductImeiController extends HttpServlet {
             items.add(item);
         }
         
-        ImeiDAO imeiDao = new ImeiDAO();
-        imeiDao.insertInventoryItems(items);
+        SerialDAO serialDao = new SerialDAO();
+        serialDao.insertInventoryItems(items);
         
         if (ticketId != null) {
             if (ticketDao.isTicketFullyImported(ticketId)) {
-                ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and all IMEIs registered");
+                ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and all serials registered");
                 response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=VariantImported");
             }
         } else {
-            response.sendRedirect(request.getContextPath() + "/staff/imei?success=Added");
+            response.sendRedirect(request.getContextPath() + "/staff/serial?success=Added");
         }
     }
 }
