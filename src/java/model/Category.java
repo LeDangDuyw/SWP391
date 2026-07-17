@@ -4,9 +4,12 @@
  */
 package model;
 
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: Category
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Model đại diện cho danh mục sản phẩm (Category)
  */
 public class Category {
      private int categoryId;

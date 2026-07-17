@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý hoạt động xuất kho, giao hàng và vận chuyển
+ */
 package dal;
 
 import model.InventoryItem;
@@ -31,20 +38,35 @@ public class OutboundDAO extends DBContext {
                           "  order_id INT NOT NULL," +
                           "  old_status VARCHAR(50) NULL," +
                           "  new_status VARCHAR(50) NOT NULL," +
-                          "  action_by VARCHAR(100) NOT NULL," +
+                          "  action_by NVARCHAR(100) NOT NULL," +
                           "  log_message NVARCHAR(500) NULL," +
                           "  created_at DATETIME DEFAULT GETDATE()" +
                           ");";
+            String sql6 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'shipping_method') " +
+                          "ALTER TABLE [Order] ADD shipping_method NVARCHAR(50) DEFAULT 'HOME_DELIVERY';";
+            String sql7 = "UPDATE [Order] SET shipping_method = 'STORE_PICKUP' WHERE shipping_address LIKE N'%Nhận tại cửa hàng%' AND (shipping_method IS NULL OR shipping_method = 'HOME_DELIVERY');";
+            String sql8 = "IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderLog') AND name = 'action_by' AND system_type_id = TYPE_ID('varchar')) " +
+                          "ALTER TABLE OrderLog ALTER COLUMN action_by NVARCHAR(100) NOT NULL;";
+            String sql9 = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[Order]') AND name = 'created_at') " +
+                          "ALTER TABLE [Order] ADD created_at DATETIME NOT NULL DEFAULT GETDATE();";
             try (PreparedStatement ps1 = connection.prepareStatement(sql1);
                  PreparedStatement ps2 = connection.prepareStatement(sql2);
                  PreparedStatement ps3 = connection.prepareStatement(sql3);
                  PreparedStatement ps4 = connection.prepareStatement(sql4);
-                 PreparedStatement ps5 = connection.prepareStatement(sql5)) {
+                 PreparedStatement ps5 = connection.prepareStatement(sql5);
+                 PreparedStatement ps6 = connection.prepareStatement(sql6);
+                 PreparedStatement ps7 = connection.prepareStatement(sql7);
+                 PreparedStatement ps8 = connection.prepareStatement(sql8);
+                 PreparedStatement ps9 = connection.prepareStatement(sql9)) {
                 ps1.executeUpdate();
                 ps2.executeUpdate();
                 ps3.executeUpdate();
                 ps4.executeUpdate();
                 ps5.executeUpdate();
+                ps6.executeUpdate();
+                ps7.executeUpdate();
+                ps8.executeUpdate();
+                ps9.executeUpdate();
             }
         } catch (Exception e) {
             System.out.println("OutboundDAO Schema Update warning: " + e.getMessage());
@@ -69,6 +91,10 @@ public class OutboundDAO extends DBContext {
                 
                 if (rs.getTimestamp("completed_at") != null) {
                     order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                }
+                order.setShippingMethod(rs.getString("shipping_method"));
+                if (rs.getTimestamp("created_at") != null) {
+                    order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 }
                 list.add(order);
             }
@@ -102,6 +128,10 @@ public class OutboundDAO extends DBContext {
                 if (rs.getTimestamp("completed_at") != null) {
                     order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
                 }
+                order.setShippingMethod(rs.getString("shipping_method"));
+                if (rs.getTimestamp("created_at") != null) {
+                    order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                }
                 list.add(order);
             }
         } catch (SQLException e) {
@@ -134,6 +164,10 @@ public class OutboundDAO extends DBContext {
                     if (rs.getTimestamp("completed_at") != null) {
                         order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
                     }
+                    order.setShippingMethod(rs.getString("shipping_method"));
+                    if (rs.getTimestamp("created_at") != null) {
+                        order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    }
                     return order;
                 }
             }
@@ -158,7 +192,7 @@ public class OutboundDAO extends DBContext {
 
     public List<OrderDetail> getOrderDetails(int orderId) {
         List<OrderDetail> list = new ArrayList<>();
-        String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail " +
+        String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, p.warranty_period " +
                      "FROM OrderDetail od " +
                      "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
                      "JOIN Product p ON pv.product_id = p.product_id " +
@@ -178,6 +212,7 @@ public class OutboundDAO extends DBContext {
                     detail.setVariantName(rs.getString("variant_name"));
                     detail.setSku(rs.getString("sku"));
                     detail.setThumbnail(rs.getString("thumbnail"));
+                    detail.setWarrantyPeriod(rs.getInt("warranty_period"));
                     
                     list.add(detail);
                 }
@@ -315,22 +350,35 @@ public class OutboundDAO extends DBContext {
                     }
                 }
                 
-                if ("shipped".equalsIgnoreCase(currentStatus)) {
-                    // Revert inventory items to in_stock
-                    String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL " +
-                                          "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
-                                          "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
-                                          "WHERE od.order_id = ?)";
-                    try (PreparedStatement psRevert = connection.prepareStatement(revertInvSql)) {
-                        psRevert.setInt(1, orderId);
-                        psRevert.executeUpdate();
+                // Only refund and revert if order was not already cancelled
+                if (!"cancelled".equalsIgnoreCase(currentStatus)) {
+                    // Refund quantities to [Inventory] table
+                    String refundInventorySql = "UPDATE i SET i.available_quantity = i.available_quantity + od.quantity " +
+                                                 "FROM [Inventory] i " +
+                                                 "JOIN OrderDetail od ON i.variant_id = od.variant_id " +
+                                                 "WHERE od.order_id = ?";
+                    try (PreparedStatement psRefund = connection.prepareStatement(refundInventorySql)) {
+                        psRefund.setInt(1, orderId);
+                        psRefund.executeUpdate();
                     }
-                    
-                    // Delete order item serial entries
-                    String deleteSerialSql = "DELETE FROM OrderItemSerial WHERE order_detail_id IN (SELECT order_detail_id FROM OrderDetail WHERE order_id = ?)";
-                    try (PreparedStatement psDelete = connection.prepareStatement(deleteSerialSql)) {
-                        psDelete.setInt(1, orderId);
-                        psDelete.executeUpdate();
+
+                    if ("shipped".equalsIgnoreCase(currentStatus)) {
+                        // Revert inventory items to in_stock
+                        String revertInvSql = "UPDATE InventoryItem SET status = 'in_stock', sold_date = NULL, warranty_expired_date = NULL " +
+                                              "WHERE item_id IN (SELECT item_id FROM OrderItemSerial ois " +
+                                              "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
+                                              "WHERE od.order_id = ?)";
+                        try (PreparedStatement psRevert = connection.prepareStatement(revertInvSql)) {
+                            psRevert.setInt(1, orderId);
+                            psRevert.executeUpdate();
+                        }
+                        
+                        // Delete order item serial entries
+                        String deleteSerialSql = "DELETE FROM OrderItemSerial WHERE order_detail_id IN (SELECT order_detail_id FROM OrderDetail WHERE order_id = ?)";
+                        try (PreparedStatement psDelete = connection.prepareStatement(deleteSerialSql)) {
+                            psDelete.setInt(1, orderId);
+                            psDelete.executeUpdate();
+                        }
                     }
                 }
             }
@@ -388,6 +436,10 @@ public class OutboundDAO extends DBContext {
                 order.setUserId(rs.wasNull() ? null : uId);
                 if (rs.getTimestamp("completed_at") != null) {
                     order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                }
+                order.setShippingMethod(rs.getString("shipping_method"));
+                if (rs.getTimestamp("created_at") != null) {
+                    order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 }
                 list.add(order);
             }

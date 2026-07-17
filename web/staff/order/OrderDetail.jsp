@@ -1,3 +1,10 @@
+<%-- 
+ * Name: OrderDetail.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện hiển thị chi tiết đơn hàng dành cho nhân viên (Staff Order Detail View)
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -311,6 +318,7 @@
                                 <span class="text-on-surface-variant block text-[12px]">Số điện thoại</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingPhone}</strong>
                             </li>
+                            <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                             <li>
                                 <span class="text-on-surface-variant block text-[12px]">Địa chỉ giao nhận</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingAddress}</strong>
@@ -319,10 +327,12 @@
                                 <span class="text-on-surface-variant block text-[12px]">Ghi chú giao hàng</span>
                                 <strong class="text-on-surface text-[14px]">-</strong>
                             </li>
+                            </c:if>
                         </ul>
                     </div>
 
                     <!-- Shipping & Waybill Info -->
+                    <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
                         <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
                             <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
@@ -361,6 +371,8 @@
                             </c:choose>
                         </div>
                     </div>
+                    </c:if>
+
 
                     <!-- Invoice Summary Card -->
                     <c:if test="${not empty order.invoicePath}">

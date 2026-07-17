@@ -4,9 +4,12 @@
  */
 package dal;
 
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: CategoryDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý dữ liệu danh mục sản phẩm (Category)
  */
 import java.sql.*;
 import java.util.*;

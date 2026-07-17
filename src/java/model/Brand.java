@@ -4,9 +4,12 @@
  */
 package model;
 
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: Brand
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Model đại diện cho thương hiệu sản phẩm (Brand)
  */
 public class Brand {
      private int brandId;

@@ -14,6 +14,13 @@ import jakarta.servlet.http.HttpSession;
 import dal.CategoryDAO;
 import model.CartItem;
 
+/*
+ * Name: CheckoutServlet
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý quá trình đặt hàng và thanh toán (Checkout)
+ */
 @WebServlet(name = "CheckoutServlet", urlPatterns = {"/CheckoutServlet"})
 public class CheckoutServlet extends HttpServlet {
 
@@ -253,7 +260,10 @@ public class CheckoutServlet extends HttpServlet {
 
         // Insert Order and OrderDetails into Database
         dal.OrderDAO orderDAO = new dal.OrderDAO();
-        model.Order dbOrder = orderDAO.insertOrder(finalTotal, shippingFee, fullName, phone, address, userId, couponId);
+        if (shippingMethod == null || shippingMethod.trim().isEmpty()) {
+            shippingMethod = "HOME_DELIVERY";
+        }
+        model.Order dbOrder = orderDAO.insertOrder(finalTotal, shippingFee, fullName, phone, address, userId, couponId, shippingMethod);
 
         if (dbOrder == null) {
             request.setAttribute("error", "Đã xảy ra lỗi hệ thống khi tạo đơn hàng (có thể do tổng tiền vượt quá giới hạn hoặc lỗi kết nối). Vui lòng thử lại hoặc giảm bớt số lượng!");

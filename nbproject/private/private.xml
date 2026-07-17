@@ -15,10 +15,11 @@
             <file>file:/D:/ky5/swp/duan/swp391-luctv-git/web/admin/AdminDashboard.jsp</file>
         </group>
         <group>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/AdminDashboard.jsp</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/dal/AdminDashboardDAO.java</file>
-            <file>file:/D:/GithubSWP/SWP391/src/java/controller/AdminDashboardServlet.java</file>
-            <file>file:/D:/GithubSWP/SWP391/web/admin/WarrantyProcess.jsp</file>
+            <file>file:/D:/SWP391-main3/src/java/utils/DbConnectionListener.java</file>
+            <file>file:/D:/SWP391-main3/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/D:/SWP391-main3/src/java/dal/AdvancedAnalyticsDAO.java</file>
+            <file>file:/D:/SWP391-main3/src/java/service/WarrantyService.java</file>
+            <file>file:/D:/SWP391-main3/src/java/service/PdfInvoiceService.java</file>
         </group>
     </open-files>
 </project-private>

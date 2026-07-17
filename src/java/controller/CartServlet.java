@@ -16,6 +16,13 @@ import dal.VoucherDAO;
 import model.CartItem;
 import model.Users;
 
+/*
+ * Name: CartServlet
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet quản lý và xử lý các thao tác với giỏ hàng (Cart) của người dùng
+ */
 @WebServlet(name = "CartServlet", urlPatterns = { "/CartServlet" })
 public class CartServlet extends HttpServlet {
 

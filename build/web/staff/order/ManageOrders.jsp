@@ -1,3 +1,10 @@
+<%-- 
+ * Name: ManageOrders.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện quản lý đơn hàng dành cho nhân viên (Staff Order Management List)
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -52,26 +59,59 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
-        /* ── Stats Cards ── */
-        .stat-card {
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 20px; display: flex; align-items: center; gap: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.05); transition: transform .15s, box-shadow .15s;
+
+        /* ── Shipping Method Selector ── */
+        .shipping-method-selector {
+            display: flex;
+            gap: 12px;
+            background: #fff;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            width: fit-content;
+            box-shadow: 0 1px 3px rgba(0,0,0,.05);
         }
-        .stat-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-        .stat-icon {
-            width: 48px; height: 48px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        .method-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .stat-icon .material-symbols-outlined { font-size: 22px; }
-        .stat-icon.blue   { background: #eff6ff; color: #2563eb; }
-        .stat-icon.amber  { background: #fffbeb; color: #d97706; }
-        .stat-icon.violet { background: #f5f3ff; color: #7c3aed; }
-        .stat-icon.green  { background: #f0fdf4; color: #16a34a; }
-        .stat-value { font-size: 26px; font-weight: 700; color: #0f172a; line-height: 1; }
-        .stat-label { font-size: 12px; color: #64748b; margin-top: 3px; font-weight: 500; }
+        .method-tab:hover {
+            color: #0f172a;
+            background: #f1f5f9;
+        }
+        .method-tab.active {
+            background: #003ec7;
+            color: #fff;
+        }
+        .method-tab .badge-count {
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.08);
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .method-tab.active .badge-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .method-tab .material-symbols-outlined {
+            font-size: 20px;
+        }
 
         /* ── Table Card ── */
+
         .table-card {
             background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
             box-shadow: 0 1px 3px rgba(0,0,0,.05); overflow: hidden;
@@ -172,16 +212,16 @@
 
     <!-- ════ SIDEBAR (đồng nhất với trang khác) ════ -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống quản lý</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Kho hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Mã IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Yêu cầu hỗ trợ</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor:pointer;display:flex;align-items:center;gap:8px;"
@@ -192,9 +232,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ cá nhân</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -203,9 +243,9 @@
         <!-- Topbar -->
         <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
             <div class="flex items-center gap-2 text-sm text-on-surface-variant">
-                <span>Staff</span>
+                <span>Nhân viên</span>
                 <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
-                <span class="font-semibold text-on-surface">Order Management</span>
+                <span class="font-semibold text-on-surface">Quản lý đơn hàng</span>
             </div>
             <div class="flex items-center gap-4">
                 <div class="h-8 w-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md ml-2 border border-outline-variant/50"
@@ -225,88 +265,157 @@
             <!-- Page Title -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Order Management</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý đơn hàng</h2>
                     <p class="text-sm text-on-surface-variant">Quản lý toàn bộ đơn hàng – xác nhận, vận chuyển, hóa đơn &amp; giao hàng</p>
                 </div>
             </div>
 
             <!-- ── Stats count từ server ── -->
-            <c:set var="cntAll"        value="0"/>
-            <c:set var="cntPending"    value="0"/>
-            <c:set var="cntProcessing" value="0"/>
-            <c:set var="cntShipped"    value="0"/>
-            <c:set var="cntDelivered"  value="0"/>
-            <c:set var="cntCancelled"  value="0"/>
+            <c:set var="cntHomeAll"        value="0"/>
+            <c:set var="cntHomePending"    value="0"/>
+            <c:set var="cntHomeProcessing" value="0"/>
+            <c:set var="cntHomeShipped"    value="0"/>
+            <c:set var="cntHomeDelivered"  value="0"/>
+            <c:set var="cntHomeCancelled"  value="0"/>
+
+            <c:set var="cntStoreAll"        value="0"/>
+            <c:set var="cntStorePending"    value="0"/>
+            <c:set var="cntStoreProcessing" value="0"/>
+            <c:set var="cntStoreShipped"    value="0"/>
+            <c:set var="cntStoreDelivered"  value="0"/>
+            <c:set var="cntStoreCancelled"  value="0"/>
+
             <c:forEach var="o" items="${orders}">
-                <c:set var="cntAll" value="${cntAll + 1}"/>
                 <c:choose>
-                    <c:when test="${o.orderStatus == 'Pending' || o.orderStatus == 'pending'}">
-                        <c:set var="cntPending" value="${cntPending + 1}"/>
-                    </c:when>
-                    <c:when test="${o.orderStatus == 'processing'}">
-                        <c:set var="cntProcessing" value="${cntProcessing + 1}"/>
-                    </c:when>
-                    <c:when test="${o.orderStatus == 'shipped'}">
-                        <c:set var="cntShipped" value="${cntShipped + 1}"/>
-                    </c:when>
-                    <c:when test="${o.orderStatus == 'delivered' || o.orderStatus == 'Completed'}">
-                        <c:set var="cntDelivered" value="${cntDelivered + 1}"/>
+                    <c:when test="${o.shippingMethod == 'STORE_PICKUP'}">
+                        <c:set var="cntStoreAll" value="${cntStoreAll + 1}"/>
+                        <c:choose>
+                            <c:when test="${o.orderStatus == 'Pending' || o.orderStatus == 'pending'}">
+                                <c:set var="cntStorePending" value="${cntStorePending + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'processing'}">
+                                <c:set var="cntStoreProcessing" value="${cntStoreProcessing + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'shipped'}">
+                                <c:set var="cntStoreShipped" value="${cntStoreShipped + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'delivered' || o.orderStatus == 'Completed'}">
+                                <c:set var="cntStoreDelivered" value="${cntStoreDelivered + 1}"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="cntStoreCancelled" value="${cntStoreCancelled + 1}"/>
+                            </c:otherwise>
+                        </c:choose>
                     </c:when>
                     <c:otherwise>
-                        <c:set var="cntCancelled" value="${cntCancelled + 1}"/>
+                        <c:set var="cntHomeAll" value="${cntHomeAll + 1}"/>
+                        <c:choose>
+                            <c:when test="${o.orderStatus == 'Pending' || o.orderStatus == 'pending'}">
+                                <c:set var="cntHomePending" value="${cntHomePending + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'processing'}">
+                                <c:set var="cntHomeProcessing" value="${cntHomeProcessing + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'shipped'}">
+                                <c:set var="cntHomeShipped" value="${cntHomeShipped + 1}"/>
+                            </c:when>
+                            <c:when test="${o.orderStatus == 'delivered' || o.orderStatus == 'Completed'}">
+                                <c:set var="cntHomeDelivered" value="${cntHomeDelivered + 1}"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="cntHomeCancelled" value="${cntHomeCancelled + 1}"/>
+                            </c:otherwise>
+                        </c:choose>
                     </c:otherwise>
                 </c:choose>
             </c:forEach>
 
-            <!-- ── Stats Cards ── -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-                <div class="stat-card">
-                    <div class="stat-icon blue"><span class="material-symbols-outlined">list_alt</span></div>
-                    <div><div class="stat-value">${cntAll}</div><div class="stat-label">Tổng đơn hàng</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon amber"><span class="material-symbols-outlined">hourglass_top</span></div>
-                    <div><div class="stat-value">${cntPending}</div><div class="stat-label">Chờ xác nhận</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon violet"><span class="material-symbols-outlined">local_shipping</span></div>
-                    <div><div class="stat-value">${cntShipped}</div><div class="stat-label">Đang vận chuyển</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
-                    <div><div class="stat-value">${cntDelivered}</div><div class="stat-label">Đã giao thành công</div></div>
-                </div>
+            <!-- ── Shipping Method Selector ── -->
+            <div class="shipping-method-selector mb-6">
+                <button class="method-tab active" onclick="switchMethod('HOME_DELIVERY', this)">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                    <span>Giao tận nhà</span>
+                    <span class="badge-count">${cntHomeAll}</span>
+                </button>
+                <button class="method-tab" onclick="switchMethod('STORE_PICKUP', this)">
+                    <span class="material-symbols-outlined">storefront</span>
+                    <span>Nhận tại cửa hàng</span>
+                    <span class="badge-count">${cntStoreAll}</span>
+                </button>
             </div>
 
             <!-- ── Table Card ── -->
             <div class="table-card">
                 <div class="table-toolbar">
                     <!-- Filter tabs -->
-                    <div class="filter-tabs">
+                    <!-- Filter tabs for Home Delivery -->
+                    <div class="filter-tabs" id="tabs-home">
                         <button class="filter-tab active" onclick="filterStatus('all',this)">
-                            Tất cả <span class="cnt">${cntAll}</span>
+                            Tất cả <span class="cnt">${cntHomeAll}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('pending',this)">
-                            Chờ xác nhận <span class="cnt">${cntPending}</span>
+                            Chờ xác nhận <span class="cnt">${cntHomePending}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('processing',this)">
-                            Đang xử lý <span class="cnt">${cntProcessing}</span>
+                            Đang xử lý <span class="cnt">${cntHomeProcessing}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('shipped',this)">
-                            Vận chuyển <span class="cnt">${cntShipped}</span>
+                            Vận chuyển <span class="cnt">${cntHomeShipped}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('delivered',this)">
-                            Đã giao <span class="cnt">${cntDelivered}</span>
+                            Đã giao <span class="cnt">${cntHomeDelivered}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('cancelled',this)">
-                            Đã huỷ <span class="cnt">${cntCancelled}</span>
+                            Đã huỷ <span class="cnt">${cntHomeCancelled}</span>
                         </button>
                     </div>
-                    <!-- Search -->
-                    <div class="search-box">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" id="search-input" placeholder="Tìm mã đơn, tên người nhận..."
-                               oninput="applyFilters()">
+
+                    <!-- Filter tabs for Store Pickup -->
+                    <div class="filter-tabs" id="tabs-store" style="display: none;">
+                        <button class="filter-tab active" onclick="filterStatus('all',this)">
+                            Tất cả <span class="cnt">${cntStoreAll}</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterStatus('pending',this)">
+                            Chờ xác nhận <span class="cnt">${cntStorePending}</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterStatus('processing',this)">
+                            Đang xử lý <span class="cnt">${cntStoreProcessing}</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterStatus('shipped',this)">
+                            Vận chuyển <span class="cnt">${cntStoreShipped}</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterStatus('delivered',this)">
+                            Đã giao <span class="cnt">${cntStoreDelivered}</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterStatus('cancelled',this)">
+                            Đã huỷ <span class="cnt">${cntStoreCancelled}</span>
+                        </button>
+                    </div>
+                    <!-- Date Filters & Search -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Date range presets -->
+                        <select id="date-filter-preset" onchange="handleDatePresetChange()" class="text-[13px] border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 font-semibold" style="outline:none;">
+                            <option value="all">Tất cả thời gian</option>
+                            <option value="today">Hôm nay</option>
+                            <option value="yesterday">Hôm qua</option>
+                            <option value="7days">7 ngày gần đây</option>
+                            <option value="this-month">Tháng này</option>
+                            <option value="custom">Tùy chọn...</option>
+                        </select>
+                        
+                        <!-- Custom date picker container -->
+                        <div id="custom-date-inputs" class="flex items-center gap-1.5" style="display: none;">
+                            <input type="date" id="date-from" onchange="applyFilters()" class="text-[13px] border border-gray-200 rounded-lg px-2 py-1 bg-white text-gray-700" style="outline:none;">
+                            <span class="text-[12px] text-gray-500">đến</span>
+                            <input type="date" id="date-to" onchange="applyFilters()" class="text-[13px] border border-gray-200 rounded-lg px-2 py-1 bg-white text-gray-700" style="outline:none;">
+                        </div>
+
+                        <!-- Search -->
+                        <div class="search-box">
+                            <span class="material-symbols-outlined">search</span>
+                            <input type="text" id="search-input" placeholder="Tìm mã đơn, tên người nhận..."
+                                   oninput="applyFilters()">
+                        </div>
                     </div>
                 </div>
 
@@ -315,10 +424,11 @@
                         <thead>
                             <tr>
                                 <th>MÃ ĐƠN HÀNG</th>
+                                <th>THỜI GIAN ĐẶT</th>
                                 <th>NGƯỜI NHẬN</th>
                                 <th>TỔNG TIỀN</th>
                                 <th>TRẠNG THÁI</th>
-                                <th>MÃ VẬN ĐƠN</th>
+                                <th class="tracking-column">MÃ VẬN ĐƠN</th>
                                 <th style="text-align:right;">HÀNH ĐỘNG</th>
                             </tr>
                         </thead>
@@ -326,6 +436,8 @@
                             <c:forEach var="order" items="${orders}">
                                 <tr class="order-row"
                                     data-status="${order.orderStatus}"
+                                    data-method="${order.shippingMethod}"
+                                    data-created="${order.createdAt}"
                                     data-search="${order.orderCode} ${order.shippingReceiver} ${order.shippingPhone}">
                                     <td>
                                         <a href="${pageContext.request.contextPath}/staff/order/detail?orderId=${order.orderId}"
@@ -333,6 +445,11 @@
                                             <span class="material-symbols-outlined" style="font-size:14px;color:#94a3b8;">tag</span>
                                             ${order.orderCode}
                                         </a>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 13px; color: #475569; font-weight: 500;">
+                                            ${order.formattedCreatedAt}
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="receiver-name">${order.shippingReceiver}</div>
@@ -362,17 +479,22 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty order.trackingNumber}">
-                                                <span style="font-size:12px;font-family:monospace;color:#6d28d9;font-weight:600;">
-                                                    ${order.trackingNumber}
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span style="color:#94a3b8;font-size:12px;">—</span>
-                                            </c:otherwise>
-                                        </c:choose>
+                                    <td class="tracking-column">
+                                         <c:choose>
+                                             <c:when test="${order.shippingMethod == 'STORE_PICKUP'}">
+                                                 <span class="badge" style="background-color: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">
+                                                     Tại cửa hàng
+                                                 </span>
+                                             </c:when>
+                                             <c:when test="${not empty order.trackingNumber}">
+                                                 <span style="font-size:12px;font-family:monospace;color:#6d28d9;font-weight:600;">
+                                                     ${order.trackingNumber}
+                                                 </span>
+                                             </c:when>
+                                             <c:otherwise>
+                                                 <span style="color:#94a3b8;font-size:12px;">—</span>
+                                             </c:otherwise>
+                                         </c:choose>
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
@@ -397,9 +519,19 @@
                                 </tr>
                             </c:forEach>
 
+                            <!-- Dynamic empty row shown when filter has 0 results -->
+                            <tr id="empty-row" style="display: none;">
+                                <td colspan="7" class="empty-state-cell">
+                                    <div class="empty-state">
+                                        <span class="material-symbols-outlined">inbox</span>
+                                        <p>Không có đơn hàng nào phù hợp với bộ lọc hiện tại.</p>
+                                    </div>
+                                </td>
+                            </tr>
+
                             <c:if test="${empty orders}">
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="7" class="empty-state-cell">
                                         <div class="empty-state">
                                             <span class="material-symbols-outlined">inbox</span>
                                             <p>Hiện không có đơn hàng nào.</p>
@@ -418,19 +550,83 @@
 
 <script>
     var currentStatus = 'all';
+    var currentMethod = 'HOME_DELIVERY';
+
+    function switchMethod(method, btn) {
+        currentMethod = method;
+        document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        // Show/hide tracking column and update empty state colspan
+        var trackingCols = document.querySelectorAll('.tracking-column');
+        var emptyStateCells = document.querySelectorAll('.empty-state-cell');
+        if (currentMethod === 'STORE_PICKUP') {
+            trackingCols.forEach(col => col.style.display = 'none');
+            emptyStateCells.forEach(cell => cell.setAttribute('colspan', '6'));
+        } else {
+            trackingCols.forEach(col => col.style.display = '');
+            emptyStateCells.forEach(cell => cell.setAttribute('colspan', '7'));
+        }
+
+        // Show/hide sub-status tabs
+        if (currentMethod === 'HOME_DELIVERY') {
+            document.getElementById('tabs-home').style.display = 'flex';
+            document.getElementById('tabs-store').style.display = 'none';
+            // Default to 'all' of the newly active method
+            filterStatus('all', document.querySelector('#tabs-home .filter-tab:first-child'));
+        } else {
+            document.getElementById('tabs-home').style.display = 'none';
+            document.getElementById('tabs-store').style.display = 'flex';
+            filterStatus('all', document.querySelector('#tabs-store .filter-tab:first-child'));
+        }
+    }
 
     function filterStatus(status, btn) {
         currentStatus = status;
-        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        
+        // Find inside current active tab list
+        var activeTabsId = currentMethod === 'HOME_DELIVERY' ? 'tabs-home' : 'tabs-store';
+        document.querySelectorAll('#' + activeTabsId + ' .filter-tab').forEach(t => t.classList.remove('active'));
         if (btn) btn.classList.add('active');
+        
+        applyFilters();
+    }
+
+    function handleDatePresetChange() {
+        var preset = document.getElementById('date-filter-preset').value;
+        var customDiv = document.getElementById('custom-date-inputs');
+        if (preset === 'custom') {
+            customDiv.style.display = 'flex';
+        } else {
+            customDiv.style.display = 'none';
+            // Clear inputs when not using custom
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+        }
         applyFilters();
     }
 
     function applyFilters() {
         var q = document.getElementById('search-input').value.toLowerCase().trim();
+        var preset = document.getElementById('date-filter-preset').value;
+        var dateFromVal = document.getElementById('date-from').value;
+        var dateToVal = document.getElementById('date-to').value;
+        
+        var now = new Date();
+        var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        var sevenDaysAgoStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        var thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        var visibleCount = 0;
+
         document.querySelectorAll('.order-row').forEach(row => {
             var rowStatus = row.getAttribute('data-status').toLowerCase();
+            var rowMethod = row.getAttribute('data-method');
             var searchText = row.getAttribute('data-search').toLowerCase();
+            var createdStr = row.getAttribute('data-created'); // formats as YYYY-MM-DDTHH:MM:SS
+            
+            var methodMatch = (rowMethod === currentMethod);
 
             var statusMatch = currentStatus === 'all'
                 || (currentStatus === 'pending'    && rowStatus === 'pending')
@@ -440,9 +636,50 @@
                 || (currentStatus === 'cancelled'  && rowStatus === 'cancelled');
 
             var searchMatch = q === '' || searchText.includes(q);
-            row.style.display = (statusMatch && searchMatch) ? '' : 'none';
+
+            var dateMatch = true;
+            if (createdStr && createdStr.trim() !== "" && createdStr !== "null") {
+                var orderDate = new Date(createdStr);
+                
+                if (preset === 'today') {
+                    dateMatch = (orderDate >= todayStart);
+                } else if (preset === 'yesterday') {
+                    dateMatch = (orderDate >= yesterdayStart && orderDate < todayStart);
+                } else if (preset === '7days') {
+                    dateMatch = (orderDate >= sevenDaysAgoStart);
+                } else if (preset === 'this-month') {
+                    dateMatch = (orderDate >= thisMonthStart);
+                } else if (preset === 'custom') {
+                    if (dateFromVal) {
+                        var fromDate = new Date(dateFromVal + "T00:00:00");
+                        dateMatch = dateMatch && (orderDate >= fromDate);
+                    }
+                    if (dateToVal) {
+                        var toDate = new Date(dateToVal + "T23:59:59");
+                        dateMatch = dateMatch && (orderDate <= toDate);
+                    }
+                }
+            }
+
+            if (methodMatch && statusMatch && searchMatch && dateMatch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         });
+
+        // Show/hide empty state row if visibleCount == 0
+        var emptyRow = document.getElementById('empty-row');
+        if (emptyRow) {
+            emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+        }
     }
+
+    // Initialize display when page loads
+    window.addEventListener('DOMContentLoaded', (event) => {
+        applyFilters();
+    });
 </script>
 </body>
 </html>

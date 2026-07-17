@@ -13,9 +13,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Timestamp;
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: FlashSaleProductDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý dữ liệu sản phẩm Flash Sale
  */
 public class FlashSaleProductDAO extends DBContext {
 

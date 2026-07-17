@@ -10,9 +10,12 @@ import model.Category;
 import dal.DBContext;
 import model.ProductSeries;
 
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: ProductSeriesDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý dữ liệu dòng sản phẩm (Product Series)
  */
 public class ProductSeriesDAO extends DBContext {
 

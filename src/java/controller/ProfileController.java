@@ -58,9 +58,14 @@ public class ProfileController extends HttpServlet {
 
             // Load purchase history (orders & details)
             dal.OrderDAO orderDAO = new dal.OrderDAO();
+            dal.ProductReviewDAO reviewDAO = new dal.ProductReviewDAO();
             java.util.List<model.Order> userOrders = orderDAO.getOrdersByUserId(freshUser.getUserId());
             for (model.Order o : userOrders) {
-                o.setDetails(orderDAO.getOrderDetails(o.getOrderId()));
+                java.util.List<model.OrderDetail> details = orderDAO.getOrderDetails(o.getOrderId());
+                for (model.OrderDetail od : details) {
+                    od.setReviewed(reviewDAO.hasUserReviewedProduct(freshUser.getUserId(), od.getProductId()));
+                }
+                o.setDetails(details);
             }
             request.setAttribute("userOrders", userOrders);
         }
