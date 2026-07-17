@@ -313,14 +313,19 @@ document.addEventListener('DOMContentLoaded', function () {
         vouchersListEl.addEventListener('click', function (e) {
             // Nhấp chọn qua container hoặc icon dấu cộng
             const btn = e.target.closest('.btn-use-voucher-indicator');
+            const activeIndicator = e.target.closest('.promo-select-indicator');
             const item = e.target.closest('.voucher-item');
             
             if (btn) {
                 const code = btn.dataset.code;
                 applyCouponWithCode(code);
+            } else if (activeIndicator) {
+                applyCouponWithCode(""); // Bỏ chọn voucher
             } else if (item) {
-                // Nhấp vào vùng bất kỳ của card voucher khả dụng (không bị used hay unavailable)
-                if (!item.classList.contains('used') && !item.classList.contains('unavailable') && !item.classList.contains('active')) {
+                if (item.classList.contains('active')) {
+                    // Nếu bấm lại vào voucher đang kích hoạt thì bỏ chọn
+                    applyCouponWithCode("");
+                } else if (!item.classList.contains('used') && !item.classList.contains('unavailable')) {
                     const code = item.dataset.code;
                     applyCouponWithCode(code);
                 }

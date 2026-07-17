@@ -297,6 +297,7 @@
         if (vouchersListEl) {
             vouchersListEl.addEventListener('click', function (e) {
                 const btn = e.target.closest('.btn-use-voucher-indicator');
+                const activeIndicator = e.target.closest('.promo-select-indicator');
                 const item = e.target.closest('.voucher-item');
                 
                 if (btn) {
@@ -304,8 +305,16 @@
                     e.stopPropagation();
                     const code = btn.dataset.code;
                     applyCoupon(code);
+                } else if (activeIndicator) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    applyCoupon(""); // Bỏ chọn
                 } else if (item) {
-                    if (!item.classList.contains('used') && !item.classList.contains('unavailable') && !item.classList.contains('active')) {
+                    if (item.classList.contains('active')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        applyCoupon(""); // Bỏ chọn khi click vào voucher đang hoạt động
+                    } else if (!item.classList.contains('used') && !item.classList.contains('unavailable')) {
                         e.preventDefault();
                         e.stopPropagation();
                         const code = item.dataset.code;
