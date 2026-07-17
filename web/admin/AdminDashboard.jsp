@@ -909,7 +909,7 @@
                             </div>
                             <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket chờ duyệt</div>
+                            <div class="kpi-sub">Low stock, claims &amp; ticket reviews</div>
                         </div>
                     </div>
 
@@ -921,11 +921,11 @@
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Từ:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">From:</label>
                                 <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Đến:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">To:</label>
                                 <input type="date" name="to" value="${to}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <select name="groupBy" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
@@ -934,9 +934,9 @@
                                 <option value="quarter" ${groupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
                                 <option value="year" ${groupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                             </select>
-                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Lọc</button>
+                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Filter</button>
                             <c:if test="${not empty from || not empty to}">
-                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Đặt lại</a>
+                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Reset</a>
                             </c:if>
                         </form>
                         <c:if test="${autoDefaultRange}">
@@ -951,7 +951,7 @@
                     </div>
 
                     <!-- ══ ROW 3: Orders Status + Products by Category + Low Stock ══ -->
-                    <div class="section-hd"><span class="dot"></span>Vận hành</div>
+                    <div class="section-hd"><span class="dot"></span>Operations</div>
                     <div class="grid-3">
 
                         <!-- Orders Needing Attention (Span 2) -->
@@ -1022,9 +1022,9 @@
                                     <table class="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Sản phẩm</th>
-                                                <th>Danh mục</th>
-                                                <th>SL</th>
+                                                <th>Product</th>
+                                                <th>Category</th>
+                                                <th>Qty</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1043,7 +1043,17 @@
                                     </table>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data">�                        <!-- Sản phẩm bán chạy Horizontal Bar -->
+                                    <div class="no-data">✅ No low stock products</div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+
+                    <!-- ══ ROW 4: Sản phẩm bán chạy + Khách hàng tiêu biểu + Hoạt động gần đây ══ -->
+                    <div class="section-hd"><span class="dot"></span>Rankings &amp; Activity</div>
+                    <div class="grid-3b">
+
+                        <!-- Sản phẩm bán chạy Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
                                 <div class="chart-card-title" style="margin-bottom:0;">🏆 Sản phẩm bán chạy</div>
@@ -1070,11 +1080,11 @@
                                     <canvas id="topProductsChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu bán hàng trong khoảng thời gian này</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No product sales data for this period</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
-
+ 
                         <!-- Khách hàng tiêu biểu Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
@@ -1099,7 +1109,7 @@
                                     <canvas id="topCustomersChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu chi tiêu khách hàng trong khoảng thời gian này</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No customer spending data for this period</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -1114,15 +1124,6 @@
                                     <div class="activity-item">
                                         <span class="activity-icon">${act[0]}</span>
                                         <span class="activity-text">${act[1]}</span>
-                                        <span class="activity-time">${act[2]}</span>
-                                    </div>
-                                </c:forEach>
-                                <c:if test="${empty recentActivities}">
-                                    <div class="no-data">Không có hoạt động gần đây</div>
-                                </c:if>
-                            </div>
-                        </div>
-                    </div>tivity-text">${act[1]}</span>
                                         <span class="activity-time">${act[2]}</span>
                                     </div>
                                 </c:forEach>
