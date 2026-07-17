@@ -11,6 +11,8 @@ import java.time.LocalDate;
 public class InventoryItem {
     private int itemId;
     private String serialNumber;
+    private String imei;
+    private String barcode;
     private String status;
     private String importDate;
     private LocalDate soldDate;
@@ -19,9 +21,11 @@ public class InventoryItem {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public InventoryItem(int itemId, String serialNumber, String status, String importDate, LocalDate soldDate, LocalDate warrantyExpiredDate, String note, LocalDate createdAt, LocalDate updatedAt) {
+    public InventoryItem(int itemId, String serialNumber, String imei, String barcode, String status, String importDate, LocalDate soldDate, LocalDate warrantyExpiredDate, String note, LocalDate createdAt, LocalDate updatedAt) {
         this.itemId = itemId;
         this.serialNumber = serialNumber;
+        this.imei = imei;
+        this.barcode = barcode;
         this.status = status;
         this.importDate = importDate;
         this.soldDate = soldDate;
@@ -67,7 +71,21 @@ public class InventoryItem {
         this.serialNumber = serialNumber;
     }
 
+    public String getImei() {
+        return imei;
+    }
 
+    public void setImei(String imei) {
+        this.imei = imei;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
 
     public String getStatus() {
         return status;

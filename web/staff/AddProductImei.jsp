@@ -272,17 +272,27 @@
 </div>
 </div>
 <div class="space-y-4">
-    <div class="grid grid-cols-1 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
+        <label>IMEI Number</label>
         <label>Serial Number</label>
+        <label>Barcode</label>
     </div>
     
     <div id="unitRowsContainer" class="space-y-3">
         <c:set var="rowCount" value="${not empty expectedQuantity ? expectedQuantity : 1}" />
         <c:forEach begin="1" end="${rowCount}" varStatus="status">
-            <div class="grid grid-cols-1 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                    <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${status.index}">
+                </div>
                 <div class="space-y-1">
                     <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
                     <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${status.index}">
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                    <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${status.index}">
                 </div>
             </div>
         </c:forEach>
@@ -325,11 +335,19 @@
         const container = document.getElementById('unitRowsContainer');
         const rowCount = container.children.length + 1;
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-1 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
+        row.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
         row.innerHTML = `
+            <div class="space-y-1">
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">IMEI Number</label>
+                <input type="text" name="serials" required pattern="[0-9]{15}" title="IMEI phải chứa chính xác 15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="IMEI #${rowCount}">
+            </div>
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
                 <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+            </div>
+            <div class="space-y-1">
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Barcode</label>
+                <input type="text" name="barcodes" required pattern="[0-9]{8,15}" title="Barcode phải từ 8-15 chữ số" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Barcode #${rowCount}">
             </div>
         `;
         container.appendChild(row);
@@ -338,21 +356,36 @@
     function validateForm(event) {
         const rows = document.querySelectorAll('#unitRowsContainer > div');
         let filledRowsCount = 0;
+        let hasPartial = false;
         
         rows.forEach(row => {
+            const imeiInput = row.querySelector('input[name="serials"]');
             const snInput = row.querySelector('input[name="serialNumbers"]');
+            const bcInput = row.querySelector('input[name="barcodes"]');
             
-            if (!snInput) return;
+            if (!imeiInput || !snInput || !bcInput) return;
             
+            const imei = imeiInput.value.trim();
             const sn = snInput.value.trim();
+            const bc = bcInput.value.trim();
             
-            if (sn) {
-                filledRowsCount++;
+            if (imei || sn || bc) {
+                if (!imei || !sn || !bc) {
+                    hasPartial = true;
+                } else {
+                    filledRowsCount++;
+                }
             }
         });
         
         if (filledRowsCount === 0) {
             alert("Vui lòng điền thông tin cho ít nhất 1 dòng sản phẩm.");
+            event.preventDefault();
+            return false;
+        }
+        
+        if (hasPartial) {
+            alert("Vui lòng điền đầy đủ cả 3 thông tin (IMEI, Serial Number, Barcode) cho các dòng đã nhập.");
             event.preventDefault();
             return false;
         }

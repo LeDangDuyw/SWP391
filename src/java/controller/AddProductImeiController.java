@@ -81,12 +81,14 @@ public class AddProductImeiController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String variantIdStr = request.getParameter("variantId");
+        String[] imeis = request.getParameterValues("serials");
         String[] serialNumbers = request.getParameterValues("serialNumbers");
+        String[] barcodes = request.getParameterValues("barcodes");
         String receivedDate = request.getParameter("receivedDate");
         String ticketIdStr = request.getParameter("ticketId");
         
         if (variantIdStr == null || variantIdStr.trim().isEmpty() ||
-            serialNumbers == null) {
+            serialNumbers == null || imeis == null || barcodes == null) {
             response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
                 (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") + 
                 (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
@@ -103,16 +105,29 @@ public class AddProductImeiController extends HttpServlet {
             }
         }
         
+        List<String> validImeis = new ArrayList<>();
         List<String> validSerials = new ArrayList<>();
+        List<String> validBarcodes = new ArrayList<>();
         
         for (int i = 0; i < serialNumbers.length; i++) {
             String sn = (serialNumbers[i] != null) ? serialNumbers[i].trim() : "";
+            String imei = (imeis.length > i && imeis[i] != null) ? imeis[i].trim() : "";
+            String bc = (barcodes.length > i && barcodes[i] != null) ? barcodes[i].trim() : "";
             
-            if (sn.isEmpty()) {
+            if (sn.isEmpty() && imei.isEmpty() && bc.isEmpty()) {
                 continue; // Skip empty rows
             }
             
+            if (sn.isEmpty() || imei.isEmpty() || bc.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" + 
+                    (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") + 
+                    "&variantId=" + variantId);
+                return;
+            }
+            
             validSerials.add(sn);
+            validImeis.add(imei);
+            validBarcodes.add(bc);
         }
         
         if (validSerials.isEmpty()) {
@@ -164,6 +179,8 @@ public class AddProductImeiController extends HttpServlet {
             InventoryItem item = new InventoryItem();
             item.setVariantId(variantId);
             item.setSerialNumber(validSerials.get(i));
+            item.setImei(validImeis.get(i));
+            item.setBarcode(validBarcodes.get(i));
             item.setStatus("in_stock");
             item.setImportDate(receivedDate);
             item.setWarrantyExpiredDate(warrantyExpiredDate);
