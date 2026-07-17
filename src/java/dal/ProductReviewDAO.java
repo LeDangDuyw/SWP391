@@ -264,4 +264,20 @@ public class ProductReviewDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean hasUserReviewedProduct(int userId, int productId) {
+        String sql = "SELECT COUNT(*) FROM ProductReview WHERE user_id = ? AND product_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -12,6 +12,13 @@ import model.Users;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+/*
+ * Name: OrderDetailController
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hiển thị chi tiết thông tin đơn hàng dành cho khách hàng
+ */
 @WebServlet(name = "OrderDetailController", urlPatterns = {"/order-detail"})
 public class OrderDetailController extends HttpServlet {
 
@@ -43,7 +50,20 @@ public class OrderDetailController extends HttpServlet {
                 return;
             }
 
-            order.setDetails(orderDAO.getOrderDetails(orderId));
+            // Fresh user for top bar avatar/username
+            dal.UserDAO userDAO = new dal.UserDAO();
+            Users freshUser = userDAO.getUserById(sessionUser.getUserId());
+            if (freshUser == null) {
+                freshUser = sessionUser;
+            }
+            request.setAttribute("profileUser", freshUser);
+
+            java.util.List<model.OrderDetail> details = orderDAO.getOrderDetails(orderId);
+            dal.ProductReviewDAO reviewDAO = new dal.ProductReviewDAO();
+            for (model.OrderDetail od : details) {
+                od.setReviewed(reviewDAO.hasUserReviewedProduct(sessionUser.getUserId(), od.getProductId()));
+            }
+            order.setDetails(details);
             request.setAttribute("order", order);
             request.getRequestDispatcher("/customer/order_detail.jsp").forward(request, response);
             

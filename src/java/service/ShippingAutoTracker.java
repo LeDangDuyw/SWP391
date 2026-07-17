@@ -1,3 +1,10 @@
+/*
+ * Name: ShippingAutoTracker
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Dịch vụ tự động theo dõi và cập nhật trạng thái đơn hàng/giao hàng (API simulation)
+ */
 package service;
 
 import dal.OutboundDAO;

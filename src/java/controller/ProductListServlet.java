@@ -16,9 +16,12 @@ import dal.CategoryDAO;
 import dal.ProductListFilterDAO;
 import dal.ProductSeriesDAO;
 
-/**
- *
- * @author Cao Tuấn Minh
+/*
+ * Name: ProductListServlet
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hiển thị danh sách sản phẩm và bộ lọc sản phẩm (Product List)
  */
 public class ProductListServlet extends HttpServlet {
 

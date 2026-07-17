@@ -6,9 +6,12 @@ package model;
 
 import java.sql.Timestamp;
 
-/**
- *
- * @author Cao Tuấn Minh 
+/*
+ * Name: FlashSaleProduct
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Model đại diện cho sản phẩm tham gia sự kiện Flash Sale
  */
 public class FlashSaleProduct {
 private int productId;
