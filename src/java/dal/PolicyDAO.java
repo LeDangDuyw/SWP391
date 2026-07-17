@@ -1,22 +1,12 @@
-﻿/**
- * Class: PolicyDAO
- * Description: Data Access Object xử lý truy vấn chính sách bảo hành trong CSDL.
- * 
- * Created: 2026-05-31 23:29:28 +0700
- * Updated: 2026-07-02 23:39:42 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
+package dal;
 
 /**
  * Class: PolicyDAO
  * Description: Data Access Object xử lý truy vấn chính sách bảo hành trong CSDL.
  * 
- * Created: 2026-05-31 23:29:28 +0700
- * Updated: 2026-07-02 23:39:42 +0700
- * Version: v1.0
+ * Created: 2026-05-31
+ * Updated: 2026-07-02
+ * Version: v1.4
  *
  * @author DuyLD
  */
@@ -26,7 +16,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class PolicyDAO extends DBContext {
 
     /*
@@ -35,8 +24,6 @@ public class PolicyDAO extends DBContext {
     public List<WarrantyPolicy> getAllPolicies() throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies ORDER BY PolicyID DESC";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -52,16 +39,10 @@ public class PolicyDAO extends DBContext {
     public WarrantyPolicy getPolicyById(int id) throws Exception {
         String sql = "SELECT * FROM WarrantyPolicies WHERE PolicyID = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return mapPolicy(rs);
@@ -80,8 +61,6 @@ public class PolicyDAO extends DBContext {
                 + " WarrantyMonths, Status, Version, EffectiveDate, CreatedAt, UpdatedAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.getPolicyName());
             ps.setString(2, p.getDescription());
@@ -96,11 +75,7 @@ public class PolicyDAO extends DBContext {
             ps.executeUpdate();
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                // Nếu tồn tại bản ghi kết quả từ database
-                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -116,22 +91,16 @@ public class PolicyDAO extends DBContext {
      */
     public boolean existsPolicyName(String policyName) throws Exception {
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (policyName == null) {
             return false;
         }
         String sql = "SELECT 1 FROM WarrantyPolicies WHERE LOWER(PolicyName) = LOWER(?)";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, policyName.trim());
 
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -149,13 +118,9 @@ public class PolicyDAO extends DBContext {
                 + "WHERE PolicyName LIKE ? "
                 + "ORDER BY PolicyID DESC";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";
             ps.setString(1, k);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -172,8 +137,6 @@ public class PolicyDAO extends DBContext {
      */
     public boolean existsPolicyNameForUpdate(String policyName, int policyId) {
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (policyName == null) {
             return false;
         }
@@ -185,16 +148,12 @@ public class PolicyDAO extends DBContext {
         """;
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, policyName.trim());
             ps.setInt(2, policyId);
 
             ResultSet rs = ps.executeQuery();
             return rs.next();
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,12 +168,8 @@ public class PolicyDAO extends DBContext {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies WHERE Status = ? ORDER BY PolicyID DESC";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -234,8 +189,6 @@ public class PolicyDAO extends DBContext {
                 + "    ApplicableRegions = ?, WarrantyMonths = ?, Status = ?, "
                 + "    Version = ?, EffectiveDate = ?, UpdatedAt = ? "
                 + "WHERE PolicyID = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, p.getPolicyName());
@@ -259,31 +212,21 @@ public class PolicyDAO extends DBContext {
         String deleteHistorySql = "DELETE FROM WarrantyPolicyHistory WHERE PolicyID = ?";
         String deletePolicySql = "DELETE FROM WarrantyPolicies WHERE PolicyID = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try (PreparedStatement psHist = con.prepareStatement(deleteHistorySql)) {
                     psHist.setInt(1, id);
                     psHist.executeUpdate();
                 }
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try (PreparedStatement psPol = con.prepareStatement(deletePolicySql)) {
                     psPol.setInt(1, id);
                     psPol.executeUpdate();
                 }
                 con.commit();
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception e) {
                 con.rollback();
@@ -300,8 +243,6 @@ public class PolicyDAO extends DBContext {
     private void updateStatus(int id, String status) throws Exception {
         String sql = "UPDATE WarrantyPolicies SET Status = ?, UpdatedAt = ? WHERE PolicyID = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
@@ -317,12 +258,8 @@ public class PolicyDAO extends DBContext {
         String sql = "SELECT COUNT(*) FROM WarrantyPolicies";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-            // Nếu tồn tại bản ghi kết quả từ database
-            // Nếu tồn tại bản ghi kết quả từ database
             // Nếu tồn tại bản ghi kết quả từ database
             if (rs.next()) {
                 return rs.getInt(1);
@@ -342,16 +279,12 @@ public class PolicyDAO extends DBContext {
         """;
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, "%" + keyword + "%");
 
             ResultSet rs = ps.executeQuery();
 
-            // Nếu tồn tại bản ghi kết quả từ database
-            // Nếu tồn tại bản ghi kết quả từ database
             // Nếu tồn tại bản ghi kết quả từ database
             if (rs.next()) {
                 return rs.getInt(1);
@@ -378,8 +311,6 @@ public class PolicyDAO extends DBContext {
         FETCH NEXT ? ROWS ONLY
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -415,8 +346,6 @@ public class PolicyDAO extends DBContext {
         FETCH NEXT ? ROWS ONLY
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -481,8 +410,6 @@ public class PolicyDAO extends DBContext {
         String sql = "INSERT INTO WarrantyPolicyHistory (PolicyID, PolicyName, Version, Description, PolicyContent, Status, ActionType, ChangedAt) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, policyId);
             ps.setString(2, policyName);
@@ -503,12 +430,8 @@ public class PolicyDAO extends DBContext {
         List<model.PolicyHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicyHistory WHERE PolicyID = ? ORDER BY ChangedAt DESC";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, policyId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

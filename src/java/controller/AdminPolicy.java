@@ -1,22 +1,12 @@
-﻿/**
- * Class: AdminPolicy
- * Description: Controller quản lý CRUD các chính sách bảo hành (Warranty Policy).
- * 
- * Created: 2026-05-29 19:55:59 +0700
- * Updated: 2026-07-03 10:00:08 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
+package controller;
 
 /**
  * Class: AdminPolicy
  * Description: Controller quản lý CRUD các chính sách bảo hành (Warranty Policy).
  * 
- * Created: 2026-05-29 19:55:59 +0700
- * Updated: 2026-07-03 10:00:08 +0700
- * Version: v1.0
+ * Created: 2026-05-29
+ * Updated: 2026-07-03
+ * Version: v1.6
  *
  * @author DuyLD
  */
@@ -31,7 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.WarrantyPolicy;
-
 
 public class AdminPolicy extends HttpServlet {
 
@@ -57,29 +46,19 @@ public class AdminPolicy extends HttpServlet {
 
         String pageParam = request.getParameter("page");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (pageParam != null && !pageParam.trim().isEmpty()) {
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
                 page = Integer.parseInt(pageParam.trim());
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (NumberFormatException ignored) {}
         }
 
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (keyword != null && !keyword.trim().isEmpty()) {
             keyword = keyword.trim();
             totalRecords = dao.countSearchPolicies(keyword);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (page > totalPages && totalPages > 0) {
                 page = totalPages;
@@ -93,8 +72,6 @@ public class AdminPolicy extends HttpServlet {
         } else {
             totalRecords = dao.countPolicies();
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (page > totalPages && totalPages > 0) {
                 page = totalPages;
@@ -118,24 +95,16 @@ public class AdminPolicy extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             loadPolicyList(request);
 
             String idParam = request.getParameter("id");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (idParam != null && !idParam.trim().isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try {
                     int id = Integer.parseInt(idParam.trim());
                     WarrantyPolicy selected = dao.getPolicyById(id);
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (selected != null) {
                         selected.setExpiryDate(calculateExpiryDate(selected.getEffectiveDate(),selected.getWarrantyMonths()));
@@ -144,16 +113,12 @@ public class AdminPolicy extends HttpServlet {
                     }
                     request.setAttribute("selectedPolicy", selected);
                 // Bắt và xử lý ngoại lệ xảy ra trong khối try
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 } catch (Exception ignored) {
                 }
             }
             request.getRequestDispatcher("/admin/PolicyManagement.jsp")
                     .forward(request, response);
 
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException("Error loading policies", e);
@@ -176,16 +141,12 @@ public class AdminPolicy extends HttpServlet {
         String pageSuffix = (pageParam != null && !pageParam.trim().isEmpty()) ? "&page=" + pageParam.trim() : "";
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             switch (action == null ? "" : action) {
 
                 case "create": {
                     WarrantyPolicy p = buildPolicyFromRequest(request);
 
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
                         request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
@@ -195,8 +156,6 @@ public class AdminPolicy extends HttpServlet {
                         return;
                     }
 
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (dao.existsPolicyName(p.getPolicyName())) {
                         request.setAttribute("error", "Policy name has already existed");
@@ -212,8 +171,6 @@ public class AdminPolicy extends HttpServlet {
                     p.setUpdatedAt(now);
                     int newId = dao.insertPolicy(p);
                     // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     if (newId > 0) {
                         dao.insertHistory(newId, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "CREATED");
                     }
@@ -226,13 +183,9 @@ public class AdminPolicy extends HttpServlet {
                     WarrantyPolicy p = dao.getPolicyById(id);
 
                     // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     if (p != null) {
                         updatePolicyFromRequest(request, p);
 
-                        // Kiểm tra điều kiện
-                        // Kiểm tra điều kiện
                         // Kiểm tra điều kiện
                         if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
                             request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
@@ -245,8 +198,6 @@ public class AdminPolicy extends HttpServlet {
                         }
 
                         // Kiểm tra điều kiện
-                        // Kiểm tra điều kiện
-                        // Kiểm tra điều kiện
                         if (("LIVE".equalsIgnoreCase(p.getStatus()) || "PUBLISHED".equalsIgnoreCase(p.getStatus()))
                                 && isContentEmpty(p.getPolicyContent())) {
                             request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
@@ -258,8 +209,6 @@ public class AdminPolicy extends HttpServlet {
                             return;
                         }
 
-                        // Kiểm tra điều kiện
-                        // Kiểm tra điều kiện
                         // Kiểm tra điều kiện
                         if (dao.existsPolicyNameForUpdate(p.getPolicyName(), id)) {
                             request.setAttribute("error", "Policy name has existed!");
@@ -289,8 +238,6 @@ public class AdminPolicy extends HttpServlet {
                     int id = Integer.parseInt(request.getParameter("policyId"));
                     WarrantyPolicy p = dao.getPolicyById(id);
                     // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     if (p != null && isContentEmpty(p.getPolicyContent())) {
                         request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
                         request.setAttribute("selectedPolicy", p);
@@ -302,8 +249,6 @@ public class AdminPolicy extends HttpServlet {
                     }
                     dao.publishPolicy(id);
                     p = dao.getPolicyById(id);
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (p != null) {
                         dao.insertHistory(id, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "UPDATED");
@@ -317,8 +262,6 @@ public class AdminPolicy extends HttpServlet {
                     dao.saveDraft(id);
                     WarrantyPolicy p = dao.getPolicyById(id);
                     // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     if (p != null) {
                         dao.insertHistory(id, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "UPDATED");
                     }
@@ -331,8 +274,6 @@ public class AdminPolicy extends HttpServlet {
                     dao.disablePolicy(id);
                     WarrantyPolicy p = dao.getPolicyById(id);
                     // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     if (p != null) {
                         dao.insertHistory(id, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "UPDATED");
                     }
@@ -344,8 +285,6 @@ public class AdminPolicy extends HttpServlet {
                     response.sendRedirect(contextPath + "/admin/policy");
             }
 
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException("Error processing policy action: " + action, e);
@@ -360,8 +299,6 @@ public class AdminPolicy extends HttpServlet {
         String name = request.getParameter("policyName");
         p.setPolicyName(name != null ? name.trim() : null);
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (name == null || name.trim().isEmpty()) {
             request.setAttribute("error", "Policy name can't be empty!");
@@ -378,8 +315,6 @@ public class AdminPolicy extends HttpServlet {
 
         String wm = request.getParameter("warrantyMonths");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (wm != null && !wm.isEmpty()) {
             p.setWarrantyMonths(Integer.parseInt(wm));
         } else {
@@ -388,8 +323,6 @@ public class AdminPolicy extends HttpServlet {
 
         String version = request.getParameter("version");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (version != null && !version.trim().isEmpty()) {
             p.setVersion(version.trim());
         } else {
@@ -397,8 +330,6 @@ public class AdminPolicy extends HttpServlet {
         }
 
         String effDate = request.getParameter("effectiveDate");
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (effDate != null && !effDate.isEmpty()) {
             p.setEffectiveDate(java.sql.Date.valueOf(effDate));
@@ -421,15 +352,11 @@ public class AdminPolicy extends HttpServlet {
 
         String content = request.getParameter("policyContent");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (content != null) {
             p.setPolicyContent(content.trim());
         }
 
         String regions = request.getParameter("applicableRegions");
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (regions != null) {
             p.setApplicableRegions(regions.trim());
@@ -437,15 +364,11 @@ public class AdminPolicy extends HttpServlet {
 
         String wm = request.getParameter("warrantyMonths");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (wm != null && !wm.isEmpty()) {
             p.setWarrantyMonths(Integer.parseInt(wm));
         }
 
         String version = request.getParameter("version");
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (version != null) {
             p.setVersion(version.trim());
@@ -453,15 +376,11 @@ public class AdminPolicy extends HttpServlet {
 
         String status = request.getParameter("status");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (status != null && !status.trim().isEmpty()) {
             p.setStatus(status.trim());
         }
 
         String effDate = request.getParameter("effectiveDate");
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (effDate != null && !effDate.isEmpty()) {
             p.setEffectiveDate(java.sql.Date.valueOf(effDate));
@@ -469,8 +388,6 @@ public class AdminPolicy extends HttpServlet {
     }
 
     private java.sql.Date calculateExpiryDate(java.sql.Date start, int months) {
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (start == null) {
             return null;
@@ -483,8 +400,6 @@ public class AdminPolicy extends HttpServlet {
     }
 
     private boolean isContentEmpty(String content) {
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (content == null) {
             return true;

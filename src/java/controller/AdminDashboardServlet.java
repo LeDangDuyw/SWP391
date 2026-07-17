@@ -1,22 +1,12 @@
-﻿/**
- * Class: AdminDashboardServlet
- * Description: Controller xử lý điều hướng hiển thị và dữ liệu cho trang tổng quan (Dashboard).
- * 
- * Created: 2026-05-31 23:29:28 +0700
- * Updated: 2026-07-11 23:00:12 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
+package controller;
 
 /**
  * Class: AdminDashboardServlet
  * Description: Controller xử lý điều hướng hiển thị và dữ liệu cho trang tổng quan (Dashboard).
  * 
- * Created: 2026-05-31 23:29:28 +0700
- * Updated: 2026-07-11 23:00:12 +0700
- * Version: v1.0
+ * Created: 2026-05-31
+ * Updated: 2026-07-11
+ * Version: v1.3
  *
  * @author DuyLD
  */
@@ -30,17 +20,6 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import model.Users;
 
-
-/**
- * Class: AdminDashboardServlet
- * Description: Controller xử lý điều hướng hiển thị và dữ liệu cho trang tổng quan (Dashboard).
- * 
- * Created: 2026-05-31 23:29:28 +0700
- * Updated: 2026-07-11 23:00:12 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
 public class AdminDashboardServlet extends HttpServlet {
 
     private AdminDashboardDAO dashboardDAO;
@@ -64,23 +43,17 @@ public class AdminDashboardServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             // Bắt đầu phiên làm việc và kiểm tra quyền đăng nhập của người dùng
             HttpSession session = request.getSession(false);
             Users user = null;
 
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (session != null) {
                 user = (Users) session.getAttribute("user");
             }
 
             // Nếu người dùng chưa đăng nhập, chuyển hướng về trang Login
-            // Kiểm tra xác thực người dùng / phiên đăng nhập
-            // Kiểm tra xác thực người dùng / phiên đăng nhập
             // Kiểm tra xác thực người dùng / phiên đăng nhập
             if (user == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
@@ -93,28 +66,20 @@ public class AdminDashboardServlet extends HttpServlet {
 
             // Nếu người dùng chọn khoảng ngày tùy chỉnh
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try {
                     // Chuyển đổi định dạng chuỗi sang kiểu dữ liệu Date của SQL để truy vấn
                     java.sql.Date fromDate = java.sql.Date.valueOf(from.trim());
                     java.sql.Date toDate = java.sql.Date.valueOf(to.trim());
-                    
+
                     // Kiểm tra quy tắc ngày bắt đầu không được sau ngày kết thúc
-                    // Kiểm tra điều kiện
-                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (fromDate.after(toDate)) {
                         request.setAttribute("dateError", "From date cannot be after To date.");
                         from = null;
                         to = null;
                     }
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 } catch (Exception e) {
                     // Bắt lỗi định dạng ngày không hợp lệ, đặt lại giá trị rỗng
@@ -127,8 +92,6 @@ public class AdminDashboardServlet extends HttpServlet {
             // Lấy tham số nhóm dữ liệu (theo ngày, tuần, tháng...)
             String groupBy = request.getParameter("groupBy");
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (groupBy == null || groupBy.trim().isEmpty()) {
                 groupBy = "month"; // Mặc định nhóm theo Tháng
             }
@@ -137,8 +100,6 @@ public class AdminDashboardServlet extends HttpServlet {
             boolean autoDefaultRange = "day".equals(groupBy) && missingRange;
 
             // Tự động thiết lập khoảng ngày mặc định nếu chọn xem theo Ngày mà không truyền khoảng ngày
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (autoDefaultRange) {
                 java.time.LocalDate today = java.time.LocalDate.now();
@@ -155,23 +116,15 @@ public class AdminDashboardServlet extends HttpServlet {
             String revenueYearParam = request.getParameter("revenueYear");
             Integer revenueYear = null;
             // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             if (revenueYearParam != null && !revenueYearParam.trim().isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try {
                     revenueYear = Integer.parseInt(revenueYearParam.trim());
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 } catch (Exception ignored) {
                     // Bỏ qua lỗi chuyển đổi kiểu số, sử dụng giá trị mặc định sau
                 }
             }
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (revenueYear == null) {
                 revenueYear = 2026; // Năm mặc định của hệ thống
@@ -205,8 +158,30 @@ public class AdminDashboardServlet extends HttpServlet {
 
             request.setAttribute("monthlyRevenue", dashboardDAO.getRevenueChart(from, to, revenueYear, groupBy));
             request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
-            request.setAttribute("topProducts", dashboardDAO.getTopProducts());
-            request.setAttribute("topCustomers", dashboardDAO.getTopCustomers());
+
+            // Rankings filters
+            String topProductsCriteria = request.getParameter("topProductsCriteria");
+            if (topProductsCriteria == null || topProductsCriteria.trim().isEmpty()) {
+                topProductsCriteria = "quantity";
+            }
+            String topProductsTime = request.getParameter("topProductsTime");
+            if (topProductsTime == null || topProductsTime.trim().isEmpty()) {
+                topProductsTime = "all";
+            }
+            String topCustomersTime = request.getParameter("topCustomersTime");
+            if (topCustomersTime == null || topCustomersTime.trim().isEmpty()) {
+                topCustomersTime = "all";
+            }
+
+            request.setAttribute("topProductsCriteria", topProductsCriteria);
+            request.setAttribute("topProductsTime", topProductsTime);
+            request.setAttribute("topCustomersTime", topCustomersTime);
+
+            String[] prodRange = getDateRangeFromTimeframe(topProductsTime);
+            String[] custRange = getDateRangeFromTimeframe(topCustomersTime);
+
+            request.setAttribute("topProducts", dashboardDAO.getTopProducts(prodRange[0], prodRange[1], topProductsCriteria));
+            request.setAttribute("topCustomers", dashboardDAO.getTopCustomers(custRange[0], custRange[1]));
             request.setAttribute("recentActivities", dashboardDAO.getRecentActivities());
 
             // Chuyển hướng dữ liệu sang trang JSP AdminDashboard để hiển thị
@@ -214,11 +189,33 @@ public class AdminDashboardServlet extends HttpServlet {
                     .forward(request, response);
 
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             // Bắt lỗi chung của servlet và ném ra lỗi ServletException
             throw new ServletException("Cannot load admin dashboard", e);
         }
+    }
+
+    private String[] getDateRangeFromTimeframe(String timeframe) {
+        if (timeframe == null) {
+            return new String[]{null, null};
+        }
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = null;
+        java.time.LocalDate toDate = today;
+        switch (timeframe.toLowerCase()) {
+            case "today":
+                fromDate = today;
+                break;
+            case "week":
+                fromDate = today.minusDays(today.getDayOfWeek().getValue() - 1);
+                break;
+            case "month":
+                fromDate = today.withDayOfMonth(1);
+                break;
+            case "all":
+            default:
+                return new String[]{null, null};
+        }
+        return new String[]{fromDate.toString(), toDate.toString()};
     }
 }

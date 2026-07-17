@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Document   : ReviewsManagement
     Created on : Jun 22, 2026, 4:14:24 AM
     Author     : MINHBQ
@@ -269,17 +269,20 @@
             <aside class="sidebar">
                 <c:choose>
                     <c:when test="${sessionScope.user.roleId == 1}">
-                        <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
+                        <div class="brand"><span>UNILAP Admin</span><small>Quản trị hệ thống</small></div>
                         <nav>
-                            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                            <a href="#"><span>▣</span>Orders</a>
-                            <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                            <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-                            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                            <a class="active" href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                            <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                            <a href="#"><span>⚙</span>Settings</a>
+                            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
+                            <a href="#"><span>▣</span>Đơn hàng</a>
+                            <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                            <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Khuyến mãi & Voucher</a>
+                            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
+                            <a class="active" href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
+                            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                            <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
+                            <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
+                            <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
+                            <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
+                            <a href="#"><span>⚙</span>Cài đặt</a>
                         </nav>
                         <div class="profile">
                             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -294,22 +297,22 @@
                                 <% } %>
                                 <span>Admin User Profile</span>
                             </div>
-                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+                        <div class="brand"><span>UNILAP Staff</span><small>Quản trị hệ thống</small></div>
                         <nav>
-                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Kho hàng</a>
                             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
                             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
                             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-                            <a class="active" href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-                            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                            <a class="active" href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý đánh giá</a>
+                            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
                         </nav>
                         <div class="profile">
                             <div>♙ <span>${sessionScope.user.userName}</span></div>
-                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -317,20 +320,20 @@
             <!-- Main Content Area -->
             <div class="main">
                 <div class="topbar">
-                    <span class="topbar-title">Review Management System</span>
+                    <span class="topbar-title">Hệ thống quản lý đánh giá</span>
                 </div>
                 <div class="breadcrumb">
                     <c:choose>
                         <c:when test="${sessionScope.user.roleId == 1}">
-                            <a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a> / Quản lý đánh giá
+                            <a href="${pageContext.request.contextPath}/admin/dashboard">Bảng điều khiển</a> / Quản lý đánh giá
                         </c:when>
                         <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/staff/inventory">Inventory</a> / Quản lý đánh giá
+                            <a href="${pageContext.request.contextPath}/staff/inventory">Kho hàng</a> / Quản lý đánh giá
                         </c:otherwise>
                     </c:choose>
                 </div>
                 <div class="content">
-                    <div class="page-title">Quản lý Đánh giá sản phẩm</div>
+                    <div class="page-title">Quản lý đánh giá sản phẩm</div>
                     <div class="page-sub">Ẩn/hiển thị bình luận và phản hồi lại đánh giá của khách hàng.</div>
                     <!-- Card Bộ Lọc -->
                     <div class="filter-card">
