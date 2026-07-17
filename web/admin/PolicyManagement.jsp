@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: PolicyManagement.jsp
     Mo ta: Trang giao diện quản lý danh sách và chỉnh sửa chính sách của Admin.
     
@@ -657,24 +657,58 @@
                 display: block;
             }
         </style>
-    </head>
+    
+<style>
+            /* Sidebar dropdown style */
+            .sidebar-dropdown {
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-dropdown-container {
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 4px;
+            }
+            .sidebar nav .sidebar-dropdown-container a {
+                padding: 8px 14px 8px 30px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+            }
+</style>
+</head>
     <body>
         <div class="layout">
 
             <aside class="sidebar">
-                <div class="brand"><span>UNILAP Admin</span><small>Quản trị hệ thống</small></div>
+                <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
                 <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Khuyến mãi & Voucher</a>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
+                    
+                    <div class="sidebar-dropdown">
+                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
+                        </a>
+                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <a href="${pageContext.request.contextPath}/admin/promotions">
+                                <span>▥</span>Voucher & Promotion
+                            </a>
+                            <a href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
-                    <a href="#"><span>⚙</span>Cài đặt</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
+                    <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
                     <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href = '${pageContext.request.contextPath}/profile'">
@@ -689,7 +723,7 @@
                         <% } %>
                         <span>Admin User Profile</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
                 </div>
             </aside>
 
@@ -716,11 +750,11 @@
                         <div class="page-actions">
                             <c:choose>
                                 <c:when test="${empty isFooterTab}">
-                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Lịch sử phiên bản</button>
+                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
                                     <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
                                 </c:when>
                                 <c:otherwise>
-                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; Chính sách chân trang mới</button>
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; New Footer Policy</button>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -769,9 +803,9 @@
                                 <c:choose>
                                     <c:when test="${selectedGeneralPolicy != null}">
                                         <div class="editor-content">
-                                            <!-- Cài đặt hiển thị chân trang Form -->
+                                            <!-- Footer Display Settings Form -->
                                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Cài đặt hiển thị chân trang</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
                                                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 16px;">
                                                     <input type="hidden" name="action" value="updateFooterSettings">
                                                     <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
@@ -790,9 +824,9 @@
                                                 </form>
                                             </div>
                                             
-                                            <!-- Xem trước nội dung -->
+                                            <!-- Content Preview -->
                                             <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Xem trước nội dung</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Content Preview</h3>
                                                 <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0; max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 12px; border-radius: 8px;">
                                                     ${selectedGeneralPolicy.content}
                                                 </div>
@@ -953,7 +987,7 @@
                                 </div>
                                 <div class="editor-footer">
                                     <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Delete</button>
-                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Chỉnh sửa chính sách</button>
+                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Edit Policy</button>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="saveDraft">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
@@ -1094,7 +1128,7 @@
             </div>
         </div>
 
-        <!-- Modal: Lịch sử phiên bản -->
+        <!-- Modal: Version History -->
         <div class="modal-overlay" id="vhModal">
             <div class="modal" style="width:460px;">
                 <div class="modal-header"><h2>Lịch sử phiên bản</h2><button class="modal-close" onclick="closeModal('vhModal')">&#215;</button></div>
@@ -1180,9 +1214,9 @@
         <!-- Modal: Delete General Policy Confirm -->
         <div class="modal-overlay" id="deleteGeneralModal">
             <div class="modal confirm-modal" style="max-width: 450px;">
-                <div class="modal-header"><h2>Delete Footer Policy</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Xóa chính sách chân trang</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
                 <div class="modal-body">
-                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Are you sure you want to delete this footer policy? Hành động này không thể hoàn tác.</div>
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Bạn có chắc chắn muốn xóa chính sách chân trang này? Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
@@ -1195,12 +1229,12 @@
             </div>
         </div>
 
-        <!-- Modal: Edit General Nội dung chính sách -->
+        <!-- Modal: Edit General Policy Content -->
         <c:if test="${selectedGeneralPolicy != null}">
             <div class="modal-overlay" id="editGeneralModal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h2>Edit Footer Nội dung chính sách</h2>
+                        <h2>Sửa nội dung chính sách chân trang</h2>
                         <button class="modal-close" onclick="closeModal('editGeneralModal')">&#215;</button>
                     </div>
                     <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
@@ -1417,7 +1451,21 @@
             </c:if>
             })();
         </script>
-    </body>
+    
+<script>
+            function toggleSidebarDropdown(btn) {
+                const container = btn.nextElementSibling;
+                const arrow = btn.querySelector('.dropdown-arrow');
+                if (container.style.display === 'flex') {
+                    container.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    container.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+</script>
+</body>
 </html>
 <!-- touch -->
 

@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: AdminDashboard.jsp
     Mo ta: Trang giao diện (View) chính của Admin Dashboard.
     
@@ -764,35 +764,35 @@
             <aside class="sidebar">
                 <div class="brand">
                     <span>UNILAP Admin</span>
-                    <small>Quản trị hệ thống</small>
+                    <small>System Controller</small>
                 </div>
                 <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     
                     <div class="sidebar-dropdown">
                         <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Phân tích</span>
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
                             <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
                         </a>
                         <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
                             <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Khuyến mãi
+                                <span>▥</span>Voucher & Promotion
                             </a>
                             <a href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Phân tích nâng cao
+                                <span>📈</span>Advanced Analytics
                             </a>
                         </div>
                     </div>
                     
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
-                    <a href="#"><span>⚙</span>Cài đặt</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
+                    <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
                     <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -807,7 +807,7 @@
                         <% } %>
                         <span>Admin User Profile</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
                 </div>
             </aside>
 
@@ -891,7 +891,7 @@
                             </div>
                         </div>
 
-                        <!-- Khách hàng mới -->
+                        <!-- New Customers -->
                         <div class="kpi-card c-blue" onclick="window.location.href='${pageContext.request.contextPath}/admin/users?role=3&from=${not empty from ? from : todayDate}&to=${not empty to ? to : todayDate}'" style="cursor:pointer;">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-blue">👤</div>
@@ -909,7 +909,7 @@
                             </div>
                             <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket chờ duyệt</div>
+                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket duyệt</div>
                         </div>
                     </div>
 
@@ -921,11 +921,11 @@
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Từ:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">From:</label>
                                 <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Đến:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">To:</label>
                                 <input type="date" name="to" value="${to}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <select name="groupBy" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
@@ -934,9 +934,9 @@
                                 <option value="quarter" ${groupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
                                 <option value="year" ${groupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                             </select>
-                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Lọc</button>
+                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Filter</button>
                             <c:if test="${not empty from || not empty to}">
-                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Đặt lại</a>
+                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Reset</a>
                             </c:if>
                         </form>
                         <c:if test="${autoDefaultRange}">
@@ -951,7 +951,7 @@
                     </div>
 
                     <!-- ══ ROW 3: Orders Status + Products by Category + Low Stock ══ -->
-                    <div class="section-hd"><span class="dot"></span>Vận hành</div>
+                    <div class="section-hd"><span class="dot"></span>Operations</div>
                     <div class="grid-3">
 
                         <!-- Orders Needing Attention (Span 2) -->
@@ -1015,7 +1015,7 @@
                         <!-- Low Stock Panel — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
-                                ⚠️ Sản phẩm sắp hết hàng
+                                ⚠️ Low Stock Products
                             </div>
                             <c:choose>
                                 <c:when test="${not empty lowStockProducts}">
@@ -1024,7 +1024,7 @@
                                             <tr>
                                                 <th>Sản phẩm</th>
                                                 <th>Danh mục</th>
-                                                <th>SL</th>
+                                                <th>Số lượng</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1043,7 +1043,17 @@
                                     </table>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data">�                        <!-- Sản phẩm bán chạy Horizontal Bar -->
+                                    <div class="no-data">✅ No low stock products</div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+
+                    <!-- ══ ROW 4: Top Products + Top Customers + Recent Activities ══ -->
+                    <div class="section-hd"><span class="dot"></span>Bảng xếp hạng &amp; Hoạt động</div>
+                    <div class="grid-3b">
+
+                        <!-- Top Products Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
                                 <div class="chart-card-title" style="margin-bottom:0;">🏆 Sản phẩm bán chạy</div>
@@ -1074,8 +1084,8 @@
                                 </c:otherwise>
                             </c:choose>
                         </div>
-
-                        <!-- Khách hàng tiêu biểu Horizontal Bar -->
+ 
+                        <!-- Top Customers Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
                                 <div class="chart-card-title" style="margin-bottom:0;">👑 Khách hàng tiêu biểu</div>
@@ -1104,25 +1114,16 @@
                             </c:choose>
                         </div>
 
-                        <!-- Hoạt động gần đây — REAL -->
+                        <!-- Recent Activities — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
-                                🕐 Hoạt động gần đây
+                                🕐 Recent Activities
                             </div>
                             <div class="activity-feed">
                                 <c:forEach items="${recentActivities}" var="act">
                                     <div class="activity-item">
                                         <span class="activity-icon">${act[0]}</span>
                                         <span class="activity-text">${act[1]}</span>
-                                        <span class="activity-time">${act[2]}</span>
-                                    </div>
-                                </c:forEach>
-                                <c:if test="${empty recentActivities}">
-                                    <div class="no-data">Không có hoạt động gần đây</div>
-                                </c:if>
-                            </div>
-                        </div>
-                    </div>tivity-text">${act[1]}</span>
                                         <span class="activity-time">${act[2]}</span>
                                     </div>
                                 </c:forEach>
@@ -1360,7 +1361,7 @@
                 document.getElementById('ordersDetailModal').style.display = 'none';
             }
 
-        // ── Sản phẩm bán chạy Horizontal Bar ──────────────────────
+        // ── Top Products Horizontal Bar ──────────────────────
             const tpLabels = [<c:forEach items="${topProducts}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tpValues = [<c:forEach items="${topProducts}" var="e" varStatus="s">${topProductsCriteria == 'revenue' ? e.value / 1000000.0 : e.value}<c:if test="${!s.last}">,</c:if></c:forEach>];
  
@@ -1390,7 +1391,7 @@
                 });
             }
 
-        // ── Khách hàng tiêu biểu Horizontal Bar — REAL DATA ─────────
+        // ── Top Customers Horizontal Bar — REAL DATA ─────────
             const tcLabels = [<c:forEach items="${topCustomers}" var="e" varStatus="s">'${e.key}'<c:if test="${!s.last}">,</c:if></c:forEach>];
             const tcValues = [<c:forEach items="${topCustomers}" var="e" varStatus="s">${e.value / 1000000}<c:if test="${!s.last}">,</c:if></c:forEach>];
 

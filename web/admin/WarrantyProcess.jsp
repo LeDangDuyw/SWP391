@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: WarrantyProcess.jsp
     Mo ta: Trang giao diện nhân viên/admin xử lý các phiếu bảo hành.
     
@@ -25,7 +25,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin – Hệ thống xử lý bảo hành</title>
+        <title>UNILAP Admin – Warranty Console</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -740,7 +740,26 @@
                 padding: 10px;
             }
         </style>
-    </head>
+    
+<style>
+            /* Sidebar dropdown style */
+            .sidebar-dropdown {
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-dropdown-container {
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 4px;
+            }
+            .sidebar nav .sidebar-dropdown-container a {
+                padding: 8px 14px 8px 30px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+            }
+</style>
+</head>
     <body>
     <div class="layout">
 
@@ -748,27 +767,42 @@
         <aside class="sidebar">
             <div class="brand">
                 <span>UNILAP Admin</span>
-                <small>Quản trị hệ thống</small>
+                <small>System Controller</small>
             </div>
                         <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Khuyến mãi & Voucher</a>
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
-                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
+                    
+                    <div class="sidebar-dropdown">
+                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
+                        </a>
+                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <a href="${pageContext.request.contextPath}/admin/promotions">
+                                <span>▥</span>Voucher & Promotion
+                            </a>
+                            <a href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
+                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
-                    <a href="#"><span>⚙</span>Cài đặt</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
+                    <a href="#"><span>⚙</span>Settings</a>
                 </nav>
             <div class="profile">
                 <a href="#" class="profile-link">
                     <span class="nav-icon">●</span>Admin User Profile
                 </a>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">
-                    Đăng xuất
+                    Logout
                 </a>
             </div>
         </aside>
@@ -877,9 +911,9 @@
                                             </td>
                                             <td><span class="badge badge-${claim.status}"><c:out value="${claim.status}"/></span></td>
                                             <td class="date-cell">
-                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="MMM dd,"/>
+                                                <fmt:formatDate value="${claim.createdAt}" pattern="MMM dd,"/>
                                                 <br>
-                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="yyyy"/>
+                                                <fmt:formatDate value="${claim.createdAt}" pattern="yyyy"/>
                                             </td>
                                             <td>
                                                 <a class="claim-id-link"
@@ -955,11 +989,11 @@
                             <%-- Meta --%>
                             <div class="detail-meta">
                                 <div class="meta-group">
-                                    <label>Khách hàng</label>
+                                    <label>Customer</label>
                                     <span><c:out value="${sc.customerName}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Sản phẩm</label>
+                                    <label>Product</label>
                                     <span><c:out value="${sc.productName}"/></span>
                                 </div>
                                 <div class="meta-group">
@@ -968,7 +1002,7 @@
                                 </div>
                                 <div class="meta-group">
                                     <label>Created</label>
-                                    <span><fmt:formatNgày gửi value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
+                                    <span><fmt:formatDate value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
                                 </div>
                             </div>
 
@@ -1009,9 +1043,9 @@
                                             <c:forEach var="h" items="${selectedHistory}">
                                                 <div class="tl-item">
                                                     <div class="tl-dot"></div>
-                                                    <div class="tl-status"><c:out value="${h.repairTrạng thái}"/></div>
+                                                    <div class="tl-status"><c:out value="${h.repairStatus}"/></div>
                                                     <div class="tl-date">
-                                                        <fmt:formatNgày gửi value="${h.repairNgày gửi}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        <fmt:formatDate value="${h.repairDate}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </div>
                                                     <c:if test="${not empty h.repairNote}">
                                                         <div class="tl-note"><c:out value="${h.repairNote}"/></div>
@@ -1033,7 +1067,7 @@
                                 <c:otherwise>
                                     <%--
                                         PENDING → 2 lựa chọn: PROCESSING hoặc CANCELLED
-                                        Mỗi action dùng form riêng với hidden newTrạng thái cứng
+                                        Mỗi action dùng form riêng với hidden newStatus cứng
                                         → không cần onclick overwrite select, không bị race condition
                                     --%>
                                     <c:choose>
@@ -1051,7 +1085,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newTrạng thái"  value="CANCELLED">
+                                                    <input type="hidden" name="newStatus"  value="CANCELLED">
                                                     <input type="hidden" name="note"       id="note-cancel">
                                                     <button type="submit" class="btn-reject"
                                                             onclick="return confirm('Huỷ claim #${sc.claimId}?')">
@@ -1064,7 +1098,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newTrạng thái"  value="PROCESSING">
+                                                    <input type="hidden" name="newStatus"  value="PROCESSING">
                                                     <input type="hidden" name="note"       id="note-process">
                                                     <button type="submit" class="btn-approve">
                                                         Accept ✓
@@ -1073,7 +1107,7 @@
                                             </div>
                                         </c:when>
 
-                                        <%-- ── PROCESSING: Approve hoặc Từ chối ── --%>
+                                        <%-- ── PROCESSING: Approve hoặc Reject ── --%>
                                         <c:when test="${sc.status == 'PROCESSING'}">
                                             <c:choose>
                                                 <%-- Chỉ staff được gán mới thấy nút action --%>
@@ -1089,7 +1123,7 @@
                                                             <input type="hidden" name="action"     value="process">
                                                             <input type="hidden" name="id"         value="${sc.claimId}">
                                                             <input type="hidden" name="redirectTo" value="console">
-                                                            <input type="hidden" name="newTrạng thái"  value="REJECTED">
+                                                            <input type="hidden" name="newStatus"  value="REJECTED">
                                                             <input type="hidden" name="note"       id="note-reject">
                                                             <button type="submit" class="btn-reject">Từ chối</button>
                                                         </form>
@@ -1099,7 +1133,7 @@
                                                             <input type="hidden" name="action"     value="process">
                                                             <input type="hidden" name="id"         value="${sc.claimId}">
                                                             <input type="hidden" name="redirectTo" value="console">
-                                                            <input type="hidden" name="newTrạng thái"  value="APPROVED">
+                                                            <input type="hidden" name="newStatus"  value="APPROVED">
                                                             <input type="hidden" name="note"       id="note-approve">
                                                             <button type="submit" class="btn-approve">Duyệt ✓</button>
                                                         </form>
@@ -1153,7 +1187,7 @@
                                                         <input type="hidden" name="action"     value="process">
                                                         <input type="hidden" name="id"         value="${sc.claimId}">
                                                         <input type="hidden" name="redirectTo" value="console">
-                                                        <input type="hidden" name="newTrạng thái"  value="COMPLETED">
+                                                        <input type="hidden" name="newStatus"  value="COMPLETED">
                                                         <label>Staff Note</label>
                                                         <textarea name="note" placeholder="Enter completion note..."></textarea>
                                                         <div style="padding:0 0 14px;">
@@ -1210,6 +1244,20 @@
         </div><%-- end main --%>
 
     </div><!-- end layout -->
-    </body>
+    
+<script>
+            function toggleSidebarDropdown(btn) {
+                const container = btn.nextElementSibling;
+                const arrow = btn.querySelector('.dropdown-arrow');
+                if (container.style.display === 'flex') {
+                    container.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    container.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+</script>
+</body>
 </html>
 
