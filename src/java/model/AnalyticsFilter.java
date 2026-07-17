@@ -4,25 +4,12 @@ package model;
  * Class: AnalyticsFilter
  * Description: Model lưu trữ cấu hình bộ lọc phân tích (Analytics Filter).
  * 
- * Created: 2026-07-09 18:10:23 +0700
- * Updated: 2026-07-09 18:10:23 +0700
- * Version: v1.0
+ * Created: 2026-07-09
+ * Updated: 2026-07-09
+ * Version: v1.2
  *
  * @author DuyLD
  */
-
-
-/**
- * Class: AnalyticsFilter
- * Description: Model lưu trữ cấu hình bộ lọc phân tích (Analytics Filter).
- * 
- * Created: 2026-07-09 18:10:23 +0700
- * Updated: 2026-07-09 18:10:23 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
 
 public class AnalyticsFilter {
     private String fromDate;

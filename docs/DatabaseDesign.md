@@ -193,7 +193,26 @@ Stores defect evidence images uploaded by customers for their warranty claim req
 
 ---
 
-### 1.3.3 Entity-Relationship (ER) Connections
+### 1.3.3 General Store & Footer Policies Table
+
+#### 1.3.3.1 Policy
+Stores general store policies, terms of use, privacy policies, and static information articles displayed in the website footer.
+* PK ~ Primary Key; FK ~ Foreign Key; UN ~ Unique; NN ~ not null
+| No | Field | PK | FK | UN | NN | Description |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| 01 | `policy_id` | x | | x | x | Primary key, auto-incremented unique identifier of the general policy. |
+| 02 | `title` | | | | x | Public title of the policy (e.g. "Shipping Policy"). Max 150 characters. |
+| 03 | `policy_type` | | | x | x | Unique uppercase alphabetic code identifier (e.g. "SHIPPING_POLICY") used for backend routing. |
+| 04 | `content` | | | | x | Detailed rich text HTML content of the policy. |
+| 05 | `status` | | | | x | Policy activity status (1 = Active/Live, 0 = Inactive/Draft). |
+| 06 | `created_at` | | | | x | Timestamp when the policy record was created. |
+| 07 | `updated_at` | | | | x | Timestamp when the policy record was last updated. |
+| 08 | `show_in_footer`| | | | x | Boolean flag deciding if the policy link should be visible in the website footer. |
+| 09 | `footer_order` | | | | x | Integer sorting value defining display sequence under the footer (smaller values display first). |
+
+---
+
+### 1.3.4 Entity-Relationship (ER) Connections
 
 To understand how the new warranty tables integrate with the core system and with each other, see the following key relationships:
 
@@ -216,7 +235,7 @@ To understand how the new warranty tables integrate with the core system and wit
 
 ---
 
-### 1.3.4 Entity-Relationship Diagram (ERD Visual)
+### 1.3.5 Entity-Relationship Diagram (ERD Visual)
 
 Below is the visual diagram illustrating the schema and exact key constraints for the warranty database tables using **Mermaid**:
 
@@ -361,6 +380,17 @@ erDiagram
         int claim_id FK
         string image_url
         datetime uploaded_at
+    }
+    Policy {
+        int policy_id PK
+        string title
+        string policy_type UK
+        string content
+        boolean status
+        datetime created_at
+        datetime updated_at
+        boolean show_in_footer
+        int footer_order
     }
 
     User ||--o{ Order : places

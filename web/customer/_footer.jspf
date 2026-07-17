@@ -15,25 +15,25 @@
     java.util.List<java.util.Map<String, String>> socialLinks = new java.util.ArrayList<>();
     
     java.util.Map<String, String> fb = new java.util.HashMap<>();
-    fb.put("class", "social-icon-fb");
+    fb.put("cssClass", "social-icon-fb");
     fb.put("icon", "fab fa-facebook-f");
     fb.put("url", "#");
     socialLinks.add(fb);
 
     java.util.Map<String, String> yt = new java.util.HashMap<>();
-    yt.put("class", "social-icon-yt");
+    yt.put("cssClass", "social-icon-yt");
     yt.put("icon", "fab fa-youtube");
     yt.put("url", "#");
     socialLinks.add(yt);
 
     java.util.Map<String, String> ig = new java.util.HashMap<>();
-    ig.put("class", "social-icon-ig");
+    ig.put("cssClass", "social-icon-ig");
     ig.put("icon", "fab fa-instagram");
     ig.put("url", "#");
     socialLinks.add(ig);
 
     java.util.Map<String, String> tt = new java.util.HashMap<>();
-    tt.put("class", "social-icon-tt");
+    tt.put("cssClass", "social-icon-tt");
     tt.put("icon", "fab fa-tiktok");
     tt.put("url", "#");
     socialLinks.add(tt);
@@ -53,7 +53,7 @@
             </div>
             <div class="social-icons">
                 <c:forEach var="social" items="${socialLinks}">
-                    <a href="${social.url}" class="${social['class']}"><i class="${social.icon}"></i></a>
+                    <a href="${social.url}" class="${social.cssClass}"><i class="${social.icon}"></i></a>
                 </c:forEach>
             </div>
         </div>

@@ -4,21 +4,9 @@ package model;
  * Class: WarrantyPolicy
  * Description: Model lưu trữ thông tin về một chính sách bảo hành (Warranty Policy).
  * 
- * Created: 2026-05-29 19:55:59 +0700
- * Updated: 2026-06-22 21:12:34 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
-
-/**
- * Class: WarrantyPolicy
- * Description: Model lưu trữ thông tin về một chính sách bảo hành (Warranty Policy).
- * 
- * Created: 2026-05-29 19:55:59 +0700
- * Updated: 2026-06-22 21:12:34 +0700
- * Version: v1.0
+ * Created: 2026-05-29
+ * Updated: 2026-06-22
+ * Version: v1.5
  *
  * @author DuyLD
  */

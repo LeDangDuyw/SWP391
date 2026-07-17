@@ -4,21 +4,9 @@ package controller;
  * Class: WarrantyController
  * Description: Controller tiếp nhận các yêu cầu bảo hành từ khách hàng và nhân viên.
  * 
- * Created: 2026-06-22 21:12:34 +0700
- * Updated: 2026-07-11 23:28:45 +0700
- * Version: v1.0
- *
- * @author DuyLD
- */
-
-
-/**
- * Class: WarrantyController
- * Description: Controller tiếp nhận các yêu cầu bảo hành từ khách hàng và nhân viên.
- * 
- * Created: 2026-06-22 21:12:34 +0700
- * Updated: 2026-07-11 23:28:45 +0700
- * Version: v1.0
+ * Created: 2026-06-22
+ * Updated: 2026-07-11
+ * Version: v1.3
  *
  * @author DuyLD
  */
@@ -39,7 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import utils.ValidationException;
-
 
 @WebServlet("/warranty")
 @MultipartConfig(
@@ -67,8 +54,6 @@ public class WarrantyController extends HttpServlet {
 
         Users user = getUser(request);
         // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
             return;
@@ -76,14 +61,10 @@ public class WarrantyController extends HttpServlet {
 
         String action = request.getParameter("action");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (action == null) {
             action = "list";
         }
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (user.getRoleId() == 2) {
             response.sendRedirect(request.getContextPath() + "/staff/warranty?action=" + action
@@ -92,8 +73,6 @@ public class WarrantyController extends HttpServlet {
             return;
         }
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             switch (action) {
@@ -110,13 +89,9 @@ public class WarrantyController extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/warranty?action=list");
             }
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (ValidationException e) {
             request.setAttribute("errorMessage", e.getMessage());
             forwardToList(request, response, user);
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException("Lỗi xử lý Warranty module.", e);
@@ -131,8 +106,6 @@ public class WarrantyController extends HttpServlet {
 
         Users user = getUser(request);
         // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
             return;
@@ -140,22 +113,16 @@ public class WarrantyController extends HttpServlet {
 
         String action = request.getParameter("action");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (action == null) {
             action = "";
         }
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (user.getRoleId() == 2) {
             response.sendRedirect(request.getContextPath() + "/staff/warranty?action=list");
             return;
         }
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             switch (action) {
@@ -168,11 +135,12 @@ public class WarrantyController extends HttpServlet {
                 case "process":
                     handleProcess(request, response, user);
                     break;
+                case "takeOver":
+                    handleTakeOver(request, response, user);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/warranty?action=list");
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (ValidationException e) {
             request.setAttribute("errorMessage", e.getMessage());
@@ -182,11 +150,7 @@ public class WarrantyController extends HttpServlet {
                     ? request.getParameter("selectedId")
                     : request.getParameter("id");
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
-                // Kiểm tra điều kiện
-                // Kiểm tra điều kiện
                 // Kiểm tra điều kiện
                 if (isCustomer(user)) {
                     loadCustomerClaims(request, user);
@@ -196,15 +160,11 @@ public class WarrantyController extends HttpServlet {
                     request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
                 }
             // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception loadEx) {
                 // Nếu load data cũng fail thì throw ServletException thật sự,
                 // không nuốt lỗi khiến trang render trắng không rõ nguyên nhân
                 throw new ServletException("Lỗi tải dữ liệu sau khi xử lý validation error.", loadEx);
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (IllegalStateException e) {
             // Request multipart vượt quá maxRequestSize/maxFileSize khai báo ở
@@ -212,11 +172,7 @@ public class WarrantyController extends HttpServlet {
             request.setAttribute("errorMessage",
                     "Dung lượng ảnh tải lên vượt quá giới hạn cho phép (tối đa 5 ảnh, mỗi ảnh 5MB).");
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
-                // Kiểm tra điều kiện
-                // Kiểm tra điều kiện
                 // Kiểm tra điều kiện
                 if (isCustomer(user)) {
                     loadCustomerClaims(request, user);
@@ -226,13 +182,9 @@ public class WarrantyController extends HttpServlet {
                     request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
                 }
             // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception loadEx) {
                 throw new ServletException("Lỗi tải dữ liệu sau khi xử lý lỗi upload ảnh.", loadEx);
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException("Lỗi xử lý Warranty module.", e);
@@ -247,8 +199,6 @@ public class WarrantyController extends HttpServlet {
     private void handleList(HttpServletRequest request, HttpServletResponse response, Users user)
             throws Exception, ServletException, IOException {
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (isCustomer(user)) {
             loadCustomerClaims(request, user);
@@ -276,8 +226,6 @@ public class WarrantyController extends HttpServlet {
 
         // check quyền customer
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (isCustomer(user) && claim != null && claim.getCustomerId() != user.getUserId()) {
             throw new ValidationException("Bạn không có quyền xem yêu cầu này.");
         }
@@ -286,8 +234,6 @@ public class WarrantyController extends HttpServlet {
         request.setAttribute("selectedHistory", warrantyService.getHistory(claimId));
         request.setAttribute("selectedImages", warrantyService.getClaimImages(claimId));
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (isCustomer(user)) {
             request.getRequestDispatcher("/customer/warranty_detail.jsp")
@@ -309,11 +255,7 @@ public class WarrantyController extends HttpServlet {
         String serial = request.getParameter("serialNumber");
 
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (serial != null) {
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (serial.trim().isEmpty()) {
                 request.setAttribute("eligibilityResult", "INVALID");
@@ -321,15 +263,11 @@ public class WarrantyController extends HttpServlet {
             } else {
                 serial = serial.trim();
                 // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try {
                     model.WarrantyEligibilityInfo info = warrantyService.checkEligibility(serial, user.getUserId());
                     request.setAttribute("eligibilityResult", "VALID");
                     // Dữ liệu cho Step 2 (Warranty Information) của wizard Submit Claim
                     request.setAttribute("eligibilityInfo", info);
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 // Bắt và xử lý ngoại lệ xảy ra trong khối try
                 } catch (ValidationException e) {
                     // Bắt lỗi tại đây để hiển thị đúng eligibilityMessage,
@@ -364,19 +302,13 @@ public class WarrantyController extends HttpServlet {
         // browser gửi nhiều Part cùng tên trong 1 request multipart/form-data.
         List<Part> imageParts = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             for (Part part : request.getParts()) {
-                // Kiểm tra điều kiện
-                // Kiểm tra điều kiện
                 // Kiểm tra điều kiện
                 if ("images".equals(part.getName())) {
                     imageParts.add(part);
                 }
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (IllegalStateException e) {
             // Container ném lỗi này khi 1 file hoặc cả request vượt giới hạn
@@ -403,8 +335,6 @@ public class WarrantyController extends HttpServlet {
 
         // Redirect về đúng trang theo role
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (isCustomer(user)) {
             response.sendRedirect(request.getContextPath()
                     + "/warranty?action=list&msg=cancelled");
@@ -422,8 +352,6 @@ public class WarrantyController extends HttpServlet {
 
         // Chỉ Staff (roleId=2) và Admin (roleId=1) được phép xử lý claim
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (isCustomer(user)) {
             throw new ValidationException("Bạn không có quyền thực hiện thao tác này.");
         }
@@ -432,8 +360,6 @@ public class WarrantyController extends HttpServlet {
         String newStatus = request.getParameter("newStatus");
         String note = request.getParameter("note");
 
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (newStatus == null || newStatus.trim().isEmpty()) {
             throw new ValidationException("Trạng thái mới không được để trống.");
@@ -444,8 +370,6 @@ public class WarrantyController extends HttpServlet {
         // Nếu POST từ console thì redirect về console, giữ claim đang chọn
         String redirectTo = request.getParameter("redirectTo");
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if ("console".equals(redirectTo)) {
             response.sendRedirect(request.getContextPath()
                     + "/warranty?action=list&selectedId=" + claimId + "&msg=updated");
@@ -453,6 +377,37 @@ public class WarrantyController extends HttpServlet {
             response.sendRedirect(request.getContextPath()
                     + "/warranty?action=detail&id=" + claimId + "&msg=updated");
         }
+    }
+
+    /**
+     * POST takeOver: Admin tiếp nhận (Take Over) hoặc gán lại (Reassign) claim cho staff khác.
+     * Chỉ Admin (roleId == 1) mới được gọi action này.
+     */
+    private void handleTakeOver(HttpServletRequest request, HttpServletResponse response, Users user)
+            throws ValidationException, Exception, IOException {
+
+        // Chỉ Admin mới được phép take over / reassign
+        if (user.getRoleId() != 1) {
+            throw new ValidationException("Chỉ Admin mới có quyền thực hiện thao tác này.");
+        }
+
+        int claimId = parseId(request.getParameter("id"));
+        String newStaffIdParam = request.getParameter("newStaffId");
+        String note = request.getParameter("note");
+
+        // Nếu không chọn staff cụ thể (hoặc chọn -1), tự gán cho Admin hiện tại (Take Over)
+        int newStaffId;
+        try {
+            newStaffId = Integer.parseInt(newStaffIdParam);
+            if (newStaffId <= 0) newStaffId = user.getUserId();
+        } catch (Exception e) {
+            newStaffId = user.getUserId();
+        }
+
+        warrantyService.takeOverClaim(claimId, newStaffId, note);
+
+        response.sendRedirect(request.getContextPath()
+                + "/warranty?action=list&selectedId=" + claimId + "&msg=takeover");
     }
 
     /**
@@ -484,8 +439,6 @@ public class WarrantyController extends HttpServlet {
         int total;
 
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (keyword != null && !keyword.trim().isEmpty()) {
             claims = warrantyService.searchClaims(keyword.trim(), offset, PAGE_SIZE);
             total = warrantyService.countSearch(keyword.trim());
@@ -506,13 +459,16 @@ public class WarrantyController extends HttpServlet {
         request.setAttribute("page", page);
         request.setAttribute("totalPages", totalPages);
 
+        // Load staff list để Admin có dropdown Reassign
+        try {
+            request.setAttribute("staffList", warrantyService.getStaffList());
+        } catch (Exception ignored) {
+            // Nếu query thất bại thì dropdown rỗng, không ảnh hưởng luồng chính
+        }
+
         // Load selected claim vào detail panel
         // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
-        // Kiểm tra điều kiện
         if (selectedIdParam != null && !selectedIdParam.isEmpty()) {
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
                 int selectedId = Integer.parseInt(selectedIdParam);
@@ -520,8 +476,6 @@ public class WarrantyController extends HttpServlet {
                 request.setAttribute("selectedClaim", selectedClaim);
                 request.setAttribute("selectedHistory", warrantyService.getHistory(selectedId));
                 request.setAttribute("selectedImages", warrantyService.getClaimImages(selectedId));
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception ignored) {
                 // Nếu ID không hợp lệ thì bỏ qua, detail panel hiện trống
@@ -535,11 +489,7 @@ public class WarrantyController extends HttpServlet {
     private void forwardToList(HttpServletRequest request, HttpServletResponse response, Users user)
             throws ServletException, IOException {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
-            // Kiểm tra điều kiện
-            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (isCustomer(user)) {
                 loadCustomerClaims(request, user);
@@ -548,8 +498,6 @@ public class WarrantyController extends HttpServlet {
                 loadConsoleClaims(request, null);
                 request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ServletException(e);
@@ -567,13 +515,9 @@ public class WarrantyController extends HttpServlet {
 
     private int parsePage(String param) {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             int p = Integer.parseInt(param);
             return p > 0 ? p : 1;
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             return 1;
@@ -582,12 +526,8 @@ public class WarrantyController extends HttpServlet {
 
     private int parseId(String param) throws ValidationException {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
             return Integer.parseInt(param);
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             throw new ValidationException("ID không hợp lệ: " + param);

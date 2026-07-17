@@ -25,7 +25,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin – Warranty Console</title>
+        <title>UNILAP Admin – Hệ thống xử lý bảo hành</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -748,27 +748,27 @@
         <aside class="sidebar">
             <div class="brand">
                 <span>UNILAP Admin</span>
-                <small>System Controller</small>
+                <small>Quản trị hệ thống</small>
             </div>
                         <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Khuyến mãi & Voucher</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
+                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
+                    <a href="#"><span>⚙</span>Cài đặt</a>
                 </nav>
             <div class="profile">
                 <a href="#" class="profile-link">
                     <span class="nav-icon">●</span>Admin User Profile
                 </a>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">
-                    Logout
+                    Đăng xuất
                 </a>
             </div>
         </aside>
@@ -778,14 +778,14 @@
 
             <!-- Topbar -->
             <div class="topbar">
-                <span class="topbar-title">Warranty Console</span>
+                <span class="topbar-title">Hệ thống xử lý bảo hành</span>
                 <form method="get" action="${pageContext.request.contextPath}/warranty" class="search-box">
                     <input type="hidden" name="action" value="list">
                     <input type="hidden" name="selectedId" value="${selectedClaim.claimId}">
                     <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" name="keyword" value="${keyword}" placeholder="Search claims...">
+                    <input type="text" name="keyword" value="${keyword}" placeholder="Tìm kiếm yêu cầu...">
                 </form>
                 <div class="topbar-right">
                     <button class="icon-btn" title="Notifications">🔔</button>
@@ -798,6 +798,7 @@
                     <c:choose>
                         <c:when test="${param.msg == 'updated'}">✅ Trạng thái claim đã được cập nhật thành công.</c:when>
                         <c:when test="${param.msg == 'cancelled'}">🗑️ Claim đã được huỷ.</c:when>
+                        <c:when test="${param.msg == 'takeover'}">🔁 Chuyển giao/tiếp nhận yêu cầu thành công.</c:when>
                     </c:choose>
                 </div>
             </c:if>
@@ -812,8 +813,8 @@
                 <div class="claims-panel">
                     <div class="panel-header">
                         <div class="panel-header-left">
-                            <h2>Active Claims</h2>
-                            <p>Total: ${total} warranty requests</p>
+                            <h2>Yêu cầu bảo hành đang hoạt động</h2>
+                            <p>Tổng số: ${total} yêu cầu bảo hành</p>
                         </div>
                         <div class="panel-header-actions">
                             <%-- Filter dropdown --%>
@@ -824,7 +825,7 @@
                                 <select name="statusFilter" onchange="this.form.submit()"
                                         style="border:1px solid #d1d5db;border-radius:7px;
                                         padding:6px 10px;font-size:12.5px;color:#374151;">
-                                    <option value="">All Statuses</option>
+                                    <option value="">Tất cả trạng thái</option>
                                     <c:forEach var="s" items="${['PENDING','PROCESSING','APPROVED','REJECTED','COMPLETED','CANCELLED']}">
                                         <option value="${s}" ${statusFilter == s ? 'selected' : ''}>${s}</option>
                                     </c:forEach>
@@ -845,18 +846,18 @@
                     <table class="claims-table">
                         <thead>
                             <tr>
-                                <th>Claim ID</th>
-                                <th>Customer</th>
-                                <th>Product</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th>Mã yêu cầu</th>
+                                <th>Khách hàng</th>
+                                <th>Sản phẩm</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày gửi</th>
                                 <th>Detail</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:choose>
                                 <c:when test="${empty claims}">
-                                    <tr><td colspan="6" class="no-data">No warranty claims found.</td></tr>
+                                    <tr><td colspan="6" class="no-data">Không tìm thấy yêu cầu bảo hành nào.</td></tr>
                                 </c:when>
                                 <c:otherwise>
                                     <c:forEach var="claim" items="${claims}">
@@ -876,9 +877,9 @@
                                             </td>
                                             <td><span class="badge badge-${claim.status}"><c:out value="${claim.status}"/></span></td>
                                             <td class="date-cell">
-                                                <fmt:formatDate value="${claim.createdAt}" pattern="MMM dd,"/>
+                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="MMM dd,"/>
                                                 <br>
-                                                <fmt:formatDate value="${claim.createdAt}" pattern="yyyy"/>
+                                                <fmt:formatNgày gửi value="${claim.createdAt}" pattern="yyyy"/>
                                             </td>
                                             <td>
                                                 <a class="claim-id-link"
@@ -934,7 +935,7 @@
                         <c:when test="${empty selectedClaim}">
                             <div class="detail-empty">
                                 <span style="font-size:28px;">👈</span>
-                                <span>Select a claim from the table to view details and take action.</span>
+                                <span>Chọn một yêu cầu từ bảng để xem chi tiết và thực hiện xử lý.</span>
                             </div>
                         </c:when>
 
@@ -954,11 +955,11 @@
                             <%-- Meta --%>
                             <div class="detail-meta">
                                 <div class="meta-group">
-                                    <label>Customer</label>
+                                    <label>Khách hàng</label>
                                     <span><c:out value="${sc.customerName}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Product</label>
+                                    <label>Sản phẩm</label>
                                     <span><c:out value="${sc.productName}"/></span>
                                 </div>
                                 <div class="meta-group">
@@ -967,7 +968,7 @@
                                 </div>
                                 <div class="meta-group">
                                     <label>Created</label>
-                                    <span><fmt:formatDate value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
+                                    <span><fmt:formatNgày gửi value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
                                 </div>
                             </div>
 
@@ -1008,9 +1009,9 @@
                                             <c:forEach var="h" items="${selectedHistory}">
                                                 <div class="tl-item">
                                                     <div class="tl-dot"></div>
-                                                    <div class="tl-status"><c:out value="${h.repairStatus}"/></div>
+                                                    <div class="tl-status"><c:out value="${h.repairTrạng thái}"/></div>
                                                     <div class="tl-date">
-                                                        <fmt:formatDate value="${h.repairDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        <fmt:formatNgày gửi value="${h.repairNgày gửi}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </div>
                                                     <c:if test="${not empty h.repairNote}">
                                                         <div class="tl-note"><c:out value="${h.repairNote}"/></div>
@@ -1032,7 +1033,7 @@
                                 <c:otherwise>
                                     <%--
                                         PENDING → 2 lựa chọn: PROCESSING hoặc CANCELLED
-                                        Mỗi action dùng form riêng với hidden newStatus cứng
+                                        Mỗi action dùng form riêng với hidden newTrạng thái cứng
                                         → không cần onclick overwrite select, không bị race condition
                                     --%>
                                     <c:choose>
@@ -1050,7 +1051,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="CANCELLED">
+                                                    <input type="hidden" name="newTrạng thái"  value="CANCELLED">
                                                     <input type="hidden" name="note"       id="note-cancel">
                                                     <button type="submit" class="btn-reject"
                                                             onclick="return confirm('Huỷ claim #${sc.claimId}?')">
@@ -1063,7 +1064,7 @@
                                                     <input type="hidden" name="action"     value="process">
                                                     <input type="hidden" name="id"         value="${sc.claimId}">
                                                     <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="PROCESSING">
+                                                    <input type="hidden" name="newTrạng thái"  value="PROCESSING">
                                                     <input type="hidden" name="note"       id="note-process">
                                                     <button type="submit" class="btn-approve">
                                                         Accept ✓
@@ -1072,50 +1073,128 @@
                                             </div>
                                         </c:when>
 
-                                        <%-- ── PROCESSING: Approve hoặc Reject ── --%>
+                                        <%-- ── PROCESSING: Approve hoặc Từ chối ── --%>
                                         <c:when test="${sc.status == 'PROCESSING'}">
-                                            <div class="process-form">
-                                                <label>Staff Note</label>
-                                                <textarea id="note-processing" placeholder="Enter note or reason..."></textarea>
-                                            </div>
-                                            <div class="detail-actions">
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
-                                                      style="display:contents"
-                                                      onsubmit="document.getElementById('note-reject').value = document.getElementById('note-processing').value">
-                                                    <input type="hidden" name="action"     value="process">
-                                                    <input type="hidden" name="id"         value="${sc.claimId}">
-                                                    <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="REJECTED">
-                                                    <input type="hidden" name="note"       id="note-reject">
-                                                    <button type="submit" class="btn-reject">Reject</button>
-                                                </form>
-                                                <form method="post" action="${pageContext.request.contextPath}/warranty"
-                                                      style="display:contents"
-                                                      onsubmit="document.getElementById('note-approve').value = document.getElementById('note-processing').value">
-                                                    <input type="hidden" name="action"     value="process">
-                                                    <input type="hidden" name="id"         value="${sc.claimId}">
-                                                    <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="APPROVED">
-                                                    <input type="hidden" name="note"       id="note-approve">
-                                                    <button type="submit" class="btn-approve">Approve ✓</button>
-                                                </form>
-                                            </div>
+                                            <c:choose>
+                                                <%-- Chỉ staff được gán mới thấy nút action --%>
+                                                <c:when test="${sc.staffId == sessionScope.user.userId}">
+                                                    <div class="process-form">
+                                                        <label>Staff Note</label>
+                                                        <textarea id="note-processing" placeholder="Enter note or reason..."></textarea>
+                                                    </div>
+                                                    <div class="detail-actions">
+                                                        <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                              style="display:contents"
+                                                              onsubmit="document.getElementById('note-reject').value = document.getElementById('note-processing').value">
+                                                            <input type="hidden" name="action"     value="process">
+                                                            <input type="hidden" name="id"         value="${sc.claimId}">
+                                                            <input type="hidden" name="redirectTo" value="console">
+                                                            <input type="hidden" name="newTrạng thái"  value="REJECTED">
+                                                            <input type="hidden" name="note"       id="note-reject">
+                                                            <button type="submit" class="btn-reject">Từ chối</button>
+                                                        </form>
+                                                        <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                              style="display:contents"
+                                                              onsubmit="document.getElementById('note-approve').value = document.getElementById('note-processing').value">
+                                                            <input type="hidden" name="action"     value="process">
+                                                            <input type="hidden" name="id"         value="${sc.claimId}">
+                                                            <input type="hidden" name="redirectTo" value="console">
+                                                            <input type="hidden" name="newTrạng thái"  value="APPROVED">
+                                                            <input type="hidden" name="note"       id="note-approve">
+                                                            <button type="submit" class="btn-approve">Duyệt ✓</button>
+                                                        </form>
+                                                    </div>
+                                                </c:when>
+                                                <%-- Staff khác hoặc Admin chưa take over --%>
+                                                <c:otherwise>
+                                                    <c:choose>
+                                                        <%-- Admin: hiển form Take Over / Reassign --%>
+                                                        <c:when test="${sessionScope.user.roleId == 1}">
+                                                            <div class="process-form" style="border-left:3px solid #f59e0b;padding-left:12px;">
+                                                                <div style="font-weight:600;color:#92400e;margin-bottom:8px;">&#9888;&#65039; Yêu cầu đang được xử lý bởi nhân viên khác</div>
+                                                                <form method="post" action="${pageContext.request.contextPath}/warranty">
+                                                                    <input type="hidden" name="action" value="takeOver">
+                                                                    <input type="hidden" name="id"     value="${sc.claimId}">
+                                                                    <label style="display:block;margin-bottom:4px;font-size:12px;">Reassign cho nhân viên (bỏ trống = tự tiếp nhận)</label>
+                                                                    <select name="newStaffId" style="width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:8px;font-size:13px;">
+                                                                        <option value="-1">&#127894; Take Over (gán cho tôi)</option>
+                                                                        <c:forEach var="s" items="${staffList}">
+                                                                            <option value="${s.userId}">${s.userName}</option>
+                                                                        </c:forEach>
+                                                                    </select>
+                                                                    <label style="display:block;margin-bottom:4px;font-size:12px;">Ghi chú lý do chuyển giao</label>
+                                                                    <textarea name="note" placeholder="Nhập lý do (tùy chọn)..." style="width:100%;height:60px;resize:vertical;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:13px;"></textarea>
+                                                                    <div style="padding:8px 0 0;">
+                                                                        <button type="submit" class="btn-approve" style="width:100%;" onclick="return confirm('Xác nhận chuyển giao yêu cầu #${sc.claimId}?')">
+                                                                            &#128257; Xác nhận Take Over / Reassign
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </c:when>
+                                                        <%-- Staff thường: chỉ thấy cảnh báo --%>
+                                                        <c:otherwise>
+                                                            <div class="terminal-closed" style="color:#d97706;background:#fffbeb;border-color:#fde68a;">
+                                                                &#9888;&#65039; Yêu cầu này đang được xử lý bởi nhân viên khác. Bạn không có quyền thực hiện hành động này.
+                                                            </div>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </c:when>
 
                                         <%-- ── APPROVED: Complete ── --%>
                                         <c:when test="${sc.status == 'APPROVED'}">
-                                            <form method="post" action="${pageContext.request.contextPath}/warranty"
-                                                  class="process-form">
-                                                <input type="hidden" name="action"     value="process">
-                                                <input type="hidden" name="id"         value="${sc.claimId}">
-                                                <input type="hidden" name="redirectTo" value="console">
-                                                <input type="hidden" name="newStatus"  value="COMPLETED">
-                                                <label>Staff Note</label>
-                                                <textarea name="note" placeholder="Enter completion note..."></textarea>
-                                                <div style="padding:0 0 14px;">
-                                                    <button type="submit" class="btn-full">Mark as Completed</button>
-                                                </div>
-                                            </form>
+                                            <c:choose>
+                                                <%-- Chỉ staff được gán mới thấy nút Complete --%>
+                                                <c:when test="${sc.staffId == sessionScope.user.userId}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/warranty"
+                                                          class="process-form">
+                                                        <input type="hidden" name="action"     value="process">
+                                                        <input type="hidden" name="id"         value="${sc.claimId}">
+                                                        <input type="hidden" name="redirectTo" value="console">
+                                                        <input type="hidden" name="newTrạng thái"  value="COMPLETED">
+                                                        <label>Staff Note</label>
+                                                        <textarea name="note" placeholder="Enter completion note..."></textarea>
+                                                        <div style="padding:0 0 14px;">
+                                                            <button type="submit" class="btn-full">Đánh dấu hoàn thành</button>
+                                                        </div>
+                                                    </form>
+                                                </c:when>
+                                                <%-- Admin: Take Over / Reassign; Staff khác: chỉ đọc --%>
+                                                <c:otherwise>
+                                                    <c:choose>
+                                                        <c:when test="${sessionScope.user.roleId == 1}">
+                                                            <div class="process-form" style="border-left:3px solid #f59e0b;padding-left:12px;">
+                                                                <div style="font-weight:600;color:#92400e;margin-bottom:8px;">&#9888;&#65039; Yêu cầu đang được xử lý bởi nhân viên khác</div>
+                                                                <form method="post" action="${pageContext.request.contextPath}/warranty">
+                                                                    <input type="hidden" name="action" value="takeOver">
+                                                                    <input type="hidden" name="id"     value="${sc.claimId}">
+                                                                    <label style="display:block;margin-bottom:4px;font-size:12px;">Reassign cho nhân viên (bỏ trống = tự tiếp nhận)</label>
+                                                                    <select name="newStaffId" style="width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:8px;font-size:13px;">
+                                                                        <option value="-1">&#127894; Take Over (gán cho tôi)</option>
+                                                                        <c:forEach var="s" items="${staffList}">
+                                                                            <option value="${s.userId}">${s.userName}</option>
+                                                                        </c:forEach>
+                                                                    </select>
+                                                                    <label style="display:block;margin-bottom:4px;font-size:12px;">Ghi chú lý do</label>
+                                                                    <textarea name="note" placeholder="Nhập lý do (tùy chọn)..." style="width:100%;height:60px;resize:vertical;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:13px;"></textarea>
+                                                                    <div style="padding:8px 0 0;">
+                                                                        <button type="submit" class="btn-approve" style="width:100%;" onclick="return confirm('Xác nhận chuyển giao yêu cầu #${sc.claimId}?')">
+                                                                            &#128257; Xác nhận Take Over / Reassign
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="terminal-closed" style="color:#d97706;background:#fffbeb;border-color:#fde68a;">
+                                                                &#9888;&#65039; Yêu cầu này đang được xử lý bởi nhân viên khác. Bạn không có quyền thực hiện hành động này.
+                                                            </div>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </c:when>
 
                                     </c:choose>
