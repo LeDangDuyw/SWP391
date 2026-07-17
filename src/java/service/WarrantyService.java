@@ -487,7 +487,7 @@ public class WarrantyService {
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành.");
         }
-        // BR18 / UC27 EF2: chỉ 1 active claim (PENDING/PROCESSING/APPROVED)
+        // BR18 / UC27 E2: chỉ 1 active claim (PENDING/PROCESSING/APPROVED)
         // cho mỗi serial. Step 1 của wizard phải chặn ở đây, không để khách
         // điền hết Step 3 rồi mới bị từ chối ở submit.
         // Kiểm tra điều kiện

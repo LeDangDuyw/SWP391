@@ -8,48 +8,47 @@ All specifications are written at the **User Requirements Level** (goal-oriented
 ---
 
 ## TABLE OF CONTENTS
-1. [UC27 – Submit Warranty Request](#uc27--submit-warranty-request)
+1. [UC27 – Handle Warranty Request](#uc27--handle-warranty-request)
 2. [UC28 – Track Warranty Status](#uc28--track-warranty-status)
-3. [UC31 – Process Warranty Claim](#uc31--process-warranty-claim)
-4. [UC48.1 — View & Search Warranty Policy List](#uc481--view--search-warranty-policy-list)
-5. [UC48.2 — View Warranty Policy Details & History](#uc482--view-warranty-policy-details--history)
-6. [UC48.3 — Create Warranty Policy](#uc483--create-warranty-policy)
-7. [UC48.4 — Update Warranty Policy](#uc484--update-warranty-policy)
-8. [UC48.5 — Delete Warranty Policy](#uc485--delete-warranty-policy)
-9. [UC48.6 — Change Warranty Policy Status](#uc486--change-warranty-policy-status)
-10. [UC49 – View Advanced Analytics](#uc49--view-advanced-analytics)
-11. [UC50 – View System Dashboard](#uc50--view-system-dashboard)
-12. [UC51 – Display Footer Policy](#uc51--display-footer-policy)
-13. [UC52.1 – View & Search Footer Policy List](#uc521--view--search-footer-policy-list)
-14. [UC52.2 – View Footer Policy Details](#uc522--view-footer-policy-details)
-15. [UC52.3 – Create Footer Policy](#uc523--create-footer-policy)
-16. [UC52.4 – Update Footer Policy Content](#uc524--update-footer-policy-content)
-17. [UC52.5 – Update Footer Display Settings](#uc525--update-footer-display-settings)
-18. [UC52.6 – Delete Footer Policy](#uc526--delete-footer-policy)
+3. [UC48.1 — View & Search Warranty Policy List](#uc481--view--search-warranty-policy-list)
+4. [UC48.2 — View Warranty Policy Details & History](#uc482--view-warranty-policy-details--history)
+5. [UC48.3 — Create Warranty Policy](#uc483--create-warranty-policy)
+6. [UC48.4 — Update Warranty Policy](#uc484--update-warranty-policy)
+7. [UC48.5 — Delete Warranty Policy](#uc485--delete-warranty-policy)
+8. [UC48.6 — Change Warranty Policy Status](#uc486--change-warranty-policy-status)
+9. [UC49 – View Advanced Analytics](#uc49--view-advanced-analytics)
+10. [UC50 – View System Dashboard](#uc50--view-system-dashboard)
+11. [UC51 – Display Footer Policy](#uc51--display-footer-policy)
+12. [UC52.1 – View & Search Footer Policy List](#uc521--view--search-footer-policy-list)
+13. [UC52.2 – View Footer Policy Details](#uc522--view-footer-policy-details)
+14. [UC52.3 – Create Footer Policy](#uc523--create-footer-policy)
+15. [UC52.4 – Update Footer Policy Content](#uc524--update-footer-policy-content)
+16. [UC52.5 – Update Footer Display Settings](#uc525--update-footer-display-settings)
+17. [UC52.6 – Delete Footer Policy](#uc526--delete-footer-policy)
 
 ---
 
-## UC27 – Submit Warranty Request
+## UC27 – Handle Warranty Request
 
 | Field | Description |
 | :--- | :--- |
-| **ID and Name:** | UC27 Submit Warranty Request |
-| **Created By:** | DuyLD |
-| **Date Created:** | 2026-06-07 (Updated: 2026-07-12) |
-| **Primary Actor:** | Customer |
+| **ID and Name:** | UC27 Handle Warranty Request |
+| **Created By:** | DuyLD (Combined and updated by Antigravity) |
+| **Date Created:** | 2026-06-07 (Updated: 2026-07-16) |
+| **Primary Actor:** | Customer, Staff/Admin |
 | **Secondary Actors:** | None |
-| **Description:** | This use case allows a Customer to submit a warranty claim for a purchased product by selecting the product from their purchase history (or entering its serial number) and describing the defect, with optional supporting images. |
-| **Trigger:** | The Customer selects "Submit Warranty Request" from the Warranty Center. |
-| **Preconditions:** | **PRE-1.** The Customer is authenticated and holds an active session.<br>**PRE-2.** The Customer has at least one completed order containing a product with a registered serial number. |
-| **Postconditions:** | **POST-1.** A new warranty claim is created with the status `PENDING`.<br>**POST-2.** The submission event is recorded in the warranty history log. |
-| **Normal Flow:** | **27.0 Submit Warranty Request**<br>1. Customer navigates to the Warranty Center.<br>2. System retrieves and lists all products purchased by the Customer from completed orders.<br>3. Customer selects a product from the list, or enters the serial number directly.<br>4. System verifies the product's eligibility for warranty.<br>5. System displays the product's warranty status and active policy information.<br>6. Customer enters a title for the defect and describes the issue in detail.<br>7. Customer optionally uploads up to five supporting images.<br>8. Customer confirms and submits the request.<br>9. System validates all provided information (serial number length, title length, description length, and image format/count/size).<br>10. System creates a new warranty claim record with `PENDING` status.<br>11. System records the creation event in the history log.<br>12. System saves any uploaded images, linking them with the claim.<br>13. System displays a confirmation message. |
-| **Alternative Flows:** | **27.1 Customer Revises Information Before Confirmation** (triggered at Step 8)<br>1. Customer chooses to revise the provided information.<br>2. System allows Customer to update the defect title, description, or images.<br>3. Flow resumes at Step 8. |
-| **Exceptions:** | **27.0.E1 Product Not Eligible** (triggered at Step 4 or Step 9)<br>1. System detects that the serial number does not exist, does not belong to the Customer's completed orders, or is outside its active warranty period.<br>2. System displays a message stating the specific ineligibility reason.<br>3. The submission is blocked. Flow ends.<br><br>**27.0.E2 Duplicate Active Warranty Request** (triggered at Step 4 or Step 9)<br>1. System detects that an active warranty request (`PENDING`, `PROCESSING`, or `APPROVED`) already exists for this serial number.<br>2. System displays a message: *"An active warranty request is already in progress for this product."*<br>3. The submission is blocked. Flow ends. |
+| **Description:** | This use case allows a Customer to submit a warranty request for a purchased product, and allows a Staff/Admin member to process and resolve the submitted claim through its lifecycle (accepting, processing, approving, completing, or rejecting/cancelling). |
+| **Trigger:** | **Customer:** Navigates to the Warranty Center to submit a request.<br>**Staff/Admin:** Navigates to the Warranty Console to process a request. |
+| **Preconditions:** | **PRE-1.** The actor is authenticated.<br>**PRE-2 (Customer).** The Customer has at least one completed order containing a product with a registered serial number.<br>**PRE-3 (Staff/Admin).** The Staff/Admin has warranty processing permissions. |
+| **Postconditions:** | **POST-1.** A new warranty claim is created with the status `PENDING`.<br>**POST-2.** The claim status reflects the Staff/Admin decision: `PROCESSING`, `APPROVED`, `REJECTED`, `COMPLETED`, or `CANCELLED`.<br>**POST-3.** Each status transition and creation event is recorded in the warranty history log. |
+| **Normal Flow:** | **27.0 Handle Warranty Request (Submission to Processing Lifecycle)**<br>1. **Customer** navigates to the Warranty Center.<br>2. System retrieves and lists all products purchased by the Customer from completed orders.<br>3. **Customer** selects a product from the list, or enters the serial number directly.<br>4. System verifies the product's eligibility for warranty (Exception 27.0.E1, Exception 27.0.E2).<br>5. System displays the product's warranty status and active policy information.<br>6. **Customer** enters a title for the defect and describes the issue in detail.<br>7. **Customer** optionally uploads up to five supporting images.<br>8. **Customer** confirms and submits the request (Alternative Flow 27.1).<br>9. System validates all provided details (serial number, title, description, and image format/count/size).<br>10. System creates a new warranty claim record with `PENDING` status.<br>11. System records the creation event in the history log.<br>12. System saves any uploaded images, linking them with the claim.<br>13. System displays a confirmation message.<br>14. **Staff/Admin** requests to view the warranty claims processing queue in the Warranty Console.<br>15. System displays all claims with search, filter, and pagination options.<br>16. **Staff/Admin** selects the submitted claim to review.<br>17. System displays the claim details, uploaded evidence images, and audit history.<br>18. **Staff/Admin** reviews the claim details and evidence.<br>19. **Staff/Admin** confirms to accept the claim for processing.<br>20. System assigns the claim to the current Staff/Admin, verifies that the claim status is still `PENDING` (Exception 27.0.E3), updates the claim status to `PROCESSING`, and records the transition in the audit history log.<br>21. **Staff/Admin** inspects the physical device and provides a resolution decision and notes (Alternative Flows: 27.2 Approve, 27.3 Reject, 27.4 Cancel).<br>22. System updates the claim status and records the final transition and notes in the history log. Flow ends. |
+| **Alternative Flows:** | **27.1 Customer Revises Information Before Confirmation** (triggered at Step 8)<br>1. **Customer** chooses to revise the provided information.<br>2. System allows Customer to update the defect title, description, or images.<br>3. Flow resumes at Step 8.<br><br>**27.2 Staff/Admin Approves Claim** (triggered at Step 21)<br>1. **Staff/Admin** provides approval remarks and confirms the approval decision.<br>2. System updates the claim status from `PROCESSING` to `APPROVED` and records the transition in the audit history log.<br>3. **Staff/Admin** confirms completion of physical warranty service.<br>4. System updates the claim status from `APPROVED` to `COMPLETED` and records the final transition in the audit history log. Flow ends.<br><br>**27.3 Staff/Admin Rejects Claim** (triggered at Step 21)<br>1. **Staff/Admin** provides rejection remarks and confirms the rejection decision.<br>2. System updates the claim status from `PROCESSING` to `REJECTED` and records the transition in the audit history log. Flow ends.<br><br>**27.4 Staff/Admin Cancels Claim** (triggered at Step 21 or directly when status is `PENDING`)<br>1. **Staff/Admin** provides cancellation remarks and confirms the cancellation.<br>2. System updates the claim status to `CANCELLED` and records the transition in the audit history log. Flow ends. |
+| **Exceptions:** | **27.0.E1 Product Not Eligible** (triggered at Step 4 or Step 9)<br>1. System detects that the serial number does not exist, does not belong to the Customer's completed orders, or is outside its active warranty period.<br>2. System displays a message stating the specific ineligibility reason.<br>3. The submission is blocked. Flow ends.<br><br>**27.0.E2 Duplicate Active Warranty Request** (triggered at Step 4 or Step 9)<br>1. System detects that an active warranty request (`PENDING`, `PROCESSING`, or `APPROVED`) already exists for this serial number.<br>2. System displays a message: *"An active warranty request is already in progress for this product."*<br>3. The submission is blocked. Flow ends.<br><br>**27.0.E3 Claim No Longer Available for Processing** (triggered at Step 20)<br>1. System detects that the claim has already been accepted for processing by another Staff/Admin member (the claim status is no longer `PENDING`).<br>2. System notifies Staff/Admin that the claim is no longer available and prompts a page refresh.<br>3. No data modification is committed. Flow ends. |
 | **Priority:** | High |
-| **Frequency of Use:** | Medium — triggered upon product defect occurrence within the warranty period. |
-| **Business Rules:** | **BR-15:** A customer can submit a warranty request only for a product that belongs to their completed order, is linked to an active Warranty Policy, and is still within its warranty period.<br>**BR-16:** Every newly submitted warranty request shall be created with the initial status PENDING.<br>**BR-17:** Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log together with the actor identity, action performed, and timestamp.<br>**BR-Images:** Support up to 5 images, file formats JPEG, PNG, JPG, or WEBP, maximum size 5MB per file.<br>**BR-Length:** Serial number $\le$ 100 characters, title $\le$ 200 characters, description $\le$ 2000 characters. |
+| **Frequency of Use:** | High — triggered upon product defect occurrence and processed by Staff/Admin. |
+| **Business Rules:** | **BR-15:** A customer can submit a warranty request only for a product that belongs to their completed order, is linked to an active Warranty Policy, and is still within its warranty period.<br>**BR-16:** Every newly submitted warranty request shall be created with the initial status PENDING.<br>**BR-17:** Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log together with the actor identity, action performed, and timestamp.<br>**BR-20:** Warranty request status transitions shall strictly follow the workflow: PENDING $\rightarrow$ PROCESSING $\rightarrow$ APPROVED $\rightarrow$ COMPLETED, or PENDING $\rightarrow$ PROCESSING $\rightarrow$ REJECTED. Direct transitions to any other state are not permitted.<br>**BR-21:** Staff shall provide processing remarks when approving, rejecting, or cancelling a warranty request.<br>**BR-22:** Only authorized Staff members are allowed to process warranty requests and update their processing status.<br>**BR-23:** A warranty request cannot be processed simultaneously by multiple Staff members. The system ensures that only one Staff member can process a request at a time.<br>**BR-Images:** Support up to 5 images, file formats JPEG, PNG, JPG, or WEBP, maximum size 5MB per file.<br>**BR-Length:** Serial number $\le$ 100 characters, title $\le$ 200 characters, description $\le$ 2000 characters. |
 | **Other Information:** | None |
-| **Assumptions:** | 1. Product serial numbers and their associated orders are accurately stored in the system at the time of order completion.<br>2. The active warranty policy linked to the product is accessible at claim submission time. |
+| **Assumptions:** | 1. Product serial numbers and their associated orders are accurately stored in the system at the time of order completion.<br>2. The active warranty policy linked to the product is accessible at claim submission/processing time.<br>3. The system applies a mechanism to prevent two Staff/Admin members from processing the same claim simultaneously. |
 
 ---
 
@@ -76,28 +75,6 @@ All specifications are written at the **User Requirements Level** (goal-oriented
 | **Assumptions:** | 1. Claim status transitions are recorded with accurate timestamps in the warranty audit history log.<br>2. Uploaded images remain accessible throughout the claim lifecycle. |
 
 ---
-
-## UC31 – Process Warranty Claim
-
-| Field | Description |
-| :--- | :--- |
-| **ID and Name:** | UC31 Process Warranty Claim |
-| **Created By:** | DuyLD |
-| **Date Created:** | 2026-06-07 (Updated: 2026-07-12) |
-| **Primary Actor:** | Staff/Admin |
-| **Secondary Actors:** | None |
-| **Description:** | This use case allows a Staff or Admin member to review a submitted warranty claim and progress it through the workflow: accepting it for processing, and then approving (followed by completion) or rejecting it. |
-| **Trigger:** | Staff/Admin selects a warranty claim from the processing queue. |
-| **Preconditions:** | **PRE-1.** Staff/Admin is authenticated with warranty processing permissions.<br>**PRE-2.** At least one warranty claim exists in the queue. |
-| **Postconditions:** | **POST-1.** The claim status reflects the Staff/Admin decision: `PROCESSING`, `APPROVED`, `REJECTED`, or `COMPLETED`.<br>**POST-2.** Each status transition is recorded in the audit history log with action type, status, resolution notes, and timestamp. |
-| **Normal Flow:** | **31.0 Process Warranty Claim**<br>1. Staff/Admin requests to view the warranty claims processing queue.<br>2. System displays all claims, with search (by keyword) and filter (by status) options and pagination.<br>3. Staff/Admin selects a claim to review.<br>4. System displays the claim details, uploaded evidence images, and audit history.<br>5. Staff/Admin reviews the claim details and evidence.<br>6. Staff/Admin confirms to accept the claim for processing.<br>7. System assigns the claim to the current Staff/Admin, verifies that the claim status is still `PENDING`, updates the claim status to `PROCESSING`, and records the transition in the audit history log.<br>8. Staff/Admin inspects the physical device and provides a resolution decision and notes.<br>9. System updates the claim status and records the final transition and notes in the history log. |
-| **Alternative Flows:** | **31.1 Approve Claim** (triggered at Step 8 when Staff/Admin approves the claim)<br>1. Staff/Admin provides approval remarks and confirms the approval decision.<br>2. System updates the claim status from `PROCESSING` to `APPROVED` and records the transition in the audit history log.<br>3. Staff/Admin confirms completion of physical warranty service.<br>4. System updates the claim status from `APPROVED` to `COMPLETED` and records the final transition in the audit history log. Flow ends.<br><br>**31.2 Reject Claim** (triggered at Step 8 when Staff/Admin rejects the claim)<br>1. Staff/Admin provides rejection remarks and confirms the rejection decision.<br>2. System updates the claim status from `PROCESSING` to `REJECTED` and records the transition in the audit history log. Flow ends.<br><br>**31.3 Staff Cancels Claim** (triggered at Step 8 or directly when status is `PENDING`)<br>1. Staff/Admin provides cancellation remarks and confirms the cancellation.<br>2. System updates the claim status to `CANCELLED` and records the transition in the audit history log. Flow ends. |
-| **Exceptions:** | **31.0.E1 Claim No Longer Available for Processing** (triggered at Step 7)<br>1. System detects that the claim has already been accepted for processing by another Staff/Admin member (the claim status is no longer `PENDING`).<br>2. System notifies Staff/Admin that the claim is no longer available and prompts a page refresh.<br>3. No data modification is committed. Flow ends. |
-| **Priority:** | High |
-| **Frequency of Use:** | High — processed by Staff/Admin for every submitted warranty claim. |
-| **Business Rules:** | **BR-20:** Warranty request status transitions shall strictly follow the workflow: PENDING $\rightarrow$ PROCESSING $\rightarrow$ APPROVED $\rightarrow$ COMPLETED, or PENDING $\rightarrow$ PROCESSING $\rightarrow$ REJECTED. Direct transitions to any other state are not permitted.<br>**BR-21:** Staff shall provide processing remarks when approving, rejecting, or cancelling a warranty request.<br>**BR-22:** Only authorized Staff members are allowed to process warranty requests and update their processing status.<br>**BR-23:** A warranty request cannot be processed simultaneously by multiple Staff members. The system ensures that only one Staff member can process a request at a time. |
-| **Other Information:** | None |
-| **Assumptions:** | 1. Staff/Admin has access to the warranty policy linked to the product at the time of claim processing.<br>2. The system applies a mechanism to prevent two Staff/Admin members from processing the same claim simultaneously. |
 
 ---
 

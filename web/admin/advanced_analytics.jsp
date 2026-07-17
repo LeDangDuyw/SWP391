@@ -490,34 +490,34 @@
             <aside class="sidebar">
                 <div class="brand">
                     <span>UNILAP Admin</span>
-                    <small>System Controller</small>
+                    <small>Quản trị hệ thống</small>
                 </div>
                 <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
                     
                     <div class="sidebar-dropdown">
                         <a href="javascript:void(0)" class="sidebar-dropdown-btn active" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Phân tích</span>
                             <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(180deg);">▼</span>
                         </a>
                         <div class="sidebar-dropdown-container" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
                             <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
+                                <span>▥</span>Voucher & Khuyến mãi
                             </a>
                             <a href="${pageContext.request.contextPath}/admin/analytics" class="active">
-                                <span>📈</span>Advanced Analytics
+                                <span>📈</span>Phân tích nâng cao
                             </a>
                         </div>
                     </div>
                     
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
                 </nav>
                 <div class="profile">
                     <div class="profile-info">
@@ -532,7 +532,7 @@
                         <% } %>
                         <span>Admin Profile</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                 </div>
             </aside>
 
@@ -555,8 +555,8 @@
 
                     <!-- ══ TAB NAV CONTROLLER ══ -->
                     <div class="tab-nav">
-                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Revenue Analysis</button>
-                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Sales Analysis</button>
+                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Phân tích doanh thu</button>
+                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Phân tích doanh số</button>
                         <button class="tab-btn" onclick="switchTab('customer')">👤 Customer Analytics</button>
                         <button class="tab-btn" onclick="switchTab('product')">📦 Product &amp; Inventory</button>
                     </div>
@@ -571,43 +571,43 @@
                                 <input type="hidden" name="section" value="revenue">
                                 <div class="filter-grid">
                                     <div class="filter-group">
-                                        <label>From Date</label>
+                                        <label>Từ ngày</label>
                                         <input type="date" name="revenueFrom" value="${revFilter.fromDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>To Date</label>
+                                        <label>Đến ngày</label>
                                         <input type="date" name="revenueTo" value="${revFilter.toDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>Category</label>
-                                        <select name="revenueCategoryId" class="filter-input">
-                                            <option value="all">-- All Categories --</option>
+                                        <label>Danh mục</label>
+                                        <select name="revenueDanh mụcId" class="filter-input">
+                                            <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${revFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Brand</label>
-                                        <select name="revenueBrandId" class="filter-input">
-                                            <option value="all">-- All Brands --</option>
+                                        <label>Thương hiệu</label>
+                                        <select name="revenueThương hiệuId" class="filter-input">
+                                            <option value="all">-- All Thương hiệus --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${revFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Customer Type</label>
+                                        <label>Loại khách hàng</label>
                                         <select name="revenueCustomerType" class="filter-input">
-                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- All Types --</option>
-                                            <option value="new" ${revFilter.customerType == 'new' ? 'selected' : ''}>New Customer</option>
-                                            <option value="returning" ${revFilter.customerType == 'returning' ? 'selected' : ''}>Returning Customer</option>
+                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="new" ${revFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
+                                            <option value="returning" ${revFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Payment Method</label>
+                                        <label>Phương thức thanh toán</label>
                                         <select name="revenuePaymentMethod" class="filter-input">
-                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
                                             <option value="cod" ${revFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${revFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${revFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -615,17 +615,17 @@
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Group By</label>
+                                        <label>Gom nhóm theo</label>
                                         <select name="revenueGroupBy" class="filter-input">
-                                            <option value="day" ${revenueGroupBy == 'day' ? 'selected' : ''}>Day</option>
-                                            <option value="month" ${revenueGroupBy == 'month' ? 'selected' : ''}>Month</option>
-                                            <option value="quarter" ${revenueGroupBy == 'quarter' ? 'selected' : ''}>Quarter</option>
-                                            <option value="year" ${revenueGroupBy == 'year' ? 'selected' : ''}>Year</option>
+                                            <option value="day" ${revenueGroupBy == 'day' ? 'selected' : ''}>Theo ngày</option>
+                                            <option value="month" ${revenueGroupBy == 'month' ? 'selected' : ''}>Theo tháng</option>
+                                            <option value="quarter" ${revenueGroupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
+                                            <option value="year" ${revenueGroupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                                         </select>
                                     </div>
                                     <div class="filter-actions">
-                                        <button type="submit" class="btn btn-primary">Apply</button>
-                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=revenue" class="btn btn-secondary">Reset</a>
+                                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=revenue" class="btn btn-secondary">Đặt lại</a>
                                     </div>
                                 </div>
                             </form>
@@ -634,7 +634,7 @@
                         <!-- KPI Boxes -->
                         <div class="kpi-grid">
                             <div class="kpi-box accent-blue">
-                                <span class="kpi-box-label">Total Revenue (Filtered)</span>
+                                <span class="kpi-box-label">Tổng doanh thu (Đã lọc)</span>
                                 <span class="kpi-box-val">
                                     <c:set var="totRev" value="0"/>
                                     <c:forEach items="${revenueTrend}" var="entry">
@@ -642,30 +642,30 @@
                                     </c:forEach>
                                     <fmt:formatNumber value="${totRev}" pattern="#,##0"/> ₫
                                 </span>
-                                <span class="kpi-box-sub">Sum of realized line-item revenue in range</span>
+                                <span class="kpi-box-sub">Tổng doanh thu thực tế trong khoảng thời gian</span>
                             </div>
                         </div>
 
                         <!-- Charts Grid -->
                         <div class="charts-grid-2">
                             <div class="chart-card">
-                                <div class="chart-card-hd">📈 Revenue Trend Line</div>
+                                <div class="chart-card-hd">📈 Xu hướng doanh thu</div>
                                 <div class="chart-container">
                                     <canvas id="revenueTrendChart"></canvas>
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">📊 Revenue Share by Category</div>
+                                <div class="chart-card-hd">📊 Revenue Share by Danh mục</div>
                                 <div class="chart-container">
-                                    <canvas id="revenueCategoryChart"></canvas>
+                                    <canvas id="revenueDanh mụcChart"></canvas>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="chart-card" style="margin-bottom:24px;">
-                            <div class="chart-card-hd">📊 Revenue Share by Brand</div>
+                            <div class="chart-card-hd">📊 Revenue Share by Thương hiệu</div>
                             <div class="chart-container" style="min-height:220px;">
-                                <canvas id="revenueBrandChart"></canvas>
+                                <canvas id="revenueThương hiệuChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -680,43 +680,43 @@
                                 <input type="hidden" name="section" value="sales">
                                 <div class="filter-grid">
                                     <div class="filter-group">
-                                        <label>From Date</label>
+                                        <label>Từ ngày</label>
                                         <input type="date" name="salesFrom" value="${salesFilter.fromDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>To Date</label>
+                                        <label>Đến ngày</label>
                                         <input type="date" name="salesTo" value="${salesFilter.toDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>Category</label>
-                                        <select name="salesCategoryId" class="filter-input">
-                                            <option value="all">-- All Categories --</option>
+                                        <label>Danh mục</label>
+                                        <select name="salesDanh mụcId" class="filter-input">
+                                            <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${salesFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Brand</label>
-                                        <select name="salesBrandId" class="filter-input">
-                                            <option value="all">-- All Brands --</option>
+                                        <label>Thương hiệu</label>
+                                        <select name="salesThương hiệuId" class="filter-input">
+                                            <option value="all">-- All Thương hiệus --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${salesFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Customer Type</label>
+                                        <label>Loại khách hàng</label>
                                         <select name="salesCustomerType" class="filter-input">
-                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- All Types --</option>
-                                            <option value="new" ${salesFilter.customerType == 'new' ? 'selected' : ''}>New Customer</option>
-                                            <option value="returning" ${salesFilter.customerType == 'returning' ? 'selected' : ''}>Returning Customer</option>
+                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="new" ${salesFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
+                                            <option value="returning" ${salesFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Payment Method</label>
+                                        <label>Phương thức thanh toán</label>
                                         <select name="salesPaymentMethod" class="filter-input">
-                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
                                             <option value="cod" ${salesFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${salesFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${salesFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -724,17 +724,17 @@
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Group By</label>
+                                        <label>Gom nhóm theo</label>
                                         <select name="salesGroupBy" class="filter-input">
-                                            <option value="day" ${salesGroupBy == 'day' ? 'selected' : ''}>Day</option>
-                                            <option value="month" ${salesGroupBy == 'month' ? 'selected' : ''}>Month</option>
-                                            <option value="quarter" ${salesGroupBy == 'quarter' ? 'selected' : ''}>Quarter</option>
-                                            <option value="year" ${salesGroupBy == 'year' ? 'selected' : ''}>Year</option>
+                                            <option value="day" ${salesGroupBy == 'day' ? 'selected' : ''}>Theo ngày</option>
+                                            <option value="month" ${salesGroupBy == 'month' ? 'selected' : ''}>Theo tháng</option>
+                                            <option value="quarter" ${salesGroupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
+                                            <option value="year" ${salesGroupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                                         </select>
                                     </div>
                                     <div class="filter-actions">
-                                        <button type="submit" class="btn btn-primary">Apply</button>
-                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=sales" class="btn btn-secondary">Reset</a>
+                                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=sales" class="btn btn-secondary">Đặt lại</a>
                                     </div>
                                 </div>
                             </form>
@@ -771,7 +771,7 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">💳 Share by Payment Method</div>
+                                <div class="chart-card-hd">💳 Share by Phương thức thanh toán</div>
                                 <div class="chart-container">
                                     <canvas id="paymentMethodChart"></canvas>
                                 </div>
@@ -789,35 +789,35 @@
                                 <input type="hidden" name="section" value="customer">
                                 <div class="filter-grid">
                                     <div class="filter-group">
-                                        <label>From Date</label>
+                                        <label>Từ ngày</label>
                                         <input type="date" name="customerFrom" value="${custFilter.fromDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>To Date</label>
+                                        <label>Đến ngày</label>
                                         <input type="date" name="customerTo" value="${custFilter.toDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>Category</label>
-                                        <select name="customerCategoryId" class="filter-input">
-                                            <option value="all">-- All Categories --</option>
+                                        <label>Danh mục</label>
+                                        <select name="customerDanh mụcId" class="filter-input">
+                                            <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${custFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Brand</label>
-                                        <select name="customerBrandId" class="filter-input">
-                                            <option value="all">-- All Brands --</option>
+                                        <label>Thương hiệu</label>
+                                        <select name="customerThương hiệuId" class="filter-input">
+                                            <option value="all">-- All Thương hiệus --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${custFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Payment Method</label>
+                                        <label>Phương thức thanh toán</label>
                                         <select name="customerPaymentMethod" class="filter-input">
-                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
                                             <option value="cod" ${custFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${custFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${custFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -827,10 +827,10 @@
                                     <div class="filter-group">
                                         <label>Group Growth By</label>
                                         <select name="customerGroupBy" class="filter-input">
-                                            <option value="day" ${customerGroupBy == 'day' ? 'selected' : ''}>Day</option>
-                                            <option value="month" ${customerGroupBy == 'month' ? 'selected' : ''}>Month</option>
-                                            <option value="quarter" ${customerGroupBy == 'quarter' ? 'selected' : ''}>Quarter</option>
-                                            <option value="year" ${customerGroupBy == 'year' ? 'selected' : ''}>Year</option>
+                                            <option value="day" ${customerGroupBy == 'day' ? 'selected' : ''}>Theo ngày</option>
+                                            <option value="month" ${customerGroupBy == 'month' ? 'selected' : ''}>Theo tháng</option>
+                                            <option value="quarter" ${customerGroupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
+                                            <option value="year" ${customerGroupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
@@ -838,8 +838,8 @@
                                         <input type="number" name="customerTopN" value="${customerTopN}" min="1" max="100" class="filter-input">
                                     </div>
                                     <div class="filter-actions">
-                                        <button type="submit" class="btn btn-primary">Apply</button>
-                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=customer" class="btn btn-secondary">Reset</a>
+                                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=customer" class="btn btn-secondary">Đặt lại</a>
                                     </div>
                                 </div>
                             </form>
@@ -848,13 +848,13 @@
                         <!-- Charts Grid -->
                         <div class="charts-grid-2">
                             <div class="chart-card">
-                                <div class="chart-card-hd">📈 Cohort Customer Acquisition (Growth)</div>
+                                <div class="chart-card-hd">📈 Tăng trưởng lượng khách hàng mới</div>
                                 <div class="chart-container">
                                     <canvas id="customerGrowthChart"></canvas>
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">👥 New vs Returning Customers Share</div>
+                                <div class="chart-card-hd">👥 New vs Khách hàng quay lạis Share</div>
                                 <div class="chart-container">
                                     <canvas id="customerCohortChart"></canvas>
                                 </div>
@@ -863,14 +863,14 @@
 
                         <!-- Top Spending Customers table -->
                         <div class="table-card">
-                            <div class="table-card-hd">🏆 Top Spending Customers (Ranked by Total Revenue)</div>
+                            <div class="table-card-hd">🏆 Khách hàng chi tiêu nhiều nhất (Xếp hạng theo tổng doanh thu)</div>
                             <c:choose>
                                 <c:when test="${not empty topSpendingCustomers}">
                                     <table>
                                         <thead>
                                             <tr>
                                                 <th style="width:80px;">Rank</th>
-                                                <th>Customer Name</th>
+                                                <th>Tên khách hàng</th>
                                                 <th>Email Address</th>
                                                 <th>Distinct Orders</th>
                                                 <th>Total Spending</th>
@@ -892,7 +892,7 @@
                                     </table>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data">No customer spending details found.</div>
+                                    <div class="no-data">Không tìm thấy thông tin chi tiêu của khách hàng.</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -908,43 +908,43 @@
                                 <input type="hidden" name="section" value="product">
                                 <div class="filter-grid">
                                     <div class="filter-group">
-                                        <label>From Date</label>
+                                        <label>Từ ngày</label>
                                         <input type="date" name="productFrom" value="${prodFilter.fromDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>To Date</label>
+                                        <label>Đến ngày</label>
                                         <input type="date" name="productTo" value="${prodFilter.toDate}" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>Category</label>
-                                        <select name="productCategoryId" class="filter-input">
-                                            <option value="all">-- All Categories --</option>
+                                        <label>Danh mục</label>
+                                        <select name="productDanh mụcId" class="filter-input">
+                                            <option value="all">-- Tất cả danh mục --</option>
                                             <c:forEach items="${categories}" var="c">
                                                 <option value="${c.categoryId}" ${prodFilter.categoryId == c.categoryId ? 'selected' : ''}>${c.categoryName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Brand</label>
-                                        <select name="productBrandId" class="filter-input">
-                                            <option value="all">-- All Brands --</option>
+                                        <label>Thương hiệu</label>
+                                        <select name="productThương hiệuId" class="filter-input">
+                                            <option value="all">-- All Thương hiệus --</option>
                                             <c:forEach items="${brands}" var="b">
                                                 <option value="${b.brandId}" ${prodFilter.brandId == b.brandId ? 'selected' : ''}>${b.brandName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Customer Type</label>
+                                        <label>Loại khách hàng</label>
                                         <select name="productCustomerType" class="filter-input">
-                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- All Types --</option>
-                                            <option value="new" ${prodFilter.customerType == 'new' ? 'selected' : ''}>New Customer</option>
-                                            <option value="returning" ${prodFilter.customerType == 'returning' ? 'selected' : ''}>Returning Customer</option>
+                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- Tất cả loại --</option>
+                                            <option value="new" ${prodFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
+                                            <option value="returning" ${prodFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Payment Method</label>
+                                        <label>Phương thức thanh toán</label>
                                         <select name="productPaymentMethod" class="filter-input">
-                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- Tất cả phương thức --</option>
                                             <option value="cod" ${prodFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
                                             <option value="credit_card" ${prodFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
                                             <option value="momo" ${prodFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
@@ -958,13 +958,13 @@
                                     <div class="filter-group">
                                         <label>Rank By</label>
                                         <select name="productSortBy" class="filter-input">
-                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Quantity Sold</option>
-                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Revenue Generated</option>
+                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Số lượng đã bán</option>
+                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Doanh thu mang lại</option>
                                         </select>
                                     </div>
                                     <div class="filter-actions">
-                                        <button type="submit" class="btn btn-primary">Apply</button>
-                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=product" class="btn btn-secondary">Reset</a>
+                                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                                        <a href="${pageContext.request.contextPath}/admin/analytics?section=product" class="btn btn-secondary">Đặt lại</a>
                                     </div>
                                 </div>
                             </form>
@@ -995,17 +995,17 @@
                             </div>
                         </div>
 
-                        <!-- Tables: Best & Worst Selling Products -->
+                        <!-- Tables: Best & Sản phẩm bán chậm nhất -->
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
                             <div class="table-card">
-                                <div class="table-card-hd">🔥 Best Selling Products</div>
+                                <div class="table-card-hd">🔥 Sản phẩm bán chạy nhất</div>
                                 <c:choose>
                                     <c:when test="${not empty bestSellingProducts}">
                                         <table>
                                             <thead>
                                                 <tr>
                                                     <th style="width:60px;">Rank</th>
-                                                    <th>Product / Variant</th>
+                                                    <th>Sản phẩm / Biến thể</th>
                                                     <th>Qty Sold</th>
                                                     <th>Revenue</th>
                                                 </tr>
@@ -1028,20 +1028,20 @@
                                         </table>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="no-data">No product sales details found.</div>
+                                        <div class="no-data">Không tìm thấy chi tiết bán hàng của sản phẩm.</div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
 
                             <div class="table-card">
-                                <div class="table-card-hd">❄️ Worst Selling Products</div>
+                                <div class="table-card-hd">❄️ Sản phẩm bán chậm nhất</div>
                                 <c:choose>
                                     <c:when test="${not empty worstSellingProducts}">
                                         <table>
                                             <thead>
                                                 <tr>
                                                     <th style="width:60px;">Rank</th>
-                                                    <th>Product / Variant</th>
+                                                    <th>Sản phẩm / Biến thể</th>
                                                     <th>Qty Sold</th>
                                                     <th>Revenue</th>
                                                 </tr>
@@ -1064,7 +1064,7 @@
                                         </table>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="no-data">No product sales details found.</div>
+                                        <div class="no-data">Không tìm thấy chi tiết bán hàng của sản phẩm.</div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -1121,14 +1121,14 @@
 
             const catLabels = [];
             const catData = [];
-            <c:forEach items="${revenueByCategory}" var="entry">
+            <c:forEach items="${revenueByDanh mục}" var="entry">
                 catLabels.push("${entry.key}");
                 catData.push(${entry.value});
             </c:forEach>
 
             const brandLabels = [];
             const brandData = [];
-            <c:forEach items="${revenueByBrand}" var="entry">
+            <c:forEach items="${revenueByThương hiệu}" var="entry">
                 brandLabels.push("${entry.key}");
                 brandData.push(${entry.value});
             </c:forEach>
@@ -1139,7 +1139,7 @@
                 data: {
                     labels: revLabels,
                     datasets: [{
-                        label: 'Net Sales Revenue (₫)',
+                        label: 'Doanh thu thuần (₫)',
                         data: revData,
                         borderColor: '#2563eb',
                         backgroundColor: 'rgba(37,99,235,0.1)',
@@ -1157,8 +1157,8 @@
                 }
             });
 
-            // Draw Category Bar Chart
-            new Chart(document.getElementById('revenueCategoryChart'), {
+            // Draw Danh mục Bar Chart
+            new Chart(document.getElementById('revenueDanh mụcChart'), {
                 type: 'bar',
                 data: {
                     labels: catLabels,
@@ -1188,8 +1188,8 @@
                 }
             });
 
-            // Draw Brand Bar Chart
-            new Chart(document.getElementById('revenueBrandChart'), {
+            // Draw Thương hiệu Bar Chart
+            new Chart(document.getElementById('revenueThương hiệuChart'), {
                 type: 'bar',
                 data: {
                     labels: brandLabels,
@@ -1248,7 +1248,7 @@
                 }
             });
 
-            // Draw Payment Method Bar
+            // Draw Phương thức thanh toán Bar
             new Chart(document.getElementById('paymentMethodChart'), {
                 type: 'bar',
                 data: {

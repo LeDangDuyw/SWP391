@@ -158,8 +158,30 @@ public class AdminDashboardServlet extends HttpServlet {
 
             request.setAttribute("monthlyRevenue", dashboardDAO.getRevenueChart(from, to, revenueYear, groupBy));
             request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
-            request.setAttribute("topProducts", dashboardDAO.getTopProducts());
-            request.setAttribute("topCustomers", dashboardDAO.getTopCustomers());
+
+            // Rankings filters
+            String topProductsCriteria = request.getParameter("topProductsCriteria");
+            if (topProductsCriteria == null || topProductsCriteria.trim().isEmpty()) {
+                topProductsCriteria = "quantity";
+            }
+            String topProductsTime = request.getParameter("topProductsTime");
+            if (topProductsTime == null || topProductsTime.trim().isEmpty()) {
+                topProductsTime = "all";
+            }
+            String topCustomersTime = request.getParameter("topCustomersTime");
+            if (topCustomersTime == null || topCustomersTime.trim().isEmpty()) {
+                topCustomersTime = "all";
+            }
+
+            request.setAttribute("topProductsCriteria", topProductsCriteria);
+            request.setAttribute("topProductsTime", topProductsTime);
+            request.setAttribute("topCustomersTime", topCustomersTime);
+
+            String[] prodRange = getDateRangeFromTimeframe(topProductsTime);
+            String[] custRange = getDateRangeFromTimeframe(topCustomersTime);
+
+            request.setAttribute("topProducts", dashboardDAO.getTopProducts(prodRange[0], prodRange[1], topProductsCriteria));
+            request.setAttribute("topCustomers", dashboardDAO.getTopCustomers(custRange[0], custRange[1]));
             request.setAttribute("recentActivities", dashboardDAO.getRecentActivities());
 
             // Chuyển hướng dữ liệu sang trang JSP AdminDashboard để hiển thị
@@ -171,5 +193,29 @@ public class AdminDashboardServlet extends HttpServlet {
             // Bắt lỗi chung của servlet và ném ra lỗi ServletException
             throw new ServletException("Cannot load admin dashboard", e);
         }
+    }
+
+    private String[] getDateRangeFromTimeframe(String timeframe) {
+        if (timeframe == null) {
+            return new String[]{null, null};
+        }
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = null;
+        java.time.LocalDate toDate = today;
+        switch (timeframe.toLowerCase()) {
+            case "today":
+                fromDate = today;
+                break;
+            case "week":
+                fromDate = today.minusDays(today.getDayOfWeek().getValue() - 1);
+                break;
+            case "month":
+                fromDate = today.withDayOfMonth(1);
+                break;
+            case "all":
+            default:
+                return new String[]{null, null};
+        }
+        return new String[]{fromDate.toString(), toDate.toString()};
     }
 }

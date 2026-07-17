@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin — Manage User Accounts</title>
+        <title>UNILAP Quản trị viên — Manage User Accounts</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
             *, *::before, *::after {
@@ -570,19 +570,19 @@
 
             <!-- Sidebar -->
             <aside class="sidebar">
-                <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
+                <div class="brand"><span>UNILAP Quản trị viên</span><small>Quản trị hệ thống</small></div>
                 <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
+                    <a class="active" href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Khuyến mãi & Voucher</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt yêu cầu</a>
                     <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Phản hồi Chatbot</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Bảo mật Chatbot</a>
+                    <a href="#"><span>⚙</span>Cài đặt</a>
                 </nav>
                 <div class="profile">
                     <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -595,16 +595,16 @@
                         <% } else { %>
                             <span>♙</span>
                         <% } %>
-                        <span>Admin User Profile</span>
+                        <span>Quản trị viên User Profile</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                 </div>
             </aside>
 
             <!-- Main Panel -->
             <div class="main">
                 <div class="topbar">
-                    <span class="topbar-title">Account Administration</span>
+                    <span class="topbar-title">Account Quản trị viênistration</span>
                     <div class="topbar-right">
                         <button class="icon-btn" title="Notifications">&#128276;</button>
                         <button class="icon-btn" title="Help">?</button>
@@ -640,22 +640,22 @@
                             
                             <select name="role" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
                                 <option value="">Tất cả vai trò</option>
-                                <option value="1" ${selectedRole == '1' ? 'selected' : ''}>Admin</option>
-                                <option value="2" ${selectedRole == '2' ? 'selected' : ''}>Staff</option>
-                                <option value="3" ${selectedRole == '3' ? 'selected' : ''}>Customer</option>
-                                <option value="4" ${selectedRole == '4' ? 'selected' : ''}>Student</option>
-                                <option value="5" ${selectedRole == '5' ? 'selected' : ''}>B2B</option>
+                                <option value="1" ${selectedVai trò == '1' ? 'selected' : ''}>Quản trị viên</option>
+                                <option value="2" ${selectedVai trò == '2' ? 'selected' : ''}>Nhân viên</option>
+                                <option value="3" ${selectedVai trò == '3' ? 'selected' : ''}>Khách hàng</option>
+                                <option value="4" ${selectedVai trò == '4' ? 'selected' : ''}>Student</option>
+                                <option value="5" ${selectedVai trò == '5' ? 'selected' : ''}>B2B</option>
                             </select>
 
                             <select name="status" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
                                 <option value="">Tất cả trạng thái</option>
-                                <option value="active" ${selectedStatus == 'active' ? 'selected' : ''}>Active</option>
-                                <option value="inactive" ${selectedStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
+                                <option value="active" ${selectedTrạng thái == 'active' ? 'selected' : ''}>Hoạt động</option>
+                                <option value="inactive" ${selectedTrạng thái == 'inactive' ? 'selected' : ''}>Bị khóa</option>
                             </select>
 
                             <button type="submit" class="search-btn">Tìm kiếm</button>
                             
-                            <c:if test="${not empty searchKeyword || not empty selectedRole || not empty selectedStatus || not empty from || not empty to}">
+                            <c:if test="${not empty searchKeyword || not empty selectedVai trò || not empty selectedTrạng thái || not empty from || not empty to}">
                                 <a href="${pageContext.request.contextPath}/admin/users" class="clear-search-btn">Xóa lọc</a>
                             </c:if>
                             
@@ -673,13 +673,13 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>User ID</th>
-                                    <th>Full Name</th>
+                                    <th>ID người dùng</th>
+                                    <th>Họ tên</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -697,30 +697,30 @@
                                                     </c:choose>
                                                 </td>
                                                 <td>
-                                                    <!-- Role Selection Dropdown -->
+                                                    <!-- Vai trò Selection Dropdown -->
                                                     <select class="role-select" 
                                                             data-current="${u.roleId}"
-                                                            onchange="submitRoleAction(${u.userId}, '${u.email}', this)"
+                                                            onchange="submitVai tròAction(${u.userId}, '${u.email}', this)"
                                                             <c:if test="${u.userId == sessionScope.user.userId}">disabled</c:if>>
-                                                        <option value="1" ${u.roleId == 1 ? 'selected' : ''}>Admin</option>
-                                                        <option value="2" ${u.roleId == 2 ? 'selected' : ''}>Staff</option>
-                                                        <option value="3" ${u.roleId == 3 ? 'selected' : ''}>Customer</option>
+                                                        <option value="1" ${u.roleId == 1 ? 'selected' : ''}>Quản trị viên</option>
+                                                        <option value="2" ${u.roleId == 2 ? 'selected' : ''}>Nhân viên</option>
+                                                        <option value="3" ${u.roleId == 3 ? 'selected' : ''}>Khách hàng</option>
                                                         <option value="4" ${u.roleId == 4 ? 'selected' : ''}>Student</option>
                                                         <option value="5" ${u.roleId == 5 ? 'selected' : ''}>B2B</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <!-- Status Badge -->
+                                                    <!-- Trạng thái Badge -->
                                                     <span class="badge ${u.status ? 'badge-live' : 'badge-disabled'}">
                                                         <c:choose>
-                                                            <c:when test="${u.status}">Active</c:when>
-                                                            <c:otherwise>Inactive</c:otherwise>
+                                                            <c:when test="${u.status}">Hoạt động</c:when>
+                                                            <c:otherwise>Bị khóa</c:otherwise>
                                                         </c:choose>
                                                     </span>
                                                 </td>
                                                 <td>
                                                     <!-- Format timestamps for detail attributes -->
-                                                    <fmt:formatDate value="${u.createdAt}" pattern="dd/MM/yyyy HH:mm:ss" var="formattedCreatedAt"/>
+                                                    <fmt:formatDate value="${u.createdAt}" pattern="dd/MM/yyyy HH:mm:ss" var="formattedTạo mớidAt"/>
                                                     <fmt:formatDate value="${u.lastLoginAt}" pattern="dd/MM/yyyy HH:mm:ss" var="formattedLastLogin"/>
 
                                                     <!-- Action buttons (Detail & Lock/Unlock) -->
@@ -730,10 +730,10 @@
                                                                 data-name="<c:out value='${u.userName}'/>"
                                                                 data-email="<c:out value='${u.email}'/>"
                                                                 data-phone="<c:out value='${u.phone}'/>"
-                                                                data-role="${u.roleId == 1 ? 'Admin' : (u.roleId == 2 ? 'Staff' : (u.roleId == 4 ? 'Student' : (u.roleId == 5 ? 'B2B' : 'Customer')))}"
-                                                                data-status="${u.status ? 'Active' : 'Inactive'}"
+                                                                data-role="${u.roleId == 1 ? 'Quản trị viên' : (u.roleId == 2 ? 'Nhân viên' : (u.roleId == 4 ? 'Student' : (u.roleId == 5 ? 'B2B' : 'Khách hàng')))}"
+                                                                data-status="${u.status ? 'Hoạt động' : 'Bị khóa'}"
                                                                 data-avatar="<c:out value='${u.avatarUrl}'/>"
-                                                                data-created="${formattedCreatedAt}"
+                                                                data-created="${formattedTạo mớidAt}"
                                                                 data-last-login="${formattedLastLogin}"
                                                                 onclick="openUserModal(this)">
                                                             Chi tiết
@@ -773,19 +773,19 @@
                     <!-- Pagination -->
                     <c:if test="${totalPages > 1}">
                         <div class="pagination-container">
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&search=${searchKeyword}&role=${selectedVai trò}&status=${selectedTrạng thái}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == 1 ? 'disabled' : ''}">
                                 &lt; Trước
                             </a>
                             
                             <c:forEach begin="1" end="${totalPages}" var="i">
-                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
+                                <a href="${pageContext.request.contextPath}/admin/users?page=${i}&search=${searchKeyword}&role=${selectedVai trò}&status=${selectedTrạng thái}&from=${from}&to=${to}" 
                                    class="pagination-link ${currentPage == i ? 'active' : ''}">
                                     ${i}
                                 </a>
                             </c:forEach>
                             
-                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedRole}&status=${selectedStatus}&from=${from}&to=${to}" 
+                            <a href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&search=${searchKeyword}&role=${selectedVai trò}&status=${selectedTrạng thái}&from=${from}&to=${to}" 
                                class="pagination-link ${currentPage == totalPages ? 'disabled' : ''}">
                                 Sau &gt;
                             </a>
@@ -800,11 +800,11 @@
         <form id="actionForm" action="${pageContext.request.contextPath}/admin/users" method="POST" style="display: none;">
             <input type="hidden" name="action" id="formAction">
             <input type="hidden" name="userId" id="formUserId">
-            <input type="hidden" name="roleId" id="formRoleId">
+            <input type="hidden" name="roleId" id="formVai tròId">
             <input type="hidden" name="search" value="<c:out value='${searchKeyword}'/>">
             <input type="hidden" name="page" value="${currentPage}">
-            <input type="hidden" name="roleFilter" value="<c:out value='${selectedRole}'/>">
-            <input type="hidden" name="statusFilter" value="<c:out value='${selectedStatus}'/>">
+            <input type="hidden" name="roleFilter" value="<c:out value='${selectedVai trò}'/>">
+            <input type="hidden" name="statusFilter" value="<c:out value='${selectedTrạng thái}'/>">
         </form>
 
         <!-- User Detail Modal -->
@@ -821,12 +821,12 @@
                         </div>
                         <div class="modal-profile-info">
                             <div class="modal-profile-name" id="modalUserName"></div>
-                            <div id="modalRoleBadgeContainer"></div>
+                            <div id="modalVai tròBadgeContainer"></div>
                         </div>
                     </div>
                     <div class="modal-detail-grid">
                         <div class="modal-detail-item">
-                            <span class="modal-detail-label">User ID</span>
+                            <span class="modal-detail-label">ID người dùng</span>
                             <span class="modal-detail-value" id="modalUserId"></span>
                         </div>
                         <div class="modal-detail-item">
@@ -839,11 +839,11 @@
                         </div>
                         <div class="modal-detail-item">
                             <span class="modal-detail-label">Trạng thái</span>
-                            <span class="modal-detail-value" id="modalStatusBadgeContainer"></span>
+                            <span class="modal-detail-value" id="modalTrạng tháiBadgeContainer"></span>
                         </div>
                         <div class="modal-detail-item">
                             <span class="modal-detail-label">Ngày đăng ký</span>
-                            <span class="modal-detail-value" id="modalUserCreated"></span>
+                            <span class="modal-detail-value" id="modalUserTạo mớid"></span>
                         </div>
                         <div class="modal-detail-item">
                             <span class="modal-detail-label">Lần đăng nhập cuối</span>
@@ -857,7 +857,7 @@
             </div>
         </div>
 
-        <!-- Add User Modal -->
+        <!-- Thêm người dùng Modal -->
         <div id="addUserModal" class="modal-overlay">
             <div class="modal-content" style="max-width: 500px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
                 <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 18px 24px;">
@@ -868,8 +868,8 @@
                     <input type="hidden" name="action" value="create">
                     <input type="hidden" name="search" value="<c:out value='${searchKeyword}'/>">
                     <input type="hidden" name="page" value="${currentPage}">
-                    <input type="hidden" name="roleFilter" value="<c:out value='${selectedRole}'/>">
-                    <input type="hidden" name="statusFilter" value="<c:out value='${selectedStatus}'/>">
+                    <input type="hidden" name="roleFilter" value="<c:out value='${selectedVai trò}'/>">
+                    <input type="hidden" name="statusFilter" value="<c:out value='${selectedTrạng thái}'/>">
 
                     <div class="modal-body" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
                         
@@ -893,19 +893,19 @@
 
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Mật khẩu khởi tạo <span style="color: red;">*</span></label>
-                            <input type="password" name="password" id="addPassword" required minlength="6"
+                            <input type="password" name="password" id="addMật khẩu" required minlength="6"
                                    style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Nhập ít nhất 6 ký tự">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Vai trò / Phân quyền <span style="color: red;">*</span></label>
-                            <select name="roleId" id="addRoleId" required
+                            <select name="roleId" id="addVai tròId" required
                                     style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background-color: #fff; cursor: pointer;">
-                                <option value="3">Customer (Khách hàng)</option>
+                                <option value="3">Khách hàng (Khách hàng)</option>
                                 <option value="4">Student (Sinh viên)</option>
                                 <option value="5">B2B (Doanh nghiệp)</option>
-                                <option value="2">Staff (Nhân viên)</option>
-                                <option value="1">Admin (Quản trị viên)</option>
+                                <option value="2">Nhân viên (Nhân viên)</option>
+                                <option value="1">Quản trị viên (Quản trị viên)</option>
                             </select>
                         </div>
                     </div>
@@ -945,7 +945,7 @@
                 
                 if (isLock) {
                     // Check active orders count before locking
-                    fetch("${pageContext.request.contextPath}/admin/users?ajaxAction=checkActiveOrders&userId=" + userId)
+                    fetch("${pageContext.request.contextPath}/admin/users?ajaxAction=checkHoạt độngOrders&userId=" + userId)
                         .then(function(response) { return response.json(); })
                         .then(function(data) {
                             var count = data.activeOrdersCount || 0;
@@ -977,14 +977,14 @@
                 document.getElementById("actionForm").submit();
             }
 
-            function submitRoleAction(userId, email, selectElement) {
-                var newRoleId = selectElement.value;
+            function submitVai tròAction(userId, email, selectElement) {
+                var newVai tròId = selectElement.value;
                 var roleName = selectElement.options[selectElement.selectedIndex].text;
                 
                 if (confirm("Bạn có chắc chắn muốn đổi vai trò tài khoản [" + email + "] thành [" + roleName + "] không?")) {
                     document.getElementById("formAction").value = "change-role";
                     document.getElementById("formUserId").value = userId;
-                    document.getElementById("formRoleId").value = newRoleId;
+                    document.getElementById("formVai tròId").value = newVai tròId;
                     document.getElementById("actionForm").submit();
                 } else {
                     // Reset the dropdown back to current role value if cancel
@@ -1008,7 +1008,7 @@
                 document.getElementById("modalUserName").textContent = name;
                 document.getElementById("modalUserEmail").textContent = email;
                 document.getElementById("modalUserPhone").textContent = phone && phone.trim() !== "" ? phone : "Chưa có";
-                document.getElementById("modalUserCreated").textContent = created && created.trim() !== "" ? created : "Chưa có dữ liệu";
+                document.getElementById("modalUserTạo mớid").textContent = created && created.trim() !== "" ? created : "Chưa có dữ liệu";
                 document.getElementById("modalUserLastLogin").textContent = lastLogin && lastLogin.trim() !== "" ? lastLogin : "Chưa từng đăng nhập";
                 
                 // Populate avatar
@@ -1026,15 +1026,15 @@
                     avatarFrame.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 30px; height: 30px; color: #94a3b8;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
                 }
                 
-                // Populate Role Badge
-                var roleContainer = document.getElementById("modalRoleBadgeContainer");
+                // Populate Vai trò Badge
+                var roleContainer = document.getElementById("modalVai tròBadgeContainer");
                 roleContainer.innerHTML = "";
                 var roleSpan = document.createElement("span");
                 roleSpan.className = "badge";
-                if (role === "Admin") {
+                if (role === "Quản trị viên") {
                     roleSpan.style.background = "#e0e7ff";
                     roleSpan.style.color = "#4338ca";
-                } else if (role === "Staff") {
+                } else if (role === "Nhân viên") {
                     roleSpan.style.background = "#fef3c7";
                     roleSpan.style.color = "#d97706";
                 } else {
@@ -1044,16 +1044,16 @@
                 roleSpan.textContent = role;
                 roleContainer.appendChild(roleSpan);
                 
-                // Populate Status Badge
-                var statusContainer = document.getElementById("modalStatusBadgeContainer");
+                // Populate Trạng thái Badge
+                var statusContainer = document.getElementById("modalTrạng tháiBadgeContainer");
                 statusContainer.innerHTML = "";
                 var statusSpan = document.createElement("span");
-                if (status === "Active") {
+                if (status === "Hoạt động") {
                     statusSpan.className = "badge badge-live";
-                    statusSpan.textContent = "Active";
+                    statusSpan.textContent = "Hoạt động";
                 } else {
                     statusSpan.className = "badge badge-disabled";
-                    statusSpan.textContent = "Inactive";
+                    statusSpan.textContent = "Bị khóa";
                 }
                 statusContainer.appendChild(statusSpan);
                 
@@ -1072,8 +1072,8 @@
                 document.getElementById("addFullName").value = "";
                 document.getElementById("addEmail").value = "";
                 document.getElementById("addPhone").value = "";
-                document.getElementById("addPassword").value = "";
-                document.getElementById("addRoleId").value = "3";
+                document.getElementById("addMật khẩu").value = "";
+                document.getElementById("addVai tròId").value = "3";
                 
                 var modal = document.getElementById("addUserModal");
                 modal.classList.add("active");
@@ -1087,7 +1087,7 @@
             function validateAddUserForm(event) {
                 var email = document.getElementById("addEmail").value.trim();
                 var phone = document.getElementById("addPhone").value.trim();
-                var password = document.getElementById("addPassword").value.trim();
+                var password = document.getElementById("addMật khẩu").value.trim();
 
                 // Basic email pattern validation
                 var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1107,7 +1107,7 @@
                     }
                 }
 
-                // Password length check
+                // Mật khẩu length check
                 if (password.length < 6) {
                     alert("Mật khẩu khởi tạo phải có ít nhất 6 ký tự!");
                     event.preventDefault();
