@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -172,16 +172,16 @@
 
     <!-- ════ SIDEBAR (đồng nhất với trang khác) ════ -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor:pointer;display:flex;align-items:center;gap:8px;"
@@ -192,9 +192,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -205,7 +205,7 @@
             <div class="flex items-center gap-2 text-sm text-on-surface-variant">
                 <span>Staff</span>
                 <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
-                <span class="font-semibold text-on-surface">Order Management</span>
+                <span class="font-semibold text-on-surface">Quản lý đơn hàng</span>
             </div>
             <div class="flex items-center gap-4">
                 <div class="h-8 w-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md ml-2 border border-outline-variant/50"
@@ -225,7 +225,7 @@
             <!-- Page Title -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Order Management</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý Đơn hàng</h2>
                     <p class="text-sm text-on-surface-variant">Quản lý toàn bộ đơn hàng – xác nhận, vận chuyển, hóa đơn &amp; giao hàng</p>
                 </div>
             </div>

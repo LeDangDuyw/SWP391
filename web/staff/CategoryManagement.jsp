@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.*"%>
 <%@page import="model.Category"%>
 <!DOCTYPE html>
@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Admin - Category Management</title>
+    <title>UNILAP Admin - Quản lý Danh mục</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
@@ -124,17 +124,17 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Student Verify</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác minh sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -147,9 +147,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -183,8 +183,8 @@
             
             <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Category Management</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Manage product categories for inventory classification.</p>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Quản lý Danh mục</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Quản lý các danh mục sản phẩm để phân loại kho hàng.</p>
                 </div>
             </div>
 
@@ -193,7 +193,7 @@
                     <form action="${pageContext.request.contextPath}/staff/category" method="get" class="flex-1 flex gap-4">
                         <div class="relative flex-1 min-w-[300px]">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                            <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Search category by name..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                            <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Tìm kiếm danh mục theo tên..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                             <button type="submit" 
                                     class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-sm">search</span>
@@ -203,7 +203,7 @@
 
                     <div class="flex items-center gap-2 ml-auto">
                         <button onclick="openAddModal()" class="px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
-                            <span class="material-symbols-outlined text-[20px]">add</span> Add Category
+                            <span class="material-symbols-outlined text-[20px]">add</span> Thêm danh mục
                         </button>
                     </div>
                 </div>
@@ -215,9 +215,9 @@
                         <thead>
                             <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
                                 <th class="py-3 px-4 border-b border-outline-variant/20 w-12"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-32">Category ID</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Category Name</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-32">Actions</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 w-32">Mã danh mục</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20">Tên danh mục</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-32">Hành động</th>
                             </tr>
                         </thead>
                         <tbody class="font-body-sm text-body-sm">
@@ -261,7 +261,7 @@
                 %>
                     <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
-                       Previous
+                       Trước
                     </a>
                     <div class="flex gap-1 items-center flex-wrap">
                     <%
@@ -316,7 +316,7 @@
                     </div>
                     <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">
-                       Next
+                       Sau
                     </a>
                 </div>
             </div>
@@ -329,7 +329,7 @@
     <div id="addModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-md p-6">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Add Category</h3>
+                <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Thêm danh mục</h3>
                 <button type="button" onclick="closeAddModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -341,13 +341,13 @@
                 <% } %>
                 
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Category Name</label>
-                    <input type="text" name="categoryName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required placeholder="Enter category name"/>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tên danh mục</label>
+                    <input type="text" name="categoryName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required placeholder="Nhập tên danh mục"/>
                 </div>
                 
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeAddModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Cancel</button>
-                    <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Add</button>
+                    <button type="button" onclick="closeAddModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Hủy</button>
+                    <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Thêm</button>
                 </div>
             </form>
         </div>
@@ -357,7 +357,7 @@
     <div id="editModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-md p-6">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Edit Category</h3>
+                <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Chỉnh sửa danh mục</h3>
                 <button type="button" onclick="closeEditModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -370,13 +370,13 @@
                 <% } %>
                 
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Category Name</label>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tên danh mục</label>
                     <input type="text" name="categoryName" id="editCategoryName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
                 </div>
                 
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeEditModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Cancel</button>
-                    <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Save</button>
+                    <button type="button" onclick="closeEditModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Hủy</button>
+                    <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Lưu</button>
                 </div>
             </form>
         </div>

@@ -747,8 +747,8 @@
                 <a href="${pageContext.request.contextPath}/staff/category">
                     <span class="nav-icon">📁</span>Category
                 </a>
-                <a href="${pageContext.request.contextPath}/staff/imei">
-                    <span class="nav-icon">🏷</span>IMEI
+                <a href="${pageContext.request.contextPath}/staff/serial">
+                    <span class="nav-icon">🏷</span>Serial
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/ticket/list">
                     <span class="nav-icon">🎫</span>Tickets

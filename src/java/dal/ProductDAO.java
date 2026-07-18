@@ -447,7 +447,7 @@ public class ProductDAO extends DBContext {
     return 0;
 }
 
-    public ArrayList<Product> searchAllProducts(String keyword, String category, String sortBy, int page, int pageSize) {
+    public ArrayList<Product> searchAllProducts(String keyword, String category, String sortBy, String itemStatus, int page, int pageSize) {
         ArrayList<Product> data = new ArrayList<>();
         try {
             String order = (sortBy != null && sortBy.equals("lowToHigh")) ? "ASC" : "DESC";
@@ -456,12 +456,22 @@ public class ProductDAO extends DBContext {
                 orderClause = "ORDER BY min_price " + order;
             }
 
+            String statusFilter = "";
+            if ("hidden".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
+            } else if ("all".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
+            } else {
+                statusFilter = "v.status = 'active'";
+            }
+
             String sql = "SELECT " +
                          "    p.product_id, p.product_name, p.thumbnail, " +
                          "    b.brand_name, c.category_name, p.category_id, " +
                          "    MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
                          "    MIN(v.selling_price) AS original_price, " +
-                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
+                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent, " +
+                         "    CASE WHEN SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) > 0 THEN 0 ELSE 1 END AS is_hidden " +
                          "FROM Product p " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN Category c ON p.category_id = c.category_id " +
@@ -473,7 +483,7 @@ public class ProductDAO extends DBContext {
                          "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
                          "    GROUP BY fsi.variant_id " +
                          ") fs_active ON v.variant_id = fs_active.variant_id " +
-                         "WHERE v.status = 'active'";
+                         "WHERE " + statusFilter;
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -513,6 +523,7 @@ public class ProductDAO extends DBContext {
                 p.setMinPrice(rs.getLong("min_price"));
                 p.setOriginalPrice(rs.getLong("original_price"));
                 p.setDiscountPercent(rs.getInt("discount_percent"));
+                p.setHidden(rs.getInt("is_hidden") == 1);
                 data.add(p);
             }
         } catch (Exception e) {
@@ -521,14 +532,23 @@ public class ProductDAO extends DBContext {
         return data;
     }
 
-    public int countSearchAllProducts(String keyword, String category) {
+    public int countSearchAllProducts(String keyword, String category, String itemStatus) {
         try {
+            String statusFilter = "";
+            if ("hidden".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
+            } else if ("all".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
+            } else {
+                statusFilter = "v.status = 'active'";
+            }
+
             String sql = "SELECT COUNT(DISTINCT p.product_id) " +
                          "FROM Product p " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN Category c ON p.category_id = c.category_id " +
                          "JOIN ProductVariant v ON p.product_id = v.product_id " +
-                         "WHERE v.status = 'active'";
+                         "WHERE " + statusFilter;
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -1431,6 +1451,28 @@ public List<Product> GetAllProducts() {
         }
     }
 
+    public void hideProductGroup(int product_id) {
+        try {
+            String strSQL = "UPDATE ProductVariant SET status = 'inactive' WHERE product_id = ?";
+            ps = cnn.prepareStatement(strSQL);
+            ps.setInt(1, product_id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("hideProductGroup Error: " + e.getMessage());
+        }
+    }
+
+    public void unhideProductGroup(int product_id) {
+        try {
+            String strSQL = "UPDATE ProductVariant SET status = 'active' WHERE product_id = ?";
+            ps = cnn.prepareStatement(strSQL);
+            ps.setInt(1, product_id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("unhideProductGroup Error: " + e.getMessage());
+        }
+    }
+
     public ProductCompareDTO getProductCompareDetail(int productId) {
         ProductCompareDTO p = null;
         try {
@@ -1490,6 +1532,22 @@ public List<Product> GetAllProducts() {
             }
         } catch (Exception e) {
             System.out.println("isSkuExist: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isSkuExist(String sku, int excludeVariantId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM ProductVariant WHERE sku = ? AND variant_id != ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, sku.trim());
+            ps.setInt(2, excludeVariantId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            System.out.println("isSkuExist with excludeVariantId: " + e.getMessage());
         }
         return false;
     }

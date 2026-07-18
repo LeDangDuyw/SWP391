@@ -164,7 +164,7 @@ public class TicketDAO extends DBContext {
     /**
      * [ĐÃ VÔ HIỆU HÓA] Không còn ghi đè import_price trong ProductVariant.
      * Giá nhập theo lô hàng được giữ nguyên trong TicketDetails.expected_price,
-     * liên kết với từng IMEI/Serial qua InventoryItem.ticket_id.
+     * liên kết với từng Serial qua InventoryItem.ticket_id.
      * Khi cần tính giá vốn: JOIN InventoryItem -> TicketDetails qua (ticket_id, variant_id).
      */
     public void updateImportPriceFromTicket(int ticketId) {

@@ -10,12 +10,12 @@
     </welcome-file-list>
 
     <servlet>
-        <servlet-name>ImeiManagement</servlet-name>
-        <servlet-class>controller.ImeiManagement</servlet-class>
+        <servlet-name>SerialManagement</servlet-name>
+        <servlet-class>controller.SerialManagement</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>ImeiManagement</servlet-name>
-        <url-pattern>/imeimanage</url-pattern>
+        <servlet-name>SerialManagement</servlet-name>
+        <url-pattern>/serialmanage</url-pattern>
     </servlet-mapping>
 
     <servlet>
