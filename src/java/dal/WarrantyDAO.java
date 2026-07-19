@@ -5,8 +5,8 @@ package dal;
  * Description: Data Access Object truy xuất và cập nhật trạng thái yêu cầu bảo hành.
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-12
- * Version: v1.7
+ * Updated: 2026-07-19
+ * Version: v2.7
  *
  * @author DuyLD
  */

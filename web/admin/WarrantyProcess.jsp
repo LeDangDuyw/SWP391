@@ -1157,7 +1157,7 @@
                                                                         </c:forEach>
                                                                     </select>
                                                                     <label style="display:block;margin-bottom:4px;font-size:12px;">Ghi chú lý do chuyển giao</label>
-                                                                    <textarea name="note" placeholder="Nhập lý do (tùy chọn)..." style="width:100%;height:60px;resize:vertical;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:13px;"></textarea>
+                                                                    <textarea required name="note" placeholder="Nhập lý do (tùy chọn)..." style="width:100%;height:60px;resize:vertical;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:13px;"></textarea>
                                                                     <div style="padding:8px 0 0;">
                                                                         <button type="submit" class="btn-approve" style="width:100%;" onclick="return confirm('Xác nhận chuyển giao yêu cầu #${sc.claimId}?')">
                                                                             &#128257; Xác nhận Take Over / Reassign
