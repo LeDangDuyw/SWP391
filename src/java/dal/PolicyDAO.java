@@ -1,16 +1,13 @@
 package dal;
 
 /**
- * Class: PolicyDAO
- * Description: Data Access Object xử lý truy vấn chính sách bảo hành trong CSDL.
- * 
- * Created: 2026-05-31
- * Updated: 2026-07-02
- * Version: v1.4
+ * Class: PolicyDAO Description: Data Access Object xử lý truy vấn chính sách
+ * bảo hành trong CSDL.
+ *
+ * Created: 2026-05-31 Updated: 2026-07-19 Version: v2.5
  *
  * @author DuyLD
  */
-
 import model.WarrantyPolicy;
 import java.sql.*;
 import java.util.ArrayList;
@@ -73,7 +70,7 @@ public class PolicyDAO extends DBContext {
             ps.setTimestamp(9, p.getCreatedAt());
             ps.setTimestamp(10, p.getUpdatedAt());
             ps.executeUpdate();
-            
+
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 // Nếu tồn tại bản ghi kết quả từ database
@@ -154,7 +151,7 @@ public class PolicyDAO extends DBContext {
 
             ResultSet rs = ps.executeQuery();
             return rs.next();
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+            // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -227,7 +224,7 @@ public class PolicyDAO extends DBContext {
                     psPol.executeUpdate();
                 }
                 con.commit();
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
+                // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception e) {
                 con.rollback();
                 throw e;
@@ -378,6 +375,10 @@ public class PolicyDAO extends DBContext {
     }
 
     /*
+     * BR-25: Disabling a Warranty Policy does not retroactively invalidate
+     * active customer warranties; existing warranties remain valid until
+     * their individually computed expiry dates. Only the policy Status is
+     * flipped — no InventoryItem.warranty_expired_date is touched.
      * Disables a warranty policy by setting its status to DISABLED.
      */
     public void disablePolicy(int id) throws Exception {
@@ -408,7 +409,7 @@ public class PolicyDAO extends DBContext {
      */
     public void insertHistory(int policyId, String policyName, String version, String description, String content, String status, String actionType) throws Exception {
         String sql = "INSERT INTO WarrantyPolicyHistory (PolicyID, PolicyName, Version, Description, PolicyContent, Status, ActionType, ChangedAt) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, policyId);

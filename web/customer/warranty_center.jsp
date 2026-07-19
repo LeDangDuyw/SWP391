@@ -3,8 +3,8 @@
     Mo ta: Trang trung tâm bảo hành dành cho khách hàng.
     
     Created: 2026-06-22 21:12:34 +0700
-    Updated: 2026-07-11 23:28:45 +0700
-    Version: v1.0
+    Updated: 2026-07-19
+    Version: v2.4
     
     @author DuyLD
 --%>
@@ -16,7 +16,7 @@
     // Bảo vệ trang: chỉ cho customer (roleId = 3) truy cập
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
 %>
@@ -816,7 +816,7 @@
                         </c:if>
                     </c:forEach>
                     <div class="nav-dropdown">
-                        <span class="dropdown-btn">Phụ kiện <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                        <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
                         <div class="dropdown-content">
                             <c:forEach items="${categories}" var="cat">
                                 <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
@@ -832,15 +832,29 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
-                    <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
+                            <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
+                        </c:if>
+                    </a>
                     <a href="#"><i class="fas fa-bell"></i></a>
                     <c:choose>
                         <c:when test="${not empty sessionScope.user}">
                             <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
-                                <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: inherit;">
-                                    <i class="fas fa-user"></i>
-                                    <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
-                                </a>
+                                 <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                            <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}"
+                                                 alt="avatar"
+                                                 style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="fas fa-user"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                     <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
+                                 </a>
                                 <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
                                     <c:choose>
                                         <c:when test="${sessionScope.user.roleId == 1}">

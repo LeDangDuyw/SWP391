@@ -675,6 +675,45 @@
                 font-size: 13px !important;
                 font-weight: 500 !important;
             }
+
+            /* Beautiful Pagination Styling */
+            .pagination {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid #e5e7eb;
+                justify-content: flex-start;
+            }
+            .pagination a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                border: 1px solid #d1d5db;
+                color: #4b5563;
+                font-size: 13px;
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                background: #ffffff;
+            }
+            .pagination a:hover {
+                border-color: #2563eb;
+                color: #2563eb;
+                background: #f0f6ff;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+            }
+            .pagination a.active {
+                background: #2563eb;
+                border-color: #2563eb;
+                color: #ffffff;
+                box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            }
 </style>
 </head>
     <body>
