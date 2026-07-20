@@ -76,8 +76,8 @@ public class RegisterController extends HttpServlet {
             return;
         }
         
-        if (password.length() < 6) {
-            request.setAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự!");
+        if (!utils.hashPasswordUtil.isValidPassword(password)) {
+            request.setAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             request.getRequestDispatcher("auth/register.jsp").forward(request, response);
             return;
         }

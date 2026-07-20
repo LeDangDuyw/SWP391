@@ -59,7 +59,7 @@
                         <label>Mật Khẩu</label>
                         <input type="password" name="password" 
                                placeholder="••••••••" 
-                               minlength="6"
+                               minlength="8"
                                maxlength="32"
                                value="${param.password}" required>
                     </div>
@@ -67,7 +67,7 @@
                         <label>Xác Nhận Mật Khẩu</label>
                         <input type="password" name="confirmPassword" 
                                placeholder="••••••••" 
-                               minlength="6"
+                               minlength="8"
                                maxlength="32"
                                value="${param.confirmPassword}" required>
                     </div>
