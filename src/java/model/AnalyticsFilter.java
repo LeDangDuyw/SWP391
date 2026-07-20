@@ -1,13 +1,16 @@
 package model;
 
 /**
- * AnalyticsFilter represents the search/filtering criteria 
- * for the Advanced Analytics Module.
+ * Class: AnalyticsFilter
+ * Description: Model lưu trữ cấu hình bộ lọc phân tích (Analytics Filter).
  * 
- * Version 1.0
- * Date: 09/07/2026
- * Author: Antigravity
+ * Created: 2026-07-09
+ * Updated: 2026-07-09
+ * Version: v1.2
+ *
+ * @author DuyLD
  */
+
 public class AnalyticsFilter {
     private String fromDate;
     private String toDate;
@@ -16,9 +19,15 @@ public class AnalyticsFilter {
     private String customerType; // "new" | "returning"
     private String paymentMethod;
 
+    /**
+     * Phuong thuc AnalyticsFilter
+     */
     public AnalyticsFilter() {
     }
 
+    /**
+     * Phuong thuc AnalyticsFilter
+     */
     public AnalyticsFilter(String fromDate, String toDate, Integer categoryId, Integer brandId, String customerType, String paymentMethod) {
         this.fromDate = fromDate;
         this.toDate = toDate;
@@ -28,55 +37,94 @@ public class AnalyticsFilter {
         this.paymentMethod = paymentMethod;
     }
 
+    /**
+     * Phuong thuc getFromDate
+     */
     public String getFromDate() {
         return fromDate;
     }
 
+    /**
+     * Phuong thuc setFromDate
+     */
     public void setFromDate(String fromDate) {
         this.fromDate = fromDate;
     }
 
+    /**
+     * Phuong thuc getToDate
+     */
     public String getToDate() {
         return toDate;
     }
 
+    /**
+     * Phuong thuc setToDate
+     */
     public void setToDate(String toDate) {
         this.toDate = toDate;
     }
 
+    /**
+     * Phuong thuc getCategoryId
+     */
     public Integer getCategoryId() {
         return categoryId;
     }
 
+    /**
+     * Phuong thuc setCategoryId
+     */
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 
+    /**
+     * Phuong thuc getBrandId
+     */
     public Integer getBrandId() {
         return brandId;
     }
 
+    /**
+     * Phuong thuc setBrandId
+     */
     public void setBrandId(Integer brandId) {
         this.brandId = brandId;
     }
 
+    /**
+     * Phuong thuc getCustomerType
+     */
     public String getCustomerType() {
         return customerType;
     }
 
+    /**
+     * Phuong thuc setCustomerType
+     */
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
     }
 
+    /**
+     * Phuong thuc getPaymentMethod
+     */
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
+    /**
+     * Phuong thuc setPaymentMethod
+     */
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
     @Override
+    /**
+     * Phuong thuc toString
+     */
     public String toString() {
         return "AnalyticsFilter{" +
                 "fromDate='" + fromDate + '\'' +

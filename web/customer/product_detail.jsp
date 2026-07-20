@@ -191,19 +191,38 @@
                             <span id="pdPrice" class="pd-price-selling">
                                 <c:choose>
                                     <c:when test="${not empty variants}">
-                                        <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                        <c:choose>
+                                            <c:when test="${not empty variants[0].flashSalePrice}">
+                                                <fmt:formatNumber value="${variants[0].flashSalePrice}" pattern="#,##0"/>₫
+                                            </c:when>
+                                            <c:otherwise>
+                                                <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:when>
                                     <c:otherwise>Liên hệ</c:otherwise>
                                 </c:choose>
                             </span>
-                            <c:if test="${product.originalPrice > 0 && (empty variants || product.originalPrice > variants[0].sellingPrice)}">
-                                <span class="pd-price-original"><fmt:formatNumber value="${product.originalPrice}" pattern="#,##0"/>₫</span>
-                                <span class="pd-price-discount">-${product.discountPercent}%</span>
+                            
+                            <!-- Hiển thị giá gốc gạch ngang khi có flash sale -->
+                            <span id="pdPriceOriginal" class="pd-price-original" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                                <c:if test="${not empty variants}">
+                                    <fmt:formatNumber value="${variants[0].sellingPrice}" pattern="#,##0"/>₫
+                                </c:if>
+                            </span>
+                            <span id="pdPriceDiscount" class="pd-price-discount" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                                <c:if test="${not empty variants}">
+                                    -${variants[0].discountPercent}%
+                                </c:if>
+                            </span>
+                        </div>
+                        
+                        <!-- Hiển thị tiết kiệm khi có flash sale -->
+                        <div id="pdSavings" class="pd-savings" style="${not empty variants and not empty variants[0].flashSalePrice ? '' : 'display: none;'}">
+                            <c:if test="${not empty variants and not empty variants[0].flashSalePrice}">
+                                Tiết kiệm: <fmt:formatNumber value="${variants[0].sellingPrice - variants[0].flashSalePrice}" pattern="#,##0"/>₫
                             </c:if>
                         </div>
-                        <c:if test="${product.originalPrice > 0 && not empty variants && product.originalPrice > variants[0].sellingPrice}">
-                            <div class="pd-savings">Tiết kiệm: <fmt:formatNumber value="${product.originalPrice - variants[0].sellingPrice}" pattern="#,##0"/>₫</div>
-                        </c:if>
                     </div>
 
                     <!-- Spec summary grid -->
@@ -296,7 +315,11 @@
                                     <button type="button"
                                             class="pd-option-btn pd-variant-btn ${st.first ? 'active' : ''}"
                                             data-variant-id="${v.variantId}"
-                                            data-price="<fmt:formatNumber value='${v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-price="<fmt:formatNumber value='${not empty v.flashSalePrice ? v.flashSalePrice : v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-flash-sale="${not empty v.flashSalePrice}"
+                                            data-original-price="<fmt:formatNumber value='${v.sellingPrice}' pattern='#,##0'/>₫"
+                                            data-discount-percent="${v.discountPercent}"
+                                            data-savings="<fmt:formatNumber value='${not empty v.flashSalePrice ? v.sellingPrice - v.flashSalePrice : 0}' pattern='#,##0'/>₫"
                                             data-stock="${v.availableQuantity}"
                                             ${v.availableQuantity == 0 ? 'disabled' : ''}>
                                         ${v.variantName}
@@ -502,55 +525,7 @@
         </div>
 
         <!-- Footer -->
-        <%
-            if (request.getAttribute("footerPages") == null) {
-                try {
-                    dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-                    java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-                    request.setAttribute("footerPages", footerPagesList);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        %>
-        <footer class="footer">
-            <div class="container footer-grid">
-                <!-- Column 1: Brand & Contact -->
-                <div class="footer-col">
-                    <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-                    <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-                    <div class="footer-contact-info">
-                        <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
-                        <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                        <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-                    </div>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
-                    </div>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Chính sách & Hỗ trợ</h3>
-                    <ul>
-                        <c:if test="${not empty footerPages}">
-                            <c:forEach items="${footerPages}" var="pageItem">
-                                <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                                </c:forEach>
-                            </c:if>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <div class="container footer-bottom-container">
-                    <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-                    <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
-                </div>
-            </div>
-        </footer>
+        <%@include file="_footer.jspf" %>
 
         <!-- Scripts -->
         <%@include file="floatingCompareBar.jsp" %>
