@@ -220,7 +220,7 @@
 <a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 border border-primary text-primary font-bold hover:bg-primary-container/10 transition-all rounded-lg active:scale-95 flex items-center justify-center">
                         Hủy bỏ
                     </a>
-<button class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 active:scale-95">
+<button form="productForm" type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 active:scale-95">
                         Cập nhật sản phẩm
                     </button>
 </div>
@@ -230,46 +230,100 @@
 <!-- Left Column: General Information -->
 <div class="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
 <!-- General Information Card -->
-<div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
-<div class="flex items-center gap-2 mb-6 text-primary">
-<span class="material-symbols-outlined" data-icon="info">info</span>
-<h2 class="font-headline-md text-headline-md">Thông tin chung</h2>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="col-span-2">
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Tên sản phẩm</label>
-<input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="productName" value="<%= productName %>"/>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Danh mục</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="categoryId">
-<% for (Category c : categories) { %>
-<option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
-<% } %>
-</select>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thương hiệu</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="brandId">
-<% for (Brand b : brands) { %>
-<option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
-<% } %>
-</select>
-</div>
-<div class="col-span-2">
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Mô tả</label>
-<div class="border border-outline-variant rounded-lg overflow-hidden">
-<div class="flex items-center gap-1 p-2 bg-surface-container border-b border-outline-variant">
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">link</span></button>
-</div>
-<textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" name="description" rows="6"><%= description %></textarea>
-</div>
-</div>
-</div>
-</div>
+<form id="productForm" action="${pageContext.request.contextPath}/staff/inventory/edit" method="post">
+    <input type="hidden" name="action" value="updateProduct"/>
+    <input type="hidden" name="productId" value="<%= product != null ? product.getProductId() : "" %>"/>
+    <input type="hidden" name="variantId" value="${selectedVariantId}"/>
+    <div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
+        <div class="flex items-center gap-2 mb-6 text-primary">
+            <span class="material-symbols-outlined" data-icon="info">info</span>
+            <h2 class="font-headline-md text-headline-md">Thông tin chung</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="col-span-3">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Tên sản phẩm</label>
+                <input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="productName" value="<%= productName %>" required/>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Danh mục</label>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="categoryId">
+                        <% for (Category c : categories) { %>
+                            <option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
+                        <% } %>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thương hiệu</label>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId">
+                        <% for (Brand b : brands) { %>
+                            <option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
+                        <% } %>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thời gian bảo hành (tháng)</label>
+                <input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" type="number" name="warrantyPeriod" min="0" value="<%= product != null ? product.getWarrantyPeriod() : 0 %>" required/>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Nhu cầu sử dụng</label>
+                <%
+                    String currentPurpose = product != null ? product.getPurpose() : "";
+                    boolean isCustomPurpose = false;
+                    if (currentPurpose != null && !currentPurpose.trim().isEmpty()) {
+                        if (!"Văn phòng".equals(currentPurpose) && 
+                            !"Gaming".equals(currentPurpose) && 
+                            !"Đồ họa".equals(currentPurpose) && 
+                            !"Mỏng nhẹ".equals(currentPurpose)) {
+                            isCustomPurpose = true;
+                        }
+                    }
+                %>
+                <div class="flex flex-col gap-2">
+                    <div class="relative">
+                        <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="purposeSelect" id="purposeSelect" onchange="toggleCustomPurpose(this, 'purposeCustom')">
+                            <option value="">-- Chọn nhu cầu --</option>
+                            <option value="Văn phòng" <%= "Văn phòng".equals(currentPurpose) ? "selected" : "" %>>Học tập - Văn phòng</option>
+                            <option value="Gaming" <%= "Gaming".equals(currentPurpose) ? "selected" : "" %>>Gaming - Trải nghiệm</option>
+                            <option value="Đồ họa" <%= "Đồ họa".equals(currentPurpose) ? "selected" : "" %>>Đồ họa - Kỹ thuật</option>
+                            <option value="Mỏng nhẹ" <%= "Mỏng nhẹ".equals(currentPurpose) ? "selected" : "" %>>Mỏng nhẹ - Cao cấp</option>
+                            <option value="Khác" <%= isCustomPurpose ? "selected" : "" %>>Khác...</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                    </div>
+                    <input type="text" name="purposeCustom" id="purposeCustom" placeholder="Nhập nhu cầu khác..." value="<%= isCustomPurpose ? currentPurpose : "" %>"
+                        class="<%= isCustomPurpose ? "" : "hidden" %> w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" <%= isCustomPurpose ? "required" : "" %>>
+                </div>
+            </div>
+            <div class="col-span-1" id="series-container">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Dòng sản phẩm</label>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="seriesId" id="seriesId">
+                        <option value="">-- Chọn dòng sản phẩm --</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Mô tả</label>
+                <div class="border border-outline-variant rounded-lg overflow-hidden">
+                    <div class="flex items-center gap-1 p-2 bg-surface-container border-b border-outline-variant">
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">link</span></button>
+                    </div>
+                    <textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" name="description" rows="6"><%= description %></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <!-- Product Variants Card -->
 <div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
 <div class="flex items-center justify-between mb-6">
@@ -504,6 +558,83 @@
     function closeEditVariantModal() {
         document.getElementById('editVariantModal').classList.add('hidden');
     }
+
+    // --- Xử lý lọc dòng sản phẩm động theo hãng và ẩn/hiện theo danh mục cho Edit ---
+    const allSeries = [
+        <% List<model.ProductSeries> seriesList = (List<model.ProductSeries>) request.getAttribute("serieses");
+           if (seriesList != null) {
+               for (int i = 0; i < seriesList.size(); i++) {
+                   model.ProductSeries s = seriesList.get(i);
+        %>
+            { id: <%= s.getSeriesId() %>, name: "<%= s.getSeriesName().replace("\"", "\\\"") %>", brandId: <%= s.getBrandId() %> }<%= i < seriesList.size() - 1 ? "," : "" %>
+        <%     }
+           }
+        %>
+    ];
+
+    const initialSeriesId = <%= product != null ? product.getSeriesId() : 0 %>;
+
+    function filterSeriesAndCategory() {
+        const categorySelect = document.querySelector('select[name="categoryId"]');
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        const seriesSelect = document.getElementById('seriesId');
+        const seriesContainer = document.getElementById('series-container');
+
+        if (!categorySelect || !brandSelect || !seriesSelect || !seriesContainer) return;
+
+        const selectedCategoryId = categorySelect.value;
+        const selectedBrandId = parseInt(brandSelect.value) || 0;
+
+        // Chỉ dòng Laptop (categoryId = 1) mới hiển thị dòng sản phẩm (Series)
+        if (selectedCategoryId === "1") {
+            seriesContainer.style.display = "block";
+            seriesSelect.disabled = false;
+
+            // Lấy giá trị được chọn hiện tại (hoặc giá trị ban đầu nếu mới load)
+            let currentVal = seriesSelect.value || initialSeriesId;
+
+            seriesSelect.innerHTML = '<option value="">-- Chọn dòng sản phẩm --</option>';
+
+            const filtered = allSeries.filter(s => s.brandId === selectedBrandId);
+            filtered.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                if (parseInt(currentVal) === s.id) {
+                    opt.selected = true;
+                }
+                seriesSelect.appendChild(opt);
+            });
+        } else {
+            // Ẩn dropdown dòng sản phẩm nếu không phải laptop
+            seriesContainer.style.display = "none";
+            seriesSelect.value = "";
+            seriesSelect.disabled = true;
+        }
+    }
+
+    function toggleCustomPurpose(select, inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (select.value === "Khác") {
+            input.classList.remove('hidden');
+            input.setAttribute('required', 'required');
+            input.focus();
+        } else {
+            input.classList.add('hidden');
+            input.removeAttribute('required');
+            input.value = "";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const categorySelect = document.querySelector('select[name="categoryId"]');
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        if (categorySelect) categorySelect.addEventListener('change', filterSeriesAndCategory);
+        if (brandSelect) brandSelect.addEventListener('change', filterSeriesAndCategory);
+
+        filterSeriesAndCategory();
+    });
 </script>
 </body>
 </html>

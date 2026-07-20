@@ -327,7 +327,8 @@ public class OutboundDAO extends DBContext {
                                         "warranty_expired_date = DATEADD(month, (SELECT p.warranty_period FROM Product p " +
                                         "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
                                         "WHERE pv.variant_id = InventoryItem.variant_id), GETDATE()) " +
-                                        "WHERE item_id = ? AND status = 'in_stock'";
+                                        "WHERE item_id = ? AND status = 'in_stock' " +
+                                        "AND variant_id = (SELECT variant_id FROM OrderDetail WHERE order_detail_id = ?)";
             
             String insertSerialSql = "INSERT INTO OrderItemSerial (order_detail_id, item_id, assigned_at) VALUES (?, ?, GETDATE())";
             
@@ -339,11 +340,12 @@ public class OutboundDAO extends DBContext {
                     List<Integer> itemIds = entry.getValue();
                     
                     for (Integer itemId : itemIds) {
-                        // 1. Update InventoryItem (Race condition check)
+                        // 1. Update InventoryItem (Race condition check & variant validation check)
                         psInv.setInt(1, itemId);
+                        psInv.setInt(2, orderDetailId);
                         int affected = psInv.executeUpdate();
                         if (affected == 0) {
-                            throw new Exception("Lỗi: Serial có ID " + itemId + " không tồn tại hoặc đã bị xuất kho bởi người khác!");
+                            throw new Exception("Lỗi: Serial có ID " + itemId + " không tồn tại, sai loại sản phẩm, hoặc đã bị xuất kho bởi người khác!");
                         }
                         
                         // 2. Insert OrderItemSerial
@@ -392,6 +394,22 @@ public class OutboundDAO extends DBContext {
     public boolean updateOrderStatus(int orderId, String status) {
         try {
             connection.setAutoCommit(false);
+            
+            // Check state machine bypass: cannot set to delivered or Completed if order is not fulfilled (no serials assigned)
+            if ("delivered".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) {
+                String checkSerialSql = "SELECT COUNT(*) FROM OrderItemSerial ois " +
+                                        "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id " +
+                                        "WHERE od.order_id = ?";
+                try (PreparedStatement psCheck = connection.prepareStatement(checkSerialSql)) {
+                    psCheck.setInt(1, orderId);
+                    try (ResultSet rsCheck = psCheck.executeQuery()) {
+                        if (rsCheck.next() && rsCheck.getInt(1) == 0) {
+                            connection.rollback();
+                            return false; // Cannot complete/deliver without serial assignment!
+                        }
+                    }
+                }
+            }
             
             if ("cancelled".equalsIgnoreCase(status)) {
                 // Get current status

@@ -158,7 +158,7 @@
                                                     class="block text-sm font-medium text-on-surface-variant mb-2">Danh mục</label>
                                                 <div class="relative">
                                                     <select name="categoryId"
-                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                                         required>
                                                         <option value="" disabled selected>Chọn danh mục</option>
                                                         <c:forEach var="c" items="${categories}">
@@ -176,7 +176,7 @@
                                                     class="block text-sm font-medium text-on-surface-variant mb-2">Thương hiệu</label>
                                                 <div class="relative">
                                                     <select name="brandId"
-                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                                         required>
                                                         <option value="" disabled selected>Chọn thương hiệu</option>
                                                         <c:forEach var="b" items="${brands}">
@@ -185,6 +185,50 @@
                                                     </select>
                                                     <span
                                                         class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Warranty Period -->
+                                            <div class="flex-1">
+                                                <label
+                                                    class="block text-sm font-medium text-on-surface-variant mb-2">Bảo hành (tháng)</label>
+                                                <input type="number" name="warrantyPeriod" min="0" placeholder="Ví dụ: 12" value="12"
+                                                    class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-on-surface-variant/50"
+                                                    required>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-6">
+                                            <!-- Purpose / Nhu cầu sử dụng -->
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-on-surface-variant mb-2">Nhu cầu sử dụng</label>
+                                                <div class="flex flex-col gap-2">
+                                                    <div class="relative">
+                                                        <select name="purposeSelect" id="purposeSelect" onchange="toggleCustomPurpose(this, 'purposeCustom')"
+                                                            class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                                                            <option value="">-- Chọn nhu cầu --</option>
+                                                            <option value="Văn phòng">Học tập - Văn phòng</option>
+                                                            <option value="Gaming">Gaming - Trải nghiệm</option>
+                                                            <option value="Đồ họa">Đồ họa - Kỹ thuật</option>
+                                                            <option value="Mỏng nhẹ">Mỏng nhẹ - Cao cấp</option>
+                                                            <option value="Khác">Khác...</option>
+                                                        </select>
+                                                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                                                    </div>
+                                                    <input type="text" name="purposeCustom" id="purposeCustom" placeholder="Nhập nhu cầu khác..."
+                                                        class="hidden w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none placeholder-on-surface-variant/50">
+                                                </div>
+                                            </div>
+
+                                            <!-- Product Series / Dòng sản phẩm -->
+                                            <div class="flex-1" id="series-container">
+                                                <label class="block text-sm font-medium text-on-surface-variant mb-2">Dòng sản phẩm</label>
+                                                <div class="relative">
+                                                    <select name="seriesId" id="seriesId"
+                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                                                        <option value="">-- Chọn dòng sản phẩm --</option>
+                                                    </select>
+                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -388,6 +432,73 @@
 
                     // Khởi tạo dòng nhập biến thể đầu tiên lúc vừa load trang
                     addVariantRow();
+
+                    // --- Xử lý lọc dòng sản phẩm động theo hãng và ẩn/hiện theo danh mục ---
+                    const allSeries = [
+                        <c:forEach var="s" items="${serieses}" varStatus="loop">
+                            { id: ${s.seriesId}, name: "${s.seriesName}", brandId: ${s.brandId} }${!loop.last ? ',' : ''}
+                        </c:forEach>
+                    ];
+
+                    function filterSeriesAndCategory() {
+                        const categorySelect = document.querySelector('select[name="categoryId"]');
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        const seriesSelect = document.getElementById('seriesId');
+                        const seriesContainer = document.getElementById('series-container');
+
+                        if (!categorySelect || !brandSelect || !seriesSelect || !seriesContainer) return;
+
+                        const selectedCategoryId = categorySelect.value;
+                        const selectedBrandId = parseInt(brandSelect.value) || 0;
+
+                        // Chỉ dòng Laptop (categoryId = 1) mới cần chọn dòng máy (Series)
+                        if (selectedCategoryId === "1") {
+                            seriesContainer.style.display = "block";
+                            seriesSelect.disabled = false;
+                            
+                            const prevVal = seriesSelect.value;
+                            seriesSelect.innerHTML = '<option value="">-- Chọn dòng sản phẩm --</option>';
+                            
+                            const filtered = allSeries.filter(s => s.brandId === selectedBrandId);
+                            filtered.forEach(s => {
+                                const opt = document.createElement('option');
+                                opt.value = s.id;
+                                opt.textContent = s.name;
+                                if (parseInt(prevVal) === s.id) {
+                                    opt.selected = true;
+                                }
+                                seriesSelect.appendChild(opt);
+                            });
+                        } else {
+                            // Ẩn dropdown dòng sản phẩm nếu không phải laptop
+                            seriesContainer.style.display = "none";
+                            seriesSelect.value = "";
+                            seriesSelect.disabled = true;
+                        }
+                    }
+
+                    function toggleCustomPurpose(select, inputId) {
+                        const input = document.getElementById(inputId);
+                        if (!input) return;
+                        if (select.value === "Khác") {
+                            input.classList.remove('hidden');
+                            input.setAttribute('required', 'required');
+                            input.focus();
+                        } else {
+                            input.classList.add('hidden');
+                            input.removeAttribute('required');
+                            input.value = "";
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const categorySelect = document.querySelector('select[name="categoryId"]');
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        if (categorySelect) categorySelect.addEventListener('change', filterSeriesAndCategory);
+                        if (brandSelect) brandSelect.addEventListener('change', filterSeriesAndCategory);
+                        
+                        filterSeriesAndCategory();
+                    });
                 </script>
             </body>
 

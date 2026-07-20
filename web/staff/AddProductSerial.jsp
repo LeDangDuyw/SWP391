@@ -208,6 +208,9 @@
             <c:when test="${param.error == 'InvalidImportDate'}">
                 Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.
             </c:when>
+            <c:when test="${param.error == 'DuplicateSerialInBatch'}">
+                Lỗi: Có mã Serial Number bị trùng lặp trong lô hàng vừa nhập! Vui lòng kiểm tra lại.
+            </c:when>
             <c:otherwise>
                 Đã xảy ra lỗi: ${param.error}
             </c:otherwise>

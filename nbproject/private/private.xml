@@ -25,6 +25,15 @@
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDetailDAO.java</file>
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignFormDAO.java</file>
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PromotionsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdvancedAnalyticsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/PdfInvoiceService.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/BrandDao.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/css/cart.css</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PlaceOrderTest.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdminDashboardDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/OutboundDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/ImeiDAO.java</file>
         </group>
         <group>
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/TicketListController.java</file>
@@ -40,6 +49,12 @@
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdvancedAnalyticsDAO.java</file>
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/PdfInvoiceService.java</file>
             <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/BrandDao.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/css/cart.css</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PlaceOrderTest.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdminDashboardDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/OutboundDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketDetail.jsp</file>
         </group>
     </open-files>
 </project-private>

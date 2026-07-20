@@ -122,6 +122,18 @@ public class AddProductSerialController extends HttpServlet {
                 "&variantId=" + variantId);
             return;
         }
+
+        // Validate duplicates within the submitted batch to prevent SQL unique constraint violations
+        java.util.Set<String> uniqueSerials = new java.util.HashSet<>();
+        for (String sn : validSerials) {
+            if (!uniqueSerials.add(sn)) {
+                response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=DuplicateSerialInBatch" + 
+                    (ticketId != null ? "&ticketId=" + ticketId : "") + 
+                    "&variantId=" + variantId);
+                return;
+            }
+        }
+
         
         TicketDAO ticketDao = new TicketDAO();
         int expectedQuantity = -1;

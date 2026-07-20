@@ -288,7 +288,6 @@
                                 focus:ring-0 focus:border-primary outline-none">
                             <option value="">Trạng thái kho</option>
                             <option value="inStock"    ${param.stockStatus == 'inStock'    ? 'selected' : ''}>Còn hàng</option>
-                            <option value="lowStock"   ${param.stockStatus == 'lowStock'   ? 'selected' : ''}>Sắp hết hàng</option>
                             <option value="outOfStock" ${param.stockStatus == 'outOfStock' ? 'selected' : ''}>Hết hàng</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
@@ -463,9 +462,6 @@
                                             if ("Sold Out".equalsIgnoreCase(statusStr) || "Out of Stock".equalsIgnoreCase(statusStr)) {
                                                 statusBg = "bg-[#FCE8E6] text-[#C5221F]"; // red
                                                 statusText = "Hết hàng";
-                                            } else if ("Low Stock".equalsIgnoreCase(statusStr)) {
-                                                statusBg = "bg-[#FEF7E0] text-[#B06000]"; // yellow/orange
-                                                statusText = "Sắp hết hàng";
                                             }
                                         %>
                                         <span class="inline-flex items-center px-2 py-1 rounded <%= statusBg %> text-[12px] font-bold">

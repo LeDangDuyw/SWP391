@@ -60,4 +60,31 @@ public class ProductSeriesDAO extends DBContext {
     }
     return data;
 }
+
+    // lấy tất cả danh sách series
+    public ArrayList<ProductSeries> getAllSeries() {
+        ArrayList<ProductSeries> data = new ArrayList<>();
+        try {
+            String sql = """
+                SELECT
+                    series_id,
+                    series_name,
+                    brand_id
+                FROM ProductSeries
+                ORDER BY series_name
+            """;
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ProductSeries s = new ProductSeries();
+                s.setSeriesId(rs.getInt("series_id"));
+                s.setSeriesName(rs.getString("series_name"));
+                s.setBrandId(rs.getInt("brand_id"));
+                data.add(s);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
 }
