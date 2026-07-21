@@ -1099,10 +1099,12 @@
                     Đơn hàng của tôi
                 </div>
 
+<%--
                 <div class="nav-item" id="nav-student-verify" onclick="switchTab('student-verify')">
                     <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
                     Xác minh sinh viên
                 </div>
+--%>
                 </c:if>
 
                 <div class="nav-divider"></div>
@@ -1277,7 +1279,11 @@
 
                     <!-- Password rules -->
                     <ul class="pw-rules" id="pwRules">
-                        <li id="rule-length"><i class="fas fa-circle"></i> Ít nhất 6 ký tự</li>
+                        <li id="rule-length"><i class="fas fa-circle"></i> Ít nhất 8 ký tự</li>
+                        <li id="rule-upper"><i class="fas fa-circle"></i> Có chữ hoa (A-Z)</li>
+                        <li id="rule-lower"><i class="fas fa-circle"></i> Có chữ thường (a-z)</li>
+                        <li id="rule-digit"><i class="fas fa-circle"></i> Có chữ số (0-9)</li>
+                        <li id="rule-special"><i class="fas fa-circle"></i> Có ký tự đặc biệt (!@#$...)</li>
                         <li id="rule-match"><i class="fas fa-circle"></i> Xác nhận khớp</li>
                     </ul>
 
@@ -1356,7 +1362,7 @@
                         </div>
                     </div>
                     <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2;">
-                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số.</li>
+                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$...).</li>
                         <li>Không sử dụng cùng một mật khẩu cho nhiều tài khoản.</li>
                         <li>Không chia sẻ mật khẩu với bất kỳ ai.</li>
                         <li>Thay đổi mật khẩu định kỳ 3-6 tháng một lần.</li>
@@ -1677,7 +1683,11 @@
                                 <c:if test="${not empty studentVerify}">
                                     <div style="margin-top:20px;">
                                         <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên của bạn:</p>
-                                        <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                            <c:forEach var="imgName" items="${studentVerify.studentCardImage.split(',')}">
+                                                <img src="${pageContext.request.contextPath}/images/${imgName}" alt="Thẻ sinh viên" style="max-width:300px; max-height:220px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200); object-fit:cover; cursor:pointer;">
+                                            </c:forEach>
+                                        </div>
                                     </div>
                                 </c:if>
                             </c:when>
@@ -1692,37 +1702,61 @@
                                 </div>
                                 <div style="margin-top:20px;">
                                     <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên đã gửi:</p>
-                                    <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                        <c:forEach var="imgName" items="${studentVerify.studentCardImage.split(',')}">
+                                            <img src="${pageContext.request.contextPath}/images/${imgName}" alt="Thẻ sinh viên" style="max-width:300px; max-height:220px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200); object-fit:cover;">
+                                        </c:forEach>
+                                    </div>
                                 </div>
                             </c:when>
-                            <c:when test="${not empty studentVerify && studentVerify.status == 'rejected'}">
+                            <c:when test="${not empty studentVerify && (studentVerify.status == 'rejected' || studentVerify.status == 'revoked')}">
                                 <div class="alert alert-error" style="background:#fef2f2; border-left:4px solid #b91c1c; color:#991b1b; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
                                     <i class="fas fa-times-circle" style="font-size:24px;"></i>
                                     <div>
-                                        <h4 style="font-weight:600; margin-bottom:4px;">Yêu cầu xác minh bị từ chối</h4>
-                                        <p style="font-size:14px; opacity:0.9;"><strong>Lý do từ chối:</strong> ${studentVerify.staffNote}</p>
+                                        <h4 style="font-weight:600; margin-bottom:4px;">
+                                            <c:choose>
+                                                <c:when test="${studentVerify.status == 'revoked'}">Tài khoản sinh viên đã bị thu hồi</c:when>
+                                                <c:otherwise>Yêu cầu xác minh bị từ chối</c:otherwise>
+                                            </c:choose>
+                                        </h4>
+                                        <p style="font-size:14px; opacity:0.9;"><strong>Lý do:</strong> ${not empty studentVerify.staffNote ? studentVerify.staffNote : 'Không có chi tiết'}</p>
                                     </div>
                                 </div>
-                                <p style="margin-bottom:20px; color:var(--gray-700);">Vui lòng tải lên ảnh thẻ sinh viên hợp lệ khác dưới đây để gửi lại yêu cầu xác minh.</p>
-                                
-                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
-                                    <div class="form-group" style="margin-bottom:20px;">
-                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên mới</label>
-                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu xác minh
-                                    </button>
-                                </form>
+                                <c:choose>
+                                    <c:when test="${canResubmit == false}">
+                                        <div class="alert alert-warning" style="background:#fffbeb; border-left:4px solid #b45309; color:#92400e; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                                            <i class="fas fa-exclamation-triangle" style="font-size:24px;"></i>
+                                            <div>
+                                                <h4 style="font-weight:600; margin-bottom:4px;">Giới hạn lượt gửi lại</h4>
+                                                <p style="font-size:14px; opacity:0.9;">Mỗi tháng bạn chỉ được gửi lại yêu cầu xác minh 1 lần. Vui lòng chờ thêm <strong>${daysRemaining} ngày</strong> nữa mới có thể gửi lại yêu cầu mới.</p>
+                                            </div>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <p style="margin-bottom:20px; color:var(--gray-700);">Vui lòng tải lên ảnh thẻ sinh viên hợp lệ khác dưới đây để gửi lại yêu cầu xác minh.</p>
+                                        
+                                        <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data" onsubmit="return validateStudentCard(this)">
+                                            <div class="form-group" style="margin-bottom:20px;">
+                                                <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên mới (tối thiểu 1, tối đa 3 ảnh)</label>
+                                                <input type="file" name="studentCard" accept="image/*" required multiple class="form-control" style="padding:10px;" onchange="checkFileCount(this)">
+                                                <small style="color:var(--gray-500); margin-top:6px; display:block;">Chấp nhận ảnh JPG, PNG, WEBP. Tối đa 3 ảnh, mỗi ảnh không quá 10MB.</small>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu xác minh
+                                            </button>
+                                        </form>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:when>
 
                             <c:otherwise>
                                 <p style="margin-bottom:20px; color:var(--gray-700);">Để kích hoạt tài khoản Sinh viên, vui lòng chụp ảnh thẻ sinh viên của bạn rõ ràng các thông tin cá nhân và tải lên tại đây. Nhân viên của chúng tôi sẽ tiến hành phê duyệt.</p>
                                 
-                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
+                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data" onsubmit="return validateStudentCard(this)">
                                     <div class="form-group" style="margin-bottom:20px;">
-                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên</label>
-                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
+                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên (tối thiểu 1, tối đa 3 ảnh)</label>
+                                        <input type="file" name="studentCard" accept="image/*" required multiple class="form-control" style="padding:10px;" onchange="checkFileCount(this)">
+                                        <small style="color:var(--gray-500); margin-top:6px; display:block;">Chấp nhận ảnh JPG, PNG, WEBP. Tối đa 3 ảnh, mỗi ảnh không quá 10MB.</small>
                                     </div>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-paper-plane"></i> Gửi yêu cầu xác minh
@@ -1879,18 +1913,27 @@
             var pw      = document.getElementById('newPassword').value      || '';
             var confirm = document.getElementById('confirmPassword').value  || '';
 
-            var ruleLength = pw.length >= 6;
-            var ruleMatch  = pw.length > 0 && pw === confirm;
+            var ruleLength  = pw.length >= 8;
+            var ruleUpper   = /[A-Z]/.test(pw);
+            var ruleLower   = /[a-z]/.test(pw);
+            var ruleDigit   = /[0-9]/.test(pw);
+            var ruleSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pw);
+            var ruleMatch   = pw.length > 0 && pw === confirm;
 
-            setRule('rule-length', ruleLength);
-            setRule('rule-match',  ruleMatch);
+            setRule('rule-length',  ruleLength);
+            setRule('rule-upper',   ruleUpper);
+            setRule('rule-lower',   ruleLower);
+            setRule('rule-digit',   ruleDigit);
+            setRule('rule-special', ruleSpecial);
+            setRule('rule-match',   ruleMatch);
 
+            var passedCount = [ruleLength, ruleUpper, ruleLower, ruleDigit, ruleSpecial].filter(Boolean).length;
             var fill = document.getElementById('pwStrengthFill');
             var color, width;
-            if      (pw.length === 0)  { color = ''; width = '0%'; }
-            else if (pw.length < 6)    { color = '#ef4444'; width = '33%'; }
-            else if (pw.length < 10)   { color = '#eab308'; width = '66%'; }
-            else                       { color = '#22c55e'; width = '100%'; }
+            if      (pw.length === 0)    { color = ''; width = '0%'; }
+            else if (passedCount <= 2)   { color = '#ef4444'; width = '33%'; }
+            else if (passedCount <= 4)   { color = '#eab308'; width = '66%'; }
+            else                         { color = '#22c55e'; width = '100%'; }
             fill.style.width      = width;
             fill.style.background = color;
         }
@@ -1904,7 +1947,7 @@
 
         function resetPwForm() {
             document.getElementById('changePwForm').reset();
-            ['rule-length','rule-match'].forEach(function(id){ setRule(id, false); });
+            ['rule-length','rule-upper','rule-lower','rule-digit','rule-special','rule-match'].forEach(function(id){ setRule(id, false); });
             var fill = document.getElementById('pwStrengthFill');
             fill.style.width = '0';
             fill.style.background = '';
@@ -2113,6 +2156,26 @@
                 switchTab(hash);
             }
         });
+        // Student card file upload validation (max 3 images)
+        function checkFileCount(input) {
+            if (input.files.length > 3) {
+                alert('Bạn chỉ được tải lên tối đa 3 ảnh! Vui lòng chọn lại.');
+                input.value = '';
+            }
+        }
+        function validateStudentCard(form) {
+            var fileInput = form.querySelector('input[name="studentCard"]');
+            if (!fileInput || fileInput.files.length === 0) {
+                alert('Vui lòng chọn ít nhất 1 ảnh thẻ sinh viên!');
+                return false;
+            }
+            if (fileInput.files.length > 3) {
+                alert('Bạn chỉ được tải lên tối đa 3 ảnh!');
+                fileInput.value = '';
+                return false;
+            }
+            return true;
+        }
     </script>
     <!-- Modal Đánh Giá Sản Phẩm -->
     <div id="reviewModal" class="review-modal">

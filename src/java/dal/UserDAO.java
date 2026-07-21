@@ -109,7 +109,7 @@ public class UserDAO extends DBContext {
      * ghi mới vào cơ sở dữ liệu
      */
     public boolean register(String userName, String email, String phone, String password) {
-        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'active', 3)";
+        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'unactivated', 3)";
         try {
 
             String hashedPassword = hashPasswordUtil.hashPassword(password);
@@ -121,6 +121,18 @@ public class UserDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println(e);
+        }
+        return false;
+    }
+
+    public boolean activateUser(int userId) {
+        String sql = "UPDATE [User] SET status = 'active' WHERE user_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error activating user: " + e.getMessage());
         }
         return false;
     }

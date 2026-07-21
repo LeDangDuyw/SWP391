@@ -47,7 +47,7 @@ public class ProfileController extends HttpServlet {
         if (freshUser == null) {
             freshUser = sessionUser;
         }
-
+        session.setAttribute("user", freshUser);
         request.setAttribute("profileUser", freshUser);
         
         // Load student verification status if customer or student
@@ -55,6 +55,23 @@ public class ProfileController extends HttpServlet {
             dal.StudentVerificationDAO svDAO = new dal.StudentVerificationDAO();
             model.StudentVerification sv = svDAO.getByUserId(freshUser.getUserId());
             request.setAttribute("studentVerify", sv);
+
+            if (sv != null && ("rejected".equalsIgnoreCase(sv.getStatus()) || "revoked".equalsIgnoreCase(sv.getStatus()))) {
+                java.sql.Timestamp lastDate = sv.getUpdatedAt() != null ? sv.getUpdatedAt() : sv.getCreatedAt();
+                if (lastDate != null) {
+                    long now = System.currentTimeMillis();
+                    long diffInDays = (now - lastDate.getTime()) / (1000L * 60 * 60 * 24);
+                    if (diffInDays < 30) {
+                        long daysRemaining = Math.max(1, 30 - diffInDays);
+                        request.setAttribute("canResubmit", false);
+                        request.setAttribute("daysRemaining", daysRemaining);
+                    } else {
+                        request.setAttribute("canResubmit", true);
+                    }
+                } else {
+                    request.setAttribute("canResubmit", true);
+                }
+            }
 
             // Load purchase history (orders & details)
             dal.OrderDAO orderDAO = new dal.OrderDAO();
@@ -147,9 +164,9 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
-        // Minimum 6 characters
-        if (newPassword.length() < 6) {
-            request.setAttribute("pwError", "Mật khẩu mới phải có ít nhất 6 ký tự!");
+        // Validate strong password requirements (8+ chars, upper, lower, digit, special)
+        if (!hashPasswordUtil.isValidPassword(newPassword)) {
+            request.setAttribute("pwError", "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             doGet(request, response);
             return;
         }
