@@ -252,9 +252,9 @@ public class ManageUsersController extends HttpServlet {
                 return;
             }
 
-            if (password.length() < 6) {
+            if (!utils.hashPasswordUtil.isValidPassword(password)) {
                 response.sendRedirect(redirectURL.toString() + "&error=" +
-                        URLEncoder.encode("Mật khẩu phải có ít nhất 6 ký tự!", "UTF-8"));
+                        URLEncoder.encode("Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!", "UTF-8"));
                 return;
             }
 
