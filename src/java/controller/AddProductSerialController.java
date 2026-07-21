@@ -7,7 +7,7 @@
  */
 package controller;
 
-import dal.ImeiDAO;
+import dal.SerialDAO;
 import dal.ProductDAO;
 import dal.TicketDAO;
 import java.io.IOException;
@@ -24,8 +24,8 @@ import model.Product;
 import model.ProductVariant;
 import model.TicketDetail;
 
-@WebServlet(name = "AddProductImeiController", urlPatterns = { "/staff/imei/add" })
-public class AddProductImeiController extends HttpServlet {
+@WebServlet(name = "AddProductSerialController", urlPatterns = { "/staff/imei/add" })
+public class AddProductSerialController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -173,7 +173,7 @@ public class AddProductImeiController extends HttpServlet {
             items.add(item);
         }
 
-        ImeiDAO imeiDao = new ImeiDAO();
+        SerialDAO imeiDao = new SerialDAO();
         imeiDao.insertInventoryItems(items);
 
         if (ticketId != null) {
