@@ -260,14 +260,13 @@ public class CartServlet extends HttpServlet {
             String activeCoupon = (String) session.getAttribute("couponCode");
             boolean currentCouponValid = false;
             int currentUserId = (user != null) ? user.getUserId() : 0;
-            voucherDAO = new VoucherDAO();
+            VoucherDAO voucherDAO = new VoucherDAO();
             if (activeCoupon != null) {
                 VoucherDAO.VoucherInfo info = (user != null) 
                     ? voucherDAO.getVoucher(activeCoupon, total, user.getUserId())
                     : voucherDAO.getVoucher(activeCoupon, total);
                 currentCouponValid = info.isValid;
             }
-        }
 
         if (session.getAttribute("isUserSelected") == null || !((Boolean)session.getAttribute("isUserSelected"))) {
             UserVoucherDTO bestVoucher = voucherDAO.getBestVoucherForOrder(currentUserId, total, cart);
