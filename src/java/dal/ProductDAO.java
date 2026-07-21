@@ -862,7 +862,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
                 pv.setThumbnail(rs.getString("thumbnail"));
@@ -878,7 +877,7 @@ public List<Product> GetAllProducts() {
         List<ProductVariant> variants = new ArrayList<>();
         try {
             String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
-                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
+                         "pv.selling_price, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
                          "fsi.sale_price as flash_sale_price, " +
                          "cast(round((pv.selling_price - fsi.sale_price) * 100.0 / pv.selling_price, 0) as int) as discount_percent " +
                          "from ProductVariant pv " +
@@ -902,7 +901,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status"),
                         rs.getInt("available_quantity")
                 );
@@ -943,7 +941,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
                 pv.setThumbnail(rs.getString("thumbnail"));
@@ -1321,17 +1318,16 @@ public List<Product> GetAllProducts() {
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
         try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
             ps.setString(3, variantName);
             ps.setBigDecimal(4, importPrice);
             ps.setBigDecimal(5, sellingPrice);
-            ps.setBoolean(6, false);
-            ps.setString(7, "active");
-            ps.setString(8, null);
+            ps.setString(6, "active");
+            ps.setString(7, null);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -1361,17 +1357,16 @@ public List<Product> GetAllProducts() {
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock, String thumbnail) {
         try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
             ps.setString(3, variantName);
             ps.setBigDecimal(4, importPrice);
             ps.setBigDecimal(5, sellingPrice);
-            ps.setBoolean(6, false);
-            ps.setString(7, "active");
-            ps.setString(8, thumbnail);
+            ps.setString(6, "active");
+            ps.setString(7, thumbnail);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();

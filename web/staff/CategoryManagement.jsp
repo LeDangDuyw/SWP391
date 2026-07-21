@@ -126,7 +126,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý danh mục sản phẩm</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
@@ -233,17 +233,6 @@
                                 <td class="py-2 px-4 text-right">
                                     <button type="button" onclick="openEditModal(this)" class="p-1 text-on-surface-variant hover:text-primary transition-colors">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
-                                    </button>
-                                    <form action="${pageContext.request.contextPath}/staff/category" method="post" class="inline-block">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="categoryIdToDelete" value="<%= c.getCategoryId() %>">
-                                        <% if(request.getParameter("searchInput") != null) { %>
-                                            <input type="hidden" name="searchInput" value="${param.searchInput}">
-                                        <% } %>
-                                        <button class="p-1 text-on-surface-variant hover:text-error transition-colors" onclick="return confirm('Bạn có chắc chắn muốn xóa category này không? Thao tác này sẽ xóa cứng (Hard Delete) khỏi Database!');">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                             <% } %> 
