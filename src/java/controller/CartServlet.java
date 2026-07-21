@@ -256,7 +256,6 @@ public class CartServlet extends HttpServlet {
             });
         }
 
-<<<<<<< HEAD
             // Nếu chưa áp dụng mã nào hoặc mã hiện tại bị mất hiệu lực do giảm số lượng sản phẩm, tự chọn mã tốt nhất
             String activeCoupon = (String) session.getAttribute("couponCode");
             boolean currentCouponValid = false;
@@ -267,24 +266,6 @@ public class CartServlet extends HttpServlet {
                     ? voucherDAO.getVoucher(activeCoupon, total, user.getUserId())
                     : voucherDAO.getVoucher(activeCoupon, total);
                 currentCouponValid = info.isValid;
-=======
-        // TỰ ĐỘNG ÁP DỤNG VOUCHER TỐT NHẤT HOẶC TÍNH TOÁN LẠI VOUCHER USER CHỌN
-        Boolean isUserSelected = (Boolean) session.getAttribute("isUserSelected");
-        String activeCoupon = (String) session.getAttribute("couponCode");
-        int currentUserId = (user != null) ? user.getUserId() : 0;
-        VoucherDAO voucherDAO = new VoucherDAO();
-
-        if (isUserSelected != null && isUserSelected && activeCoupon != null) {
-            recalculateDiscount(session, cart, activeCoupon);
-            BigDecimal discount = (BigDecimal) session.getAttribute("discountAmount");
-            if (discount == null || discount.compareTo(BigDecimal.ZERO) <= 0) {
-                session.removeAttribute("couponCode");
-                session.removeAttribute("discountAmount");
-                session.removeAttribute("couponId");
-                session.removeAttribute("isCampaign");
-                session.removeAttribute("isUserSelected");
-                activeCoupon = null;
->>>>>>> origin/main3
             }
         }
 

@@ -591,12 +591,9 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     protected String normalizeStatus(String status) {
-<<<<<<< HEAD
-=======
         // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         // Kiểm tra điều kiện
->>>>>>> origin/main3
         if (status == null) return "Unknown";
         status = status.trim().toUpperCase();
         switch (status) {

@@ -174,7 +174,6 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-<<<<<<< HEAD
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
@@ -182,15 +181,6 @@
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
-=======
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
->>>>>>> origin/main3
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">

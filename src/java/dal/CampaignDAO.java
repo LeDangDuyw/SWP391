@@ -45,11 +45,8 @@ public class CampaignDAO extends DBContext {
         }
     }
 
-<<<<<<< HEAD
-=======
 
 
->>>>>>> origin/main3
   
 
     /**
