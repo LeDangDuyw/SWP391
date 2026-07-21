@@ -1,3 +1,10 @@
+/*
+ * Name: CategoryManagementController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller quản lý danh mục sản phẩm (thêm, sửa, xóa, tìm kiếm và phân trang Category).
+ */
 package controller;
 
 import dal.CategoryDAO;

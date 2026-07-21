@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundUpdateStatusController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller cập nhật trạng thái quy trình xuất kho và đơn hàng (SHIPPED, DELIVERED, CANCELLED).
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -19,6 +26,20 @@ import java.util.List;
 @WebServlet(name = "OutboundUpdateStatusController", urlPatterns = {"/staff/outbound/update-status"})
 public class OutboundUpdateStatusController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Cập nhật trạng thái của đơn hàng (Order) trong quá trình xuất kho/giao hàng.
+     * Nhân viên có thể chuyển trạng thái từ Shipped -> Delivered, hoặc Cancelled.
+     * Quá trình xử lý:
+     * 1. Nhận orderId và trạng thái mới (status).
+     * 2. Gọi OutboundDAO để cập nhật vào cơ sở dữ liệu và ghi log (Audit Log).
+     * 3. (Tùy chọn) Gửi Email thông báo hóa đơn tự động bằng PdfInvoiceService nếu cấu hình bật.
+     * 4. Điều hướng về trang danh sách phù hợp (danh sách chờ hoặc lịch sử xuất).
+     * 
+     * @param request  đối tượng HttpServletRequest chứa tham số orderId, status, redirect
+     * @param response đối tượng HttpServletResponse điều hướng về trang tương ứng
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

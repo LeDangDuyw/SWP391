@@ -44,13 +44,32 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     </style>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
+    <!-- JavaScript: Xử lý kiểm tra dữ liệu chọn mã Serial trước khi xuất kho -->
     <script>
+        /**
+         * Kiểm tra dữ liệu Form chọn Serial trước khi thực hiện xuất kho (Fulfill Order):
+         * 1. Đảm bảo tất cả các sản phẩm biến thể trong đơn hàng đều được chọn đủ mã Serial/IMEI.
+         * 2. Đảm bảo không chọn trùng 1 mã Serial/IMEI cho 2 sản phẩm/dòng khác nhau.
+         * 
+         * @param {Event} event Sự kiện submit form
+         * @returns {boolean} true nếu hợp lệ, false và hủy submit nếu vi phạm
+         */
         function validateForm(event) {
             const allSelects = document.querySelectorAll('select[name^="detail_"]');
             const chosen = new Set();
             for (const sel of allSelects) {
-                if (!sel.value) { alert("Vui lòng chọn IMEI cho tất cả sản phẩm."); event.preventDefault(); return false; }
-                if (chosen.has(sel.value)) { alert("Lỗi: Bạn đã chọn trùng 1 IMEI/Serial cho 2 dòng khác nhau!"); event.preventDefault(); return false; }
+                // Kiểm tra xem đã chọn mã Serial hay chưa
+                if (!sel.value) { 
+                    alert("Vui lòng chọn IMEI cho tất cả sản phẩm."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
+                // Kiểm tra mã Serial trùng lặp trong cùng 1 lần xuất kho
+                if (chosen.has(sel.value)) { 
+                    alert("Lỗi: Bạn đã chọn trùng 1 IMEI/Serial cho 2 dòng khác nhau!"); 
+                    event.preventDefault(); 
+                    return false; 
+                }
                 chosen.add(sel.value);
             }
             return true;
@@ -63,16 +82,17 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -81,9 +101,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 

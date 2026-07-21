@@ -1,8 +1,10 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: EditProductController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc chỉnh sửa thông tin sản phẩm và các biến thể sản phẩm.
  */
-
 package controller;
 
 import dal.BrandDao;
@@ -123,14 +125,32 @@ public class EditProductController extends HttpServlet {
         String action = request.getParameter("action");
         if ("updateVariant".equals(action)) {
             try {
-                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String variantIdStr = request.getParameter("variantId");
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
-                java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
+                String priceStr = request.getParameter("price");
+                
+                if (variantIdStr == null || sku == null || sku.trim().isEmpty() ||
+                    variantName == null || variantName.trim().isEmpty() ||
+                    priceStr == null || priceStr.trim().isEmpty()) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantIdStr + "&error=EmptyFields");
+                    return;
+                }
+                
+                int variantId = Integer.parseInt(variantIdStr);
+                java.math.BigDecimal price = new java.math.BigDecimal(priceStr.trim());
+                if (price.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&error=InvalidPrice");
+                    return;
+                }
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                dao.updateProductVariant(variantId, sku, variantName, price);
-                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
+                dao.updateProductVariant(variantId, sku.trim(), variantName.trim(), price);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&success=Updated");
+                return;
+            } catch (NumberFormatException e) {
+                String vId = request.getParameter("variantId");
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + (vId != null ? vId : "") + "&error=InvalidNumberFormat");
                 return;
             } catch (Exception e) {
                 e.printStackTrace();

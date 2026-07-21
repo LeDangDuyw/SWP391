@@ -1,3 +1,10 @@
+/*
+ * Name: StaffOrderListController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị danh sách các đơn hàng xuất kho dành cho nhân viên quản lý.
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -9,14 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-
-/*
- * Name: StaffOrderListController
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Servlet hiển thị danh sách đơn hàng để nhân viên quản lý (Staff Order Management)
- */
 @WebServlet(name = "StaffOrderListController", urlPatterns = {"/staff/order/list"})
 public class StaffOrderListController extends HttpServlet {
 

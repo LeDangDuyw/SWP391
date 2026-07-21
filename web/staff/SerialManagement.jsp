@@ -127,14 +127,15 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -322,42 +323,30 @@
 
                     <div class="flex gap-1 items-center flex-wrap">
                         <c:choose>
-                            <c:when test="${totalPages <= 7}">
+                            <c:when test="${totalPages <= 5}">
                                 <c:forEach begin="1" end="${totalPages}" var="i">
                                     <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <!-- Page 1 -->
-                                <a href="?page=1${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == 1 ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">1</a>
-
-                                <c:if test="${currentPage > 4}">
-                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
-                                </c:if>
-
-                                <!-- Middle pages -->
-                                <c:set var="startPage" value="${currentPage - 2}" />
-                                <c:set var="endPage" value="${currentPage + 2}" />
-                                
-                                <c:if test="${startPage < 2}">
-                                    <c:set var="startPage" value="2" />
-                                    <c:set var="endPage" value="6" />
-                                </c:if>
-                                <c:if test="${endPage >= totalPages}">
-                                    <c:set var="startPage" value="${totalPages - 5}" />
-                                    <c:set var="endPage" value="${totalPages - 1}" />
-                                </c:if>
-
-                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                                <!-- 3 trang đầu tiên -->
+                                <c:forEach begin="1" end="3" var="i">
                                     <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
                                 </c:forEach>
 
-                                <c:if test="${currentPage < totalPages - 3}">
-                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
-                                </c:if>
+                                <!-- Nút ... và ô nhập số trang -->
+                                <div class="relative flex items-center justify-center w-8 h-8">
+                                    <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer">...</button>
+                                    <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
+                                        <input type="number" min="1" max="${totalPages}" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
+                                        <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                                    </div>
+                                </div>
 
-                                <!-- Last page -->
-                                <a href="?page=${totalPages}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == totalPages ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${totalPages}</a>
+                                <!-- 2 trang cuối -->
+                                <c:forEach begin="${totalPages - 1}" end="${totalPages}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -396,5 +385,29 @@
         });
     });
 </script>
+    <script>
+        function toggleJumpPageInput(button) {
+            const container = button.nextElementSibling;
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                container.querySelector('.jumpPageInput').focus();
+            }
+        }
+
+        function jumpToPage(element) {
+            const container = element.closest('.jumpPageForm');
+            const input = container.querySelector('.jumpPageInput');
+            let page = parseInt(input.value);
+            const maxPage = parseInt(input.getAttribute('max'));
+            
+            if (page && page >= 1 && page <= maxPage) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                window.location.search = urlParams.toString();
+            } else {
+                alert('Vui lòng nhập trang từ 1 đến ' + maxPage);
+            }
+        }
+    </script>
 </body>
 </html>
