@@ -15,6 +15,8 @@ public class Product {
     private int categoryId;
     private long originalPrice;
     private int discountPercent;
+    private int seriesId;
+    private String seriesName;
 
     public Product() {
     }
@@ -133,6 +135,32 @@ public class Product {
         this.discountPercent = discountPercent;
     }
 
+    public int getSeriesId() {
+        return seriesId;
+    }
+
+    public void setSeriesId(int seriesId) {
+        this.seriesId = seriesId;
+    }
+
+    public String getSeriesName() {
+        return seriesName;
+    }
+
+    public void setSeriesName(String seriesName) {
+        this.seriesName = seriesName;
+    }
+
+    private boolean isHidden;
+
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(boolean isHidden) {
+        this.isHidden = isHidden;
+    }
+
     // Default getters for subclass properties to avoid PropertyNotFoundException in JSP EL
     public String getCpu() {
         return null;
@@ -169,8 +197,6 @@ public class Product {
     // lß╗¢p con laptop 
     public static class Laptop extends Product {
 
-        private int seriesId;
-        private String seriesName;
         private String cpu;
         private String ram;
         private String ssd;
@@ -178,22 +204,6 @@ public class Product {
         private String screen;
 
         public Laptop() {
-        }
-
-        public int getSeriesId() {
-            return seriesId;
-        }
-
-        public void setSeriesId(int seriesId) {
-            this.seriesId = seriesId;
-        }
-
-        public String getSeriesName() {
-            return seriesName;
-        }
-
-        public void setSeriesName(String seriesName) {
-            this.seriesName = seriesName;
         }
 
         @Override

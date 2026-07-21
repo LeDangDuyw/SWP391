@@ -64,16 +64,16 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -82,9 +82,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -115,7 +115,7 @@
             <!-- Page Title -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Staff - Order Management</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý Đơn hàng</h2>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">Chi tiết đơn hàng #${order.orderCode}</p>
                 </div>
             </div>

@@ -40,17 +40,17 @@ public class OutboundFulfillController extends HttpServlet {
 
             List<OrderDetail> details = dao.getOrderDetails(orderId);
             
-            // Lấy danh sách IMEI có sẵn cho từng Variant
-            Map<Integer, List<InventoryItem>> availableImeisMap = new HashMap<>();
+            // Lấy danh sách Serial có sẵn cho từng Variant
+            Map<Integer, List<InventoryItem>> availableSerialsMap = new HashMap<>();
             for (OrderDetail detail : details) {
-                if (!availableImeisMap.containsKey(detail.getVariantId())) {
-                    availableImeisMap.put(detail.getVariantId(), dao.getAvailableImeisForVariant(detail.getVariantId()));
+                if (!availableSerialsMap.containsKey(detail.getVariantId())) {
+                    availableSerialsMap.put(detail.getVariantId(), dao.getAvailableSerialsForVariant(detail.getVariantId()));
                 }
             }
 
             request.setAttribute("order", order);
             request.setAttribute("details", details);
-            request.setAttribute("availableImeisMap", availableImeisMap);
+            request.setAttribute("availableSerialsMap", availableSerialsMap);
             
             request.getRequestDispatcher("/staff/outbound/OrderFulfillment.jsp").forward(request, response);
 
@@ -79,7 +79,7 @@ public class OutboundFulfillController extends HttpServlet {
                 String[] selectedItemIds = request.getParameterValues("detail_" + detail.getOrderDetailId());
                 if (selectedItemIds == null || selectedItemIds.length != detail.getQuantity()) {
                     // Trở lại trang và báo lỗi
-                    request.setAttribute("error", "Bạn chưa chọn đủ số lượng IMEI cho sản phẩm: " + detail.getVariantName());
+                    request.setAttribute("error", "Bạn chưa chọn đủ số lượng Serial cho sản phẩm: " + detail.getVariantName());
                     doGet(request, response);
                     return;
                 }

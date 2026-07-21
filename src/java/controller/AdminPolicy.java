@@ -5,8 +5,8 @@ package controller;
  * Description: Controller quản lý CRUD các chính sách bảo hành (Warranty Policy).
  * 
  * Created: 2026-05-29
- * Updated: 2026-07-03
- * Version: v1.6
+ * Updated: 2026-07-19
+ * Version: v2.8
  *
  * @author DuyLD
  */
@@ -38,6 +38,7 @@ public class AdminPolicy extends HttpServlet {
     }
 
     private void loadPolicyList(HttpServletRequest request) throws Exception {
+        // BR-44: The warranty policy list is paginated at 5 records per page, ordered by creation time descending.
         String keyword = request.getParameter("keyword");
         int page = 1;
         int pageSize = 5;
@@ -147,7 +148,7 @@ public class AdminPolicy extends HttpServlet {
                 case "create": {
                     WarrantyPolicy p = buildPolicyFromRequest(request);
 
-                    // Kiểm tra điều kiện
+                    // BR-24: A Warranty Policy must define at minimum: policy name, at least one applicable product category, warranty duration in months, and terms and conditions text.
                     if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
                         request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
                         request.setAttribute("formData", p);
@@ -228,6 +229,7 @@ public class AdminPolicy extends HttpServlet {
 
                 case "delete": {
                     int id = Integer.parseInt(request.getParameter("policyId"));
+                    // BR-39: Deleting a Warranty Policy permanently removes it along with its full change history; this action cannot be undone.
                     dao.deletePolicy(id);
                     String deletePageSuffix = (pageParam != null && !pageParam.trim().isEmpty()) ? "?page=" + pageParam.trim() : "";
                     response.sendRedirect(contextPath + "/admin/policy" + deletePageSuffix);

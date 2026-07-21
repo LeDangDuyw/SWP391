@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Document   : InventoryManagement
     Created on : May 29, 2026, 9:20:02 PM
     Author     : huy
@@ -14,7 +14,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Admin - Product Catalog Management</title>
+    <title>UNILAP Admin - Quản lý Danh mục Sản phẩm</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
@@ -155,17 +155,17 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Student Verify</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác minh sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -178,9 +178,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -212,15 +212,12 @@
             
             <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Product Catalog Management</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Manage product listings, monitor stock levels, and audit adjustments.</p>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Quản lý Danh mục Sản phẩm</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Quản lý danh sách sản phẩm, theo dõi mức tồn kho và kiểm tra điều chỉnh.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">download</span> Export
-                    </button>
                     <a href="${pageContext.request.contextPath}/staff/inventory/add" class="px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
-                        <span class="material-symbols-outlined text-[20px]">add</span> Add Product
+                        <span class="material-symbols-outlined text-[20px]">add</span> Thêm sản phẩm
                     </a>
                 </div>
             </div>
@@ -230,11 +227,11 @@
                 <div class="flex gap-8">
                     <a href="?tab=products"
                        class="pb-3 border-b-2 <%= activeTab.equals("products") ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-on-surface" %> font-label-md text-label-md transition-all">
-                        Products
+                        Sản phẩm
                     </a>
                     <a href="?tab=variants"
                        class="pb-3 border-b-2 <%= activeTab.equals("variants") ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-on-surface" %> font-label-md text-label-md transition-all">
-                        Product Variants
+                        Biến thể sản phẩm
                     </a>
                 </div>
             </div>
@@ -245,7 +242,7 @@
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                        <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Search inventory by product name, SKU, or category..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                        <input type="text" name="searchInput" value="${param.searchInput}" placeholder="Tìm kiếm theo tên sản phẩm, SKU hoặc danh mục..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                         <button type="submit" 
                                 class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                             <span class="material-symbols-outlined text-sm">search</span>
@@ -256,7 +253,7 @@
                         <select name="category" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
-                            <option value="">All Categories</option>
+                            <option value="">Tất cả danh mục</option>
                             <% 
                                 dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
                                 List<model.Category> categories = categoryDAO.getAllCategories();
@@ -275,9 +272,9 @@
                         <select name="sortBy" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
-                            <option value="all"       ${param.sortBy == 'all'       ? 'selected' : ''}>All</option>
-                            <option value="highToLow" ${param.sortBy == 'highToLow' ? 'selected' : ''}>Price: High → Low</option>
-                            <option value="lowToHigh" ${param.sortBy == 'lowToHigh' ? 'selected' : ''}>Price: Low → High</option>
+                            <option value="all"       ${param.sortBy == 'all'       ? 'selected' : ''}>Tất cả</option>
+                            <option value="highToLow" ${param.sortBy == 'highToLow' ? 'selected' : ''}>Giá: Cao → Thấp</option>
+                            <option value="lowToHigh" ${param.sortBy == 'lowToHigh' ? 'selected' : ''}>Giá: Thấp → Cao</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
@@ -289,26 +286,25 @@
                         <select name="stockStatus" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
                                 border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
                                 focus:ring-0 focus:border-primary outline-none">
-                            <option value="">Stock Status</option>
-                            <option value="inStock"    ${param.stockStatus == 'inStock'    ? 'selected' : ''}>In Stock</option>
-                            <option value="lowStock"   ${param.stockStatus == 'lowStock'   ? 'selected' : ''}>Low Stock</option>
-                            <option value="outOfStock" ${param.stockStatus == 'outOfStock' ? 'selected' : ''}>Out of Stock</option>
-                        </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
-                                     pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
-                    </div>
-                    <div class="relative">
-                        <select name="itemStatus" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
-                                border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
-                                focus:ring-0 focus:border-primary outline-none">
-                            <option value="active" ${param.itemStatus == 'active' || empty param.itemStatus ? 'selected' : ''}>Active Items</option>
-                            <option value="hidden" ${param.itemStatus == 'hidden' ? 'selected' : ''}>Hidden Items</option>
-                            <option value="all"    ${param.itemStatus == 'all' ? 'selected' : ''}>All Items</option>
+                            <option value="">Trạng thái kho</option>
+                            <option value="inStock"    ${param.stockStatus == 'inStock'    ? 'selected' : ''}>Còn hàng</option>
+                            <option value="outOfStock" ${param.stockStatus == 'outOfStock' ? 'selected' : ''}>Hết hàng</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
                                      pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                     </div>
                     <% } %>
+                    <div class="relative">
+                        <select name="itemStatus" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border 
+                                border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md 
+                                focus:ring-0 focus:border-primary outline-none">
+                            <option value="active" ${param.itemStatus == 'active' || empty param.itemStatus ? 'selected' : ''}>Sản phẩm đang hiển thị</option>
+                            <option value="hidden" ${param.itemStatus == 'hidden' ? 'selected' : ''}>Sản phẩm đã ẩn</option>
+                            <option value="all"    ${param.itemStatus == 'all' ? 'selected' : ''}>Tất cả sản phẩm</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 
+                                     pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                    </div>
                     </div>
                 </form>
 
@@ -324,10 +320,10 @@
                                     <th class="py-3 px-4 border-b border-outline-variant/20 w-12">
                                         <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                     </th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Product Details</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Category</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Brand</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Actions</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Thông tin sản phẩm</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Danh mục</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Thương hiệu</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody class="font-body-sm text-body-sm">
@@ -337,7 +333,12 @@
                                         <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                     </td>
                                     <td class="py-2 px-4">
-                                        <div class="font-bold text-on-surface"><%= p.getProductName() %></div>
+                                        <div class="font-bold text-on-surface flex items-center gap-2">
+                                            <%= p.getProductName() %>
+                                            <% if (p.isHidden()) { %>
+                                                <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Đã ẩn</span>
+                                            <% } %>
+                                        </div>
                                     </td>
                                     <td class="py-2 px-4"><%= p.getCategoryName() %></td>
                                     <td class="py-2 px-4"><%= p.getBrandName() %></td>
@@ -347,17 +348,26 @@
                                             <span class="material-symbols-outlined text-[20px]">edit</span>
                                         </a>
                                         <form action="${pageContext.request.contextPath}/staff/inventory" method="post" class="inline">
-                                            <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
-                                            <button class="p-1 text-on-surface-variant hover:text-error transition-colors"
-                                                    name="action" value="delete"
-                                                    onclick="return confirm('Bạn có chắc chắn muốn ẩn sản phẩm này không?');">
-                                                <span class="material-symbols-outlined text-[20px]">block</span>
-                                            </button>
+                                            <input type="hidden" name="productIdToDelete" value="<%= p.getProductId() %>">
+                                            <input type="hidden" name="tab" value="products">
+                                            <input type="hidden" name="searchInput" value="${param.searchInput}">
+                                            <input type="hidden" name="category" value="${param.category}">
+                                            <input type="hidden" name="sortBy" value="${param.sortBy}">
+                                            <input type="hidden" name="itemStatus" value="${param.itemStatus}">
+                                            
+                                            <% if (p.isHidden()) { %>
                                             <button class="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                                                    name="action" value="restore"
+                                                    name="action" value="restore" title="Restore"
                                                     onclick="return confirm('Bạn có chắc chắn muốn hiển thị lại sản phẩm này không?');">
                                                 <span class="material-symbols-outlined text-[20px]">settings_backup_restore</span>
                                             </button>
+                                            <% } else { %>
+                                            <button class="p-1 text-on-surface-variant hover:text-error transition-colors"
+                                                    name="action" value="delete" title="Hide"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn ẩn sản phẩm này không?');">
+                                                <span class="material-symbols-outlined text-[20px]">block</span>
+                                            </button>
+                                            <% } %>
                                         </form>
                                     </td>
                                 </tr>
@@ -367,7 +377,7 @@
                                 <% if (product.isEmpty()) { %>
                                 <tr>
                                     <td class="py-4 px-4 text-center text-on-surface-variant font-body-sm text-body-sm" colspan="5">
-                                        No products found.
+                                        Không tìm thấy sản phẩm nào.
                                     </td>
                                 </tr>
                                 <% } %>
@@ -378,7 +388,7 @@
                     <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
                         <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
                            class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
-                           Previous
+                           Trước
                         </a>
                         <div class="flex gap-1">
                         <% for(int i = 1; i <= totalPages; i++) { %>
@@ -390,7 +400,7 @@
                         </div>
                         <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
                            class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">
-                           Next
+                           Sau
                         </a>
                     </div>
                 </div> <!-- close bg-surface -->
@@ -408,12 +418,12 @@
                                     <th class="py-3 px-4 border-b border-outline-variant/20 w-12">
                                         <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                     </th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Product details</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Thông tin sản phẩm</th>
                                     <th class="py-3 px-4 border-b border-outline-variant/20">SKU</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Category</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Price (VND)</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20">Stock Status</th>
-                                    <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Actions</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Danh mục</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Giá (VNĐ)</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20">Trạng thái kho</th>
+                                    <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody class="font-body-sm text-body-sm">
@@ -433,7 +443,7 @@
                                                 <div class="font-bold text-on-surface flex items-center gap-2">
                                                     <%= p.getProductName() %>
                                                     <% if ("inactive".equals(p.getVariantStatus())) { %>
-                                                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Hidden</span>
+                                                        <span class="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Đã ẩn</span>
                                                     <% } %>
                                                 </div>
                                                 <div class="text-on-surface-variant text-[12px]"><%= p.getVariantName() %></div>
@@ -445,8 +455,17 @@
                                     <% BigInteger priceInt = p.getSellingPrice().toBigInteger(); %>
                                     <td class="py-2 px-4 font-bold"><%= priceInt %></td>
                                     <td class="py-2 px-4">
-                                        <span class="inline-flex items-center px-2 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
-                                            <%= p.getStatus() %>
+                                        <%
+                                            String statusStr = p.getStatus();
+                                            String statusBg = "bg-[#E6F4EA] text-[#137333]"; // green for In Stock
+                                            String statusText = "Còn hàng";
+                                            if ("Sold Out".equalsIgnoreCase(statusStr) || "Out of Stock".equalsIgnoreCase(statusStr)) {
+                                                statusBg = "bg-[#FCE8E6] text-[#C5221F]"; // red
+                                                statusText = "Hết hàng";
+                                            }
+                                        %>
+                                        <span class="inline-flex items-center px-2 py-1 rounded <%= statusBg %> text-[12px] font-bold">
+                                            <%= statusText %>
                                         </span>
                                     </td>
                                     <td class="py-2 px-4 text-right">
@@ -456,6 +475,12 @@
                                         </a>
                                         <form action="${pageContext.request.contextPath}/staff/inventory" method="post" class="inline">
                                             <input type="hidden" name="variantIdToDelete" value="<%= p.getProductId() %>">
+                                            <input type="hidden" name="tab" value="variants">
+                                            <input type="hidden" name="searchInput" value="${param.searchInput}">
+                                            <input type="hidden" name="category" value="${param.category}">
+                                            <input type="hidden" name="sortBy" value="${param.sortBy}">
+                                            <input type="hidden" name="stockStatus" value="${param.stockStatus}">
+                                            <input type="hidden" name="itemStatus" value="${param.itemStatus}">
                                             <% if ("inactive".equals(p.getVariantStatus())) { %>
                                             <button class="p-1 text-on-surface-variant hover:text-primary transition-colors"
                                                     name="action" value="restore" title="Restore"
@@ -476,7 +501,7 @@
                                 <% if (products.isEmpty()) { %>
                                 <tr>
                                     <td class="py-4 px-4 text-center text-on-surface-variant font-body-sm text-body-sm" colspan="7">
-                                        No product variants found matching the selected filters.
+                                        Không tìm thấy biến thể sản phẩm nào phù hợp với bộ lọc.
                                     </td>
                                 </tr>
                                 <% } %>
@@ -487,7 +512,7 @@
                 <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
                     <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
-                       Previous
+                       Trước
                     </a>
                     <div class="flex gap-1">
                     <% for(int i = 1; i <= totalPages; i++) { %>
@@ -499,7 +524,7 @@
                     </div>
                     <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
                        class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">
-                       Next
+                       Sau
                     </a>
                 </div>
                 </div> <!-- close bg-surface -->

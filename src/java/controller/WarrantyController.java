@@ -5,8 +5,8 @@ package controller;
  * Description: Controller tiếp nhận các yêu cầu bảo hành từ khách hàng và nhân viên.
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-11
- * Version: v1.3
+ * Updated: 2026-07-19
+ * Version: v2.3
  *
  * @author DuyLD
  */
@@ -22,6 +22,8 @@ import jakarta.servlet.http.Part;
 import model.Users;
 import model.WarrantyClaim;
 import service.WarrantyService;
+import dal.CategoryDAO;
+import model.Category;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -224,8 +226,7 @@ public class WarrantyController extends HttpServlet {
         int claimId = parseId(request.getParameter("id"));
         WarrantyClaim claim = warrantyService.getClaimDetail(claimId);
 
-        // check quyền customer
-        // Kiểm tra điều kiện
+        // BR-18: A customer may view the complete information and processing history of their own warranty requests only.
         if (isCustomer(user) && claim != null && claim.getCustomerId() != user.getUserId()) {
             throw new ValidationException("Bạn không có quyền xem yêu cầu này.");
         }
@@ -236,6 +237,8 @@ public class WarrantyController extends HttpServlet {
 
         // Kiểm tra điều kiện
         if (isCustomer(user)) {
+            List<Category> categories = new CategoryDAO().getAllCategories();
+            request.setAttribute("categories", categories);
             request.getRequestDispatcher("/customer/warranty_detail.jsp")
                     .forward(request, response);
         } else {
@@ -416,6 +419,10 @@ public class WarrantyController extends HttpServlet {
     private void loadCustomerClaims(HttpServletRequest request, Users user) throws Exception {
         List<WarrantyClaim> claims = warrantyService.getCustomerClaims(user.getUserId());
         request.setAttribute("claims", claims);
+
+        // Load categories to populate standard navigation header
+        List<Category> categories = new CategoryDAO().getAllCategories();
+        request.setAttribute("categories", categories);
 
         // Step 1 wizard cần danh sách sản phẩm đã mua để khách chọn thay vì
         // gõ tay serial number — load luôn ở đây vì handleList/handleCheckEligibility/

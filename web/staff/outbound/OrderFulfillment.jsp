@@ -56,16 +56,16 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -74,9 +74,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -95,7 +95,7 @@
             <div class="flex justify-between items-end mb-6">
                 <div>
                     <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Chuẩn bị đơn hàng #${order.orderCode}</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Gán mã IMEI/Serial cụ thể cho từng sản phẩm trong đơn hàng này để xuất kho.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Gán số Serial cụ thể cho từng sản phẩm trong đơn hàng này để xuất kho.</p>
                 </div>
                 <a href="${pageContext.request.contextPath}/staff/outbound/list" class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px]">arrow_back</span> Quay lại
@@ -137,7 +137,7 @@
                     </div>
                 </div>
 
-                <!-- Cột gán IMEI -->
+                <!-- Cột gán Serial -->
                 <div class="col-span-1 lg:col-span-2">
                     <form action="${pageContext.request.contextPath}/staff/outbound/fulfill" method="POST" onsubmit="return validateForm(event)" class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
                         <input type="hidden" name="orderId" value="${order.orderId}">
@@ -170,10 +170,10 @@
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
                                         <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã Serial Number cụ thể:</p>
                                         <c:choose>
-                                            <c:when test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                            <c:when test="${availableSerialsMap[detail.variantId] == null || availableSerialsMap[detail.variantId].size() < detail.quantity}">
                                                 <div style="background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                                                     <span class="material-symbols-outlined">warning</span>
-                                                    Kho không đủ hàng (${availableImeisMap[detail.variantId] != null ? availableImeisMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
+                                                    Kho không đủ hàng (${availableSerialsMap[detail.variantId] != null ? availableSerialsMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
@@ -182,7 +182,7 @@
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>
                                                         <select name="detail_${detail.orderDetailId}" required class="flex-1 py-2 px-3 bg-white border border-outline-variant/50 rounded-lg text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                                             <option value="">-- Chọn Serial Number --</option>
-                                                            <c:forEach var="item" items="${availableImeisMap[detail.variantId]}" varStatus="status">
+                                                            <c:forEach var="item" items="${availableSerialsMap[detail.variantId]}" varStatus="status">
                                                                 <option value="${item.itemId}" ${status.count == i ? 'selected' : ''}>
                                                                     SN: ${item.serialNumber}
                                                                 </option>
@@ -200,7 +200,7 @@
                         <div class="mt-8 flex justify-end pt-4 border-t border-outline-variant/30">
                             <c:set var="canFulfill" value="true" />
                             <c:forEach var="detail" items="${details}">
-                                <c:if test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                <c:if test="${availableSerialsMap[detail.variantId] == null || availableSerialsMap[detail.variantId].size() < detail.quantity}">
                                     <c:set var="canFulfill" value="false" />
                                 </c:if>
                             </c:forEach>

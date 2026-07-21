@@ -38,7 +38,7 @@ public class OutboundPrintController extends HttpServlet {
 
             List<OrderDetail> details = dao.getOrderDetails(orderId);
             for (OrderDetail detail : details) {
-                List<InventoryItem> assignedItems = dao.getAssignedImeisForOrderDetail(detail.getOrderDetailId());
+                List<InventoryItem> assignedItems = dao.getAssignedSerialsForOrderDetail(detail.getOrderDetailId());
                 detail.setAssignedItems(assignedItems);
             }
 
