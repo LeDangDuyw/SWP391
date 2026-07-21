@@ -28,12 +28,14 @@ public class OrderDetailController extends HttpServlet {
         HttpSession session = request.getSession();
         Users sessionUser = (Users) session.getAttribute("user");
 
+        // Kiểm tra xem khách hàng đã đăng nhập chưa
         if (sessionUser == null) {
             response.sendRedirect(request.getContextPath() + "/login?error=" +
                     URLEncoder.encode("Vui lòng đăng nhập để tiếp tục!", "UTF-8"));
             return;
         }
 
+        // Lấy tham số id đơn hàng từ request
         String orderIdStr = request.getParameter("id");
         if (orderIdStr == null || orderIdStr.trim().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/profile#orders");
@@ -45,12 +47,13 @@ public class OrderDetailController extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             Order order = orderDAO.getOrderById(orderId);
             
+            // Đảm bảo đơn hàng tồn tại và thuộc về đúng tài khoản đang đăng nhập
             if (order == null || (order.getUserId() != null && !order.getUserId().equals(sessionUser.getUserId()))) {
                 response.sendRedirect(request.getContextPath() + "/profile#orders");
                 return;
             }
 
-            // Fresh user for top bar avatar/username
+            // Đồng bộ thông tin người dùng mới nhất phục vụ thanh Header/TopBar
             dal.UserDAO userDAO = new dal.UserDAO();
             Users freshUser = userDAO.getUserById(sessionUser.getUserId());
             if (freshUser == null) {
@@ -58,13 +61,18 @@ public class OrderDetailController extends HttpServlet {
             }
             request.setAttribute("profileUser", freshUser);
 
+            // Lấy danh sách chi tiết các sản phẩm trong đơn hàng
             java.util.List<model.OrderDetail> details = orderDAO.getOrderDetails(orderId);
             dal.ProductReviewDAO reviewDAO = new dal.ProductReviewDAO();
+            
+            // Kiểm tra xem sản phẩm nào trong đơn hàng đã được người dùng đánh giá
             for (model.OrderDetail od : details) {
                 od.setReviewed(reviewDAO.hasUserReviewedProduct(sessionUser.getUserId(), od.getProductId()));
             }
             order.setDetails(details);
             request.setAttribute("order", order);
+            
+            // Chuyển tiếp yêu cầu sang giao diện chi tiết đơn hàng của khách hàng
             request.getRequestDispatcher("/customer/order_detail.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {

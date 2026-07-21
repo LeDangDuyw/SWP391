@@ -1,3 +1,10 @@
+/*
+ * Name: ProductListFilterDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object hỗ trợ xây dựng câu điều kiện và lọc danh sách sản phẩm theo thương hiệu, cấu hình, khoảng giá.
+ */
 package dal;
 
 import java.sql.*;
@@ -16,6 +23,7 @@ public class ProductListFilterDAO extends DBContext {
 
     // lọc giá laptop 
     private String getLaptopPriceCondition(String price) {
+        // Trả về mệnh đề điều kiện SQL tương ứng với bộ lọc khoảng giá của Laptop
         if (price == null) {
             return "";
         }
@@ -37,6 +45,7 @@ public class ProductListFilterDAO extends DBContext {
 
     // lọc giá chuột & bàn phím 
     private String getAccessoryPriceCondition(String price) {
+        // Trả về mệnh đề điều kiện SQL tương ứng với bộ lọc khoảng giá của phụ kiện (bàn phím/chuột)
         if (price == null) {
             return "";
         }
