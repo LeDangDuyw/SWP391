@@ -44,5 +44,6 @@ public class ChatbotSecurityLogDTO {
     public void setStatus(String status) { this.status = status; }
 
     public boolean isUserBlocked() { return isUserBlocked; }
+    public boolean getIsUserBlocked() { return isUserBlocked; }
     public void setUserBlocked(boolean userBlocked) { isUserBlocked = userBlocked; }
 }
