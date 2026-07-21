@@ -1,3 +1,10 @@
+/*
+ * Name: StaffOrderDetailController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị thông tin chi tiết đơn hàng xuất kho dành cho nhân viên.
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -10,14 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-
-/*
- * Name: StaffOrderDetailController
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Servlet xử lý hiển thị chi tiết thông tin đơn hàng dành cho nhân viên (Staff)
- */
 @WebServlet(name = "StaffOrderDetailController", urlPatterns = {"/staff/order/detail"})
 public class StaffOrderDetailController extends HttpServlet {
 

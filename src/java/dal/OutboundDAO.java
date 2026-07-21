@@ -80,6 +80,11 @@ public class OutboundDAO extends DBContext {
         }
     }
 
+    /**
+     * Lấy danh sách tất cả các đơn hàng đang ở trạng thái chờ xuất kho (Pending, processing).
+     * 
+     * @return Danh sách đối tượng Order chờ xuất kho
+     */
     public List<Order> getPendingOrders() {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC";
@@ -111,6 +116,11 @@ public class OutboundDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Lấy tổng số lượng đơn hàng chờ xuất kho để tính toán số trang trong phân trang.
+     * 
+     * @return Số lượng đơn hàng chờ xuất kho
+     */
     public int getTotalPendingOrders() {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('Pending', 'processing')";
@@ -124,6 +134,13 @@ public class OutboundDAO extends DBContext {
         return count;
     }
 
+    /**
+     * Lấy danh sách các đơn hàng chờ xuất kho có hỗ trợ phân trang (OFFSET - FETCH).
+     * 
+     * @param offset Vị trí bắt đầu lấy bản ghi
+     * @param fetchSize Số lượng bản ghi cần lấy trên mỗi trang
+     * @return Danh sách Order thuộc trang hiện tại
+     */
     public List<Order> getPendingOrders(int offset, int fetchSize) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";

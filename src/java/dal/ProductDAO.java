@@ -139,7 +139,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// Lß║Ñy top 10 b├án ph├¡m b├ín chß║íy nhß║Ñt 
+// Lấy top 10 bàn phím bán chạy nhất 
  public ArrayList<Product> getTopKeyboard() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -193,8 +193,8 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
- //Sß║ún phß║⌐m mß╗¢i 
- //sql lß║Ñy  10 Laptop mß╗¢i 
+ //Sản phẩm mới 
+ //sql lấy  10 Laptop mới 
  public ArrayList<Product> getNewLaptop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -246,7 +246,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// 10 sp chuß╗Öt mß╗¢i 
+// 10 sp chuột mới 
  public ArrayList<Product> getNewMouse() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -297,7 +297,7 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
- // 10 sp b├án ph├¡m mß╗¢i
+ // 10 sp bàn phím mới
  public ArrayList<Product> getNewKeyborad() {
     ArrayList<Product> data = new ArrayList<>();
     try {

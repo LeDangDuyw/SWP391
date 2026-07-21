@@ -1,9 +1,9 @@
 /*
- * Name: AddProductImeiController
- * @Author: HuyDQ
- * Date: [05/06/2026]
+ * Name: AddProductSerialController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
  * Version: 1.0
- * Description: Controller xử lý việc đăng ký số IMEI, Serial Number và mã vạch cho sản phẩm thực tế khi nhập kho.
+ * Description: Controller xử lý việc đăng ký số Serial Number / IMEI cho sản phẩm khi nhập kho.
  */
 package controller;
 
@@ -24,9 +24,19 @@ import model.Product;
 import model.ProductVariant;
 import model.TicketDetail;
 
-@WebServlet(name = "AddProductSerialController", urlPatterns = { "/staff/imei/add" })
+@WebServlet(name = "AddProductSerialController", urlPatterns = { "/staff/imei/add", "/staff/serial/add" })
 public class AddProductSerialController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Hiển thị giao diện đăng ký mã Serial/IMEI.
+     * Nếu có truyền vào ticketId và variantId từ phiếu nhập kho (Inbound), hệ thống sẽ
+     * tự động lấy thông tin số lượng yêu cầu (expectedQuantity) và sản phẩm tương ứng để điền sẵn vào form.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa thông tin request
+     * @param response đối tượng HttpServletResponse để gửi phản hồi
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -77,6 +87,21 @@ public class AddProductSerialController extends HttpServlet {
         request.getRequestDispatcher("/staff/AddProductSerial.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Nhận danh sách mã Serial/IMEI do nhân viên nhập và lưu vào cơ sở dữ liệu.
+     * Các bước xử lý:
+     * 1. Validate dữ liệu đầu vào (mã biến thể, danh sách serial, ngày nhập).
+     * 2. Kiểm tra ngày nhập không được vượt quá ngày hiện tại (không ở tương lai).
+     * 3. Lọc bỏ các serial trống và khởi tạo danh sách InventoryItem trạng thái "in_stock".
+     * 4. Gọi SerialDAO để lưu hàng loạt serial mới vào kho và cập nhật số lượng khả dụng (available_quantity).
+     * 5. (Nghiệp vụ Inbound) Nếu nhập qua phiếu nhập kho, gọi kiểm tra tự động xem toàn bộ các sản phẩm
+     *    trong phiếu đã nhập đủ chưa để cập nhật trạng thái phiếu thành COMPLETED.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa form data
+     * @param response đối tượng HttpServletResponse để điều hướng sau khi xử lý
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

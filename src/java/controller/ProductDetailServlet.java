@@ -1,8 +1,11 @@
 package controller;
 
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: ProductDetailServlet.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hiển thị trang thông tin chi tiết sản phẩm và các biến thể.
  */
 
 import dal.ProductDAO;
@@ -19,13 +22,6 @@ import model.Product;
 import model.ProductVariant;
 import model.ProductReview;
 
-/*
- * Name: ProductDetailServlet
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Servlet xử lý và hiển thị thông tin chi tiết của sản phẩm (Product Detail)
- */
 @WebServlet(urlPatterns = {"/ProductDetailServlet"})
 public class ProductDetailServlet extends HttpServlet {
 
