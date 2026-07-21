@@ -1,3 +1,13 @@
+﻿<%-- 
+    Page: WarrantyProcess.jsp
+    Mo ta: Trang giao diện nhân viên/admin xử lý các phiếu bảo hành.
+    
+    Created: 2026-06-22 21:12:34 +0700
+    Updated: 2026-07-12 00:05:15 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -6,7 +16,7 @@
     // Bảo vệ trang: chỉ Admin (roleId=1)
     model.Users currentUser = (model.Users) session.getAttribute("user");
     if (currentUser == null || currentUser.getRoleId() != 1) {
-        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 %>
@@ -741,14 +751,16 @@
                 <small>System Controller</small>
             </div>
                         <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="#"><span>▣</span>Orders</a>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                    <a class="active" href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
             <div class="profile">
@@ -1121,3 +1133,4 @@
     </div><!-- end layout -->
     </body>
 </html>
+

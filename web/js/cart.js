@@ -81,7 +81,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update item subtotal
                 const priceEl = document.querySelector(`.cart-card-price[data-variant-id="${variantId}"]`);
-                if (priceEl) priceEl.textContent = data.itemSubtotal + '₫';
+                if (priceEl) {
+                    priceEl.textContent = data.itemSubtotal + '₫';
+                    
+                    // Update crossed-out original price if it exists
+                    const card = priceEl.closest('.cart-card');
+                    const origEl = card ? card.querySelector(`.cart-card-original-price[data-variant-id="${variantId}"]`) : null;
+                    if (origEl && origEl.dataset.originalUnitPrice) {
+                        const unitOrig = parseFloat(origEl.dataset.originalUnitPrice);
+                        const newOrigSub = unitOrig * data.currentQty;
+                        origEl.textContent = formatMoney(newOrigSub) + '₫';
+                    }
+                }
 
                 // Update minus & plus buttons state
                 const form = document.querySelector(`.qty-form[data-variant-id="${variantId}"]`);
@@ -147,10 +158,33 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(err => console.error("Error removing item:", err));
     }
 
-    // --- 3. APPLYING COUPON ---
-    const btnApplyCoupon = document.getElementById('btn-apply-coupon');
-    const couponInput = document.getElementById('coupon-input');
-    const couponMsg = document.getElementById('coupon-msg');
+    // --- 3. PROMOTIONS DRAWER MODAL CONTROL ---
+    const promoModal = document.getElementById('promotions-modal');
+    const btnOpenPromo = document.getElementById('btn-open-promotions-modal');
+    const btnClosePromo = document.getElementById('btn-close-promotions-modal');
+    const promoOverlay = document.getElementById('promo-modal-overlay');
+    const btnConfirmPromo = document.getElementById('btn-confirm-promotions');
+
+    if (btnOpenPromo && promoModal) {
+        btnOpenPromo.addEventListener('click', function() {
+            promoModal.classList.add('open');
+        });
+    }
+
+    function closePromoModal() {
+        if (promoModal) {
+            promoModal.classList.remove('open');
+        }
+    }
+
+    if (btnClosePromo) btnClosePromo.addEventListener('click', closePromoModal);
+    if (promoOverlay) promoOverlay.addEventListener('click', closePromoModal);
+    if (btnConfirmPromo) btnConfirmPromo.addEventListener('click', closePromoModal);
+
+    // --- 4. APPLYING COUPON IN MODAL ---
+    const btnApplyCoupon = document.getElementById('btn-modal-apply-coupon');
+    const couponInput = document.getElementById('modal-coupon-input');
+    const couponMsg = document.getElementById('modal-coupon-msg');
 
     if (btnApplyCoupon && couponInput) {
         btnApplyCoupon.addEventListener('click', applyCoupon);
@@ -168,7 +202,10 @@ document.addEventListener('DOMContentLoaded', function () {
             showCouponMessage("Vui lòng nhập mã giảm giá.", false);
             return;
         }
+        applyCouponWithCode(code);
+    }
 
+    function applyCouponWithCode(code) {
         const formData = new URLSearchParams();
         formData.append('action', 'coupon');
         formData.append('couponCode', code);
@@ -200,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
         couponMsg.style.display = 'block';
     }
 
-    // --- 4. SUMMARY UPDATES ---
+    // --- 5. SUMMARY UPDATES & DOM SYNC ---
     function updateSummary(data) {
         // Update total items count in summary
         const summaryItemsCount = document.getElementById('summary-items-count');
@@ -227,9 +264,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Update final total
+        // Update final total (Giỏ hàng chính)
         const totalEl = document.getElementById('summary-total');
         if (totalEl) totalEl.textContent = data.finalTotal + '₫';
+
+        // Update final total (Modal footer)
+        const modalTotalVal = document.getElementById('modal-total-value');
+        if (modalTotalVal) modalTotalVal.textContent = data.finalTotal + '₫';
+
+        // Update selected promo texts (Giỏ hàng chính và Modal footer)
+        const hasCoupon = data.couponCode && data.couponCode.trim() !== "";
+        const triggerTitle = document.getElementById('summary-promo-selected-title');
+        if (triggerTitle) {
+            triggerTitle.textContent = hasCoupon ? 'Đã chọn 1 khuyến mãi và ưu đãi' : 'Chọn khuyến mãi và ưu đãi';
+        }
+        
+        const modalSelectedCountText = document.getElementById('modal-selected-count-text');
+        if (modalSelectedCountText) {
+            modalSelectedCountText.textContent = hasCoupon ? 'Đã chọn 1 khuyến mãi và ưu đãi' : 'Đã chọn 0 khuyến mãi và ưu đãi';
+        }
 
         // Update header badge
         const badge = document.getElementById('header-cart-badge');
@@ -241,6 +294,105 @@ document.addEventListener('DOMContentLoaded', function () {
                 badge.style.display = 'none';
             }
         }
+
+        // Tự động cập nhật lại giá trị hiển thị trong ô nhập coupon của modal
+        if (couponInput && data.couponCode !== undefined) {
+            couponInput.value = data.couponCode;
+        }
+
+        // Vẽ lại danh sách Voucher cá nhân của User một cách sống động
+        const vouchersList = document.getElementById('vouchers-list');
+        if (vouchersList && data.userVouchers) {
+            renderVouchersList(vouchersList, data.userVouchers, data.couponCode);
+        }
+    }
+
+    // Lắng nghe click chọn Voucher từ danh sách (Event Delegation)
+    const vouchersListEl = document.getElementById('vouchers-list');
+    if (vouchersListEl) {
+        vouchersListEl.addEventListener('click', function (e) {
+            // Nhấp chọn qua container hoặc icon dấu cộng
+            const btn = e.target.closest('.btn-use-voucher-indicator');
+            const item = e.target.closest('.voucher-item');
+            
+            if (btn) {
+                const code = btn.dataset.code;
+                applyCouponWithCode(code);
+            } else if (item) {
+                // Nhấp vào vùng bất kỳ của card voucher khả dụng (không bị used hay unavailable)
+                if (!item.classList.contains('used') && !item.classList.contains('unavailable') && !item.classList.contains('active')) {
+                    const code = item.dataset.code;
+                    applyCouponWithCode(code);
+                }
+            }
+        });
+    }
+
+    function renderVouchersList(container, vouchers, activeCode) {
+        if (!vouchers || vouchers.length === 0) {
+            container.innerHTML = `<p style="font-size: 12.5px; color: #64748b; font-style: italic; text-align: center; margin: 15px 0;">Bạn không sở hữu mã giảm giá nào.</p>`;
+            return;
+        }
+
+        let html = '';
+        vouchers.forEach(v => {
+            const isActive = v.voucherCode === activeCode;
+            const itemClass = `voucher-item ${v.isAvailable ? 'available' : 'unavailable'} ${v.isUsed ? 'used' : ''} ${isActive ? 'active' : ''}`;
+            
+            const discValFormatted = formatMoney(v.discountValue);
+            const minValFormatted = formatMoney(v.minOrderValue);
+
+             let rightContent = '';
+             if (isActive) {
+                 rightContent = `
+                     <div class="promo-select-indicator active">
+                         <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                     </div>
+                 `;
+             } else if (v.isUsed || !v.isAvailable) {
+                 rightContent = ''; // Ẩn hoàn toàn nút +
+             } else {
+                 rightContent = `
+                     <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                         <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
+                     </button>
+                 `;
+             }
+ 
+             const statusColor = v.isAvailable ? '#10b981' : '#dc2626';
+ 
+             html += `
+                 <div class="${itemClass}" data-code="${v.voucherCode}">
+                     <div class="voucher-left">
+                          <div class="v-code">${v.voucherCode}</div>
+                          <div class="v-discount">
+                              Giảm ${discValFormatted}${v.discountValue <= 100 ? '%' : '₫'}
+                          </div>
+                          <div class="v-min">Đơn tối thiểu: ${minValFormatted}₫</div>
+                          ${v.description ? `<div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">${v.description}</div>` : ''}
+                          <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${statusColor}; font-weight: 500;">
+                              ${v.statusMessage || ''}
+                          </div>
+                     </div>
+                     <div class="voucher-right">
+                         ${rightContent}
+                     </div>
+                 </div>
+             `;
+        });
+        container.innerHTML = html;
+    }
+
+    function formatMoney(num) {
+        if (num === undefined || num === null) return "0";
+        let str = typeof num === 'string' ? num : num.toString();
+        const dotIndex = str.indexOf('.');
+        if (dotIndex !== -1) {
+            str = str.substring(0, dotIndex);
+        }
+        str = str.replace(/[^0-9]/g, '');
+        if (!str) return "0";
+        return parseInt(str, 10).toLocaleString('vi-VN');
     }
 
     function toggleEmptyCart(isEmpty) {

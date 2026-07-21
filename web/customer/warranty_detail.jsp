@@ -1,3 +1,13 @@
+﻿<%-- 
+    Page: warranty_detail.jsp
+    Mo ta: Trang chi tiết và theo dõi trạng thái một phiếu bảo hành của khách hàng.
+    
+    Created: 2026-06-26 11:52:20 +0700
+    Updated: 2026-07-11 23:28:45 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"      prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"       prefix="fmt" %>

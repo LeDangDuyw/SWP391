@@ -1,4 +1,4 @@
-<%-- 
+﻿<%-- 
     Document   : InventoryManagement
     Created on : May 29, 2026, 9:20:02 PM
     Author     : huy
@@ -14,7 +14,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Admin - Inventory Management</title>
+    <title>UNILAP Admin - Product Catalog Management</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
@@ -157,7 +157,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
@@ -212,7 +212,7 @@
             
             <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Inventory Management</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Product Catalog Management</h2>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">Manage product listings, monitor stock levels, and audit adjustments.</p>
                 </div>
                 <div class="flex items-center gap-2">

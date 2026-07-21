@@ -52,12 +52,20 @@ public class CartDAO extends DBContext {
         List<CartItem> list = new ArrayList<>();
         try {
             checkConnection();
-            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, pv.selling_price, p.warranty_period, isnull(inv.available_quantity, 0) AS available_quantity, ci.quantity " +
+            String sql = "SELECT pv.variant_id, pv.product_id, p.product_name, pv.variant_name, p.thumbnail, " +
+                         "ISNULL(fsi.sale_price, pv.selling_price) AS selling_price, pv.selling_price AS original_price, " +
+                         "p.warranty_period, isnull(inv.available_quantity, 0) AS available_quantity, ci.quantity " +
                          "FROM [CartItem] ci " +
                          "JOIN [Cart] c ON ci.cart_id = c.cart_id " +
                          "JOIN [ProductVariant] pv ON ci.variant_id = pv.variant_id " +
                          "JOIN [Product] p ON pv.product_id = p.product_id " +
                          "LEFT JOIN [Inventory] inv ON pv.variant_id = inv.variant_id " +
+                         "LEFT JOIN ( " +
+                         "    SELECT fsi.variant_id, fsi.sale_price " +
+                         "    FROM FlashSaleItem fsi " +
+                         "    JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id " +
+                         "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
+                         ") fsi ON pv.variant_id = fsi.variant_id " +
                          "WHERE c.user_id = ?";
             try (PreparedStatement ps = cnn.prepareStatement(sql)) {
                 ps.setInt(1, userId);
@@ -69,6 +77,7 @@ public class CartDAO extends DBContext {
                         String variantName = rs.getString("variant_name");
                         String thumbnail = rs.getString("thumbnail");
                         BigDecimal unitPrice = rs.getBigDecimal("selling_price");
+                        BigDecimal originalPrice = rs.getBigDecimal("original_price");
                         int availableQuantity = rs.getInt("available_quantity");
                         int quantity = rs.getInt("quantity");
                         int warrantyPeriod = rs.getInt("warranty_period");
@@ -84,6 +93,7 @@ public class CartDAO extends DBContext {
                                 availableQuantity
                         );
                         item.setWarrantyPeriod(warrantyPeriod);
+                        item.setOriginalPrice(originalPrice);
                         list.add(item);
                     }
                 }

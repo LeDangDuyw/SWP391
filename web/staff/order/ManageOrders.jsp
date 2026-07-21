@@ -214,14 +214,14 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>Hệ thống quản lý</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Kho hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Mã IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Yêu cầu hỗ trợ</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý đánh giá</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
         </nav>
         <div class="profile">
             <div style="cursor:pointer;display:flex;align-items:center;gap:8px;"

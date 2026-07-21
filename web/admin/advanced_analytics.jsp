@@ -1,3 +1,13 @@
+﻿<%-- 
+    Page: advanced_analytics.jsp
+    Mo ta: Trang giao diện phân tích báo cáo nâng cao tích hợp biểu đồ Chart.js.
+    
+    Created: 2026-07-09 18:10:23 +0700
+    Updated: 2026-07-12 00:05:15 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
@@ -484,7 +494,6 @@
                 </div>
                 <nav>
                     <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="#"><span>▣</span>Orders</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
                     
                     <div class="sidebar-dropdown">
@@ -506,6 +515,9 @@
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
                 </nav>
                 <div class="profile">
                     <div class="profile-info">
@@ -643,7 +655,7 @@
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">🍩 Revenue Share by Category</div>
+                                <div class="chart-card-hd">📊 Revenue Share by Category</div>
                                 <div class="chart-container">
                                     <canvas id="revenueCategoryChart"></canvas>
                                 </div>
@@ -1145,20 +1157,34 @@
                 }
             });
 
-            // Draw Category Pie/Doughnut Chart
+            // Draw Category Bar Chart
             new Chart(document.getElementById('revenueCategoryChart'), {
-                type: 'doughnut',
+                type: 'bar',
                 data: {
                     labels: catLabels,
                     datasets: [{
+                        label: 'Revenue (₫)',
                         data: catData,
-                        backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
-                        borderWidth: 1
+                        backgroundColor: ['rgba(37, 99, 235, 0.85)', 'rgba(16, 185, 129, 0.85)', 'rgba(245, 158, 11, 0.85)', 'rgba(139, 92, 246, 0.85)', 'rgba(239, 68, 68, 0.85)', 'rgba(6, 182, 212, 0.85)'],
+                        borderColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
+                        borderWidth: 1,
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(value) + ' ₫';
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
@@ -1300,3 +1326,4 @@
         </script>
     </body>
 </html>
+

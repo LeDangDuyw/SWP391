@@ -1,4 +1,26 @@
 package service;
+/**
+ * Class: WarrantyService
+ * Description: Lớp xử lý logic nghiệp vụ bảo hành (Warranty Service).
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-07-02 23:39:42 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
+
+/**
+ * Class: WarrantyService
+ * Description: Lớp xử lý logic nghiệp vụ bảo hành (Warranty Service).
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-07-02 23:39:42 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
 
 import dal.WarrantyDAO;
 import dal.WarrantyHistoryDAO;
@@ -37,6 +59,9 @@ public class WarrantyService {
     private static final String UPLOAD_DIR = System.getProperty("warranty.upload.dir",
             System.getProperty("user.home") + File.separator + "uploads" + File.separator + "warranty");
 
+    /**
+     * Phuong thuc WarrantyService
+     */
     public WarrantyService() {
         this.warrantyDAO = new WarrantyDAO();
         this.historyDAO  = new WarrantyHistoryDAO();
@@ -49,24 +74,42 @@ public class WarrantyService {
             String title, String description, List<Part> images)
             throws ValidationException, Exception {
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (serialNumber == null || serialNumber.trim().isEmpty()) {
             throw new ValidationException("Số serial không được để trống.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (title == null || title.trim().isEmpty()) {
             throw new ValidationException("Tiêu đề không được để trống.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (description == null || description.trim().isEmpty()) {
             throw new ValidationException("Mô tả lỗi không được để trống.");
         }
 
         // Max-length guards — khớp với maxlength attribute trong warranty_center.jsp
         // và giới hạn VARCHAR trong DB để tránh SQL exception thô
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (serialNumber.trim().length() > 100) {
             throw new ValidationException("Số serial không được vượt quá 100 ký tự.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (title.trim().length() > 200) {
             throw new ValidationException("Tiêu đề không được vượt quá 200 ký tự.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (description.trim().length() > 2000) {
             throw new ValidationException("Mô tả lỗi không được vượt quá 2000 ký tự.");
         }
@@ -78,18 +121,30 @@ public class WarrantyService {
 
         serialNumber = serialNumber.trim();
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.serialExists(serialNumber)) {
             throw new ValidationException("Số serial không tồn tại trong hệ thống.");
         }
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.productBelongsToCustomer(serialNumber, customerId)) {
             throw new ValidationException("Sản phẩm này không thuộc đơn hàng đã hoàn thành của bạn.");
         }
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành. Không thể tạo yêu cầu.");
         }
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (warrantyDAO.hasActiveClaim(serialNumber)) {
             throw new ValidationException("Đã tồn tại một yêu cầu bảo hành đang xử lý cho sản phẩm này.");
         }
@@ -114,6 +169,9 @@ public class WarrantyService {
         // Lưu ảnh SAU khi claim đã có claimId. Nếu việc ghi file/DB ảnh lỗi,
         // không rollback claim (claim vẫn hợp lệ, chỉ là thiếu ảnh) — nhưng
         // ta vẫn throw để staff/customer biết và có thể upload lại qua trang detail.
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!validImageParts.isEmpty()) {
             saveClaimImages(claimId, validImageParts);
         }
@@ -130,10 +188,16 @@ public class WarrantyService {
      */
     private List<Part> filterImageParts(List<Part> images) {
         List<Part> result = new ArrayList<>();
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (images == null) {
             return result;
         }
         for (Part p : images) {
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (p != null && p.getSize() > 0 && p.getSubmittedFileName() != null
                     && !p.getSubmittedFileName().trim().isEmpty()) {
                 result.add(p);
@@ -147,12 +211,18 @@ public class WarrantyService {
      * Ném ValidationException với message tiếng Việt rõ ràng cho từng trường hợp.
      */
     private void validateImages(List<Part> images) throws ValidationException {
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (images.size() > MAX_IMAGES) {
             throw new ValidationException(
                     "Chỉ được tải lên tối đa " + MAX_IMAGES + " ảnh.");
         }
 
         for (Part p : images) {
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (p.getSize() > MAX_IMAGE_SIZE) {
                 throw new ValidationException(
                         "Ảnh \"" + p.getSubmittedFileName() + "\" vượt quá 5MB. "
@@ -160,6 +230,9 @@ public class WarrantyService {
             }
 
             String contentType = p.getContentType();
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
                 throw new ValidationException(
                         "Ảnh \"" + p.getSubmittedFileName() + "\" không đúng định dạng. "
@@ -183,10 +256,16 @@ public class WarrantyService {
             String originalName = p.getSubmittedFileName();
             String ext = "";
             int dot = originalName.lastIndexOf('.');
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (dot >= 0) {
                 ext = originalName.substring(dot).toLowerCase();
             }
             // Whitelist phần mở rộng để tránh lưu file thực thi dưới tên giả mạo
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (!ext.matches("\\.(jpg|jpeg|png|webp)")) {
                 ext = ".jpg";
             }
@@ -194,6 +273,9 @@ public class WarrantyService {
             String storedFileName = UUID.randomUUID().toString() + ext;
             Path targetFile = uploadPath.resolve(storedFileName);
 
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (InputStream in = p.getInputStream()) {
                 Files.copy(in, targetFile);
             }
@@ -222,6 +304,9 @@ public class WarrantyService {
         WarrantyClaim claim = getClaim(claimId);
         assertOwner(claim, customerId);
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!"PENDING".equals(claim.getStatus())) {
             throw new ValidationException(
                     "Chỉ có thể huỷ yêu cầu bảo hành khi trạng thái là PENDING.");
@@ -248,6 +333,9 @@ public class WarrantyService {
 
         WarrantyClaim claim = getClaim(claimId);
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!"PENDING".equals(claim.getStatus())) {
             throw new ValidationException(
                     "Chỉ có thể huỷ yêu cầu khi trạng thái là PENDING. "
@@ -275,6 +363,9 @@ public class WarrantyService {
         // optimistic lock (WHERE status = 'PENDING') để tránh race condition
         // khi 2 staff cùng nhận claim.
         int rows = warrantyDAO.assignStaffAndProcess(claimId, staffId);
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (rows == 0) {
             throw new ValidationException(
                 "Yêu cầu đã được xử lý bởi người khác. Vui lòng tải lại trang.");
@@ -361,30 +452,51 @@ public class WarrantyService {
         return warrantyDAO.findByCustomer(customerId);
     }
 
+    /**
+     * Phuong thuc getClaimDetail
+     */
     public WarrantyClaim getClaimDetail(int claimId) throws ValidationException, Exception {
         return getClaim(claimId);
     }
 
+    /**
+     * Phuong thuc getHistory
+     */
     public List<WarrantyHistory> getHistory(int claimId) throws Exception {
         return historyDAO.findByWarrantyId(claimId);
     }
 
+    /**
+     * Phuong thuc getAllClaims
+     */
     public List<WarrantyClaim> getAllClaims(int offset, int limit) throws Exception {
         return warrantyDAO.findAll(offset, limit);
     }
 
+    /**
+     * Phuong thuc countClaims
+     */
     public int countClaims(String status) throws Exception {
         return warrantyDAO.count(status);
     }
 
+    /**
+     * Phuong thuc searchClaims
+     */
     public List<WarrantyClaim> searchClaims(String keyword, int offset, int limit) throws Exception {
         return warrantyDAO.search(keyword, offset, limit);
     }
 
+    /**
+     * Phuong thuc countSearch
+     */
     public int countSearch(String keyword) throws Exception {
         return warrantyDAO.countSearch(keyword);
     }
 
+    /**
+     * Phuong thuc filterByStatus
+     */
     public List<WarrantyClaim> filterByStatus(String status, int offset, int limit) throws Exception {
         return warrantyDAO.filter(status, offset, limit);
     }
@@ -406,18 +518,30 @@ public class WarrantyService {
     public model.WarrantyEligibilityInfo checkEligibility(String serialNumber, int customerId)
             throws ValidationException, Exception {
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.serialExists(serialNumber)) {
             throw new ValidationException("Số serial không tồn tại trong hệ thống.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.productBelongsToCustomer(serialNumber, customerId)) {
             throw new ValidationException("Sản phẩm này không thuộc đơn hàng đã hoàn thành của bạn.");
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành.");
         }
         // BR18 / UC27 EF2: chỉ 1 active claim (PENDING/PROCESSING/APPROVED)
         // cho mỗi serial. Step 1 của wizard phải chặn ở đây, không để khách
         // điền hết Step 3 rồi mới bị từ chối ở submit.
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (warrantyDAO.hasActiveClaim(serialNumber)) {
             throw new ValidationException("Đã tồn tại một yêu cầu bảo hành đang xử lý cho sản phẩm này.");
         }
@@ -429,6 +553,9 @@ public class WarrantyService {
 
     private WarrantyClaim getClaim(int claimId) throws ValidationException, Exception {
         WarrantyClaim claim = warrantyDAO.findById(claimId);
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (claim == null) {
             throw new ValidationException("Không tìm thấy yêu cầu bảo hành #" + claimId);
         }
@@ -436,6 +563,9 @@ public class WarrantyService {
     }
 
     private void assertOwner(WarrantyClaim claim, int customerId) throws ValidationException {
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (claim.getCustomerId() != customerId) {
             throw new ValidationException("Bạn không có quyền thao tác trên yêu cầu này.");
         }
@@ -446,6 +576,9 @@ public class WarrantyService {
                                   String targetStatus)
             throws ValidationException {
 
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!expectedCurrent.equals(currentStatus)) {
             throw new ValidationException(
                     "Không thể chuyển sang " + targetStatus +

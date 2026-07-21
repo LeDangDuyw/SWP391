@@ -281,9 +281,13 @@ public class CheckoutServlet extends HttpServlet {
             orderDAO.insertOrderDetail(dbOrder.getOrderId(), item.getVariantId(), item.getQuantity(), item.getUnitPrice());
         }
         
-        // Increment campaign used count
+        // Increment campaign used count or update personalized user voucher status
         if (couponId != null) {
-            new dal.VoucherDAO().incrementUsedCount(couponId, isCampaign);
+            if (isCampaign) {
+                new dal.VoucherDAO().incrementUsedCount(couponId, true);
+            } else if (userId != null) {
+                new dal.VoucherDAO().useUserVoucher(userId, couponId);
+            }
         }
         
         // Clear cart in Database if logged in

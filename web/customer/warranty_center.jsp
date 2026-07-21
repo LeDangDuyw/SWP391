@@ -1,3 +1,13 @@
+﻿<%-- 
+    Page: warranty_center.jsp
+    Mo ta: Trang trung tâm bảo hành dành cho khách hàng.
+    
+    Created: 2026-06-22 21:12:34 +0700
+    Updated: 2026-07-11 23:28:45 +0700
+    Version: v1.0
+    
+    @author DuyLD
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>

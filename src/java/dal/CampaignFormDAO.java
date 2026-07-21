@@ -200,6 +200,11 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Thực hiện commit giao dịch. Nếu có lỗi xảy ra, thực hiện rollback để đảm bảo tính toàn vẹn dữ liệu.
      */
     public int insertCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
+        if ("flash".equalsIgnoreCase(campaign.getCampaignType())) {
+            if (isFlashSaleOverlapping(campaign.getStartDate(), campaign.getEndDate(), null)) {
+                throw new SQLException("Đã có một chương trình Flash Sale khác đang diễn ra trong khoảng thời gian này. Vui lòng chọn khung giờ khác!");
+            }
+        }
 
         con.setAutoCommit(false);
 
@@ -211,8 +216,8 @@ public class CampaignFormDAO extends CampaignDAO {
                     "INSERT INTO [Campaign] " +
                     "(campaign_name, campaign_description, promo_code, campaign_type, discount_value, " +
                     " min_order_value, usage_limit, used_count, target_group, start_date, end_date, status, " +
-                    " created_at, updated_at, voucher_id, flashsale_id) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
+                    " created_at, updated_at, voucher_id, flashsale_id, user_usage_limit) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?, ?)";
 
             int newId;
 
@@ -254,6 +259,11 @@ public class CampaignFormDAO extends CampaignDAO {
      *   - Commit giao dịch, thực hiện rollback nếu gặp ngoại lệ SQL.
      */
     public void updateCampaign(Campaign campaign, int[] variantIds , int[] giftVariantIds) throws SQLException {
+        if ("flash".equalsIgnoreCase(campaign.getCampaignType())) {
+            if (isFlashSaleOverlapping(campaign.getStartDate(), campaign.getEndDate(), campaign.getCampaignId())) {
+                throw new SQLException("Đã có một chương trình Flash Sale khác đang diễn ra trong khoảng thời gian này. Vui lòng chọn khung giờ khác!");
+            }
+        }
         
         con.setAutoCommit(false);
 
@@ -276,7 +286,8 @@ public class CampaignFormDAO extends CampaignDAO {
                     "    status = ?, " +
                     "    updated_at = GETDATE(), " +
                     "    voucher_id = ?, " +
-                    "    flashsale_id = ? " +
+                    "    flashsale_id = ?, " +
+                    "    user_usage_limit = ? " +
                     "WHERE campaign_id = ?";
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -293,6 +304,30 @@ public class CampaignFormDAO extends CampaignDAO {
         } finally {
             con.setAutoCommit(true);
         }
+    }
+
+    public boolean isFlashSaleOverlapping(java.time.LocalDateTime start, java.time.LocalDateTime end, Integer excludeCampaignId) throws SQLException {
+        if (start == null || end == null) return false;
+        String sql = "SELECT COUNT(*) FROM [Campaign] " +
+                     "WHERE campaign_type = 'flash' " +
+                     "  AND status = 'active' " +
+                     "  AND (? < end_date AND ? > start_date)";
+        if (excludeCampaignId != null) {
+            sql += "  AND campaign_id <> ?";
+        }
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(end));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(start));
+            if (excludeCampaignId != null) {
+                ps.setInt(3, excludeCampaignId);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -332,6 +367,12 @@ public class CampaignFormDAO extends CampaignDAO {
             ps.setNull(14, Types.INTEGER);
         } else {
             ps.setInt(14, flashsaleId);
+        }
+
+        if (c.getUserUsageLimit() == null) {
+            ps.setNull(15, Types.INTEGER);
+        } else {
+            ps.setInt(15, c.getUserUsageLimit());
         }
     }
 
@@ -373,7 +414,13 @@ public class CampaignFormDAO extends CampaignDAO {
             ps.setInt(13, flashsaleId);
         }
 
-        ps.setInt(14, c.getCampaignId());
+        if (c.getUserUsageLimit() == null) {
+            ps.setNull(14, Types.INTEGER);
+        } else {
+            ps.setInt(14, c.getUserUsageLimit());
+        }
+
+        ps.setInt(15, c.getCampaignId());
     }
 
     /**

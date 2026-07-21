@@ -40,7 +40,324 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cart.css?v=5">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cart.css?v=8">
+    <style>
+    /* CSS Inline để chống cache trình duyệt cho tính năng Khuyến mãi và ưu đãi */
+    .promotions-trigger-box {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 14px 16px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        margin-bottom: 18px !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .promotions-trigger-box:hover {
+        border-color: #cbd5e1 !important;
+        background: #f1f5f9 !important;
+        transform: translateY(-1px) !important;
+    }
+    .promotions-trigger-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    .promotions-trigger-title {
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
+    }
+    .promo-modal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 9999 !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+    .promo-modal.open {
+        display: flex !important;
+    }
+    .promo-modal-overlay {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(15, 23, 42, 0.5) !important;
+        backdrop-filter: blur(4px) !important;
+        transition: opacity 0.3s ease !important;
+    }
+    .promo-modal-content {
+        position: relative !important;
+        width: 480px !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        background: #ffffff !important;
+        box-shadow: -4px 0 24px rgba(15, 23, 42, 0.15) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 10001 !important;
+    }
+    .promo-modal.open .promo-modal-content {
+        transform: translateX(0) !important;
+    }
+    .promo-modal-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 16px 20px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+    .promo-modal-title {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+    }
+    .promo-close-btn {
+        background: none !important;
+        border: none !important;
+        font-size: 28px !important;
+        font-weight: 300 !important;
+        color: #94a3b8 !important;
+        cursor: pointer !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+        transition: color 0.2s !important;
+    }
+    .promo-close-btn:hover {
+        color: #475569 !important;
+    }
+    .promo-modal-body {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+    .promo-section-title {
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        margin-bottom: 10px !important;
+    }
+    .promo-input-wrapper {
+        position: relative !important;
+        display: flex !important;
+        gap: 8px !important;
+    }
+    .promo-input-icon {
+        position: absolute !important;
+        left: 14px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #94a3b8 !important;
+        font-size: 14px !important;
+    }
+    .promo-input-wrapper input {
+        flex: 1 !important;
+        padding: 11px 12px 11px 40px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        font-size: 13.5px !important;
+        color: #0f172a !important;
+        transition: all 0.2s !important;
+    }
+    .promo-input-wrapper input:focus {
+        outline: none !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }
+    .promo-apply-btn {
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0 16px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+    .promo-apply-btn:hover {
+        background: #1d4ed8 !important;
+    }
+    .btn-use-voucher-indicator:hover i {
+        color: #ef4444 !important;
+    }
+    .promo-modal-footer {
+        padding: 16px 20px !important;
+        border-top: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: #ffffff !important;
+    }
+    .promo-footer-left {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+    .promo-footer-selected-text {
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        color: #64748b !important;
+    }
+    .promo-footer-total {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+    .promo-total-label {
+        font-size: 13px !important;
+        color: #475569 !important;
+    }
+    .promo-total-val {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #ef4444 !important;
+    }
+    .promo-confirm-btn {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 12px 36px !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 14.5px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+    }
+    .promo-confirm-btn:hover {
+        background: #dc2626 !important;
+        transform: translateY(-1px) !important;
+    }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var trigger = document.getElementById('btn-open-promotions-modal');
+        var modal = document.getElementById('promotions-modal');
+        var closeBtn = document.getElementById('btn-close-promotions-modal');
+        var confirmBtn = document.getElementById('btn-confirm-promotions');
+        var overlay = document.querySelector('.promo-modal-overlay');
+
+        if (trigger && modal) {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.classList.add('open');
+            });
+        }
+
+        function closeModal() {
+            if (modal) {
+                modal.classList.remove('open');
+            }
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (confirmBtn) confirmBtn.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+
+        // Logic chọn và áp dụng Voucher
+        const vouchersListEl = document.getElementById('vouchers-list');
+        const contextPath = '${pageContext.request.contextPath}';
+
+        function applyCoupon(code) {
+            const formData = new URLSearchParams();
+            formData.append('action', 'coupon');
+            formData.append('couponCode', code);
+            formData.append('ajax', 'true');
+
+            fetch(contextPath + '/CartServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                },
+                body: formData.toString()
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Tải lại trang để JSP tự động render lại toàn bộ giỏ hàng và modal với coupon mới
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error("Error applying coupon:", err);
+                window.location.reload();
+            });
+        }
+
+        if (vouchersListEl) {
+            vouchersListEl.addEventListener('click', function (e) {
+                const btn = e.target.closest('.btn-use-voucher-indicator');
+                const item = e.target.closest('.voucher-item');
+                
+                if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const code = btn.dataset.code;
+                    applyCoupon(code);
+                } else if (item) {
+                    if (!item.classList.contains('used') && !item.classList.contains('unavailable') && !item.classList.contains('active')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const code = item.dataset.code;
+                        applyCoupon(code);
+                    }
+                }
+            });
+        }
+
+        // Bấm nút "Áp dụng" khi gõ tay mã giảm giá
+        const btnApplyCoupon = document.getElementById('btn-modal-apply-coupon');
+        const couponInput = document.getElementById('modal-coupon-input');
+        if (btnApplyCoupon && couponInput) {
+            btnApplyCoupon.addEventListener('click', function(e) {
+                e.preventDefault();
+                const code = couponInput.value.trim();
+                if (code) {
+                    applyCoupon(code);
+                }
+            });
+            couponInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const code = couponInput.value.trim();
+                    if (code) {
+                        applyCoupon(code);
+                    }
+                }
+            });
+        }
+
+        // Tự động mở lại modal và hiển thị thông báo phản hồi từ Server sau khi trang reload
+        <c:if test="${not empty requestScope.couponMessage}">
+            if (modal) {
+                modal.classList.add('open');
+                var msgEl = document.getElementById('modal-coupon-msg');
+                if (msgEl) {
+                    msgEl.textContent = "${requestScope.couponMessage}";
+                    msgEl.className = "coupon-message " + (${requestScope.couponSuccess} ? "success" : "error");
+                    msgEl.style.display = 'block';
+                }
+            }
+        </c:if>
+    });
+    </script>
 </head>
 <body>
 
@@ -195,8 +512,13 @@
                                     <button type="button" class="qty-btn btn-qty-plus" data-variant-id="${item.variantId}" ${item.quantity >= item.availableQuantity ? 'disabled' : ''}>+</button>
                                 </form>
                                 <!-- Price -->
-                                <div class="cart-card-price-block">
-                                    <span class="cart-card-price" data-variant-id="${item.variantId}"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                <div class="cart-card-price-block" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                    <span class="cart-card-price" data-variant-id="${item.variantId}" style="font-weight: 700; color: #ef4444;"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                    <c:if test="${not empty item.originalPrice && item.unitPrice < item.originalPrice}">
+                                        <span class="cart-card-original-price" data-variant-id="${item.variantId}" data-original-unit-price="${item.originalPrice}" style="text-decoration: line-through; color: #94a3b8; font-size: 13px;">
+                                            <fmt:formatNumber value="${item.originalPrice * item.quantity}" pattern="#,##0"/>₫
+                                        </span>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -237,15 +559,17 @@
                     </div>
                     <p class="summary-vat">(Đã bao gồm VAT nếu có)</p>
 
-                    <!-- Coupon input -->
-                    <div class="coupon-form-container" style="margin-bottom: 16px;">
-                        <div class="coupon-form">
-                            <input type="text" id="coupon-input" placeholder="Nhập mã giảm giá..."
-                                   class="coupon-input" value="${couponCode}">
-                            <button type="button" class="coupon-btn" id="btn-apply-coupon">Áp dụng</button>
+                    <!-- Hộp bấm mở Modal Khuyến mãi và ưu đãi -->
+                    <div class="promotions-trigger-box" id="btn-open-promotions-modal">
+                        <div class="promotions-trigger-left">
+                            <i class="fas fa-percent" style="color: #ef4444; font-size: 14px;"></i>
+                            <span class="promotions-trigger-title" id="summary-promo-selected-title">
+                                ${not empty couponCode ? 'Đã chọn 1 khuyến mãi và ưu đãi' : 'Chọn khuyến mãi và ưu đãi'}
+                            </span>
                         </div>
-                        <div id="coupon-msg" class="coupon-message" style="font-size: 13px; margin-top: 6px; font-weight: 500; display: none;"></div>
+                        <i class="fas fa-chevron-right" style="color: #94a3b8; font-size: 12px;"></i>
                     </div>
+
 
                     <!-- Checkout button -->
                     <c:choose>
@@ -337,7 +661,100 @@
         });
     });
 </script>
-<script src="${pageContext.request.contextPath}/js/cart.js?v=2" defer></script>
+<!-- Modal Khuyến mãi và ưu đãi (Drawer từ bên phải trượt ra) -->
+<div class="promo-modal" id="promotions-modal">
+    <div class="promo-modal-overlay" id="promo-modal-overlay"></div>
+    <div class="promo-modal-content">
+        <div class="promo-modal-header">
+            <h2 class="promo-modal-title">Khuyến mãi và ưu đãi</h2>
+            <button type="button" class="promo-close-btn" id="btn-close-promotions-modal">&times;</button>
+        </div>
+        
+        <div class="promo-modal-body">
+            <!-- 1. Ô nhập mã giảm giá -->
+            <div class="promo-search-section">
+                <h3 class="promo-section-title">Mã giảm giá</h3>
+                <div class="promo-input-wrapper">
+                    <i class="fas fa-ticket-alt promo-input-icon"></i>
+                    <input type="text" id="modal-coupon-input" placeholder="Nhập mã giảm giá của bạn tại đây nhé" value="${couponCode}">
+                    <button type="button" class="promo-apply-btn" id="btn-modal-apply-coupon">Áp dụng</button>
+                </div>
+                <div id="modal-coupon-msg" class="coupon-message" style="font-size: 12.5px; margin-top: 8px; font-weight: 500; display: none;"></div>
+            </div>
+
+            <!-- 2. Danh sách khuyến mãi -->
+            <div class="promo-list-section">
+                <h3 class="promo-section-title">Khuyến mãi</h3>
+                
+                <c:if test="${empty sessionScope.user}">
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                        <span>Đăng nhập để nhận thêm ưu đãi cá nhân của bạn nhé!</span>
+                    </div>
+                </c:if>
+
+                <div class="vouchers-list" id="vouchers-list">
+                     <c:forEach items="${userVouchers}" var="v">
+                         <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
+                              data-code="${v.voucherCode}">
+                             <div class="voucher-left">
+                                 <div class="v-code">${v.voucherCode}</div>
+                                 <div class="v-discount">
+                                     Giảm <fmt:formatNumber value="${v.discountValue}" pattern="#,##0"/>${v.discountValue <= 100 ? '%' : '₫'}
+                                 </div>
+                                 <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
+                                 <c:if test="${not empty v.description}">
+                                     <div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">
+                                         ${v.description}
+                                     </div>
+                                 </c:if>
+                                 <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
+                                     ${v.statusMessage}
+                                 </div>
+                             </div>
+                             <div class="voucher-right">
+                                 <c:choose>
+                                     <c:when test="${v.voucherCode == couponCode}">
+                                         <div class="promo-select-indicator active">
+                                             <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                                         </div>
+                                     </c:when>
+                                     <c:when test="${v.used || !v.available}">
+                                         <!-- Ẩn hoàn toàn nút + -->
+                                     </c:when>
+                                     <c:otherwise>
+                                         <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                                             <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
+                                         </button>
+                                     </c:otherwise>
+                                 </c:choose>
+                             </div>
+                         </div>
+                     </c:forEach>
+                    <c:if test="${empty userVouchers}">
+                        <p style="font-size: 12.5px; color: #64748b; font-style: italic; text-align: center; margin: 15px 0;">Bạn không sở hữu mã giảm giá nào.</p>
+                    </c:if>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer của Modal -->
+        <div class="promo-modal-footer">
+            <div class="promo-footer-left">
+                <span class="promo-footer-selected-text" id="modal-selected-count-text">
+                    ${not empty couponCode ? 'Đã chọn 1 khuyến mãi và ưu đãi' : 'Đã chọn 0 khuyến mãi và ưu đãi'}
+                </span>
+                <div class="promo-footer-total">
+                    <span class="promo-total-label">Tổng thanh toán:</span>
+                    <strong class="promo-total-val" id="modal-total-value"><fmt:formatNumber value="${finalTotal}" pattern="#,##0"/>₫</strong>
+                </div>
+            </div>
+            <button type="button" class="promo-confirm-btn" id="btn-confirm-promotions">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+<script src="${pageContext.request.contextPath}/js/cart.js?v=4" defer></script>
 <jsp:include page="chatbot.jsp" />
 </body>
 </html>
