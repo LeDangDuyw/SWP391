@@ -356,15 +356,6 @@ public class OutboundDAO extends DBContext {
                 }
             }
 
-            // 3. Update Inventory (decrement available_quantity)
-            String decrementInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity " +
-                                           "FROM [Inventory] JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
-                                           "WHERE od.order_id = ?";
-            try (PreparedStatement psDec = connection.prepareStatement(decrementInventorySql)) {
-                psDec.setInt(1, orderId);
-                psDec.executeUpdate();
-            }
-
             // 4. Update Order status to 'shipped'
             String updateOrderSql = "UPDATE [Order] SET order_status = 'shipped', completed_at = GETDATE() WHERE order_id = ?";
             try (PreparedStatement psOrder = connection.prepareStatement(updateOrderSql)) {

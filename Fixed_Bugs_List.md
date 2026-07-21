@@ -84,9 +84,9 @@ Dưới đây là danh sách chi tiết các bug nghiệp vụ (Business Logic B
 * **Lỗi gốc:** Controller không kiểm tra kết quả trả về của hàm cập nhật trạng thái đơn, dẫn đến việc không hiển thị thông báo lỗi khi thao tác hủy đơn không được chấp nhận.
 * **Cách sửa:** Cập nhật `OutboundUpdateStatusController.java` để bắt kết quả trả về (`boolean ok`). Nếu cập nhật thất bại, hệ thống sẽ lưu thông báo lỗi vào Session và phản hồi lại cho người dùng.
 
-### 14. [BUG-15] Không trừ số lượng sẵn có (available_quantity) khi xuất kho
-* **Lỗi gốc:** Khi xuất kho thành công, hệ thống chuyển trạng thái IMEI sang `sold` nhưng quên không trừ số lượng tồn kho tổng thể trong bảng `Inventory`, dẫn đến dữ liệu ảo cho phép bán quá số lượng thực tế.
-* **Cách sửa:** Thêm câu lệnh cập nhật giảm tồn kho `UPDATE [Inventory] SET available_quantity = available_quantity - quantity` vào trong cùng một Transaction tại hàm `executeOutboundTransaction` ở `OutboundDAO.java`.
+### 14. [BUG-15] Sửa lỗi trừ số lượng tồn kho khả dụng (available_quantity) 2 lần
+* **Lỗi gốc:** Số lượng tồn kho khả dụng (`available_quantity` trong bảng `Inventory`) đã được trừ đi khi khách hàng Checkout đơn hàng (tại `OrderDAO.insertOrderDetail`). Việc tiếp tục trừ thêm một lần nữa ở bước xuất kho (`executeOutboundTransaction` tại `OutboundDAO.java`) dẫn tới hiện tượng bị trừ lặp (Double Decrement), khiến sản phẩm bị báo hết hàng sai thực tế.
+* **Cách sửa:** Loại bỏ câu lệnh cập nhật giảm tồn kho `UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity` tại hàm `executeOutboundTransaction` trong `OutboundDAO.java`.
 
 ### 15. [BUG-16 & BUG-17] Thiếu phân trang danh sách đơn hàng Outbound
 * **Lỗi gốc:** Tải toàn bộ danh sách đơn hàng chờ xử lý và lịch sử đơn hàng vào RAM cùng lúc, gây chậm hệ thống (Memory Leak/Performance issues).
