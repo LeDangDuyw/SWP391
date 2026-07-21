@@ -68,11 +68,24 @@
                         <c:when test="${p.policyType == 'SHOPPING_GUIDE'}"><c:set var="pUrl" value="/policy/shopping-guide"/></c:when>
                         <c:when test="${p.policyType == 'ABOUT'}"><c:set var="pUrl" value="/about"/></c:when>
                         <c:when test="${p.policyType == 'WARRANTY'}"><c:set var="pUrl" value="/policy/warranty"/></c:when>
-                        <c:otherwise><c:set var="pUrl" value="#"/></c:otherwise>
+                        <c:otherwise><c:set var="pUrl" value="/policy?id=${p.policyId}"/></c:otherwise>
                     </c:choose>
                     <li><a href="${pageContext.request.contextPath}${pUrl}"><i class="fas fa-chevron-right"></i> ${p.title}</a></li>
                 </c:forEach>
+                <li><a href="${pageContext.request.contextPath}/news"><i class="fas fa-bullhorn"></i> Tin tức & Khuyến mãi</a></li>
             </ul>
+        </div>
+        <div class="footer-col footer-contact-col">
+            <h3><i class="fas fa-paper-plane" style="color: #2563eb;"></i> Gửi yêu cầu cho UniLap</h3>
+            <form id="footerContactForm" onsubmit="handleFooterContactSubmit(event)" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                <input type="text" name="fullName" placeholder="Họ và tên của bạn *" required style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; font-family: inherit;">
+                <input type="email" name="email" placeholder="Email liên hệ *" required style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; font-family: inherit;">
+                <textarea name="message" rows="3" placeholder="Nội dung cần hỗ trợ / góp ý *" required style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; resize: vertical;"></textarea>
+                <button type="submit" id="btnFooterContact" style="padding: 9px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+                </button>
+                <div id="footerContactStatus" style="display: none; font-size: 12px; border-radius: 4px; padding: 6px 10px; margin-top: 4px;"></div>
+            </form>
         </div>
     </div>
     
@@ -82,4 +95,48 @@
             <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
         </div>
     </div>
+    <script>
+        function handleFooterContactSubmit(e) {
+            e.preventDefault();
+            const form = document.getElementById('footerContactForm');
+            const btn = document.getElementById('btnFooterContact');
+            const status = document.getElementById('footerContactStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+            status.style.display = 'none';
+
+            const formData = new URLSearchParams(new FormData(form));
+
+            fetch('${pageContext.request.contextPath}/contact/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                status.style.display = 'block';
+                if (data.success) {
+                    status.style.background = '#dcfce7';
+                    status.style.color = '#15803d';
+                    status.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                    form.reset();
+                } else {
+                    status.style.background = '#fee2e2';
+                    status.style.color = '#b91c1c';
+                    status.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                }
+            })
+            .catch(err => {
+                status.style.display = 'block';
+                status.style.background = '#fee2e2';
+                status.style.color = '#b91c1c';
+                status.innerHTML = '<i class="fas fa-exclamation-circle"></i> Có lỗi xảy ra trong quá trình kết nối.';
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu';
+            });
+        }
+    </script>
 </footer>

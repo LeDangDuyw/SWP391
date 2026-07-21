@@ -120,7 +120,7 @@ public class LoginController extends HttpServlet {
             } else if (user.roleId == 1) {
                 response.sendRedirect("admin/dashboard");
             } else if (user.roleId == 2) {
-                response.sendRedirect("staff/inventory");
+                response.sendRedirect("staff/dashboard");
             } else {
                 response.sendRedirect("HomeServlet");
             }

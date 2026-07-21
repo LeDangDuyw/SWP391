@@ -2,8 +2,8 @@
     Page: advanced_analytics.jsp
     Mo ta: Trang giao diện phân tích báo cáo nâng cao tích hợp biểu đồ Chart.js.
     
-    Created: 2026-07-09 18:10:23 +0700
-    Updated: 2026-07-12 00:05:15 +0700
+    Created: 2026-07-09
+    Updated: 2026-07-21
     Version: v1.0
     
     @author DuyLD
@@ -487,55 +487,9 @@
         <div class="layout">
 
             <!-- ══════════ SIDEBAR ══════════ -->
-            <aside class="sidebar">
-                <div class="brand">
-                    <span>UNILAP Admin</span>
-                    <small>System Controller</small>
-                </div>
-                <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    
-                    <div class="sidebar-dropdown">
-                        <a href="javascript:void(0)" class="sidebar-dropdown-btn active" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
-                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(180deg);">▼</span>
-                        </a>
-                        <div class="sidebar-dropdown-container" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
-                            <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
-                            </a>
-                            <a class="active" href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Advanced Analytics
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
-                </nav>
-                <div class="profile">
-                    <div class="profile-info">
-                        <%
-                            model.Users u = (model.Users) session.getAttribute("user");
-                            if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                        %>
-                            <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                                 alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                        <% } else { %>
-                            <span>♙</span>
-                        <% } %>
-                        <span>Admin Profile</span>
-                    </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
-                </div>
-            </aside>
+            <jsp:include page="/admin/sidebar.jsp">
+                <jsp:param name="activePage" value="analytics"/>
+            </jsp:include>
 
             <!-- ══════════ MAIN ══════════ -->
             <div class="main">
@@ -550,16 +504,16 @@
 
                 <div class="content">
                     <div class="page-header">
-                        <h1 class="page-title">Granular Business Performance Reports</h1>
-                        <p class="page-sub">Comprehensive analytical breakdowns of revenue, sales, customers, and product metrics.</p>
+                        <h1 class="page-title">Báo cáo hiệu suất kinh doanh chi tiết</h1>
+                        <p class="page-sub">Phân tích toàn diện về doanh thu, bán hàng, khách hàng và chỉ số sản phẩm.</p>
                     </div>
 
                     <!-- ══ TAB NAV CONTROLLER ══ -->
                     <div class="tab-nav">
-                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Revenue Analysis</button>
-                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Sales Analysis</button>
-                        <button class="tab-btn" onclick="switchTab('customer')">👤 Customer Analytics</button>
-                        <button class="tab-btn" onclick="switchTab('product')">📦 Product &amp; Inventory</button>
+                        <button class="tab-btn" onclick="switchTab('revenue')">💰 Phân tích doanh thu</button>
+                        <button class="tab-btn" onclick="switchTab('sales')">🛒 Phân tích bán hàng</button>
+                        <button class="tab-btn" onclick="switchTab('customer')">👤 Phân tích khách hàng</button>
+                        <button class="tab-btn" onclick="switchTab('product')">📦 Sản phẩm &amp; Tồn kho</button>
                     </div>
 
                     <!-- ════════════════════════════════════════════════════════════════════ -->
@@ -600,7 +554,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="revenueCustomerType" class="filter-input">
-                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- All Types --</option>
+                                            <option value="" ${empty revFilter.customerType ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="new" ${revFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${revFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -608,11 +562,11 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="revenuePaymentMethod" class="filter-input">
-                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty revFilter.paymentMethod ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="cod" ${revFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
-                                            <option value="credit_card" ${revFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
+                                            <option value="credit_card" ${revFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Thẻ tín dụng</option>
                                             <option value="momo" ${revFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
-                                            <option value="bank_transfer" ${revFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                            <option value="bank_transfer" ${revFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Chuyển khoản</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
@@ -709,7 +663,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="salesCustomerType" class="filter-input">
-                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- All Types --</option>
+                                            <option value="" ${empty salesFilter.customerType ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="new" ${salesFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${salesFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -717,11 +671,11 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="salesPaymentMethod" class="filter-input">
-                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty salesFilter.paymentMethod ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="cod" ${salesFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
-                                            <option value="credit_card" ${salesFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
+                                            <option value="credit_card" ${salesFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Thẻ tín dụng</option>
                                             <option value="momo" ${salesFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
-                                            <option value="bank_transfer" ${salesFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                            <option value="bank_transfer" ${salesFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Chuyển khoản</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
@@ -744,7 +698,7 @@
                         <!-- KPI Boxes -->
                         <div class="kpi-grid">
                             <div class="kpi-box accent-green">
-                                <span class="kpi-box-label">Total Orders</span>
+                                <span class="kpi-box-label">Tổng số đơn hàng</span>
                                 <span class="kpi-box-val">
                                     <c:set var="totOrders" value="0"/>
                                     <c:forEach items="${ordersTrend}" var="entry">
@@ -752,27 +706,27 @@
                                     </c:forEach>
                                     ${totOrders}
                                 </span>
-                                <span class="kpi-box-sub">Number of orders (valid status)</span>
+                                <span class="kpi-box-sub">Số lượng đơn hàng (trạng thái hợp lệ)</span>
                             </div>
                             <div class="kpi-box accent-blue">
-                                <span class="kpi-box-label">Average Order Value (AOV)</span>
+                                <span class="kpi-box-label">Giá trị đơn hàng trung bình (AOV)</span>
                                 <span class="kpi-box-val">
                                     <fmt:formatNumber value="${avgOrderValue}" pattern="#,##0"/> ₫
                                 </span>
-                                <span class="kpi-box-sub">Average transaction total amount</span>
+                                <span class="kpi-box-sub">Giá trị trung bình mỗi giao dịch</span>
                             </div>
                         </div>
 
                         <!-- Charts Grid -->
                         <div class="charts-grid-2">
                             <div class="chart-card">
-                                <div class="chart-card-hd">📈 Orders Volume Trend</div>
+                                <div class="chart-card-hd">📈 Xu hướng số lượng đơn hàng</div>
                                 <div class="chart-container">
                                     <canvas id="ordersTrendChart"></canvas>
                                 </div>
                             </div>
                             <div class="chart-card">
-                                <div class="chart-card-hd">💳 Share by Payment Method</div>
+                                <div class="chart-card-hd">💳 Tỷ lệ theo phương thức thanh toán</div>
                                 <div class="chart-container">
                                     <canvas id="paymentMethodChart"></canvas>
                                 </div>
@@ -818,15 +772,15 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="customerPaymentMethod" class="filter-input">
-                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty custFilter.paymentMethod ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="cod" ${custFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
-                                            <option value="credit_card" ${custFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
+                                            <option value="credit_card" ${custFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Thẻ tín dụng</option>
                                             <option value="momo" ${custFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
-                                            <option value="bank_transfer" ${custFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                            <option value="bank_transfer" ${custFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Chuyển khoản</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Group Growth By</label>
+                                        <label>Gom nhóm theo</label>
                                         <select name="customerGroupBy" class="filter-input">
                                             <option value="day" ${customerGroupBy == 'day' ? 'selected' : ''}>Theo ngày</option>
                                             <option value="month" ${customerGroupBy == 'month' ? 'selected' : ''}>Theo tháng</option>
@@ -835,7 +789,7 @@
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Top Customers N</label>
+                                        <label>Giới hạn top khách hàng (N)</label>
                                         <input type="number" name="customerTopN" value="${customerTopN}" min="1" max="100" class="filter-input">
                                     </div>
                                     <div class="filter-actions">
@@ -870,11 +824,11 @@
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th style="width:80px;">Rank</th>
-                                                <th>Tên khách hàng</th>
-                                                <th>Email Address</th>
-                                                <th>Distinct Orders</th>
-                                                <th>Total Spending</th>
+                                                <th style="width:80px;">Xếp hạng</th>
+                                                <th>Khách hàng</th>
+                                                <th>Địa chỉ Email</th>
+                                                <th>Số đơn hàng</th>
+                                                <th>Tổng chi tiêu</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -883,7 +837,7 @@
                                                     <td><span class="rank-number">${st.index + 1}</span></td>
                                                     <td style="font-weight:600;">${c[0]}</td>
                                                     <td>${c[1]}</td>
-                                                    <td>${c[3]} orders</td>
+                                                    <td>${c[3]} đơn hàng</td>
                                                     <td style="font-weight:700; color:var(--primary);">
                                                         <fmt:formatNumber value="${c[2]}" pattern="#,##0"/> ₫
                                                     </td>
@@ -937,7 +891,7 @@
                                     <div class="filter-group">
                                         <label>Loại khách hàng</label>
                                         <select name="productCustomerType" class="filter-input">
-                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- All Types --</option>
+                                            <option value="" ${empty prodFilter.customerType ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="new" ${prodFilter.customerType == 'new' ? 'selected' : ''}>Khách hàng mới</option>
                                             <option value="returning" ${prodFilter.customerType == 'returning' ? 'selected' : ''}>Khách hàng quay lại</option>
                                         </select>
@@ -945,22 +899,22 @@
                                     <div class="filter-group">
                                         <label>Phương thức thanh toán</label>
                                         <select name="productPaymentMethod" class="filter-input">
-                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- All Methods --</option>
+                                            <option value="" ${empty prodFilter.paymentMethod ? 'selected' : ''}>-- Tất cả --</option>
                                             <option value="cod" ${prodFilter.paymentMethod == 'cod' ? 'selected' : ''}>COD</option>
-                                            <option value="credit_card" ${prodFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Credit Card</option>
+                                            <option value="credit_card" ${prodFilter.paymentMethod == 'credit_card' ? 'selected' : ''}>Thẻ tín dụng</option>
                                             <option value="momo" ${prodFilter.paymentMethod == 'momo' ? 'selected' : ''}>MoMo</option>
-                                            <option value="bank_transfer" ${prodFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                            <option value="bank_transfer" ${prodFilter.paymentMethod == 'bank_transfer' ? 'selected' : ''}>Chuyển khoản</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label>Rank limit (N)</label>
+                                        <label>Giới hạn top (N)</label>
                                         <input type="number" name="productTopN" value="${productTopN}" min="1" max="100" class="filter-input">
                                     </div>
                                     <div class="filter-group">
-                                        <label>Rank By</label>
+                                        <label>Xếp hạng theo</label>
                                         <select name="productSortBy" class="filter-input">
-                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Quantity Sold</option>
-                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Revenue Generated</option>
+                                            <option value="quantity" ${productSortBy == 'quantity' ? 'selected' : ''}>Số lượng bán</option>
+                                            <option value="revenue" ${productSortBy == 'revenue' ? 'selected' : ''}>Doanh thu tạo ra</option>
                                         </select>
                                     </div>
                                     <div class="filter-actions">
@@ -974,25 +928,25 @@
                         <!-- KPI Boxes: Inventory Turnover -->
                         <div class="kpi-grid">
                             <div class="kpi-box accent-blue">
-                                <span class="kpi-box-label">Cost of Goods Sold (COGS)</span>
+                                <span class="kpi-box-label">Giá vốn hàng bán (COGS)</span>
                                 <span class="kpi-box-val">
                                     <fmt:formatNumber value="${inventoryTurnover[0]}" pattern="#,##0"/> ₫
                                 </span>
-                                <span class="kpi-box-sub">Sum of import price times quantities sold</span>
+                                <span class="kpi-box-sub">Tổng giá nhập nhân số lượng bán</span>
                             </div>
                             <div class="kpi-box accent-amber">
-                                <span class="kpi-box-label">Average Inventory Value</span>
+                                <span class="kpi-box-label">Giá trị tồn kho trung bình</span>
                                 <span class="kpi-box-val">
                                     <fmt:formatNumber value="${inventoryTurnover[1]}" pattern="#,##0"/> ₫
                                 </span>
-                                <span class="kpi-box-sub">Average of beginning and ending inventory values</span>
+                                <span class="kpi-box-sub">Trung bình giá trị tồn kho đầu kỳ và cuối kỳ</span>
                             </div>
                             <div class="kpi-box accent-green">
-                                <span class="kpi-box-label">Inventory Turnover Ratio</span>
+                                <span class="kpi-box-label">Hệ số vòng quay tồn kho</span>
                                 <span class="kpi-box-val">
                                     <fmt:formatNumber value="${inventoryTurnover[2]}" pattern="#,##0.00"/>
                                 </span>
-                                <span class="kpi-box-sub">COGS divided by Average Inventory Value</span>
+                                <span class="kpi-box-sub">COGS chia cho Giá trị tồn kho trung bình</span>
                             </div>
                         </div>
 
@@ -1005,10 +959,10 @@
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th style="width:60px;">Rank</th>
+                                                    <th style="width:60px;">Xếp hạng</th>
                                                     <th>Sản phẩm / Biến thể</th>
-                                                    <th>Qty Sold</th>
-                                                    <th>Revenue</th>
+                                                    <th>SL bán</th>
+                                                    <th>Doanh thu</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1019,7 +973,7 @@
                                                             <div style="font-weight:600;">${p[0]}</div>
                                                             <div style="font-size:12px; color:var(--text-muted);">${p[1]}</div>
                                                         </td>
-                                                        <td>${p[2]} units</td>
+                                                        <td>${p[2]} sản phẩm</td>
                                                         <td style="font-weight:700; color:var(--success);">
                                                             <fmt:formatNumber value="${p[3]}" pattern="#,##0"/> ₫
                                                         </td>
@@ -1041,8 +995,6 @@
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th style="width:60px;">Rank</th>
-                                                    <th>Sản phẩm / Biến thể</th>
                                                     <th>Qty Sold</th>
                                                     <th>Revenue</th>
                                                 </tr>

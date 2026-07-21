@@ -63,5 +63,14 @@
         <url-pattern>/profile</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>StaffDashboardController</servlet-name>
+        <servlet-class>controller.StaffDashboardController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StaffDashboardController</servlet-name>
+        <url-pattern>/staff/dashboard</url-pattern>
+    </servlet-mapping>
+
 </web-app>
 

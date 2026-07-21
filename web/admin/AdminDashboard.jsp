@@ -2,8 +2,8 @@
     Page: AdminDashboard.jsp
     Mo ta: Trang giao diện (View) chính của Admin Dashboard.
     
-    Created: 2026-06-03 17:32:41 +0700
-    Updated: 2026-07-12 00:05:15 +0700
+    Created: 2026-06-03
+    Updated: 2026-07-21
     Version: v1.0
     
     @author DuyLD
@@ -761,55 +761,9 @@
         <div class="layout">
 
             <!-- ══════════ SIDEBAR (synced with other admin pages) ══════════ -->
-            <aside class="sidebar">
-                <div class="brand">
-                    <span>UNILAP Admin</span>
-                    <small>System Controller</small>
-                </div>
-                <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    
-                    <div class="sidebar-dropdown">
-                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
-                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
-                        </a>
-                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
-                            <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
-                            </a>
-                            <a href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Advanced Analytics
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
-                </nav>
-                <div class="profile">
-                    <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                        <%
-                            model.Users u = (model.Users) session.getAttribute("user");
-                            if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                        %>
-                            <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                                 alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                        <% } else { %>
-                            <span>♙</span>
-                        <% } %>
-                        <span>Admin User Profile</span>
-                    </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
-                </div>
-            </aside>
+            <jsp:include page="/admin/sidebar.jsp">
+                <jsp:param name="activePage" value="dashboard"/>
+            </jsp:include>
 
             <!-- ══════════ MAIN ══════════ -->
             <div class="main">
@@ -950,11 +904,11 @@
                         <canvas id="revenueChart" height="90"></canvas>
                     </div>
 
-                    <!-- ══ ROW 3: Orders Status + Products by Category + Low Stock ══ -->
+                    <!-- ══ ROW 3: Orders Status ══ -->
                     <div class="section-hd"><span class="dot"></span>Operations</div>
-                    <div class="grid-3">
+                    <div style="margin-bottom:20px;">
 
-                        <!-- Orders Needing Attention (Span 2) -->
+                        <!-- Orders Needing Attention -->
                         <div class="orders-grid-card">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div class="chart-card-title" style="margin-bottom:0; font-weight:700; color:#1e293b;">
@@ -1010,42 +964,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-
-                        <!-- Low Stock Panel — REAL -->
-                        <div class="chart-card">
-                            <div class="chart-card-title">
-                                ⚠️ Low Stock Products
-                            </div>
-                            <c:choose>
-                                <c:when test="${not empty lowStockProducts}">
-                                    <table class="data-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Sản phẩm</th>
-                                                <th>Danh mục</th>
-                                                <th>Số lượng</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach items="${lowStockProducts}" var="p">
-                                                <tr onclick="window.location.href='${pageContext.request.contextPath}/staff/inventory'" style="cursor:pointer;">
-                                                    <td style="font-weight:500;font-size:12px;">${p.productName}</td>
-                                                    <td style="color:#6b7280;font-size:12px;">${p.categoryName}</td>
-                                                    <td>
-                                                        <span class="qty-pill <c:choose><c:when test='${p.minPrice <= 3}'>qty-critical</c:when><c:when test='${p.minPrice <= 7}'>qty-low</c:when><c:otherwise>qty-ok</c:otherwise></c:choose>">
-                                                            ${p.minPrice}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="no-data">✅ No low stock products</div>
-                                </c:otherwise>
-                            </c:choose>
                         </div>
                     </div>
 
@@ -1592,39 +1510,6 @@
                     <span onclick="closeAlertsModal()" style="font-size:24px; font-weight:bold; color:#94a3b8; cursor:pointer; line-height:1;">&times;</span>
                 </div>
                 
-                <!-- Low Stock Section -->
-                <div style="margin-bottom:20px;">
-                    <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">
-                        <span>Sản phẩm sắp hết hàng</span>
-                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${lowStockProducts.size()} items</span>
-                    </h4>
-                    <c:choose>
-                        <c:when test="${not empty lowStockProducts}">
-                            <div style="max-height:120px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px;">
-                                <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
-                                    <thead style="background:#f8fafc; position:sticky; top:0; z-index:1;">
-                                        <tr>
-                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; border-bottom:1px solid #e2e8f0;">Sản phẩm</th>
-                                            <th style="padding:8px 12px; font-weight:600; color:#64748b; text-align:right; border-bottom:1px solid #e2e8f0;">Số lượng</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${lowStockProducts}" var="p">
-                                            <tr style="border-bottom:1px solid #f1f5f9; cursor:pointer;" onclick="window.location.href='${pageContext.request.contextPath}/staff/inventory'">
-                                                <td style="padding:8px 12px; color:#1e293b;">${p.productName}</td>
-                                                <td style="padding:8px 12px; color:#ef4444; font-weight:600; text-align:right;">${p.minPrice}</td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div style="color:#94a3b8; font-size:12px; padding:8px 0; border:1px dashed #e2e8f0; border-radius:8px; text-align:center;">Không có sản phẩm sắp hết hàng</div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-
                 <!-- Pending Claims Section -->
                 <div>
                     <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">

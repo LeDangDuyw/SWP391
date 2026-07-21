@@ -11,35 +11,9 @@
 </head>
 <body>
 <div class="layout detail-layout">
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-            <a href="#"><span>▣</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-            <a class="active" href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-            <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-            <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-            <a href="#"><span>⚙</span>Settings</a>
-        </nav>
-        <div class="profile">
-            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.user && not empty sessionScope.user.avatarUrl}">
-                        <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}" 
-                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                    </c:when>
-                    <c:otherwise>
-                        <span>♙</span>
-                    </c:otherwise>
-                </c:choose>
-                <span>Admin User Profile</span>
-            </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
-        </div>
-    </aside>
+    <jsp:include page="/admin/sidebar.jsp">
+        <jsp:param name="activePage" value="promotions"/>
+    </jsp:include>
 
                 <main class="main performance-page">
                     <header class="topbar slim">

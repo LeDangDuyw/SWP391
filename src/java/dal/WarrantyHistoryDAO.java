@@ -61,7 +61,7 @@ public class WarrantyHistoryDAO extends DBContext {
     public List<WarrantyHistory> findByWarrantyId(int warrantyId) throws Exception {
         String sql = "SELECT * FROM WarrantyHistory "
                 + "WHERE warranty_id = ? "
-                + "ORDER BY created_at DESC";
+                + "ORDER BY created_at ASC";
 
         List<WarrantyHistory> list = new ArrayList<>();
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)

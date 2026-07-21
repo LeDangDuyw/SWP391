@@ -40,7 +40,7 @@
                         </div>
                     </div>
 
-                    <a href="#">Khuyến mãi</a>
+                    <a href="${pageContext.request.contextPath}/news">Tin tức & Khuyến mãi</a>
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
                     <form action="ProductListServlet" method="GET" class="search-form" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
@@ -76,7 +76,7 @@
                                             <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
                                         </c:when>
                                         <c:when test="${sessionScope.user.roleId == 2}">
-                                            <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
+                                            <a href="${pageContext.request.contextPath}/staff/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
                                         </c:when>
                                         <c:otherwise>
                                             <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>

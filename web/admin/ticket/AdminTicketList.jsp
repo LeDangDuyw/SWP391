@@ -116,35 +116,9 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-            <a href="#"><span>▣</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-            <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
-            <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-            <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-            <a class="active" href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-            <a href="#"><span>⚙</span>Settings</a>
-        </nav>
-        <div class="profile">
-            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <%
-                    model.Users u = (model.Users) session.getAttribute("user");
-                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
-                <span>Admin User Profile</span>
-            </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
-        </div>
-    </aside>
+    <jsp:include page="/admin/sidebar.jsp">
+        <jsp:param name="activePage" value="ticket"/>
+    </jsp:include>
 
     <div class="main">
 

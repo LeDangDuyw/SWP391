@@ -19,7 +19,9 @@ import model.WarrantyPolicy;
     "/policy/terms",
     "/policy/shopping-guide",
     "/policy/warranty",
-    "/about"
+    "/about",
+    "/news",
+    "/policy"
 })
 public class PolicyController extends HttpServlet {
 
@@ -70,6 +72,44 @@ public class PolicyController extends HttpServlet {
             GeneralPolicy policy = generalPolicyDAO.getPolicyByType("ABOUT");
             request.setAttribute("policy", policy);
             request.getRequestDispatcher("/customer/about_us.jsp").forward(request, response);
+        } else if ("/news".equals(path)) {
+            String typeParam = request.getParameter("type");
+            List<String> types = new java.util.ArrayList<>();
+            if ("PROMOTION".equalsIgnoreCase(typeParam)) {
+                types.add("PROMOTION");
+                types.add("PROMO");
+                request.setAttribute("activeTab", "PROMOTION");
+            } else if ("NEW_PRODUCT".equalsIgnoreCase(typeParam)) {
+                types.add("NEW_PRODUCT");
+                types.add("NEWPROD");
+                request.setAttribute("activeTab", "NEW_PRODUCT");
+            } else {
+                types.add("PROMOTION");
+                types.add("PROMO");
+                types.add("NEW_PRODUCT");
+                types.add("NEWPROD");
+                types.add("NEWS");
+                request.setAttribute("activeTab", "ALL");
+            }
+            List<GeneralPolicy> articles = generalPolicyDAO.getPoliciesByTypes(types);
+            request.setAttribute("articles", articles);
+            request.getRequestDispatcher("/customer/news_list.jsp").forward(request, response);
+        } else if ("/policy".equals(path)) {
+            String idStr = request.getParameter("id");
+            if (idStr != null && !idStr.trim().isEmpty()) {
+                try {
+                    int id = Integer.parseInt(idStr.trim());
+                    GeneralPolicy policy = generalPolicyDAO.getPolicyById(id);
+                    if (policy != null) {
+                        request.setAttribute("policy", policy);
+                        request.getRequestDispatcher("/customer/general_policy_view.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

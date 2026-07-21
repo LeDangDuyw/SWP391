@@ -161,7 +161,6 @@ Popup modal shown when clicking the **+ New Policy** button.
 | **Policy Content** | RichText Editor | Yes | Empty | RichText editor containing detailed terms. Cannot be empty when publishing as `LIVE` (`BR-24`). |
 | **Applicable Regions** | TextInput | No | Empty | Geographic regions (separated by commas, e.g. NA, EU, VN). |
 | **Warranty Months** | TextInput (Number)| Yes | Empty | Warranty duration in months. Constraint: Positive integer > 0. |
-| **Version** | TextInput | Yes | v1.0 | Policy version code (format e.g. v1.0, v2.0). |
 | **Effective Date** | DatePicker | Yes | Current Date | Date when the policy goes into effect. |
 | **Cancel Button** | Button | N/A | N/A | Close modal and discard unsaved input. |
 | **Create Policy Button** | Button (Blue) | N/A | N/A | Validate inputs. If valid, save to database as `DRAFT` and close modal. |
@@ -178,11 +177,10 @@ Popup modal shown when selecting a policy and clicking **Edit Policy**.
 | **Policy Content** | RichText Editor | Yes | Old Value | Update policy terms details via the editor. |
 | **Applicable Regions** | TextInput | No | Old Value | Geographic regions applicable. |
 | **Warranty Months** | TextInput (Number)| Yes | Old Value | Warranty duration in months. Constraint: Positive integer > 0. |
-| **Version** | TextInput | Yes | Old Value | Policy version code. |
 | **Effective Date** | DatePicker | Yes | Old Value | Effective date. |
 | **Status** | Dropdown | Yes | Old Value | Edit active status directly (`Draft`, `Live`, `Disabled`). Selecting `Live` validates that content is not empty (`BR-24`). |
 | **Cancel Button** | Button | N/A | N/A | Discard changes and close modal. |
-| **Save Changes Button** | Button (Blue) | N/A | N/A | Commit updates to database, record "UPDATED" status history, and close modal ([UC48.4](file:///d:/GithubSWP/SWP391/docs/UseCases.md#L176)). |
+| **Save Changes Button** | Button (Blue) | N/A | N/A | Commit updates to database (automatically increments version, e.g., 1.0 -> 1.1), record "UPDATED" status history, and close modal ([UC48.4](file:///d:/GithubSWP/SWP391/docs/UseCases.md#L176)). |
 
 ---
 

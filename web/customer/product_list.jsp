@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <a href="#">Khuyến mãi</a>
+                <a href="${pageContext.request.contextPath}/news">Tin tức & Khuyến mãi</a>
             </nav>
             <div class="header-icons header-icons-inline">
                 <form action="ProductListServlet" method="GET" class="search-form product-search-form">

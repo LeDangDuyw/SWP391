@@ -76,7 +76,7 @@ public class AdminDashboardServlet extends HttpServlet {
                     // Kiểm tra quy tắc ngày bắt đầu không được sau ngày kết thúc
                     // Kiểm tra điều kiện
                     if (fromDate.after(toDate)) {
-                        request.setAttribute("dateError", "From date cannot be after To date.");
+                        request.setAttribute("dateError", "Ngày bắt đầu không được sau ngày kết thúc.");
                         from = null;
                         to = null;
                     }
@@ -191,7 +191,7 @@ public class AdminDashboardServlet extends HttpServlet {
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             // Bắt lỗi chung của servlet và ném ra lỗi ServletException
-            throw new ServletException("Cannot load admin dashboard", e);
+            throw new ServletException("Lỗi tải trang Dashboard quản trị.", e);
         }
     }
 

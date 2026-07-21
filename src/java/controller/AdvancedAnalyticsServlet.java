@@ -207,7 +207,7 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
 
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
-            throw new ServletException("Cannot load advanced analytics panel", e);
+            throw new ServletException("Lỗi tải trang phân tích nâng cao.", e);
         }
     }
 

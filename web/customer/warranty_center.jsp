@@ -2,8 +2,8 @@
     Page: warranty_center.jsp
     Mo ta: Trang trung tâm bảo hành dành cho khách hàng.
     
-    Created: 2026-06-22 21:12:34 +0700
-    Updated: 2026-07-19
+    Created: 2026-06-22
+    Updated: 2026-07-21
     Version: v2.4
     
     @author DuyLD

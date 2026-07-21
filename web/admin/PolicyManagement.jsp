@@ -2,8 +2,8 @@
     Page: PolicyManagement.jsp
     Mo ta: Trang giao diện quản lý danh sách và chỉnh sửa chính sách của Admin.
     
-    Created: 2026-06-03 17:32:41 +0700
-    Updated: 2026-07-12 18:00:49 +0700
+    Created: 2026-06-03
+    Updated: 2026-07-21
     Version: v1.0
     
     @author DuyLD
@@ -719,56 +719,13 @@
     <body>
         <div class="layout">
 
-            <aside class="sidebar">
-                <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
-                <nav>
-                    <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    
-                    <div class="sidebar-dropdown">
-                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
-                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
-                        </a>
-                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
-                            <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
-                            </a>
-                            <a href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Advanced Analytics
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
-                </nav>
-                <div class="profile">
-                    <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href = '${pageContext.request.contextPath}/profile'">
-                        <%
-                            model.Users u = (model.Users) session.getAttribute("user");
-                            if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                        %>
-                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                             alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1;">
-                        <% } else { %>
-                        <span>♙</span>
-                        <% } %>
-                        <span>Admin User Profile</span>
-                    </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
-                </div>
-            </aside>
+            <jsp:include page="/admin/sidebar.jsp">
+                <jsp:param name="activePage" value="policy"/>
+            </jsp:include>
 
             <div class="main">
                 <div class="topbar">
-                    <span class="topbar-title">Console</span>
+                    <span class="topbar-title"></span>
                     <div class="topbar-right">
                         <button class="icon-btn">&#128276;</button>
                         <button class="icon-btn">?</button>
@@ -777,23 +734,26 @@
 
                 <div class="page-header-wrap">
                     <div class="breadcrumb">
-                        <a href="${pageContext.request.contextPath}/admin/dashboard">Settings</a>
+                        <a href="${pageContext.request.contextPath}/admin/dashboard">Cài đặt</a>
                         <span>&rsaquo;</span>
-                        <span style="color:#2563eb;font-weight:500;">Policy Management</span>
+                        <span style="color:#2563eb;font-weight:500;">Quản lý chính sách</span>
                     </div>
                     <div class="page-title-row">
                         <div>
-                            <div class="page-title">Store Policies</div>
-                            <div class="page-sub">Manage terms of service, privacy, and warranty documentation.</div>
+                            <div class="page-title">Chính sách cửa hàng</div>
+                            <div class="page-sub">Quản lý điều khoản dịch vụ, quyền riêng tư và tài liệu bảo hành.</div>
                         </div>
                         <div class="page-actions">
                             <c:choose>
-                                <c:when test="${empty isFooterTab}">
-                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Version History</button>
-                                    <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; New Policy</button>
+                                <c:when test="${activeTab == 'WARRANTY'}">
+                                    <button class="btn btn-outline" onclick="openModal('vhModal')">&#128339; Lịch sử phiên bản</button>
+                                    <button class="btn btn-primary" onclick="openModal('createModal')">&#65291; Tạo chính sách bảo hành</button>
+                                </c:when>
+                                <c:when test="${activeTab == 'FOOTER'}">
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; Tạo chính sách chung</button>
                                 </c:when>
                                 <c:otherwise>
-                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; New Footer Policy</button>
+                                    <button class="btn btn-primary" onclick="openModal('createGeneralModal')">&#65291; Tạo bài viết tin tức mới</button>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -801,8 +761,9 @@
                 </div>
 
                 <div class="tabs-container" style="display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; padding: 0 28px;">
-                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Chính sách bảo hành</a>
-                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${not empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${not empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Chính sách chân trang</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${activeTab == 'WARRANTY' ? '#2563eb' : '#64748b'}; border-bottom: ${activeTab == 'WARRANTY' ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Chính sách bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${activeTab == 'FOOTER' ? '#2563eb' : '#64748b'}; border-bottom: ${activeTab == 'FOOTER' ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Các chính sách chung</a>
+                    <a href="${pageContext.request.contextPath}/admin/general-policy?tab=news" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${activeTab == 'NEWS' ? '#2563eb' : '#64748b'}; border-bottom: ${activeTab == 'NEWS' ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Bài viết Tin tức & Khuyến mãi</a>
                 </div>
 
                 <div class="pane-body">
@@ -810,18 +771,21 @@
                         <c:when test="${not empty isFooterTab}">
                             <!-- Left pane -->
                             <div class="doc-pane">
-                                <div class="doc-pane-header"><h3>Tài liệu chân trang</h3></div>
+                                <div class="doc-pane-header">
+                                    <h3><c:choose><c:when test="${activeTab == 'NEWS'}">Danh sách Bài viết Tin tức & KM</c:when><c:otherwise>Tài liệu chân trang</c:otherwise></c:choose></h3>
+                                </div>
                                 <div class="search-wrap">
-                                    <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
-                                        <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
-                                        <button type="submit">Go</button>
+                                    <form method="get" action="${pageContext.request.contextPath}/admin/general-policy" class="search-form">
+                                        <c:if test="${activeTab == 'NEWS'}"><input type="hidden" name="tab" value="news"/></c:if>
+                                        <input type="text" name="keyword" placeholder="Tìm kiếm..." value="${keyword}"/>
+                                        <button type="submit">Tìm</button>
                                     </form>
                                 </div>
                                 <div class="doc-list">
                                     <c:choose>
                                         <c:when test="${not empty generalPolicies}">
                                             <c:forEach items="${generalPolicies}" var="gp">
-                                                <a href="${pageContext.request.contextPath}/admin/general-policy?id=${gp.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
+                                                <a href="${pageContext.request.contextPath}/admin/general-policy?id=${gp.policyId}<c:if test='${activeTab == "NEWS"}'>&amp;tab=news</c:if><c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
                                                     <div class="doc-item ${selectedGeneralPolicy != null && selectedGeneralPolicy.policyId == gp.policyId ? 'active' : ''}">
                                                         <div class="doc-item-top">
                                                             <span class="doc-item-name">${gp.title}</span>
@@ -842,20 +806,21 @@
                                 <c:choose>
                                     <c:when test="${selectedGeneralPolicy != null}">
                                         <div class="editor-content">
-                                            <!-- Footer Display Settings Form -->
+                                            <!-- Display Settings Form -->
                                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;">Footer Display Settings</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 15px; color: #0f172a;"><c:choose><c:when test="${activeTab == 'NEWS'}">Cài đặt hiển thị bài viết</c:when><c:otherwise>Cài đặt hiển thị Footer (Footer Settings)</c:otherwise></c:choose></h3>
                                                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display: flex; flex-direction: column; gap: 16px;">
                                                     <input type="hidden" name="action" value="updateFooterSettings">
                                                     <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
+                                                    <c:if test="${activeTab == 'NEWS'}"><input type="hidden" name="tab" value="news"></c:if>
                                                     
                                                     <div style="display: flex; align-items: center; gap: 10px;">
                                                         <input type="checkbox" id="showInFooter" name="showInFooter" value="true" ${selectedGeneralPolicy.showInFooter ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
-                                                        <label for="showInFooter" style="font-size: 14px; color: #334155; font-weight: 500; cursor: pointer;">Hiển thị ở Footer</label>
+                                                        <label for="showInFooter" style="font-size: 14px; color: #334155; font-weight: 500; cursor: pointer;"><c:choose><c:when test="${activeTab == 'NEWS'}">Đính kèm hiển thị đường link bài viết ở Footer</c:when><c:otherwise>Hiển thị ở Footer</c:otherwise></c:choose></label>
                                                     </div>
                                                     
                                                     <div style="display: flex; flex-direction: column; gap: 6px;">
-                                                        <label for="footerOrder" style="font-size: 13px; color: #475569; font-weight: 500;">Thứ tự hiển thị (Order)</label>
+                                                        <label for="footerOrder" style="font-size: 13px; color: #475569; font-weight: 500;">Thứ tự hiển thị</label>
                                                         <input type="number" id="footerOrder" name="footerOrder" value="${selectedGeneralPolicy.footerOrder}" min="0" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none;">
                                                     </div>
                                                     
@@ -865,7 +830,7 @@
                                             
                                             <!-- Content Preview -->
                                             <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Content Preview</h3>
+                                                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a;">Xem trước nội dung</h3>
                                                 <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0; max-height: 400px; overflow-y: auto; border: 1px solid #f1f5f9; padding: 12px; border-radius: 8px;">
                                                     ${selectedGeneralPolicy.content}
                                                 </div>
@@ -873,15 +838,15 @@
                                         </div>
                                         
                                         <div class="editor-footer">
-                                            <button class="btn btn-danger btn-sm" onclick="openDeleteGeneralConfirm(${selectedGeneralPolicy.policyId})">&#128465; Delete</button>
-                                            <button class="btn btn-primary btn-sm" onclick="openModal('editGeneralModal')">&#9998; Edit Content</button>
+                                            <button class="btn btn-danger btn-sm" onclick="openDeleteGeneralConfirm(${selectedGeneralPolicy.policyId})">&#128465; Xóa</button>
+                                            <button class="btn btn-primary btn-sm" onclick="openModal('editGeneralModal')">&#9998; Sửa nội dung</button>
                                         </div>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="empty-state">
                                             <div class="empty-icon">&#128196;</div>
                                             <h3>Chưa chọn chính sách</h3>
-                                            <p>Chọn một chính sách chân trang từ danh sách để quản lý và chỉnh sửa nội dung.</p>
+                                            <p>Chọn một bài viết hoặc chính sách từ danh sách để quản lý và chỉnh sửa nội dung.</p>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -893,50 +858,58 @@
                             <div class="doc-pane">
                                 <div class="doc-pane-header"><h3>Tài liệu đang hoạt động</h3></div>
                                 <div class="search-wrap">
-                                    <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
-                                        <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
-                                        <button type="submit">Go</button>
-                                    </form>
-                                </div>
-                                <div class="doc-list">
-                                    <c:choose>
-                                        <c:when test="${not empty policies}">
-                                            <c:forEach items="${policies}" var="p">
-                                                <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if>">
-                                                    <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
-                                                        <div class="doc-item-top">
-                                                            <span class="doc-item-name">${p.policyName}</span>
-                                                            <span class="badge
-                                                                  <c:choose>
-                                                                      <c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when>
-                                                                      <c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when>
-                                                                      <c:otherwise>badge-disabled</c:otherwise>
-                                                                  </c:choose>">${p.status}</span>
-                                                        </div>
-                                                        <div class="doc-item-meta">
-                                                            <c:choose>
-                                                                <c:when test="${p.updatedAt != null}">Updated <fmt:formatDate value="${p.updatedAt}" pattern="dd MMM yyyy"/></c:when>
-                                                                <c:otherwise>No update info</c:otherwise>
-                                                            </c:choose>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">Không tìm thấy chính sách nào.</div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <c:if test="${totalPages > 1}">
-                                    <div class="pagination">
-                                        <c:forEach begin="1" end="${totalPages}" var="i">
-                                            <a href="${pageContext.request.contextPath}/admin/policy?page=${i}<c:if test='${not empty keyword}'>&keyword=${keyword}</c:if>" class="${currentPage == i ? 'active' : ''}">
-                                                ${i}
-                                            </a>
-                                        </c:forEach>
-                                    </div>
-                                </c:if>
+                                     <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form" style="display: flex; flex-direction: column; gap: 8px;">
+                                         <div style="display: flex; width: 100%;">
+                                             <input type="text" name="keyword" placeholder="Tìm kiếm..." value="${keyword}" style="flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 7px 0 0 7px; font-size: 13px; outline: none;"/>
+                                             <button type="submit" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-left: none; background: #f9fafb; cursor: pointer; border-radius: 0 7px 7px 0; font-size: 13px;">Go</button>
+                                         </div>
+                                         <select name="statusFilter" onchange="this.form.submit()" style="width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 7px; font-size: 13px; outline: none; background: #fff; cursor: pointer; color: #374151; font-weight: 500;">
+                                             <option value="">-- Tất cả trạng thái --</option>
+                                             <option value="DRAFT" ${statusFilter eq 'DRAFT' ? 'selected' : ''}>Bản nháp</option>
+                                             <option value="LIVE" ${statusFilter eq 'LIVE' or statusFilter eq 'PUBLISHED' ? 'selected' : ''}>Hoạt động</option>
+                                             <option value="DISABLED" ${statusFilter eq 'DISABLED' ? 'selected' : ''}>Vô hiệu hóa</option>
+                                         </select>
+                                     </form>
+                                 </div>
+                                 <div class="doc-list">
+                                     <c:choose>
+                                         <c:when test="${not empty policies}">
+                                             <c:forEach items="${policies}" var="p">
+                                                 <a href="${pageContext.request.contextPath}/admin/policy?id=${p.policyId}<c:if test='${not empty keyword}'>&amp;keyword=${keyword}</c:if><c:if test='${not empty statusFilter}'>&amp;statusFilter=${statusFilter}</c:if>">
+                                                     <div class="doc-item ${selectedPolicy != null && selectedPolicy.policyId == p.policyId ? 'active' : ''}">
+                                                         <div class="doc-item-top">
+                                                             <span class="doc-item-name">${p.policyName}</span>
+                                                             <span class="badge
+                                                                   <c:choose>
+                                                                       <c:when test='${p.status eq "LIVE" or p.status eq "PUBLISHED"}'>badge-live</c:when>
+                                                                       <c:when test='${p.status eq "DRAFT"}'>badge-draft</c:when>
+                                                                       <c:otherwise>badge-disabled</c:otherwise>
+                                                                   </c:choose>">${p.status}</span>
+                                                         </div>
+                                                         <div class="doc-item-meta">
+                                                              <c:choose>
+                                                                  <c:when test="${p.updatedAt != null}">Cập nhật ngày <fmt:formatDate value="${p.updatedAt}" pattern="dd/MM/yyyy"/></c:when>
+                                                                  <c:otherwise>Không có thông tin</c:otherwise>
+                                                              </c:choose>
+                                                         </div>
+                                                     </div>
+                                                 </a>
+                                             </c:forEach>
+                                         </c:when>
+                                         <c:otherwise>
+                                             <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">Không tìm thấy chính sách nào.</div>
+                                         </c:otherwise>
+                                     </c:choose>
+                                 </div>
+                                 <c:if test="${totalPages > 1}">
+                                     <div class="pagination">
+                                         <c:forEach begin="1" end="${totalPages}" var="i">
+                                             <a href="${pageContext.request.contextPath}/admin/policy?page=${i}<c:if test='${not empty keyword}'>&keyword=${keyword}</c:if><c:if test='${not empty statusFilter}'>&statusFilter=${statusFilter}</c:if>" class="${currentPage == i ? 'active' : ''}">
+                                                 ${i}
+                                             </a>
+                                         </c:forEach>
+                                     </div>
+                                 </c:if>
                             </div>
 
                     <!-- Right pane -->
@@ -944,11 +917,11 @@
                         <div class="editor-toolbar">
                             <div class="status-indicator">
                                 <c:if test="${selectedPolicy != null}">
-                                    <span>Status:</span>
+                                    <span>Trạng thái:</span>
                                     <select id="statusSelect" onchange="changeStatus(${selectedPolicy.policyId}, this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; margin-left: 4px;">
-                                        <option value="DRAFT" ${selectedPolicy.status eq 'DRAFT' ? 'selected' : ''}>Draft</option>
-                                        <option value="LIVE" ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Live</option>
-                                        <option value="DISABLED" ${selectedPolicy.status eq 'DISABLED' ? 'selected' : ''}>Disabled</option>
+                                        <option value="DRAFT" ${selectedPolicy.status eq 'DRAFT' ? 'selected' : ''}>Bản nháp</option>
+                                        <option value="LIVE" ${selectedPolicy.status eq 'LIVE' or selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Hoạt động</option>
+                                        <option value="DISABLED" ${selectedPolicy.status eq 'DISABLED' ? 'selected' : ''}>Vô hiệu hóa</option>
                                     </select>
                                 </c:if>
                                 <c:if test="${selectedPolicy == null}">
@@ -966,15 +939,6 @@
                                             <label>PHIÊN BẢN</label>
                                             <span class="meta-chip">${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}</span>
                                         </div>
-                                        <!--                                        <div class="meta-item">
-                                                                                    <label>NGÀY CÓ HIỆU LỰC</label>
-                                                                                    <span class="meta-chip">
-                                        <c:choose>
-                                            <c:when test="${selectedPolicy.effectiveDate != null}"><fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="MM/dd/yyyy"/></c:when>
-                                            <c:otherwise>—</c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>-->
                                         <div class="meta-item">
                                             <label>THỜI HẠN HIỆU LỰC</label>
                                             <span class="meta-chip">
@@ -1019,25 +983,25 @@
                                     </c:choose>
                                     <c:if test="${not empty selectedPolicy.description}">
                                         <div class="policy-highlight">
-                                            <div class="hl-title">Note (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
+                                            <div class="hl-title">Ghi chú (${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}):</div>
                                             <div class="hl-body">${selectedPolicy.description}</div>
                                         </div>
                                     </c:if>
                                 </div>
                                 <div class="editor-footer">
-                                    <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Delete</button>
-                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Edit Policy</button>
+                                    <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm(${selectedPolicy.policyId})">&#128465; Xóa</button>
+                                    <button class="btn btn-outline btn-sm" onclick="openModal('editModal')">&#9998; Chỉnh sửa chính sách</button>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="saveDraft">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
                                         <input type="hidden" name="page" value="${currentPage}">
-                                        <button type="submit" class="btn btn-outline btn-sm">&#128190; Save Draft</button>
+                                        <button type="submit" class="btn btn-outline btn-sm">&#128190; Lưu bản nháp</button>
                                     </form>
                                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                                         <input type="hidden" name="action" value="publish">
                                         <input type="hidden" name="policyId" value="${selectedPolicy.policyId}">
                                         <input type="hidden" name="page" value="${currentPage}">
-                                        <button type="submit" class="btn btn-primary btn-sm">&#9650; Publish</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">&#9650; Phát hành</button>
                                     </form>
                                 </div>
                             </c:when>
@@ -1066,29 +1030,26 @@
                 <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                     <input type="hidden" name="action" value="create">
                     <div class="modal-body">
-                        <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\p{L}.*"
-                                                                                   title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
+                        <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="Ví dụ: Điều khoản bảo hành toàn cầu" required pattern=".*\p{L}.*"
+                                                                                   title="Tên chính sách phải chứa ít nhất một chữ cái (không được chỉ gồm số hoặc ký tự đặc biệt)"></div>
                             <c:if test="${not empty error}">
-                            <div class="alert alert-danger text-danger">
-                                ${error}
-                            </div>
-                        </c:if>
-                        <div class="form-group"><label>Description</label><textarea name="description" rows="2" placeholder="Short summary...">${formData.description}</textarea></div>
+                                <div class="alert alert-danger" style="color: #dc2626; font-weight: 500; margin-bottom: 12px;">
+                                    ${error}
+                                </div>
+                            </c:if>
+                        <div class="form-group"><label>Mô tả</label><textarea name="description" rows="2" placeholder="Tóm tắt nội dung...">${formData.description}</textarea></div>
                         <div class="form-group">
                             <label>Nội dung chính sách</label>
                             <input type="hidden" id="createPolicyContent" name="policyContent" value="${formData.policyContent}">
                             <div id="createQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
                         </div>
-                        <div class="form-group"><label>Khu vực áp dụng <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="e.g. NA, EU, APAC"></div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" 
-                                                                                         value="${formData.warrantyMonths}" placeholder="e.g. 24" step="1" required=""></div>
-                            <div class="form-group"><label>Version</label><input type="text" name="version" value="${formData.applicableRegions}" placeholder="e.g. v1.0" value="v1.0"></div>
-                        </div>
+                        <div class="form-group"><label>Khu vực áp dụng <span style="font-weight:400;color:#9ca3af;">(phân cách bằng dấu phẩy, ví dụ: NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="Ví dụ: NA, EU, APAC"></div>
+                        <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" 
+                                                                                     value="${formData.warrantyMonths}" placeholder="Ví dụ: 24" step="1" required=""></div>
                         <div class="form-group"><label>Ngày có hiệu lực</label><input type="date" name="effectiveDate"  value="${formData.effectiveDate}"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline" onclick="closeModal('createModal')">Cancel</button>
+                        <button type="button" class="btn btn-outline" onclick="closeModal('createModal')">Hủy</button>
                         <button type="submit" class="btn btn-primary">Tạo chính sách</button>
                     </div>
                 </form>
@@ -1109,36 +1070,33 @@
                         <input type="hidden" name="page" value="${currentPage}">
                         <div class="modal-body">
                             <c:if test="${not empty error}">
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger" style="color: #dc2626; font-weight: 500; margin-bottom: 12px;">
                                     ${error}
                                 </div>
                             </c:if>
-                            <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\p{L}.*" title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
-                            <div class="form-group"><label>Description</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
+                            <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\p{L}.*" title="Tên chính sách phải chứa ít nhất một chữ cái (không được chỉ gồm số hoặc ký tự đặc biệt)"></div>
+                            <div class="form-group"><label>Mô tả</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
                             <div class="form-group">
                                 <label>Nội dung chính sách</label>
                                 <input type="hidden" id="editPolicyContent" name="policyContent" value="${selectedPolicy.policyContent}">
                                 <div id="editQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
                             </div>
                             <div class="form-group"><label>Khu vực áp dụng</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
-                            <div class="form-row">
-                                <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
-                                <div class="form-group"><label>Version</label><input type="text" name="version" value="${selectedPolicy.version}"></div>
-                            </div>
+                            <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
                             <div class="form-row">
                                 <div class="form-group"><label>Ngày có hiệu lực</label><input type="date" name="effectiveDate" value="<fmt:formatDate value='${selectedPolicy.effectiveDate}' pattern='yyyy-MM-dd'/>"></div>
-                                <div class="form-group"><label>Status</label>
+                                <div class="form-group"><label>Trạng thái</label>
                                     <select name="status">
-                                        <option value="DRAFT"     ${selectedPolicy.status eq 'DRAFT'     ? 'selected' : ''}>Draft</option>
-                                        <option value="LIVE"      ${selectedPolicy.status eq 'LIVE'      ? 'selected' : ''}>Live</option>
-                                        <option value="PUBLISHED" ${selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Published</option>
-                                        <option value="DISABLED"  ${selectedPolicy.status eq 'DISABLED'  ? 'selected' : ''}>Disabled</option>
+                                        <option value="DRAFT"     ${selectedPolicy.status eq 'DRAFT'     ? 'selected' : ''}>Bản nháp</option>
+                                        <option value="LIVE"      ${selectedPolicy.status eq 'LIVE'      ? 'selected' : ''}>Hoạt động</option>
+                                        <option value="PUBLISHED" ${selectedPolicy.status eq 'PUBLISHED' ? 'selected' : ''}>Đã phát hành</option>
+                                        <option value="DISABLED"  ${selectedPolicy.status eq 'DISABLED'  ? 'selected' : ''}>Vô hiệu hóa</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
+                            <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Hủy</button>
                             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                         </div>
                     </form>
@@ -1156,12 +1114,12 @@
                     <div class="confirm-sub">Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteModal')">Hủy</button>
                     <form method="post" action="${pageContext.request.contextPath}/admin/policy" style="display:inline;">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="policyId" id="deletePolicyId" value="">
                         <input type="hidden" name="page" value="${currentPage}">
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">Xóa</button>
                     </form>
                 </div>
             </div>
@@ -1174,7 +1132,7 @@
                 <div class="modal-body">
                     <c:choose>
                         <c:when test="${selectedPolicy == null}">
-                            <p style="color:#9ca3af;text-align:center;padding:20px;">Please select a policy to view its version history.</p>
+                            <p style="color:#9ca3af;text-align:center;padding:20px;">Vui lòng chọn một chính sách để xem lịch sử phiên bản.</p>
                         </c:when>
                         <c:otherwise>
                             <c:choose>
@@ -1188,10 +1146,10 @@
                                                     <div class="vh-date">
                                                         <c:choose>
                                                             <c:when test="${h.actionType eq 'CREATED'}">
-                                                                Created: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
+                                                                Tạo mới: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
                                                             </c:when>
                                                             <c:otherwise>
-                                                                Updated: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
+                                                                Cập nhật: <fmt:formatDate value="${h.changedAt}" pattern="dd MMM yyyy HH:mm"/>
                                                             </c:otherwise>
                                                         </c:choose>
                                                         &nbsp;&middot;&nbsp;
@@ -1203,13 +1161,13 @@
                                     </ul>
                                 </c:when>
                                 <c:otherwise>
-                                    <p style="color:#9ca3af;text-align:center;padding:20px;">No change history recorded for this policy yet.</p>
+                                    <p style="color:#9ca3af;text-align:center;padding:20px;">Chưa có lịch sử thay đổi nào được ghi nhận cho chính sách này.</p>
                                 </c:otherwise>
                             </c:choose>
                         </c:otherwise>
                     </c:choose>
                 </div>
-                <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('vhModal')">Close</button></div>
+                <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('vhModal')">Đóng</button></div>
             </div>
         </div>
 
@@ -1217,24 +1175,29 @@
         <div class="modal-overlay" id="createGeneralModal">
             <div class="modal">
                 <div class="modal-header">
-                    <h2>Tạo chính sách chân trang mới</h2>
+                    <h2><c:choose><c:when test="${activeTab == 'NEWS'}">Tạo bài viết Tin tức / Khuyến mãi mới</c:when><c:otherwise>Tạo chính sách chân trang mới</c:otherwise></c:choose></h2>
                     <button class="modal-close" onclick="closeModal('createGeneralModal')">&#215;</button>
                 </div>
                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
                     <input type="hidden" name="action" value="create">
+                    <c:if test="${activeTab == 'NEWS'}"><input type="hidden" name="tab" value="news"></c:if>
                     <div class="modal-body">
                         <c:if test="${not empty error}">
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger" style="color: #dc2626; font-weight: 500; margin-bottom: 12px;">
                                 ${error}
                             </div>
                         </c:if>
                         <div class="form-group">
                             <label>Tiêu đề *</label>
-                            <input type="text" name="title" placeholder="e.g. Chính sách vận chuyển" required pattern=".*\S.*" title="Title cannot be empty">
+                            <input type="text" name="title" placeholder="e.g. Chính sách vận chuyển" required pattern=".*\S.*" title="Tiêu đề không được để trống">
                         </div>
                         <div class="form-group">
                             <label>Mã chính sách (Code / Type) <span style="font-weight:400;color:#9ca3af;">(Optional)</span></label>
-                            <input type="text" name="policyType" placeholder="e.g. SHIPPING_POLICY" pattern="[A-Za-z0-9_]*" title="Only letters, numbers, and underscores allowed">
+                            <input type="text" name="policyType" placeholder="e.g. PROMOTION" pattern="[A-Za-z0-9_]*" title="Chỉ cho phép chữ cái, số và dấu gạch dưới">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="createShowInFooter" name="showInFooter" value="true" style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="createShowInFooter" style="cursor: pointer; font-size: 13px; color: #374151;">Hiển thị đính kèm đường link ở Footer</label>
                         </div>
                         <div class="form-group">
                             <label>Nội dung chính sách</label>
@@ -1243,7 +1206,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline" onclick="closeModal('createGeneralModal')">Cancel</button>
+                        <button type="button" class="btn btn-outline" onclick="closeModal('createGeneralModal')">Hủy</button>
                         <button type="submit" class="btn btn-primary">Tạo chính sách</button>
                     </div>
                 </form>
@@ -1253,16 +1216,16 @@
         <!-- Modal: Delete General Policy Confirm -->
         <div class="modal-overlay" id="deleteGeneralModal">
             <div class="modal confirm-modal" style="max-width: 450px;">
-                <div class="modal-header"><h2>Xóa chính sách chân trang</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Xóa bài viết</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
                 <div class="modal-body">
-                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Bạn có chắc chắn muốn xóa chính sách chân trang này? Hành động này không thể hoàn tác.</div>
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Hủy</button>
                     <form method="post" action="${pageContext.request.contextPath}/admin/general-policy" style="display:inline;">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="policyId" id="deleteGeneralPolicyId" value="">
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">Xóa</button>
                     </form>
                 </div>
             </div>
@@ -1273,21 +1236,22 @@
             <div class="modal-overlay" id="editGeneralModal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h2>Sửa nội dung chính sách chân trang</h2>
+                        <h2>Sửa nội dung bài viết</h2>
                         <button class="modal-close" onclick="closeModal('editGeneralModal')">&#215;</button>
                     </div>
                     <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
                         <input type="hidden" name="action" value="updateContent">
                         <input type="hidden" name="policyId" value="${selectedGeneralPolicy.policyId}">
+                        <c:if test="${activeTab == 'NEWS'}"><input type="hidden" name="tab" value="news"></c:if>
                         <div class="modal-body">
                             <c:if test="${not empty error}">
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger" style="color: #dc2626; font-weight: 500; margin-bottom: 12px;">
                                     ${error}
                                 </div>
                             </c:if>
                             <div class="form-group">
                                 <label>Tiêu đề *</label>
-                                <input type="text" name="title" value="${selectedGeneralPolicy.title}" required pattern=".*\S.*" title="Title cannot be empty">
+                                <input type="text" name="title" value="${selectedGeneralPolicy.title}" required pattern=".*\S.*" title="Tiêu đề không được để trống">
                             </div>
                             <div class="form-group">
                                 <label>Nội dung chính sách</label>
@@ -1296,7 +1260,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline" onclick="closeModal('editGeneralModal')">Cancel</button>
+                            <button type="button" class="btn btn-outline" onclick="closeModal('editGeneralModal')">Hủy</button>
                             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                         </div>
                     </form>
@@ -1329,19 +1293,19 @@
                 var statusText = '';
                 if (newStatus === 'DRAFT') {
                     newAction = 'saveDraft';
-                    statusText = 'Set this policy to Draft?';
+                    statusText = 'Chuyển chính sách này về trạng thái Bản nháp?';
                 } else if (newStatus === 'LIVE') {
                     <c:set var="cleanText" value="${selectedPolicy.policyContent.replaceAll('<[^>]*>', '').trim()}" />
                     <c:if test="${empty cleanText}">
-                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        alert('Nội dung chính sách không được để trống khi phát hành lên trạng thái Live!');
                         window.location.reload();
                         return;
                     </c:if>
                     newAction = 'publish';
-                    statusText = 'Publish this policy as Live?';
+                    statusText = 'Phát hành chính sách này lên trạng thái Live?';
                 } else if (newStatus === 'DISABLED') {
                     newAction = 'disable';
-                    statusText = 'Set this policy to Disabled?';
+                    statusText = 'Vô hiệu hóa chính sách này?';
                 }
                 
                 if (!newAction || !confirm(statusText)) {
@@ -1416,7 +1380,7 @@
                     var contentValue = editQuill.root.innerHTML;
                     var cleanContent = contentValue.replace(/<[^>]*>/g, '').trim();
                     if ((status === 'LIVE' || status === 'PUBLISHED') && cleanContent === '') {
-                        alert('Policy content cannot be empty when publishing policy to Live!');
+                        alert('Nội dung chính sách không được để trống khi phát hành lên trạng thái Live!');
                         event.preventDefault();
                         return false;
                     }
@@ -1435,7 +1399,7 @@
                             [{ 'header': [1, 2, 3, false] }],
                             [{ 'size': ['small', false, 'large', 'huge'] }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link', 'clean']
+                            ['link', 'image', 'clean']
                         ]
                     }
                 });
@@ -1459,7 +1423,7 @@
                             [{ 'header': [1, 2, 3, false] }],
                             [{ 'size': ['small', false, 'large', 'huge'] }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link', 'clean']
+                            ['link', 'image', 'clean']
                         ]
                     }
                 });

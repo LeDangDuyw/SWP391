@@ -2,8 +2,8 @@
     Page: warranty_detail.jsp
     Mo ta: Trang chi tiết và theo dõi trạng thái một phiếu bảo hành của khách hàng.
     
-    Created: 2026-06-26 11:52:20 +0700
-    Updated: 2026-07-19
+    Created: 2026-06-26
+    Updated: 2026-07-21
     Version: v1.8
     
     @author DuyLD
@@ -526,7 +526,7 @@
                 <div class="card-title"><i class="fas fa-info-circle" style="margin-right:6px;"></i>Thông tin yêu cầu</div>
                 <table class="info-table">
                     <tr>
-                        <th>Serial Number</th>
+                        <th>Số sê-ri</th>
                         <td><code style="font-size:13px;background:#f1f5f9;padding:2px 7px;border-radius:4px;">
                             <c:out value="${selectedClaim.serialNumber}"/>
                         </code></td>
@@ -536,7 +536,7 @@
                         <td><c:out value="${selectedClaim.productName}"/></td>
                     </tr>
                     <tr>
-                        <th>Order ID</th>
+                        <th>Mã đơn hàng</th>
                         <td>#${selectedClaim.orderId}</td>
                     </tr>
                     <tr>

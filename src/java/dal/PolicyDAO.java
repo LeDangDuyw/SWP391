@@ -4,7 +4,11 @@ package dal;
  * Class: PolicyDAO Description: Data Access Object xử lý truy vấn chính sách
  * bảo hành trong CSDL.
  *
- * Created: 2026-05-31 Updated: 2026-07-19 Version: v2.5
+ * Created: 2026-05-31 
+ * 
+ * Updated: 2026-07-19
+ * 
+ * Version: v2.5
  *
  * @author DuyLD
  */
@@ -447,6 +451,62 @@ public class PolicyDAO extends DBContext {
                     h.setActionType(rs.getString("ActionType"));
                     h.setChangedAt(rs.getTimestamp("ChangedAt"));
                     list.add(h);
+                }
+            }
+        }
+        return list;
+    }
+
+    public int countPolicies(String keyword, String status) throws Exception {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM WarrantyPolicies WHERE 1=1");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND PolicyName LIKE ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND Status = ?");
+        }
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + keyword.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status.trim());
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public List<WarrantyPolicy> getPoliciesPaging(String keyword, String status, int offset, int pageSize) throws Exception {
+        List<WarrantyPolicy> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM WarrantyPolicies WHERE 1=1");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND PolicyName LIKE ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND Status = ?");
+        }
+        sql.append(" ORDER BY PolicyID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + keyword.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status.trim());
+            }
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapPolicy(rs));
                 }
             }
         }

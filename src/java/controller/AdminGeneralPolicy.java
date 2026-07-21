@@ -24,9 +24,28 @@ public class AdminGeneralPolicy extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            List<GeneralPolicy> generalPolicies = dao.getAllPolicies();
+            String tab = request.getParameter("tab");
+            boolean isNewsTab = "news".equalsIgnoreCase(tab);
+
+            // Đọc keyword từ search box (UC36.1 Alternative Flow 36.1.1)
+            String keyword = request.getParameter("keyword");
+            boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+
+            List<GeneralPolicy> generalPolicies;
+            if (isNewsTab) {
+                generalPolicies = hasKeyword ? dao.getNewsArticles(keyword) : dao.getNewsArticles();
+                request.setAttribute("activeTab", "NEWS");
+            } else {
+                generalPolicies = hasKeyword ? dao.getFooterDocPolicies(keyword) : dao.getFooterDocPolicies();
+                request.setAttribute("activeTab", "FOOTER");
+            }
             request.setAttribute("generalPolicies", generalPolicies);
             request.setAttribute("isFooterTab", true);
+
+            // Trả keyword về JSP để giữ giá trị trong search box sau khi submit
+            if (hasKeyword) {
+                request.setAttribute("keyword", keyword.trim());
+            }
 
             String idParam = request.getParameter("id");
             if (idParam != null && !idParam.trim().isEmpty()) {
@@ -40,7 +59,7 @@ public class AdminGeneralPolicy extends HttpServlet {
 
             request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
         } catch (Exception e) {
-            throw new ServletException("Error loading general policies", e);
+            throw new ServletException("Lỗi tải danh sách chính sách footer.", e);
         }
     }
 
@@ -51,8 +70,39 @@ public class AdminGeneralPolicy extends HttpServlet {
         String action = request.getParameter("action");
         String idParam = request.getParameter("policyId");
 
+        String tab = request.getParameter("tab");
+        String tabQuery = "news".equalsIgnoreCase(tab) ? "&tab=news" : "";
+        String tabQueryClean = "news".equalsIgnoreCase(tab) ? "?tab=news" : "";
+
         if (idParam == null || idParam.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/admin/general-policy");
+            if ("create".equals(action)) {
+                try {
+                    String title = request.getParameter("title");
+                    String policyType = request.getParameter("policyType");
+                    String content = request.getParameter("content");
+
+                    if (title == null || title.trim().isEmpty()) {
+                        request.setAttribute("error", "Tiêu đề không được để trống!");
+                        doGet(request, response);
+                        return;
+                    }
+
+                    String showInFooterParam = request.getParameter("showInFooter");
+                    boolean showInFooter = "true".equals(showInFooterParam);
+
+                    int newId = dao.insertPolicy(title.trim(), policyType.trim(), content != null ? content.trim() : "", showInFooter);
+                    if (newId > 0) {
+                        response.sendRedirect(request.getContextPath() + "/admin/general-policy?id=" + newId + tabQuery);
+                    } else {
+                        request.setAttribute("error", "Tạo chính sách thất bại!");
+                        doGet(request, response);
+                    }
+                } catch (Exception e) {
+                    throw new ServletException("Lỗi tạo chính sách footer.", e);
+                }
+                return;
+            }
+            response.sendRedirect(request.getContextPath() + "/admin/general-policy" + tabQueryClean);
             return;
         }
 
@@ -71,7 +121,7 @@ public class AdminGeneralPolicy extends HttpServlet {
 
                 boolean success = dao.updateContent(id, title.trim(), content != null ? content.trim() : "");
                 if (success) {
-                    response.sendRedirect(request.getContextPath() + "/admin/general-policy?id=" + id);
+                    response.sendRedirect(request.getContextPath() + "/admin/general-policy?id=" + id + tabQuery);
                 } else {
                     request.setAttribute("error", "Cập nhật nội dung thất bại!");
                     doGet(request, response);
@@ -92,9 +142,17 @@ public class AdminGeneralPolicy extends HttpServlet {
 
                 boolean success = dao.updateFooterSettings(id, showInFooter, footerOrder);
                 if (success) {
-                    response.sendRedirect(request.getContextPath() + "/admin/general-policy?id=" + id);
+                    response.sendRedirect(request.getContextPath() + "/admin/general-policy?id=" + id + tabQuery);
                 } else {
                     request.setAttribute("error", "Cập nhật cài đặt footer thất bại!");
+                    doGet(request, response);
+                }
+            } else if ("delete".equals(action)) {
+                boolean success = dao.deletePolicy(id);
+                if (success) {
+                    response.sendRedirect(request.getContextPath() + "/admin/general-policy" + tabQueryClean);
+                } else {
+                    request.setAttribute("error", "Xóa chính sách thất bại!");
                     doGet(request, response);
                 }
             } else {
@@ -102,7 +160,7 @@ public class AdminGeneralPolicy extends HttpServlet {
             }
 
         } catch (Exception e) {
-            throw new ServletException("Error executing action", e);
+            throw new ServletException("Lỗi xử lý thao tác chính sách footer.", e);
         }
     }
 }

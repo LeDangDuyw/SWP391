@@ -40,6 +40,7 @@ public class AdminPolicy extends HttpServlet {
     private void loadPolicyList(HttpServletRequest request) throws Exception {
         // BR-44: The warranty policy list is paginated at 5 records per page, ordered by creation time descending.
         String keyword = request.getParameter("keyword");
+        String statusFilter = request.getParameter("statusFilter");
         int page = 1;
         int pageSize = 5;
         int totalRecords;
@@ -55,37 +56,26 @@ public class AdminPolicy extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        // Kiểm tra điều kiện
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            keyword = keyword.trim();
-            totalRecords = dao.countSearchPolicies(keyword);
-            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            // Kiểm tra điều kiện
-            if (page > totalPages && totalPages > 0) {
-                page = totalPages;
-            }
-            policies = dao.searchPoliciesPaging(
-                    keyword,
-                    (page - 1) * pageSize,
-                    pageSize
-            );
-            request.setAttribute("keyword", keyword);
-        } else {
-            totalRecords = dao.countPolicies();
-            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            // Kiểm tra điều kiện
-            if (page > totalPages && totalPages > 0) {
-                page = totalPages;
-            }
-            policies = dao.getPoliciesPaging(
-                    (page - 1) * pageSize,
-                    pageSize
-            );
-        }
+        totalRecords = dao.countPolicies(keyword, statusFilter);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        
+        // Kiểm tra điều kiện
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        policies = dao.getPoliciesPaging(
+                keyword,
+                statusFilter,
+                (page - 1) * pageSize,
+                pageSize
+        );
+
         request.setAttribute("policies", policies);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("statusFilter", statusFilter);
     }
 
     /**
@@ -97,6 +87,7 @@ public class AdminPolicy extends HttpServlet {
             throws ServletException, IOException {
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
+            request.setAttribute("activeTab", "WARRANTY");
             loadPolicyList(request);
 
             String idParam = request.getParameter("id");
@@ -122,7 +113,7 @@ public class AdminPolicy extends HttpServlet {
 
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
-            throw new ServletException("Error loading policies", e);
+            throw new ServletException("Lỗi tải danh sách chính sách bảo hành.", e);
         }
 
     }
@@ -150,7 +141,7 @@ public class AdminPolicy extends HttpServlet {
 
                     // BR-24: A Warranty Policy must define at minimum: policy name, at least one applicable product category, warranty duration in months, and terms and conditions text.
                     if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
-                        request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
+                        request.setAttribute("error", "Tên chính sách phải chứa ít nhất một chữ cái và không được chỉ gồm số hoặc ký tự đặc biệt!");
                         request.setAttribute("formData", p);
                         loadPolicyList(request);
                         request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
@@ -159,7 +150,7 @@ public class AdminPolicy extends HttpServlet {
 
                     // Kiểm tra điều kiện
                     if (dao.existsPolicyName(p.getPolicyName())) {
-                        request.setAttribute("error", "Policy name has already existed");
+                        request.setAttribute("error", "Tên chính sách đã tồn tại!");
                         request.setAttribute("formData", p);
                         loadPolicyList(request);
                         request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
@@ -189,7 +180,7 @@ public class AdminPolicy extends HttpServlet {
 
                         // Kiểm tra điều kiện
                         if (p.getPolicyName() == null || p.getPolicyName().trim().isEmpty() || !p.getPolicyName().matches(".*\\p{L}.*")) {
-                            request.setAttribute("error", "Policy name must contain at least one letter and cannot consist only of numbers or special characters!");
+                            request.setAttribute("error", "Tên chính sách phải chứa ít nhất một chữ cái và không được chỉ gồm số hoặc ký tự đặc biệt!");
                             request.setAttribute("selectedPolicy", p);
                             loadPolicyList(request);
                             List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
@@ -201,7 +192,7 @@ public class AdminPolicy extends HttpServlet {
                         // Kiểm tra điều kiện
                         if (("LIVE".equalsIgnoreCase(p.getStatus()) || "PUBLISHED".equalsIgnoreCase(p.getStatus()))
                                 && isContentEmpty(p.getPolicyContent())) {
-                            request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
+                            request.setAttribute("error", "Nội dung chính sách không được để trống khi phát hành lên trạng thái Live!");
                             request.setAttribute("selectedPolicy", p);
                             loadPolicyList(request);
                             List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
@@ -212,7 +203,7 @@ public class AdminPolicy extends HttpServlet {
 
                         // Kiểm tra điều kiện
                         if (dao.existsPolicyNameForUpdate(p.getPolicyName(), id)) {
-                            request.setAttribute("error", "Policy name has existed!");
+                            request.setAttribute("error", "Tên chính sách đã được sử dụng bởi chính sách khác!");
                             request.setAttribute("selectedPolicy", p);
                             loadPolicyList(request);
                             List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
@@ -220,6 +211,10 @@ public class AdminPolicy extends HttpServlet {
                             request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
                             return;
                         }
+                        // Tự động tăng version khi update (ví dụ: 1.0 -> 1.1 hoặc v1.0 -> v1.1)
+                        String currentVer = p.getVersion();
+                        p.setVersion(incrementVersion(currentVer));
+
                         dao.updatePolicy(p);
                         dao.insertHistory(id, p.getPolicyName(), p.getVersion(), p.getDescription(), p.getPolicyContent(), p.getStatus(), "UPDATED");
                     }
@@ -241,7 +236,7 @@ public class AdminPolicy extends HttpServlet {
                     WarrantyPolicy p = dao.getPolicyById(id);
                     // Kiểm tra điều kiện
                     if (p != null && isContentEmpty(p.getPolicyContent())) {
-                        request.setAttribute("error", "Policy content cannot be empty when publishing policy to Live!");
+                        request.setAttribute("error", "Nội dung chính sách không được để trống khi phát hành lên trạng thái Live!");
                         request.setAttribute("selectedPolicy", p);
                         loadPolicyList(request);
                         List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
@@ -289,7 +284,7 @@ public class AdminPolicy extends HttpServlet {
 
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
-            throw new ServletException("Error processing policy action: " + action, e);
+            throw new ServletException("Lỗi xử lý thao tác chính sách: " + action, e);
         }
     }
 
@@ -303,7 +298,7 @@ public class AdminPolicy extends HttpServlet {
 
         // Kiểm tra điều kiện
         if (name == null || name.trim().isEmpty()) {
-            request.setAttribute("error", "Policy name can't be empty!");
+            request.setAttribute("error", "Tên chính sách không được để trống!");
         }
 
         String desc = request.getParameter("description");
@@ -370,12 +365,6 @@ public class AdminPolicy extends HttpServlet {
             p.setWarrantyMonths(Integer.parseInt(wm));
         }
 
-        String version = request.getParameter("version");
-        // Kiểm tra điều kiện
-        if (version != null) {
-            p.setVersion(version.trim());
-        }
-
         String status = request.getParameter("status");
         // Kiểm tra điều kiện
         if (status != null && !status.trim().isEmpty()) {
@@ -408,6 +397,29 @@ public class AdminPolicy extends HttpServlet {
         }
         String clean = content.replaceAll("<[^>]*>", "").trim();
         return clean.isEmpty();
+    }
+
+    private String incrementVersion(String currentVersion) {
+        if (currentVersion == null || currentVersion.trim().isEmpty()) {
+            return "1.1";
+        }
+        String verStr = currentVersion.trim();
+        boolean hasV = verStr.toLowerCase().startsWith("v");
+        String numStr = hasV ? verStr.substring(1) : verStr;
+        try {
+            if (numStr.contains(".")) {
+                String[] parts = numStr.split("\\.");
+                int major = Integer.parseInt(parts[0]);
+                int minor = Integer.parseInt(parts[1]);
+                minor++;
+                return (hasV ? "v" : "") + major + "." + minor;
+            } else {
+                int major = Integer.parseInt(numStr);
+                return (hasV ? "v" : "") + (major + 1) + ".0";
+            }
+        } catch (Exception e) {
+            return verStr + ".1";
+        }
     }
 
     /**

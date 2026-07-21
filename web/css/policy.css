@@ -230,6 +230,14 @@
     }
 }
 
+.policy-body img, .ql-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 14px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 /* --- 3. Stepper & Timeline (Shopping Guide) --- */
 .vertical-stepper {
     position: relative;
