@@ -141,9 +141,13 @@ public class OutboundDAO extends DBContext {
                     order.setShippingPhone(rs.getString("shipping_phone"));
                     order.setShippingAddress(rs.getString("shipping_address"));
                     order.setOrderCode(rs.getString("order_code"));
+                    order.setShippingMethod(rs.getString("shipping_method"));
 
                     if (rs.getTimestamp("completed_at") != null) {
                         order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                    }
+                    if (rs.getTimestamp("created_at") != null) {
+                        order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                     }
                     list.add(order);
                 }
@@ -226,8 +230,12 @@ public class OutboundDAO extends DBContext {
                     order.setInvoiceEmailSent(rs.getInt("invoice_email_sent"));
                     int uId = rs.getInt("user_id");
                     order.setUserId(rs.wasNull() ? null : uId);
+                    order.setShippingMethod(rs.getString("shipping_method"));
                     if (rs.getTimestamp("completed_at") != null) {
                         order.setCompletedAt(rs.getTimestamp("completed_at").toLocalDateTime());
+                    }
+                    if (rs.getTimestamp("created_at") != null) {
+                        order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                     }
                     list.add(order);
                 }

@@ -65,7 +65,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
@@ -144,7 +144,7 @@
                                         <div class="h-14 w-14 flex-shrink-0 rounded-lg border border-outline-variant/30 bg-white overflow-hidden flex items-center justify-center">
                                             <c:choose>
                                                 <c:when test="${not empty detail.thumbnail}">
-                                                    <img src="${pageContext.request.contextPath}/${detail.thumbnail}" alt="" class="h-full w-full object-contain">
+                                                    <img src="${pageContext.request.contextPath}/images/${detail.thumbnail}" alt="" class="h-full w-full object-contain">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="material-symbols-outlined text-on-surface-variant">image</span>
@@ -162,12 +162,12 @@
                                     </div>
 
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
-                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã IMEI/Serial cụ thể:</p>
+                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã Serial cụ thể:</p>
                                         <c:choose>
-                                            <c:when test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                            <c:when test="${availableSerialsMap[detail.variantId] == null || availableSerialsMap[detail.variantId].size() < detail.quantity}">
                                                 <div style="background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                                                     <span class="material-symbols-outlined">warning</span>
-                                                    Kho không đủ hàng (${availableImeisMap[detail.variantId] != null ? availableImeisMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
+                                                    Kho không đủ hàng (${availableSerialsMap[detail.variantId] != null ? availableSerialsMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
@@ -175,10 +175,10 @@
                                                     <div class="flex items-center gap-3">
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>
                                                         <select name="detail_${detail.orderDetailId}" required class="flex-1 py-2 px-3 bg-white border border-outline-variant/50 rounded-lg text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                                            <option value="">-- Chọn IMEI / Serial --</option>
-                                                            <c:forEach var="item" items="${availableImeisMap[detail.variantId]}" varStatus="status">
+                                                            <option value="">-- Chọn Serial --</option>
+                                                            <c:forEach var="item" items="${availableSerialsMap[detail.variantId]}" varStatus="status">
                                                                 <option value="${item.itemId}" ${status.count == i ? 'selected' : ''}>
-                                                                    SN: ${item.serialNumber} | IMEI: ${item.imei}
+                                                                    SN: ${item.serialNumber}
                                                                 </option>
                                                             </c:forEach>
                                                         </select>
@@ -194,7 +194,7 @@
                         <div class="mt-8 flex justify-end pt-4 border-t border-outline-variant/30">
                             <c:set var="canFulfill" value="true" />
                             <c:forEach var="detail" items="${details}">
-                                <c:if test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                <c:if test="${availableSerialsMap[detail.variantId] == null || availableSerialsMap[detail.variantId].size() < detail.quantity}">
                                     <c:set var="canFulfill" value="false" />
                                 </c:if>
                             </c:forEach>

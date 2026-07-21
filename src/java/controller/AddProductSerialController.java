@@ -74,7 +74,7 @@ public class AddProductSerialController extends HttpServlet {
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
 
-        request.getRequestDispatcher("/staff/AddProductImei.jsp").forward(request, response);
+        request.getRequestDispatcher("/staff/AddProductSerial.jsp").forward(request, response);
     }
 
     @Override

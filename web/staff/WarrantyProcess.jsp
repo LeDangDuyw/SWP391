@@ -742,7 +742,7 @@
             </div>
             <nav>
                 <a href="${pageContext.request.contextPath}/staff/inventory">
-                    <span class="nav-icon">▤</span>Quản lý kho
+                    <span class="nav-icon">▤</span>Quản lý danh mục sản phẩm
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/category">
                     <span class="nav-icon">📁</span>Danh mục

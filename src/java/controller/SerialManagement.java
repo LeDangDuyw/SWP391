@@ -16,8 +16,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.InventoryItem;
-
-@WebServlet("/staff/serial")
+@WebServlet("/staff/imei")
 public class SerialManagement extends HttpServlet {
 
     @Override

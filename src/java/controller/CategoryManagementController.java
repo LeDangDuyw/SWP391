@@ -86,17 +86,7 @@ public class CategoryManagementController extends HttpServlet {
                         doGet(request, response);
                         return;
                     }
-                    categoryDAO.updateCategory(categoryId, categoryName.trim());
                 }
-            } else if ("delete".equals(action)) {
-                int categoryId = Integer.parseInt(request.getParameter("categoryIdToDelete"));
-                int productCount = categoryDAO.countProductsByCategory(categoryId);
-                if (productCount > 0) {
-                    request.setAttribute("errorMessage", "Không thể xóa danh mục đang có " + productCount + " sản phẩm.");
-                    doGet(request, response);
-                    return;
-                }
-                categoryDAO.deleteCategory(categoryId);
             }
         } catch (Exception e) {
             e.printStackTrace();
