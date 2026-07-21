@@ -1,7 +1,7 @@
 # WARRANTY CLAIMS & PROCESS FUNCTIONAL SPECIFICATION
 ## (Screen & Field Specifications - FPT Standard SRS Template)
 
-This document contains the functional specifications, mockup descriptions, and field validation rules for the customer-facing **Warranty Center** and the staff-facing **Warranty Console** of the UniLap store system, covering **Submit Warranty Request (UC27)**, **Track Warranty Status (UC28)**, and **Process Warranty Claim (UC31)**.
+This document contains the functional specifications, mockup descriptions, and field validation rules for the customer-facing **Warranty Center** and the staff-facing **Warranty Console** of the UniLap store system, covering **Handle Warranty Request (UC27)** and **Track Warranty Status (UC28)**.
 
 ---
 
@@ -9,7 +9,7 @@ This document contains the functional specifications, mockup descriptions, and f
 1. [Warranty Center Screen - Customer Dashboard (UC27 & UC28)](#1-warranty-center-screen---customer-dashboard-uc27--uc28)
 2. [Submit Warranty Request Wizard - Steps 2 to 4 (UC27)](#2-submit-warranty-request-wizard---steps-2-to-4-uc27)
 3. [Warranty Claim Detail Screen (UC28)](#3-warranty-claim-detail-screen-uc28)
-4. [Warranty Console Screen - Admin/Staff (UC31)](#4-warranty-console-screen---adminstaff-uc31)
+4. [Warranty Console Screen - Admin/Staff (UC27)](#4-warranty-console-screen---adminstaff-uc27)
 
 ---
 
@@ -112,10 +112,10 @@ Confirmation view shown upon successful submission.
 
 ---
 
-## 4. Warranty Console Screen - Admin/Staff (UC31)
+## 4. Warranty Console Screen - Admin/Staff (UC27)
 
 *   **Description:** The internal dashboard layout for support staff and administrators to process claims. It features a searchable/filterable queue of active claims on the left and a detailed work panel on the right for processing actions and entering resolution logs.
-*   **Mapping Use Case:** [UC31 – Process Warranty Claim](file:///d:/GithubSWP/SWP391/docs/UseCases.md#L80)
+*   **Mapping Use Case:** [UC27 – Handle Warranty Request](file:///d:/GithubSWP/SWP391/docs/UseCases.md#L32) (Staff processing phase)
 *   **Mockup Image Reference:** `docs/mockups/admin_warranty_console.png`
 
 ### 4.1 Field & Control Description Table

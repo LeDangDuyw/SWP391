@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Register - UNILAP</title>
+        <title>Đăng Ký - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
     </head>
     <body>
@@ -24,30 +24,30 @@
             <div class="card">
 
                 <div class="tabs">
-                    <a href="login" class="tab">Login</a>
-                    <a href="register" class="tab active">Register</a>
+                    <a href="login" class="tab">Đăng Nhập</a>
+                    <a href="register" class="tab active">Đăng Ký</a>
                 </div>
 
-                <h2 class="card-title">Create Account</h2>
-                <p class="card-subtitle">Join our precision engineering platform.</p>
+                <h2 class="card-title">Tạo Tài Khoản</h2>
+                <p class="card-subtitle">Tham gia nền tảng công nghệ UniLap.</p>
 
                 <div class="error-message">${error}</div>
 
                 <form action="register" method="post">
                     <div class="form-group">
-                        <label>Full Name</label>
+                        <label>Họ và Tên</label>
                         <input type="text" name="fullname" 
-                               placeholder="John Doe" 
+                               placeholder="Nguyễn Văn A" 
                                value="${param.fullname}" required>
                     </div>
                     <div class="form-group">
-                        <label>Corporate Email</label>
+                        <label>Email</label>
                         <input type="email" name="email" 
                                placeholder="user@unilap.co" 
                                value="${param.email}" required>
                     </div>
                     <div class="form-group">
-                        <label>Phone</label>
+                        <label>Số Điện Thoại</label>
                         <input type="text" name="phone" 
                                placeholder="0912345678" 
                                pattern="^0[35789]\d{8}$"
@@ -56,27 +56,27 @@
                                value="${param.phone}" required>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
+                        <label>Mật Khẩu</label>
                         <input type="password" name="password" 
                                placeholder="••••••••" 
-                               minlength="6"
+                               minlength="8"
                                maxlength="32"
                                value="${param.password}" required>
                     </div>
                     <div class="form-group">
-                        <label>Confirm Password</label>
+                        <label>Xác Nhận Mật Khẩu</label>
                         <input type="password" name="confirmPassword" 
                                placeholder="••••••••" 
-                               minlength="6"
+                               minlength="8"
                                maxlength="32"
                                value="${param.confirmPassword}" required>
                     </div>
                     <button type="submit" class="btn-submit">
-                        Register →
+                        Đăng Ký →
                     </button>
                 </form>
 
-                <p class="alt-link">Already have an account? <a href="login">Login</a></p>
+                <p class="alt-link">Đã có tài khoản? <a href="login">Đăng Nhập</a></p>
             </div>
         </main>
 
@@ -84,14 +84,14 @@
         <footer class="footer">
             <div class="footer-left">
                 <span class="logo">UNILAP</span>
-                <p>© 2024 UNILAP Precision Engineering. All rights reserved.</p>
+                <p>© 2024 UNILAP. Tất cả quyền được bảo lưu.</p>
             </div>
             <div class="footer-right">
-                <a href="#">Support</a>
-                <a href="#">Warranty</a>
-                <a href="#">Shipping</a>
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
+                <a href="#">Hỗ Trợ</a>
+                <a href="#">Bảo Hành</a>
+                <a href="#">Vận Chuyển</a>
+                <a href="#">Bảo Mật</a>
+                <a href="#">Điều Khoản</a>
             </div>
         </footer>
 

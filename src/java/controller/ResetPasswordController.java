@@ -68,9 +68,9 @@ public class ResetPasswordController extends HttpServlet {
         password = password.trim();
         confirmPassword = confirmPassword.trim();
 
-        if (password.length() < 6) {
+        if (!utils.hashPasswordUtil.isValidPassword(password)) {
             request.setAttribute("token", token);
-            request.setAttribute("error", "Mật khẩu phải chứa ít nhất 6 ký tự!");
+            request.setAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             request.getRequestDispatcher("auth/reset-password.jsp").forward(request, response);
             return;
         }

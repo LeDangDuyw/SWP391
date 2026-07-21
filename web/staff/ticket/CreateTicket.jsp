@@ -1,11 +1,11 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Staff - Create Inbound Ticket</title>
+    <title>UNILAP Staff - Tạo Phiếu Nhập Kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -117,16 +117,16 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -139,9 +139,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -174,9 +174,9 @@
                            class="p-1 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
                             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
                         </a>
-                        <h2 class="font-headline-lg text-headline-lg text-on-surface">Create Inbound Ticket</h2>
+                        <h2 class="font-headline-lg text-headline-lg text-on-surface">Tạo Phiếu Nhập Kho</h2>
                     </div>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant ml-9">Create a new inbound request ticket to send to Admin for approval.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant ml-9">Tạo phiếu yêu cầu nhập kho mới gửi Admin phê duyệt.</p>
                 </div>
             </div>
 
@@ -193,7 +193,7 @@
                 <div class="px-6 py-4 border-b border-outline-variant/20">
                     <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">edit_note</span>
-                        Ticket Information
+                        Thông tin Phiếu
                     </h3>
                 </div>
 

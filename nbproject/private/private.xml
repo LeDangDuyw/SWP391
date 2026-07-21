@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/TicketListController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/ReviewTicketController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketList.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/CargoWorkflowController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/CreateTicket.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/TicketDetail.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDetailDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignFormDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PromotionsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdvancedAnalyticsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/PdfInvoiceService.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/BrandDao.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/css/cart.css</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PlaceOrderTest.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdminDashboardDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/OutboundDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/ImeiDAO.java</file>
+        </group>
+        <group>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/TicketListController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/ReviewTicketController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketList.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/controller/CargoWorkflowController.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/CreateTicket.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/staff/ticket/TicketDetail.jsp</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignDetailDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/CampaignFormDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PromotionsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdvancedAnalyticsDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/PdfInvoiceService.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/BrandDao.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/css/cart.css</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/PlaceOrderTest.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/AdminDashboardDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/dal/OutboundDAO.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/src/java/service/ShippingAutoTracker.java</file>
+            <file>file:/C:/Users/huy/Downloads/lll/SWP391/web/admin/ticket/AdminTicketDetail.jsp</file>
+        </group>
+        <group name="luyentap_prj"/>
+    </open-files>
+</project-private>

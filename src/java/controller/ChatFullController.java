@@ -27,6 +27,14 @@ public class ChatFullController extends HttpServlet {
             return;
         }
 
+        // Kiểm tra xem người dùng có bị chặn sử dụng chatbot hay không
+        dal.ChatbotDAO chatbotDAO = new dal.ChatbotDAO();
+        if (chatbotDAO.isChatbotBlocked(user.getUserId())) {
+            session.setAttribute("error", "Tài khoản của bạn đã bị chặn sử dụng tính năng chatbot do vi phạm điều khoản.");
+            response.sendRedirect(request.getContextPath() + "/HomeServlet");
+            return;
+        }
+
         try {
             // Load categories to populate standard navigation header in chat-full.jsp
             CategoryDAO categoryDAO = new CategoryDAO();

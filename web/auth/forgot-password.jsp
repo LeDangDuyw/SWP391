@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Forgot Password - UNILAP</title>
+        <title>Quên Mật Khẩu - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
         <style>
             .back-to-login {
@@ -28,11 +28,11 @@
         <main class="main">
             <div class="card">
                 <div class="tabs">
-                    <a href="login" class="tab active">Forgot Password</a>
+                    <a href="login" class="tab active">Quên Mật Khẩu</a>
                 </div>
 
-                <h2 class="card-title">Reset Credentials</h2>
-                <p class="card-subtitle">Enter your corporate email address to retrieve your reset link.</p>
+                <h2 class="card-title">Khôi Phục Mật Khẩu</h2>
+                <p class="card-subtitle">Nhập địa chỉ email đã đăng ký để nhận liên kết đặt lại mật khẩu.</p>
 
                 <% if (request.getAttribute("error") != null) { %>
                     <div class="error-message">${error}</div>
@@ -45,33 +45,33 @@
                 <% if (request.getAttribute("emailSent") == null || !(Boolean)request.getAttribute("emailSent")) { %>
                     <form action="forgot-password" method="post">
                         <div class="form-group">
-                            <label>Corporate Email</label>
+                            <label>Email</label>
                             <input type="email" name="email" 
                                    placeholder="user@unilap.co" 
                                    value="${param.email}" required>
                         </div>
                         
                         <button type="submit" class="btn-submit">
-                            Request Reset Link →
+                            Gửi Liên Kết Đặt Lại →
                         </button>
                     </form>
                 <% } %>
 
-                <a href="login" class="back-to-login">← Back to Login</a>
+                <a href="login" class="back-to-login">← Quay Lại Đăng Nhập</a>
             </div>
         </main>
 
         <footer class="footer">
             <div class="footer-left">
                 <span class="logo">UNILAP</span>
-                <p>© 2024 UNILAP Precision Engineering. All rights reserved.</p>
+                <p>© 2024 UNILAP. Tất cả quyền được bảo lưu.</p>
             </div>
             <div class="footer-right">
-                <a href="#">Support</a>
-                <a href="#">Warranty</a>
-                <a href="#">Shipping</a>
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
+                <a href="#">Hỗ Trợ</a>
+                <a href="#">Bảo Hành</a>
+                <a href="#">Vận Chuyển</a>
+                <a href="#">Bảo Mật</a>
+                <a href="#">Điều Khoản</a>
             </div>
         </footer>
 

@@ -321,7 +321,7 @@ public class OutboundDAO extends DBContext {
         return list;
     }
 
-    public List<InventoryItem> getAvailableImeisForVariant(int variantId) {
+    public List<InventoryItem> getAvailableSerialsForVariant(int variantId) {
         List<InventoryItem> list = new ArrayList<>();
         String sql = "SELECT item_id, serial_number " +
                 "FROM InventoryItem " +
@@ -343,7 +343,7 @@ public class OutboundDAO extends DBContext {
         return list;
     }
 
-    public List<InventoryItem> getAssignedImeisForOrderDetail(int orderDetailId) {
+    public List<InventoryItem> getAssignedSerialsForOrderDetail(int orderDetailId) {
         List<InventoryItem> list = new ArrayList<>();
         String sql = "SELECT i.* FROM InventoryItem i " +
                 "JOIN OrderItemSerial ois ON i.item_id = ois.item_id " +

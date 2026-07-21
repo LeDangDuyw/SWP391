@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: AdminDashboard.jsp
     Mo ta: Trang giao diện (View) chính của Admin Dashboard.
     
@@ -767,32 +767,15 @@
                     <small>System Controller</small>
                 </div>
                 <nav>
-                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    
-                    <div class="sidebar-dropdown">
-                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
-                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
-                        </a>
-                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
-                            <a href="${pageContext.request.contextPath}/admin/promotions">
-                                <span>▥</span>Voucher & Promotion
-                            </a>
-                            <a href="${pageContext.request.contextPath}/admin/analytics">
-                                <span>📈</span>Advanced Analytics
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
-                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
-                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
-                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
-                    <a href="#"><span>⚙</span>Settings</a>
+                    <a class="active" href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Bảng điều khiển</a>
+                    <a href="#"><span>▣</span>Đơn hàng</a>
+                    <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Người dùng</a>
+                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Thống kê</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Chính sách</a>
+                    <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Quản lý đánh giá</a>
+                    <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Duyệt Ticket</a>
+                    <a href="#"><span>⚙</span>Cài đặt</a>
                 </nav>
                 <div class="profile">
                     <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -805,9 +788,9 @@
                         <% } else { %>
                             <span>♙</span>
                         <% } %>
-                        <span>Admin User Profile</span>
+                        <span>Hồ sơ Admin</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                 </div>
             </aside>
 
@@ -817,7 +800,7 @@
                 <!-- Topbar -->
                 <div class="topbar">
                     <div class="topbar-left">
-                        <span class="topbar-title">Analytics Dashboard</span>
+                        <span class="topbar-title">Bảng Điều Khiển Thống Kê</span>
                         <span class="topbar-date" id="currentDate"></span>
                     </div>
                     <div class="topbar-right">
@@ -896,27 +879,27 @@
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-blue">👤</div>
                             </div>
-                            <div class="kpi-label">New Customers</div>
+                            <div class="kpi-label">Khách hàng mới</div>
                             <div class="kpi-value">${newCustomersToday}</div>
-                            <div class="kpi-sub">Registered today</div>
+                            <div class="kpi-sub">Đăng ký hôm nay</div>
                         </div>
 
                         <!-- Alerts -->
                         <div class="kpi-card c-red" onclick="openAlertsModal()" style="cursor:pointer;">
                             <div class="kpi-top">
                                 <div class="kpi-icon bg-red">⚠️</div>
-                                <span class="kpi-badge down">Needs attention</span>
+                                <span class="kpi-badge down">Cần chú ý</span>
                             </div>
-                            <div class="kpi-label">Active Alerts</div>
+                            <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Low stock, claims &amp; ticket reviews</div>
+                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket duyệt</div>
                         </div>
                     </div>
 
 
                     <!-- ══ ROW 2: REVENUE CHART (full width) ══ -->
                     <div class="section-hd" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-                        <span style="display:flex; align-items:center;"><span class="dot"></span>Revenue Analytics</span>
+                        <span style="display:flex; align-items:center;"><span class="dot"></span>Phân tích doanh thu</span>
                         
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
@@ -1022,9 +1005,9 @@
                                     <table class="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Product</th>
-                                                <th>Category</th>
-                                                <th>Qty</th>
+                                                <th>Sản phẩm</th>
+                                                <th>Danh mục</th>
+                                                <th>Số lượng</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1050,13 +1033,13 @@
                     </div>
 
                     <!-- ══ ROW 4: Top Products + Top Customers + Recent Activities ══ -->
-                    <div class="section-hd"><span class="dot"></span>Rankings &amp; Activity</div>
+                    <div class="section-hd"><span class="dot"></span>Bảng xếp hạng &amp; Hoạt động</div>
                     <div class="grid-3b">
 
                         <!-- Top Products Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
-                                <div class="chart-card-title" style="margin-bottom:0;">🏆 Top Products</div>
+                                <div class="chart-card-title" style="margin-bottom:0;">🏆 Sản phẩm bán chạy</div>
                                 <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" class="ranking-card-filters">
                                     <input type="hidden" name="from" value="${from}">
                                     <input type="hidden" name="to" value="${to}">
@@ -1080,7 +1063,7 @@
                                     <canvas id="topProductsChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No product sales data for this period</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu bán hàng trong khoảng thời gian này</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -1088,7 +1071,7 @@
                         <!-- Top Customers Horizontal Bar -->
                         <div class="chart-card">
                             <div class="ranking-card-header">
-                                <div class="chart-card-title" style="margin-bottom:0;">👑 Top Customers</div>
+                                <div class="chart-card-title" style="margin-bottom:0;">👑 Khách hàng tiêu biểu</div>
                                 <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" class="ranking-card-filters">
                                     <input type="hidden" name="from" value="${from}">
                                     <input type="hidden" name="to" value="${to}">
@@ -1109,7 +1092,7 @@
                                     <canvas id="topCustomersChart" height="200"></canvas>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">No customer spending data for this period</div>
+                                    <div class="no-data" style="height:200px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; font-weight:500;">Không có dữ liệu chi tiêu khách hàng trong khoảng thời gian này</div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -1128,7 +1111,7 @@
                                     </div>
                                 </c:forEach>
                                 <c:if test="${empty recentActivities}">
-                                    <div class="no-data">No recent activities</div>
+                                    <div class="no-data">Không có hoạt động gần đây</div>
                                 </c:if>
                             </div>
                         </div>
@@ -1588,7 +1571,7 @@
         <div id="alertsModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
             <div style="background:#fff; border-radius:12px; max-width:600px; width:90%; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.15); position:relative;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:12px; margin-bottom:16px;">
-                    <h3 style="font-size:18px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; margin:0;">⚠️ Active Alerts Detail</h3>
+                    <h3 style="font-size:18px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; margin:0;">⚠️ Chi tiết cảnh báo kích hoạt</h3>
                     <span onclick="closeAlertsModal()" style="font-size:24px; font-weight:bold; color:#94a3b8; cursor:pointer; line-height:1;">&times;</span>
                 </div>
                 

@@ -1,4 +1,4 @@
-﻿<%-- 
+<%-- 
     Page: PolicyManagement.jsp
     Mo ta: Trang giao diện quản lý danh sách và chỉnh sửa chính sách của Admin.
     
@@ -657,7 +657,65 @@
                 display: block;
             }
         </style>
-    </head>
+    
+<style>
+            /* Sidebar dropdown style */
+            .sidebar-dropdown {
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-dropdown-container {
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 4px;
+            }
+            .sidebar nav .sidebar-dropdown-container a {
+                padding: 8px 14px 8px 30px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+            }
+
+            /* Beautiful Pagination Styling */
+            .pagination {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid #e5e7eb;
+                justify-content: flex-start;
+            }
+            .pagination a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                border: 1px solid #d1d5db;
+                color: #4b5563;
+                font-size: 13px;
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                background: #ffffff;
+            }
+            .pagination a:hover {
+                border-color: #2563eb;
+                color: #2563eb;
+                background: #f0f6ff;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+            }
+            .pagination a.active {
+                background: #2563eb;
+                border-color: #2563eb;
+                color: #ffffff;
+                box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            }
+</style>
+</head>
     <body>
         <div class="layout">
 
@@ -666,7 +724,22 @@
                 <nav>
                     <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
                     <a href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+                    
+                    <div class="sidebar-dropdown">
+                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
+                        </a>
+                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <a href="${pageContext.request.contextPath}/admin/promotions">
+                                <span>▥</span>Voucher & Promotion
+                            </a>
+                            <a href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a class="active" href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
@@ -728,8 +801,8 @@
                 </div>
 
                 <div class="tabs-container" style="display: flex; gap: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; padding: 0 28px;">
-                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Warranty Policies</a>
-                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${not empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${not empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Footer Policies</a>
+                    <a href="${pageContext.request.contextPath}/admin/policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Chính sách bảo hành</a>
+                    <a href="${pageContext.request.contextPath}/admin/general-policy" class="tab-link" style="padding: 10px 20px; font-weight: 600; text-decoration: none; color: ${not empty isFooterTab ? '#2563eb' : '#64748b'}; border-bottom: ${not empty isFooterTab ? '3px solid #2563eb' : 'none'}; font-size: 14px;">Chính sách chân trang</a>
                 </div>
 
                 <div class="pane-body">
@@ -737,7 +810,7 @@
                         <c:when test="${not empty isFooterTab}">
                             <!-- Left pane -->
                             <div class="doc-pane">
-                                <div class="doc-pane-header"><h3>Footer Documents</h3></div>
+                                <div class="doc-pane-header"><h3>Tài liệu chân trang</h3></div>
                                 <div class="search-wrap">
                                     <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
                                         <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
@@ -758,7 +831,7 @@
                                             </c:forEach>
                                         </c:when>
                                         <c:otherwise>
-                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No policies found.</div>
+                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">Không tìm thấy chính sách nào.</div>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -786,7 +859,7 @@
                                                         <input type="number" id="footerOrder" name="footerOrder" value="${selectedGeneralPolicy.footerOrder}" min="0" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none;">
                                                     </div>
                                                     
-                                                    <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 8px 16px; font-size: 13px;">Save Settings</button>
+                                                    <button type="submit" class="btn btn-primary" style="width: fit-content; padding: 8px 16px; font-size: 13px;">Lưu cài đặt</button>
                                                 </form>
                                             </div>
                                             
@@ -807,8 +880,8 @@
                                     <c:otherwise>
                                         <div class="empty-state">
                                             <div class="empty-icon">&#128196;</div>
-                                            <h3>No Policy Selected</h3>
-                                            <p>Select a footer policy from the list to manage settings and edit content.</p>
+                                            <h3>Chưa chọn chính sách</h3>
+                                            <p>Chọn một chính sách chân trang từ danh sách để quản lý và chỉnh sửa nội dung.</p>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -818,7 +891,7 @@
                         <c:otherwise>
                             <!-- Left pane -->
                             <div class="doc-pane">
-                                <div class="doc-pane-header"><h3>Active Documents</h3></div>
+                                <div class="doc-pane-header"><h3>Tài liệu đang hoạt động</h3></div>
                                 <div class="search-wrap">
                                     <form method="get" action="${pageContext.request.contextPath}/admin/policy" class="search-form">
                                         <input type="text" name="keyword" placeholder="Search..." value="${keyword}"/>
@@ -851,7 +924,7 @@
                                             </c:forEach>
                                         </c:when>
                                         <c:otherwise>
-                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">No policies found.</div>
+                                            <div style="text-align:center;color:#9ca3af;padding:30px 0;font-size:13px;">Không tìm thấy chính sách nào.</div>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -879,7 +952,7 @@
                                     </select>
                                 </c:if>
                                 <c:if test="${selectedPolicy == null}">
-                                    <span style="color:#9ca3af;font-size:13px;">No document selected</span>
+                                    <span style="color:#9ca3af;font-size:13px;">Chưa chọn tài liệu</span>
                                 </c:if>
                             </div>
                         </div>
@@ -890,11 +963,11 @@
                                     <h1 class="policy-doc-title">${selectedPolicy.policyName}</h1>
                                     <div class="policy-meta-row">
                                         <div class="meta-item">
-                                            <label>VERSION</label>
+                                            <label>PHIÊN BẢN</label>
                                             <span class="meta-chip">${not empty selectedPolicy.version ? selectedPolicy.version : 'v1.0'}</span>
                                         </div>
                                         <!--                                        <div class="meta-item">
-                                                                                    <label>EFFECTIVE DATE</label>
+                                                                                    <label>NGÀY CÓ HIỆU LỰC</label>
                                                                                     <span class="meta-chip">
                                         <c:choose>
                                             <c:when test="${selectedPolicy.effectiveDate != null}"><fmt:formatDate value="${selectedPolicy.effectiveDate}" pattern="MM/dd/yyyy"/></c:when>
@@ -903,7 +976,7 @@
                                     </span>
                                 </div>-->
                                         <div class="meta-item">
-                                            <label>ACTIVE PERIOD</label>
+                                            <label>THỜI HẠN HIỆU LỰC</label>
                                             <span class="meta-chip">
                                                 <c:choose>
                                                     <c:when test="${selectedPolicy.effectiveDate != null}">
@@ -923,7 +996,7 @@
                                             </span>
                                         </div>
                                         <div class="meta-item">
-                                            <label>APPLICABLE REGIONS</label>
+                                            <label>KHU VỰC ÁP DỤNG</label>
                                             <div class="region-chips">
                                                 <c:choose>
                                                     <c:when test="${not empty selectedPolicy.applicableRegions}">
@@ -941,7 +1014,7 @@
                                              <div class="policy-text ql-editor" style="white-space:pre-wrap; padding: 0;">${selectedPolicy.policyContent}</div>
                                         </c:when>
                                         <c:otherwise>
-                                            <div class="policy-text" style="color:#9ca3af;font-style:italic;">No policy content yet. Use Edit Policy to add body text.</div>
+                                            <div class="policy-text" style="color:#9ca3af;font-style:italic;">Chưa có nội dung chính sách. Hãy chọn Chỉnh sửa chính sách để thêm nội dung.</div>
                                         </c:otherwise>
                                     </c:choose>
                                     <c:if test="${not empty selectedPolicy.description}">
@@ -971,8 +1044,8 @@
                             <c:otherwise>
                                 <div class="empty-state">
                                     <div class="empty-icon">&#128196;</div>
-                                    <h3>No Policy Selected</h3>
-                                    <p>Select a policy from the list or create a new one.</p>
+                                    <h3>Chưa chọn chính sách</h3>
+                                    <p>Chọn một chính sách từ danh sách hoặc tạo mới.</p>
                                 </div>
                             </c:otherwise>
                         </c:choose>
@@ -987,13 +1060,13 @@
         <div class="modal-overlay" id="createModal">
             <div class="modal">
                 <div class="modal-header">
-                    <h2>Create New Policy</h2>
+                    <h2>Tạo chính sách mới</h2>
                     <button class="modal-close" onclick="closeModal('createModal')">&#215;</button>
                 </div>
                 <form method="post" action="${pageContext.request.contextPath}/admin/policy">
                     <input type="hidden" name="action" value="create">
                     <div class="modal-body">
-                        <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\p{L}.*"
+                        <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${formData.policyName}" placeholder="e.g. Global Warranty Terms" required pattern=".*\p{L}.*"
                                                                                    title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
                             <c:if test="${not empty error}">
                             <div class="alert alert-danger text-danger">
@@ -1002,21 +1075,21 @@
                         </c:if>
                         <div class="form-group"><label>Description</label><textarea name="description" rows="2" placeholder="Short summary...">${formData.description}</textarea></div>
                         <div class="form-group">
-                            <label>Policy Content</label>
+                            <label>Nội dung chính sách</label>
                             <input type="hidden" id="createPolicyContent" name="policyContent" value="${formData.policyContent}">
                             <div id="createQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
                         </div>
-                        <div class="form-group"><label>Applicable Regions <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="e.g. NA, EU, APAC"></div>
+                        <div class="form-group"><label>Khu vực áp dụng <span style="font-weight:400;color:#9ca3af;">(comma-separated, e.g. NA, EU)</span></label><input type="text" name="applicableRegions"  value="${formData.applicableRegions}" placeholder="e.g. NA, EU, APAC"></div>
                         <div class="form-row">
-                            <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" 
+                            <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" 
                                                                                          value="${formData.warrantyMonths}" placeholder="e.g. 24" step="1" required=""></div>
                             <div class="form-group"><label>Version</label><input type="text" name="version" value="${formData.applicableRegions}" placeholder="e.g. v1.0" value="v1.0"></div>
                         </div>
-                        <div class="form-group"><label>Effective Date</label><input type="date" name="effectiveDate"  value="${formData.effectiveDate}"></div>
+                        <div class="form-group"><label>Ngày có hiệu lực</label><input type="date" name="effectiveDate"  value="${formData.effectiveDate}"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline" onclick="closeModal('createModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Policy</button>
+                        <button type="submit" class="btn btn-primary">Tạo chính sách</button>
                     </div>
                 </form>
             </div>
@@ -1027,7 +1100,7 @@
             <div class="modal-overlay" id="editModal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h2>Edit Policy</h2>
+                        <h2>Chỉnh sửa chính sách</h2>
                         <button class="modal-close" onclick="closeModal('editModal')">&#215;</button>
                     </div>
                     <form method="post" action="${pageContext.request.contextPath}/admin/policy">
@@ -1040,20 +1113,20 @@
                                     ${error}
                                 </div>
                             </c:if>
-                            <div class="form-group"><label>Policy Name *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\p{L}.*" title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
+                            <div class="form-group"><label>Tên chính sách *</label><input type="text" name="policyName" value="${selectedPolicy.policyName}" required pattern=".*\p{L}.*" title="Policy Name must contain at least one letter (cannot consist only of numbers or special characters)"></div>
                             <div class="form-group"><label>Description</label><textarea name="description" rows="2">${selectedPolicy.description}</textarea></div>
                             <div class="form-group">
-                                <label>Policy Content</label>
+                                <label>Nội dung chính sách</label>
                                 <input type="hidden" id="editPolicyContent" name="policyContent" value="${selectedPolicy.policyContent}">
                                 <div id="editQuillEditor" style="height: 200px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px;"></div>
                             </div>
-                            <div class="form-group"><label>Applicable Regions</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
+                            <div class="form-group"><label>Khu vực áp dụng</label><input type="text" name="applicableRegions" value="${selectedPolicy.applicableRegions}"></div>
                             <div class="form-row">
-                                <div class="form-group"><label>Warranty Months</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
+                                <div class="form-group"><label>Số tháng bảo hành</label><input type="number" name="warrantyMonths" min="1" value="${selectedPolicy.warrantyMonths}" step="1" required=""></div>
                                 <div class="form-group"><label>Version</label><input type="text" name="version" value="${selectedPolicy.version}"></div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group"><label>Effective Date</label><input type="date" name="effectiveDate" value="<fmt:formatDate value='${selectedPolicy.effectiveDate}' pattern='yyyy-MM-dd'/>"></div>
+                                <div class="form-group"><label>Ngày có hiệu lực</label><input type="date" name="effectiveDate" value="<fmt:formatDate value='${selectedPolicy.effectiveDate}' pattern='yyyy-MM-dd'/>"></div>
                                 <div class="form-group"><label>Status</label>
                                     <select name="status">
                                         <option value="DRAFT"     ${selectedPolicy.status eq 'DRAFT'     ? 'selected' : ''}>Draft</option>
@@ -1066,7 +1139,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                         </div>
                     </form>
                 </div>
@@ -1076,11 +1149,11 @@
         <!-- Modal: Delete Confirm -->
         <div class="modal-overlay" id="deleteModal">
             <div class="modal confirm-modal">
-                <div class="modal-header"><h2>Delete Policy</h2><button class="modal-close" onclick="closeModal('deleteModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Xóa chính sách</h2><button class="modal-close" onclick="closeModal('deleteModal')">&#215;</button></div>
                 <div class="modal-body">
                     <div class="confirm-icon">&#128465;&#65039;</div>
-                    <div class="confirm-msg">Are you sure you want to delete this policy?</div>
-                    <div class="confirm-sub">This action cannot be undone.</div>
+                    <div class="confirm-msg">Bạn có chắc chắn muốn xóa chính sách này?</div>
+                    <div class="confirm-sub">Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
@@ -1097,7 +1170,7 @@
         <!-- Modal: Version History -->
         <div class="modal-overlay" id="vhModal">
             <div class="modal" style="width:460px;">
-                <div class="modal-header"><h2>Version History</h2><button class="modal-close" onclick="closeModal('vhModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Lịch sử phiên bản</h2><button class="modal-close" onclick="closeModal('vhModal')">&#215;</button></div>
                 <div class="modal-body">
                     <c:choose>
                         <c:when test="${selectedPolicy == null}">
@@ -1144,7 +1217,7 @@
         <div class="modal-overlay" id="createGeneralModal">
             <div class="modal">
                 <div class="modal-header">
-                    <h2>Create New Footer Policy</h2>
+                    <h2>Tạo chính sách chân trang mới</h2>
                     <button class="modal-close" onclick="closeModal('createGeneralModal')">&#215;</button>
                 </div>
                 <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
@@ -1171,7 +1244,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline" onclick="closeModal('createGeneralModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Policy</button>
+                        <button type="submit" class="btn btn-primary">Tạo chính sách</button>
                     </div>
                 </form>
             </div>
@@ -1180,9 +1253,9 @@
         <!-- Modal: Delete General Policy Confirm -->
         <div class="modal-overlay" id="deleteGeneralModal">
             <div class="modal confirm-modal" style="max-width: 450px;">
-                <div class="modal-header"><h2>Delete Footer Policy</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
+                <div class="modal-header"><h2>Xóa chính sách chân trang</h2><button class="modal-close" onclick="closeModal('deleteGeneralModal')">&#215;</button></div>
                 <div class="modal-body">
-                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Are you sure you want to delete this footer policy? This action cannot be undone.</div>
+                    <div class="confirm-msg" style="margin-bottom:20px; font-size: 14px; color: #475569;">Bạn có chắc chắn muốn xóa chính sách chân trang này? Hành động này không thể hoàn tác.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeModal('deleteGeneralModal')">Cancel</button>
@@ -1200,7 +1273,7 @@
             <div class="modal-overlay" id="editGeneralModal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h2>Edit Footer Policy Content</h2>
+                        <h2>Sửa nội dung chính sách chân trang</h2>
                         <button class="modal-close" onclick="closeModal('editGeneralModal')">&#215;</button>
                     </div>
                     <form method="post" action="${pageContext.request.contextPath}/admin/general-policy">
@@ -1224,7 +1297,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline" onclick="closeModal('editGeneralModal')">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                         </div>
                     </form>
                 </div>
@@ -1417,7 +1490,21 @@
             </c:if>
             })();
         </script>
-    </body>
+    
+<script>
+            function toggleSidebarDropdown(btn) {
+                const container = btn.nextElementSibling;
+                const arrow = btn.querySelector('.dropdown-arrow');
+                if (container.style.display === 'flex') {
+                    container.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    container.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+</script>
+</body>
 </html>
 <!-- touch -->
 

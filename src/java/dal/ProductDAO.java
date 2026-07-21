@@ -447,7 +447,7 @@ public class ProductDAO extends DBContext {
     return 0;
 }
 
-    public ArrayList<Product> searchAllProducts(String keyword, String category, String sortBy, int page, int pageSize) {
+    public ArrayList<Product> searchAllProducts(String keyword, String category, String sortBy, String itemStatus, int page, int pageSize) {
         ArrayList<Product> data = new ArrayList<>();
         try {
             String order = (sortBy != null && sortBy.equals("lowToHigh")) ? "ASC" : "DESC";
@@ -456,12 +456,22 @@ public class ProductDAO extends DBContext {
                 orderClause = "ORDER BY min_price " + order;
             }
 
+            String statusFilter = "";
+            if ("hidden".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
+            } else if ("all".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
+            } else {
+                statusFilter = "v.status = 'active'";
+            }
+
             String sql = "SELECT " +
                          "    p.product_id, p.product_name, p.thumbnail, " +
                          "    b.brand_name, c.category_name, p.category_id, " +
                          "    MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
                          "    MIN(v.selling_price) AS original_price, " +
-                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
+                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent, " +
+                         "    CASE WHEN SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) > 0 THEN 0 ELSE 1 END AS is_hidden " +
                          "FROM Product p " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN Category c ON p.category_id = c.category_id " +
@@ -473,7 +483,7 @@ public class ProductDAO extends DBContext {
                          "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
                          "    GROUP BY fsi.variant_id " +
                          ") fs_active ON v.variant_id = fs_active.variant_id " +
-                         "WHERE v.status = 'active'";
+                         "WHERE " + statusFilter;
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -513,6 +523,7 @@ public class ProductDAO extends DBContext {
                 p.setMinPrice(rs.getLong("min_price"));
                 p.setOriginalPrice(rs.getLong("original_price"));
                 p.setDiscountPercent(rs.getInt("discount_percent"));
+                p.setHidden(rs.getInt("is_hidden") == 1);
                 data.add(p);
             }
         } catch (Exception e) {
@@ -521,14 +532,23 @@ public class ProductDAO extends DBContext {
         return data;
     }
 
-    public int countSearchAllProducts(String keyword, String category) {
+    public int countSearchAllProducts(String keyword, String category, String itemStatus) {
         try {
+            String statusFilter = "";
+            if ("hidden".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
+            } else if ("all".equalsIgnoreCase(itemStatus)) {
+                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
+            } else {
+                statusFilter = "v.status = 'active'";
+            }
+
             String sql = "SELECT COUNT(DISTINCT p.product_id) " +
                          "FROM Product p " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN Category c ON p.category_id = c.category_id " +
                          "JOIN ProductVariant v ON p.product_id = v.product_id " +
-                         "WHERE v.status = 'active'";
+                         "WHERE " + statusFilter;
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -595,7 +615,7 @@ public class ProductDAO extends DBContext {
  // Lß║Ñy th├┤ng tin chi tiß║┐t 1 sß║ún phß║⌐m theo product_id (cho trang chi tiß║┐t)
 public Product getProductById(int productId) {
     try {
-        String sql = "SELECT p.product_id, p.product_name, p.description, p.warranty_period, p.purpose, "
+        String sql = "SELECT p.product_id, p.product_name, p.description, p.warranty_period, p.purpose, p.series_id, "
                    + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name, "
                    + "spec.cpu, spec.ram, spec.ssd, spec.gpu, spec.screen, spec.connectivity, spec.switch_type, spec.dpi "
                    + "FROM Product p "
@@ -648,6 +668,7 @@ public Product getProductById(int productId) {
             p.setDescription(rs.getString("description"));
             p.setWarrantyPeriod(rs.getInt("warranty_period"));
             p.setPurpose(rs.getString("purpose"));
+            p.setSeriesId(rs.getInt("series_id"));
             p.setThumbnail(rs.getString("thumbnail"));
             p.setCategoryId(catId);
             p.setBrandId(rs.getInt("brand_id"));
@@ -793,7 +814,7 @@ public List<Product> GetAllProducts() {
     public Product getProductByVariantId(int variantId) {
         try {
             String sql = "select p.product_id, p.product_name, p.description, p.warranty_period, p.thumbnail, " +
-                         "p.category_id, p.brand_id, c.category_name, b.brand_name " +
+                         "p.category_id, p.brand_id, c.category_name, b.brand_name, p.purpose, p.series_id " +
                          "from Product p " +
                          "join ProductVariant pv on p.product_id = pv.product_id " +
                          "join Category c on p.category_id = c.category_id " +
@@ -813,6 +834,8 @@ public List<Product> GetAllProducts() {
                         rs.getInt("brand_id"));
                 p.setCategoryName(rs.getString("category_name"));
                 p.setBrandName(rs.getString("brand_name"));
+                p.setPurpose(rs.getString("purpose"));
+                p.setSeriesId(rs.getInt("series_id"));
                 return p;
             }
         } catch (Exception e) {
@@ -1118,9 +1141,7 @@ public List<Product> GetAllProducts() {
 
             if (stockStatus != null && !stockStatus.trim().isEmpty() && !stockStatus.equals("all")) {
                 if (stockStatus.equals("inStock")) {
-                    sql += " AND i.available_quantity > 5";
-                } else if (stockStatus.equals("lowStock")) {
-                    sql += " AND i.available_quantity > 0 AND i.available_quantity <= 5";
+                    sql += " AND i.available_quantity > 0";
                 } else if (stockStatus.equals("outOfStock")) {
                     sql += " AND i.available_quantity = 0";
                 }
@@ -1175,8 +1196,7 @@ public List<Product> GetAllProducts() {
             String sql = "SELECT pv.variant_id, p.product_name, pv.sku, pv.variant_name, " +
                          "b.brand_name, c.category_name, pv.selling_price, i.available_quantity, " +
                          "CASE " +
-                         "  WHEN i.available_quantity > 5  THEN N'In Stock' " +
-                         "  WHEN i.available_quantity > 0  THEN N'Low Stock' " +
+                         "  WHEN i.available_quantity > 0  THEN N'In Stock' " +
                          "  ELSE N'Sold Out' " +
                          "END AS status, p.thumbnail, pv.status as variant_status " +
                          "FROM Product p " +
@@ -1200,9 +1220,7 @@ public List<Product> GetAllProducts() {
 
             if (stockStatus != null && !stockStatus.trim().isEmpty() && !stockStatus.equals("all")) {
                 if (stockStatus.equals("inStock")) {
-                    sql += " AND i.available_quantity > 5";
-                } else if (stockStatus.equals("lowStock")) {
-                    sql += " AND i.available_quantity > 0 AND i.available_quantity <= 5";
+                    sql += " AND i.available_quantity > 0";
                 } else if (stockStatus.equals("outOfStock")) {
                     sql += " AND i.available_quantity = 0";
                 }
@@ -1267,8 +1285,8 @@ public List<Product> GetAllProducts() {
     public int insertProduct(Product p) {
         int productId = -1;
         try {
-            String sql = "INSERT INTO Product (product_name, description, warranty_period, thumbnail, category_id, brand_id) " +
-                         "VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Product (product_name, description, warranty_period, thumbnail, category_id, brand_id, purpose, series_id) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, p.getProductName());
             ps.setString(2, p.getDescription());
@@ -1276,6 +1294,12 @@ public List<Product> GetAllProducts() {
             ps.setString(4, p.getThumbnail());
             ps.setInt(5, p.getCategoryId());
             ps.setInt(6, p.getBrandId());
+            ps.setString(7, p.getPurpose());
+            if (p.getSeriesId() > 0) {
+                ps.setInt(8, p.getSeriesId());
+            } else {
+                ps.setNull(8, java.sql.Types.INTEGER);
+            }
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -1368,6 +1392,33 @@ public List<Product> GetAllProducts() {
     }
     
     /*
+     * Name: updateProduct
+     * @Author: HUYDQHE204239
+     * Description: Cap nhat thong tin co ban cua san pham (Product) bao gom ca thoi gian bao hanh.
+     */
+    public void updateProduct(int productId, String productName, int categoryId, int brandId, String description, int warrantyPeriod, String purpose, int seriesId) {
+        try {
+            String sql = "UPDATE Product SET product_name = ?, category_id = ?, brand_id = ?, description = ?, warranty_period = ?, purpose = ?, series_id = ? WHERE product_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, productName);
+            ps.setInt(2, categoryId);
+            ps.setInt(3, brandId);
+            ps.setString(4, description);
+            ps.setInt(5, warrantyPeriod);
+            ps.setString(6, purpose);
+            if (seriesId > 0) {
+                ps.setInt(7, seriesId);
+            } else {
+                ps.setNull(7, java.sql.Types.INTEGER);
+            }
+            ps.setInt(8, productId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Update Product Error: " + e.getMessage());
+        }
+    }
+
+    /*
      * Name: updateProductVariant
      * @Author: HUYDQHE204239
      * Date: [04/06/2026]
@@ -1431,6 +1482,28 @@ public List<Product> GetAllProducts() {
         }
     }
 
+    public void hideProductGroup(int product_id) {
+        try {
+            String strSQL = "UPDATE ProductVariant SET status = 'inactive' WHERE product_id = ?";
+            ps = cnn.prepareStatement(strSQL);
+            ps.setInt(1, product_id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("hideProductGroup Error: " + e.getMessage());
+        }
+    }
+
+    public void unhideProductGroup(int product_id) {
+        try {
+            String strSQL = "UPDATE ProductVariant SET status = 'active' WHERE product_id = ?";
+            ps = cnn.prepareStatement(strSQL);
+            ps.setInt(1, product_id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("unhideProductGroup Error: " + e.getMessage());
+        }
+    }
+
     public ProductCompareDTO getProductCompareDetail(int productId) {
         ProductCompareDTO p = null;
         try {
@@ -1490,6 +1563,22 @@ public List<Product> GetAllProducts() {
             }
         } catch (Exception e) {
             System.out.println("isSkuExist: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isSkuExist(String sku, int excludeVariantId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM ProductVariant WHERE sku = ? AND variant_id != ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, sku.trim());
+            ps.setInt(2, excludeVariantId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            System.out.println("isSkuExist with excludeVariantId: " + e.getMessage());
         }
         return false;
     }
