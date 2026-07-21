@@ -21,6 +21,39 @@
     let redirectTimer = null;
     let redirectInterval = null;
 
+    let isAiResponding = false;
+
+    function toggleChatInputs(disabled) {
+        if (widgetInput) {
+            widgetInput.disabled = disabled;
+            if (disabled) widgetInput.placeholder = "Vui lòng chờ AI phản hồi...";
+            else widgetInput.placeholder = "Hỏi UniLap AI về sản phẩm...";
+        }
+        if (widgetSendBtn) {
+            widgetSendBtn.disabled = disabled;
+            widgetSendBtn.style.opacity = disabled ? '0.5' : '1';
+            widgetSendBtn.style.pointerEvents = disabled ? 'none' : 'auto';
+        }
+        if (fullTextarea) {
+            fullTextarea.disabled = disabled;
+            if (disabled) fullTextarea.placeholder = "Vui lòng chờ AI phản hồi...";
+            else fullTextarea.placeholder = "Nhập tin nhắn tại đây...";
+        }
+        if (fullSendBtn) {
+            fullSendBtn.disabled = disabled;
+            fullSendBtn.style.opacity = disabled ? '0.5' : '1';
+            fullSendBtn.style.pointerEvents = disabled ? 'none' : 'auto';
+        }
+    }
+
+    function refocusActiveInput(source) {
+        if (source === 'widget' && widgetInput) {
+            widgetInput.focus();
+        } else if (source === 'full' && fullTextarea) {
+            fullTextarea.focus();
+        }
+    }
+
     // DOM Elements - Widget (home.jsp)
     let widgetToggle, widgetContainer, widgetInput, widgetSendBtn, widgetMessages, widgetCloseBtn, widgetExpandBtn;
 
@@ -196,7 +229,10 @@
      * Handle validation and initiate sending flow
      */
     function handleSendMessage(text, source) {
-        if (!text) return;
+        if (!text || isAiResponding) return;
+        
+        isAiResponding = true;
+        toggleChatInputs(true);
 
         // Clear active input source
         if (source === 'widget' && widgetInput) {
@@ -247,6 +283,11 @@
                 const aiAnswer = data.answer || "Không nhận được phản hồi từ AI.";
                 const products = data.products || [];
                 saveAndAppendMessage('ai', aiAnswer, products);
+                
+                isAiResponding = false;
+                toggleChatInputs(false);
+                refocusActiveInput(source);
+
                 if (products && products.length > 0) {
                     handleAutoRedirect(products);
                 }
@@ -254,6 +295,8 @@
             .catch(error => {
                 if (error.message === "Unauthorized" || error.message === "Forbidden") {
                     removeTypingIndicator(typingEl);
+                    isAiResponding = false;
+                    toggleChatInputs(false);
                     return;
                 }
                 console.warn("Servlet call failed, attempting direct FastAPI connection...", error);
@@ -282,6 +325,11 @@
                         const aiAnswer = data.answer || "Không nhận được phản hồi từ AI.";
                         const products = data.products || [];
                         saveAndAppendMessage('ai', aiAnswer, products);
+                        
+                        isAiResponding = false;
+                        toggleChatInputs(false);
+                        refocusActiveInput(source);
+
                         if (products && products.length > 0) {
                             handleAutoRedirect(products);
                         }
@@ -290,6 +338,10 @@
                         console.error("Direct connection also failed:", fallbackError);
                         removeTypingIndicator(typingEl);
                         saveAndAppendMessage('ai', "Hệ thống AI hiện tại đang gặp sự cố kết nối. Vui lòng kiểm tra lại FastAPI Server tại localhost:8000!");
+                        
+                        isAiResponding = false;
+                        toggleChatInputs(false);
+                        refocusActiveInput(source);
                     });
             });
     }

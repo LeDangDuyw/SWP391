@@ -1,17 +1,30 @@
 package model;
+/**
+ * Class: WarrantyClaim
+ * Description: Model thông tin chi tiết một phiếu yêu cầu bảo hành (Warranty Claim).
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
+
+/**
+ * Class: WarrantyClaim
+ * Description: Model thông tin chi tiết một phiếu yêu cầu bảo hành (Warranty Claim).
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
 
 import java.sql.Timestamp;
 
-/**
- * WarrantyClaim represents a customer's warranty claim for a purchased product.
- *
- * Maps to the WarrantyClaims table in the database.
- *
- * Possible statuses: PENDING, PROCESSING, APPROVED, REJECTED, COMPLETED,
- * CANCELLED
- *
- * Version 1.0 Author DuyLD
- */
+
 public class WarrantyClaim {
 
     private int claimId;
@@ -64,110 +77,191 @@ public class WarrantyClaim {
         return claimId;
     }
 
+    /**
+     * Phuong thuc setClaimId
+     */
     public void setClaimId(int claimId) {
         this.claimId = claimId;
     }
 
+    /**
+     * Phuong thuc getOrderId
+     */
     public int getOrderId() {
         return orderId;
     }
 
+    /**
+     * Phuong thuc setOrderId
+     */
     public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
 
+    /**
+     * Phuong thuc getOrderDetailId
+     */
     public int getOrderDetailId() {
         return orderDetailId;
     }
 
+    /**
+     * Phuong thuc setOrderDetailId
+     */
     public void setOrderDetailId(int orderDetailId) {
         this.orderDetailId = orderDetailId;
     }
 
+    /**
+     * Phuong thuc getCustomerId
+     */
     public int getCustomerId() {
         return customerId;
     }
 
+    /**
+     * Phuong thuc setCustomerId
+     */
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 
+    /**
+     * Phuong thuc getStaffId
+     */
     public Integer getStaffId() {
         return staffId;
     }
 
+    /**
+     * Phuong thuc setStaffId
+     */
     public void setStaffId(Integer staffId) {
         this.staffId = staffId;
     }
 
+    /**
+     * Phuong thuc getSerialNumber
+     */
     public String getSerialNumber() {
         return serialNumber;
     }
 
+    /**
+     * Phuong thuc setSerialNumber
+     */
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
 
+    /**
+     * Phuong thuc getTitle
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Phuong thuc setTitle
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     * Phuong thuc getDescription
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Phuong thuc setDescription
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     * Phuong thuc getStatus
+     */
     public String getStatus() {
         return status;
     }
 
+    /**
+     * Phuong thuc setStatus
+     */
     public void setStatus(String status) {
         this.status = status;
     }
 
+    /**
+     * Phuong thuc getCreatedAt
+     */
     public Timestamp getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Phuong thuc setCreatedAt
+     */
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Phuong thuc getUpdatedAt
+     */
     public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     * Phuong thuc setUpdatedAt
+     */
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * Phuong thuc getCompletedAt
+     */
     public Timestamp getCompletedAt() {
         return completedAt;
     }
 
+    /**
+     * Phuong thuc setCompletedAt
+     */
     public void setCompletedAt(Timestamp completedAt) {
         this.completedAt = completedAt;
     }
 
+    /**
+     * Phuong thuc getCustomerName
+     */
     public String getCustomerName() {
         return customerName;
     }
 
+    /**
+     * Phuong thuc setCustomerName
+     */
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
 
+    /**
+     * Phuong thuc getProductName
+     */
     public String getProductName() {
         return productName;
     }
 
+    /**
+     * Phuong thuc setProductName
+     */
     public void setProductName(String productName) {
         this.productName = productName;
     }

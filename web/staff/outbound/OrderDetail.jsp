@@ -64,14 +64,23 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
+<<<<<<< HEAD
             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+=======
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+>>>>>>> origin/main3
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
@@ -81,9 +90,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -249,6 +258,7 @@
                                 <span class="text-on-surface-variant block text-[12px]">Số điện thoại</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingPhone}</strong>
                             </li>
+                            <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                             <li>
                                 <span class="text-on-surface-variant block text-[12px]">Địa chỉ giao nhận</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingAddress}</strong>
@@ -257,10 +267,12 @@
                                 <span class="text-on-surface-variant block text-[12px]">Ghi chú giao hàng</span>
                                 <strong class="text-on-surface text-[14px]">-</strong>
                             </li>
+                            </c:if>
                         </ul>
                     </div>
 
                     <!-- Shipping & Waybill Info -->
+                    <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
                         <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
                             <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
@@ -299,6 +311,8 @@
                             </c:choose>
                         </div>
                     </div>
+                    </c:if>
+
 
                     <!-- Payment Summary -->
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">

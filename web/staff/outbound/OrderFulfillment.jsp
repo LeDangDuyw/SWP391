@@ -1,3 +1,10 @@
+<%-- 
+ * Name: OrderFulfillment.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện chuẩn bị và xuất kho đơn hàng dành cho nhân viên (Staff Order Fulfillment and Outbound Processing)
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>

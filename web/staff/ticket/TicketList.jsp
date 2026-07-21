@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Staff - Inbound Ticket List</title>
+    <title>UNILAP Staff - Danh sách Phiếu Nhập Kho</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -117,8 +117,9 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
+<<<<<<< HEAD
             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
@@ -130,6 +131,17 @@
 <%--
             <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Student Verify</a>
 --%>
+=======
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác minh sinh viên</a>
+>>>>>>> origin/main3
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -142,9 +154,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -172,13 +184,13 @@
             <!-- Page Header -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Inbound Tickets</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Manage inbound request tickets list.</p>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Phiếu nhập kho</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Quản lý danh sách các phiếu yêu cầu nhập kho.</p>
                 </div>
                 <div class="flex gap-3">
                     <a href="${pageContext.request.contextPath}/staff/ticket/create"
                        class="px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
-                        <span class="material-symbols-outlined text-[20px]">add</span> Create New Ticket
+                        <span class="material-symbols-outlined text-[20px]">add</span> Tạo phiếu nhập mới
                     </a>
                 </div>
             </div>
@@ -187,13 +199,13 @@
             <c:if test="${not empty param.success}">
                 <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-[#E6F4EA] border border-[#CEEAD6] rounded-xl text-[#137333] font-label-md text-label-md">
                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                    Operation successful!
+                    Thao tác thành công!
                 </div>
             </c:if>
             <c:if test="${not empty param.error}">
                 <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-error-container border border-error-container rounded-xl text-on-error-container font-label-md text-label-md">
                     <span class="material-symbols-outlined text-[20px]">error</span>
-                    An error occurred: ${param.error}
+                    Đã xảy ra lỗi: ${param.error}
                 </div>
             </c:if>
 
@@ -207,10 +219,10 @@
                                     <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                 </th>
                                 <th class="py-3 px-4 border-b border-outline-variant/20 w-20">ID</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Title</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-48">Status</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-44">Created At</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-40">Action</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20">Tiêu đề</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 w-48">Trạng thái</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 w-44">Ngày tạo</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-40">Hành động</th>
                             </tr>
                         </thead>
                         <tbody class="font-body-sm text-body-sm">
@@ -228,30 +240,30 @@
                                             <c:when test="${t.status == 'COMPLETED'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#E6F4EA] text-[#137333] text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                                    ${t.status}
+                                                    Đã hoàn thành
                                                 </span>
                                             </c:when>
                                             <c:when test="${t.status == 'CANCELLED'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-error-container text-on-error-container text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">cancel</span>
-                                                    ${t.status}
+                                                    Đã hủy
                                                 </span>
                                             </c:when>
                                             <c:when test="${t.status == 'PENDING_APPROVAL'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FEF7E0] text-[#B06000] text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">schedule</span>
-                                                    ${t.status}
+                                                    Chờ phê duyệt
                                                 </span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">info</span>
-                                                    ${t.status}
+                                                    ${t.status == 'APPROVED' ? 'Đã duyệt' : (t.status == 'REJECTED' ? 'Bị từ chối' : t.status)}
                                                 </span>
                                             </c:otherwise>
                                         </c:choose>
                                         <c:if test="${not empty t.reason}">
-                                            <div class="text-on-surface-variant text-[12px] mt-1">Reason: ${t.reason}</div>
+                                            <div class="text-on-surface-variant text-[12px] mt-1">Lý do: ${t.reason}</div>
                                         </c:if>
                                     </td>
                                     <td class="py-2 px-4 text-on-surface-variant">${t.createdAt}</td>
@@ -259,7 +271,7 @@
                                         <a class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors font-label-md text-[12px]"
                                            href="${pageContext.request.contextPath}/staff/ticket/workflow?id=${t.ticketId}">
                                             <span class="material-symbols-outlined text-[16px]">visibility</span>
-                                            Details
+                                            Chi tiết
                                         </a>
                                     </td>
                                 </tr>
@@ -270,7 +282,7 @@
                                     <td class="py-8 px-4 text-center text-on-surface-variant font-body-sm text-body-sm" colspan="6">
                                         <div class="flex flex-col items-center gap-2">
                                             <span class="material-symbols-outlined text-[40px] text-outline-variant">inbox</span>
-                                            No inbound tickets found.
+                                            Không tìm thấy phiếu nhập kho nào.
                                         </div>
                                     </td>
                                 </tr>

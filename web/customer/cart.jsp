@@ -1,17 +1,15 @@
+<%-- 
+ * Name: cart.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện giỏ hàng của người dùng (Shopping Cart)
+ --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%
-    if (request.getAttribute("footerPages") == null) {
-        try {
-            dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-            java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-            request.setAttribute("footerPages", footerPagesList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     if (request.getAttribute("categories") == null) {
         try {
             dal.CategoryDAO catDAO = new dal.CategoryDAO();
@@ -297,6 +295,7 @@
         if (vouchersListEl) {
             vouchersListEl.addEventListener('click', function (e) {
                 const btn = e.target.closest('.btn-use-voucher-indicator');
+                const activeIndicator = e.target.closest('.promo-select-indicator');
                 const item = e.target.closest('.voucher-item');
                 
                 if (btn) {
@@ -304,8 +303,16 @@
                     e.stopPropagation();
                     const code = btn.dataset.code;
                     applyCoupon(code);
+                } else if (activeIndicator) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    applyCoupon(""); // Bỏ chọn
                 } else if (item) {
-                    if (!item.classList.contains('used') && !item.classList.contains('unavailable') && !item.classList.contains('active')) {
+                    if (item.classList.contains('active')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        applyCoupon(""); // Bỏ chọn khi click vào voucher đang hoạt động
+                    } else if (!item.classList.contains('used') && !item.classList.contains('unavailable')) {
                         e.preventDefault();
                         e.stopPropagation();
                         const code = item.dataset.code;
@@ -505,8 +512,13 @@
                                     <button type="button" class="qty-btn btn-qty-plus" data-variant-id="${item.variantId}" ${item.quantity >= item.availableQuantity ? 'disabled' : ''}>+</button>
                                 </form>
                                 <!-- Price -->
-                                <div class="cart-card-price-block">
-                                    <span class="cart-card-price" data-variant-id="${item.variantId}"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                <div class="cart-card-price-block" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                    <span class="cart-card-price" data-variant-id="${item.variantId}" style="font-weight: 700; color: #ef4444;"><fmt:formatNumber value="${item.subtotal}" pattern="#,##0"/>₫</span>
+                                    <c:if test="${not empty item.originalPrice && item.unitPrice < item.originalPrice}">
+                                        <span class="cart-card-original-price" data-variant-id="${item.variantId}" data-original-unit-price="${item.originalPrice}" style="text-decoration: line-through; color: #94a3b8; font-size: 13px;">
+                                            <fmt:formatNumber value="${item.originalPrice * item.quantity}" pattern="#,##0"/>₫
+                                        </span>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -591,44 +603,7 @@
 </main>
 
 <!-- ===== FOOTER ===== -->
-<footer class="footer">
-    <div class="container footer-grid">
-        <!-- Column 1: Brand & Contact -->
-        <div class="footer-col">
-            <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-            <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-            <div class="footer-contact-info">
-                <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
-                <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-            </div>
-            <div class="social-icons">
-                <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
-                <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
-            </div>
-        </div>
-        
-        <div class="footer-col">
-            <h3>Chính sách & Hỗ trợ</h3>
-            <ul>
-                <c:if test="${not empty footerPages}">
-                    <c:forEach items="${footerPages}" var="pageItem">
-                        <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                    </c:forEach>
-                </c:if>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="footer-bottom">
-        <div class="container footer-bottom-container">
-            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-            <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     // User dropdown toggle
@@ -682,41 +657,43 @@
                 </c:if>
 
                 <div class="vouchers-list" id="vouchers-list">
-                    <!-- Sẽ được JS render động khi thay đổi số lượng, ở đây là render ban đầu của JSTL -->
-                    <c:forEach items="${userVouchers}" var="v">
-                        <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
-                             data-code="${v.voucherCode}">
-                            <div class="voucher-left">
-                                <div class="v-code">${v.voucherCode}</div>
-                                <div class="v-discount">
-                                    Giảm <fmt:formatNumber value="${v.discountValue}" pattern="#,##0"/>${v.discountValue <= 100 ? '%' : '₫'}
-                                </div>
-                                <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
-                                <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
-                                    ${v.statusMessage}
-                                </div>
-                            </div>
-                            <div class="voucher-right">
-                                <c:choose>
-                                    <c:when test="${v.voucherCode == couponCode}">
-                                        <div class="promo-select-indicator active">
-                                            <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
-                                        </div>
-                                    </c:when>
-                                    <c:when test="${v.used || !v.available}">
-                                        <div class="promo-select-indicator disabled">
-                                            <i class="fas fa-plus-circle" style="color: #cbd5e1; font-size: 20px; cursor: not-allowed;"></i>
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
-                                            <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
-                                        </button>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </div>
-                    </c:forEach>
+                     <c:forEach items="${userVouchers}" var="v">
+                         <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
+                              data-code="${v.voucherCode}">
+                             <div class="voucher-left">
+                                 <div class="v-code">${v.voucherCode}</div>
+                                 <div class="v-discount">
+                                     Giảm <fmt:formatNumber value="${v.discountValue}" pattern="#,##0"/>${v.discountValue <= 100 ? '%' : '₫'}
+                                 </div>
+                                 <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
+                                 <c:if test="${not empty v.description}">
+                                     <div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">
+                                         ${v.description}
+                                     </div>
+                                 </c:if>
+                                 <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
+                                     ${v.statusMessage}
+                                 </div>
+                             </div>
+                             <div class="voucher-right">
+                                 <c:choose>
+                                     <c:when test="${v.voucherCode == couponCode}">
+                                         <div class="promo-select-indicator active">
+                                             <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                                         </div>
+                                     </c:when>
+                                     <c:when test="${v.used || !v.available}">
+                                         <!-- Ẩn hoàn toàn nút + -->
+                                     </c:when>
+                                     <c:otherwise>
+                                         <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                                             <i class="fas fa-plus-circle" style="color: #94a3b8; font-size: 20px; transition: color 0.2s;"></i>
+                                         </button>
+                                     </c:otherwise>
+                                 </c:choose>
+                             </div>
+                         </div>
+                     </c:forEach>
                     <c:if test="${empty userVouchers}">
                         <p style="font-size: 12.5px; color: #64748b; font-style: italic; text-align: center; margin: 15px 0;">Bạn không sở hữu mã giảm giá nào.</p>
                     </c:if>

@@ -6,9 +6,12 @@ package model;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author ASUS
+/*
+ * Name: CartItem
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Model đại diện cho một sản phẩm trong giỏ hàng (Cart Item)
  */
 public class CartItem {
     private int variantId;
@@ -19,6 +22,7 @@ public class CartItem {
     private BigDecimal unitPrice;
     private int quantity;
     private int availableQuantity;   // tồn kho, để chặn vượt quá
+    private BigDecimal originalPrice;
 
     public CartItem() {
     }
@@ -112,5 +116,13 @@ public class CartItem {
 
     public void setWarrantyPeriod(int warrantyPeriod) {
         this.warrantyPeriod = warrantyPeriod;
+    }
+
+    public BigDecimal getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(BigDecimal originalPrice) {
+        this.originalPrice = originalPrice;
     }
 }

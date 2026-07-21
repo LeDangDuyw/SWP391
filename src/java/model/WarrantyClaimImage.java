@@ -1,19 +1,30 @@
 package model;
+/**
+ * Class: WarrantyClaimImage
+ * Description: Model ảnh đính kèm phiếu bảo hành.
+ * 
+ * Created: 2026-06-26 00:12:55 +0700
+ * Updated: 2026-06-26 00:12:55 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
+
+/**
+ * Class: WarrantyClaimImage
+ * Description: Model ảnh đính kèm phiếu bảo hành.
+ * 
+ * Created: 2026-06-26 00:12:55 +0700
+ * Updated: 2026-06-26 00:12:55 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
 
 import java.sql.Timestamp;
 
-/**
- * WarrantyClaimImage represents a single image attached to a WarrantyClaim.
- *
- * Maps to the WarrantyClaimImages table.
- *
- * Quan hệ: WarrantyClaims (1) - (N) WarrantyClaimImages
- *
- * Columns: image_id, claim_id, image_url, uploaded_at
- *
- * Version 1.0
- * Author DuyLD
- */
+
 public class WarrantyClaimImage {
 
     private int imageId;
@@ -48,14 +59,35 @@ public class WarrantyClaimImage {
     // ── Getters & Setters ────────────────────────────────────────────────────
 
     public int getImageId() { return imageId; }
+    /**
+     * Phuong thuc setImageId
+     */
     public void setImageId(int imageId) { this.imageId = imageId; }
 
+    /**
+     * Phuong thuc getClaimId
+     */
     public int getClaimId() { return claimId; }
+    /**
+     * Phuong thuc setClaimId
+     */
     public void setClaimId(int claimId) { this.claimId = claimId; }
 
+    /**
+     * Phuong thuc getImageUrl
+     */
     public String getImageUrl() { return imageUrl; }
+    /**
+     * Phuong thuc setImageUrl
+     */
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
+    /**
+     * Phuong thuc getUploadedAt
+     */
     public Timestamp getUploadedAt() { return uploadedAt; }
+    /**
+     * Phuong thuc setUploadedAt
+     */
     public void setUploadedAt(Timestamp uploadedAt) { this.uploadedAt = uploadedAt; }
 }

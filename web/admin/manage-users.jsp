@@ -564,7 +564,26 @@
                 background: #092da3;
             }
         </style>
-    </head>
+    
+<style>
+            /* Sidebar dropdown style */
+            .sidebar-dropdown {
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-dropdown-container {
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 4px;
+            }
+            .sidebar nav .sidebar-dropdown-container a {
+                padding: 8px 14px 8px 30px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+            }
+</style>
+</head>
     <body>
         <div class="layout">
 
@@ -573,13 +592,30 @@
                 <div class="brand"><span>UNILAP Admin</span><small>System Controller</small></div>
                 <nav>
                     <a href="${pageContext.request.contextPath}/admin/dashboard"><span>▦</span>Dashboard</a>
-                    <a href="#"><span>▣</span>Orders</a>
                     <a class="active" href="${pageContext.request.contextPath}/admin/users"><span>♚</span>Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/promotions"><span>▥</span>Analytics</a>
+                    
+                    <div class="sidebar-dropdown">
+                        <a href="javascript:void(0)" class="sidebar-dropdown-btn" onclick="toggleSidebarDropdown(this)" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Analytics</span>
+                            <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(0deg);">▼</span>
+                        </a>
+                        <div class="sidebar-dropdown-container" style="display: none; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <a href="${pageContext.request.contextPath}/admin/promotions">
+                                <span>▥</span>Voucher & Promotion
+                            </a>
+                            <a href="${pageContext.request.contextPath}/admin/analytics">
+                                <span>📈</span>Advanced Analytics
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a href="${pageContext.request.contextPath}/admin/policy"><span>📜</span>Policies</a>
                     <a href="${pageContext.request.contextPath}/admin/reviews"><span>★</span>Manage Reviews</a>
                     <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
                     <a href="${pageContext.request.contextPath}/admin/ticket/list"><span>🎫</span>Ticket Review</a>
+                    <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-feedback"><span>💬</span>Chatbot Feedback</a>
+                    <a href="${pageContext.request.contextPath}/admin/chatbot-security"><span>🛡</span>Chatbot Security</a>
                     <a href="#"><span>⚙</span>Settings</a>
                 </nav>
                 <div class="profile">
@@ -638,17 +674,17 @@
                             
                             <select name="role" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
                                 <option value="">Tất cả vai trò</option>
-                                <option value="1" ${selectedRole == '1' ? 'selected' : ''}>Admin</option>
-                                <option value="2" ${selectedRole == '2' ? 'selected' : ''}>Staff</option>
-                                <option value="3" ${selectedRole == '3' ? 'selected' : ''}>Customer</option>
+                                <option value="1" ${selectedRole == '1' ? 'selected' : ''}>Quản trị viên</option>
+                                <option value="2" ${selectedRole == '2' ? 'selected' : ''}>Nhân viên</option>
+                                <option value="3" ${selectedRole == '3' ? 'selected' : ''}>Khách hàng</option>
                                 <option value="4" ${selectedRole == '4' ? 'selected' : ''}>Student</option>
                                 <option value="5" ${selectedRole == '5' ? 'selected' : ''}>B2B</option>
                             </select>
 
                             <select name="status" class="role-select" style="padding: 10px 16px; font-size: 14px;" onchange="this.form.submit()">
                                 <option value="">Tất cả trạng thái</option>
-                                <option value="active" ${selectedStatus == 'active' ? 'selected' : ''}>Active</option>
-                                <option value="inactive" ${selectedStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
+                                <option value="active" ${selectedStatus == 'active' ? 'selected' : ''}>Hoạt động</option>
+                                <option value="inactive" ${selectedStatus == 'inactive' ? 'selected' : ''}>Bị khóa</option>
                             </select>
 
                             <button type="submit" class="search-btn">Tìm kiếm</button>
@@ -672,12 +708,12 @@
                             <thead>
                                 <tr>
                                     <th>User ID</th>
-                                    <th>Full Name</th>
+                                    <th>Họ tên</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -700,9 +736,9 @@
                                                             data-current="${u.roleId}"
                                                             onchange="submitRoleAction(${u.userId}, '${u.email}', this)"
                                                             <c:if test="${u.userId == sessionScope.user.userId}">disabled</c:if>>
-                                                        <option value="1" ${u.roleId == 1 ? 'selected' : ''}>Admin</option>
-                                                        <option value="2" ${u.roleId == 2 ? 'selected' : ''}>Staff</option>
-                                                        <option value="3" ${u.roleId == 3 ? 'selected' : ''}>Customer</option>
+                                                        <option value="1" ${u.roleId == 1 ? 'selected' : ''}>Quản trị viên</option>
+                                                        <option value="2" ${u.roleId == 2 ? 'selected' : ''}>Nhân viên</option>
+                                                        <option value="3" ${u.roleId == 3 ? 'selected' : ''}>Khách hàng</option>
                                                         <option value="4" ${u.roleId == 4 ? 'selected' : ''}>Student</option>
                                                         <option value="5" ${u.roleId == 5 ? 'selected' : ''}>B2B</option>
                                                     </select>
@@ -824,7 +860,7 @@
                     </div>
                     <div class="modal-detail-grid">
                         <div class="modal-detail-item">
-                            <span class="modal-detail-label">User ID</span>
+                            <span class="modal-detail-label">ID người dùng</span>
                             <span class="modal-detail-value" id="modalUserId"></span>
                         </div>
                         <div class="modal-detail-item">
@@ -1135,6 +1171,20 @@
                 }
             });
         </script>
-    </body>
+    
+<script>
+            function toggleSidebarDropdown(btn) {
+                const container = btn.nextElementSibling;
+                const arrow = btn.querySelector('.dropdown-arrow');
+                if (container.style.display === 'flex') {
+                    container.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    container.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
+</script>
+</body>
 </html>
 

@@ -1,3 +1,10 @@
+<%-- 
+ * Name: OrderDetail.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện hiển thị chi tiết đơn hàng dành cho nhân viên (Staff Order Detail View)
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -66,6 +73,7 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
         <nav>
+<<<<<<< HEAD
             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
@@ -74,6 +82,16 @@
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+=======
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+>>>>>>> origin/main3
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -311,6 +329,7 @@
                                 <span class="text-on-surface-variant block text-[12px]">Số điện thoại</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingPhone}</strong>
                             </li>
+                            <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                             <li>
                                 <span class="text-on-surface-variant block text-[12px]">Địa chỉ giao nhận</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingAddress}</strong>
@@ -319,10 +338,12 @@
                                 <span class="text-on-surface-variant block text-[12px]">Ghi chú giao hàng</span>
                                 <strong class="text-on-surface text-[14px]">-</strong>
                             </li>
+                            </c:if>
                         </ul>
                     </div>
 
                     <!-- Shipping & Waybill Info -->
+                    <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
                         <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
                             <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
@@ -361,6 +382,8 @@
                             </c:choose>
                         </div>
                     </div>
+                    </c:if>
+
 
                     <!-- Invoice Summary Card -->
                     <c:if test="${not empty order.invoicePath}">

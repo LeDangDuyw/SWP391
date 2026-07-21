@@ -1,17 +1,15 @@
+<%-- 
+ * Name: checkout.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện thanh toán và đặt hàng cho khách hàng (Checkout)
+ --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%
-    if (request.getAttribute("footerPages") == null) {
-        try {
-            dal.PageContentDAO pgDAO = new dal.PageContentDAO();
-            java.util.ArrayList<model.PageContent> footerPagesList = pgDAO.getAllActivePages();
-            request.setAttribute("footerPages", footerPagesList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     if (request.getAttribute("categories") == null) {
         try {
             dal.CategoryDAO catDAO = new dal.CategoryDAO();
@@ -218,7 +216,7 @@
                     </div>
                 </div>
 
-                <div class="checkout-card">
+                <div class="checkout-card" id="payment-method-card">
                     <h2 class="card-title"><i class="fas fa-credit-card"></i> Phương thức thanh toán</h2>
                     
                     <div class="payment-selector">
@@ -265,15 +263,7 @@
                         </c:forEach>
                     </div>
 
-                    <!-- Coupon Code Input -->
-                    <div class="coupon-section" style="margin: 20px 0; padding-top: 15px; border-top: 1px solid #f1f5f9;">
-                        <h3 style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;"><i class="fas fa-ticket" style="margin-right: 4px; color: #2563eb;"></i> Mã ưu đãi / Mã giảm giá</h3>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="couponCodeInput" class="form-control" placeholder="Nhập mã ưu đãi (VD: UNILAP10)" style="margin: 0; padding: 8px 12px; font-size: 13px; text-transform: uppercase;" value="${sessionScope.couponCode}">
-                            <button type="button" id="btnApplyCoupon" class="btn-submit-order" style="margin: 0; width: auto; font-size: 13px; padding: 0 16px; white-space: nowrap;">Áp dụng</button>
-                        </div>
-                        <div id="couponMessageLabel" style="font-size: 12px; margin-top: 6px; font-weight: 500; display: none;"></div>
-                    </div>
+
 
                     <!-- Cost Summary lines -->
                     <div class="summary-totals">
@@ -318,44 +308,7 @@
 </main>
 
 <!-- ===== FOOTER ===== -->
-<footer class="footer">
-    <div class="container footer-grid">
-        <!-- Column 1: Brand & Contact -->
-        <div class="footer-col">
-            <a href="${pageContext.request.contextPath}/HomeServlet" class="logo footer-logo">UniLap</a>
-            <p class="footer-brand-desc">Nền tảng mua sắm công nghệ cao cấp hàng đầu. Chúng tôi cam kết đem lại trải nghiệm mua sắm tuyệt vời nhất với các sản phẩm laptop, bàn phím và chuột máy tính chính hãng chất lượng cao.</p>
-            <div class="footer-contact-info">
-                <p><i class="fas fa-map-marker-alt"></i> Mỹ Đình,Hà Nội</p>
-                <p><i class="fas fa-phone-alt"></i> Hotline: 1900 8888 (8:00 - 22:00)</p>
-                <p><i class="fas fa-envelope"></i> Email: support@unilap.vn</p>
-            </div>
-            <div class="social-icons">
-                <a href="#" class="social-icon-fb"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="social-icon-yt"><i class="fab fa-youtube"></i></a>
-                <a href="#" class="social-icon-ig"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="social-icon-tt"><i class="fab fa-tiktok"></i></a>
-            </div>
-        </div>
-        
-        <div class="footer-col">
-            <h3>Chính sách & Hỗ trợ</h3>
-            <ul>
-                <c:if test="${not empty footerPages}">
-                    <c:forEach items="${footerPages}" var="pageItem">
-                        <li><a href="${pageContext.request.contextPath}/page?key=${pageItem.pageKey}"><i class="fas fa-chevron-right"></i> ${pageItem.title}</a></li>
-                    </c:forEach>
-                </c:if>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="footer-bottom">
-        <div class="container footer-bottom-container">
-            <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-            <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
-        </div>
-    </div>
-</footer>
+<%@include file="_footer.jspf" %>
 
 <script>
     // Header user menu dropdown toggle
@@ -407,6 +360,7 @@
         const radioHome = document.getElementById('radio-home');
         const radioStore = document.getElementById('radio-store');
         const shippingCard = document.getElementById('shipping-info-card');
+        const paymentMethodCard = document.getElementById('payment-method-card');
         
         const fullNameInput = document.getElementById('fullName');
         const phoneInput = document.getElementById('phone');
@@ -565,6 +519,11 @@
                     shippingCard.style.display = 'block';
                 }
                 
+                // Show payment method card
+                if (paymentMethodCard) {
+                    paymentMethodCard.style.display = 'block';
+                }
+                
                 // Show shipping fee line
                 const shippingFeeLine = document.getElementById('shipping-fee-line');
                 if (shippingFeeLine) {
@@ -597,6 +556,11 @@
                 // Hide shipping card
                 if (shippingCard) {
                     shippingCard.style.display = 'none';
+                }
+                
+                // Hide payment method card
+                if (paymentMethodCard) {
+                    paymentMethodCard.style.display = 'none';
                 }
                 
                 // Hide shipping fee line
@@ -663,79 +627,7 @@
             });
         }
 
-        // Coupon code handling
-        const btnApplyCoupon = document.getElementById('btnApplyCoupon');
-        const couponInput = document.getElementById('couponCodeInput');
-        const couponMessageLabel = document.getElementById('couponMessageLabel');
 
-        if (btnApplyCoupon && couponInput) {
-            btnApplyCoupon.addEventListener('click', function() {
-                const code = couponInput.value.trim();
-                if (!code) {
-                    showCouponMessage('Vui lòng nhập mã giảm giá.', false);
-                    return;
-                }
-
-                btnApplyCoupon.disabled = true;
-                btnApplyCoupon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-                fetch("${pageContext.request.contextPath}/CartServlet?action=coupon&ajax=true", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'couponCode=' + encodeURIComponent(code)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP Status ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    btnApplyCoupon.disabled = false;
-                    btnApplyCoupon.innerText = 'Áp dụng';
-
-                    showCouponMessage(data.couponMessage, data.couponSuccess);
-
-                    if (data.success) {
-                        updateTotalsUI(data.total, data.discount, data.finalTotal);
-                    }
-                })
-                .catch(err => {
-                    btnApplyCoupon.disabled = false;
-                    btnApplyCoupon.innerText = 'Áp dụng';
-                    showCouponMessage('Đã xảy ra lỗi khi áp dụng mã.', false);
-                    console.error(err);
-                });
-            });
-        }
-
-        function showCouponMessage(text, success) {
-            if (!couponMessageLabel) return;
-            couponMessageLabel.innerText = text;
-            couponMessageLabel.style.display = 'block';
-            if (success) {
-                couponMessageLabel.style.color = '#15803d'; // Green
-            } else {
-                couponMessageLabel.style.color = '#b91c1c'; // Red
-            }
-        }
-
-        function updateTotalsUI(totalStr, discountStr, finalTotalStr) {
-            const discountLine = document.getElementById('checkout-discount-line');
-            const discountValSpan = document.getElementById('checkout-discount-val');
-
-            discountVal = parseFloat(discountStr.replace(/[^0-9]/g, '')) || 0;
-            if (discountVal > 0) {
-                if (discountLine) discountLine.style.display = 'flex';
-                if (discountValSpan) discountValSpan.innerText = '- ' + formatCurrency(discountVal) + '₫';
-            } else {
-                if (discountLine) discountLine.style.display = 'none';
-            }
-
-            recalculateCheckoutTotals();
-        }
     });
 </script>
 <jsp:include page="chatbot.jsp" />

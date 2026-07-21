@@ -41,6 +41,12 @@ public class CreateTicketController extends HttpServlet {
                 case "NoVariantsSelected":
                     errorMsg = "Vui lòng nhập số lượng (> 0) cho ít nhất một biến thể.";
                     break;
+                case "InvalidPrice":
+                    errorMsg = "Đơn giá đề xuất nhập kho của sản phẩm phải lớn hơn 0.";
+                    break;
+                case "DuplicateVariant":
+                    errorMsg = "Không được chọn trùng lặp biến thể trong cùng một phiếu.";
+                    break;
                 default:
                     errorMsg = "Đã xảy ra lỗi không xác định.";
             }
@@ -73,6 +79,8 @@ public class CreateTicketController extends HttpServlet {
         }
 
         List<TicketDetail> details = new ArrayList<>();
+        java.util.Set<Integer> processedVariantIds = new java.util.HashSet<>();
+        
         for (int i = 0; i < variantIds.length; i++) {
             try {
                 if (quantities == null || i >= quantities.length || quantities[i] == null || quantities[i].trim().isEmpty()) {
@@ -90,6 +98,19 @@ public class CreateTicketController extends HttpServlet {
                 if (expectedPrices != null && i < expectedPrices.length && expectedPrices[i] != null && !expectedPrices[i].trim().isEmpty()) {
                     expectedPrice = new BigDecimal(expectedPrices[i].trim());
                 }
+
+                // Validate expected price is positive
+                if (expectedPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=InvalidPrice");
+                    return;
+                }
+
+
+                if (processedVariantIds.contains(variantId)) {
+                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=DuplicateVariant");
+                    return;
+                }
+                processedVariantIds.add(variantId);
 
                 TicketDetail detail = new TicketDetail();
                 detail.setVariantId(variantId);

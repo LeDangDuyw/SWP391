@@ -10,9 +10,12 @@ import dal.DBContext;
 import model.Brand;
 import model.CampaignBanner;
 
-/**
- *
- * @author ASUS
+/*
+ * Name: CampaignBannerDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object truy xuất thông tin Banner chiến dịch quảng cáo
  */
 public class CampaignBannerDAO extends DBContext {
 

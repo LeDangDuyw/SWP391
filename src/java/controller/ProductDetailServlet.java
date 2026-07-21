@@ -19,8 +19,12 @@ import model.Product;
 import model.ProductVariant;
 import model.ProductReview;
 
-/**
- * @author ASUS
+/*
+ * Name: ProductDetailServlet
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý và hiển thị thông tin chi tiết của sản phẩm (Product Detail)
  */
 @WebServlet(urlPatterns = {"/ProductDetailServlet"})
 public class ProductDetailServlet extends HttpServlet {
@@ -183,9 +187,22 @@ public class ProductDetailServlet extends HttpServlet {
             }
         }
 
+        boolean success = false;
         if (userId != null) {
             ProductReviewDAO reviewDAO = new ProductReviewDAO();
-            reviewDAO.insertReview(productId, userId, rating, comment.trim(), "pending");
+            success = reviewDAO.insertReview(productId, userId, rating, comment.trim(), "pending");
+        }
+
+        String isAjax = request.getParameter("ajax");
+        if ("true".equals(isAjax)) {
+            response.setContentType("text/plain");
+            response.setCharacterEncoding("UTF-8");
+            if (success) {
+                response.getWriter().write("success");
+            } else {
+                response.getWriter().write("error");
+            }
+            return;
         }
 
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");

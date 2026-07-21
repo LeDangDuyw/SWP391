@@ -8,6 +8,7 @@ package controller;
 import dal.BrandDao;
 import dal.CategoryDAO;
 import dal.ProductDAO;
+import dal.ProductSeriesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -91,11 +92,13 @@ public class EditProductController extends HttpServlet {
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(product.getProductId());
         List<Category> categories = new CategoryDAO().getAllCategories();
         List<Brand> brands = new BrandDao().getAllBrands();
+        List<model.ProductSeries> serieses = new ProductSeriesDAO().getAllSeries();
 
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
         request.setAttribute("categories", categories);
         request.setAttribute("brands", brands);
+        request.setAttribute("serieses", serieses);
         request.setAttribute("selectedVariantId", variantId);
         request.getRequestDispatcher("/staff/EditProduct.jsp").forward(request, response);
     } 
@@ -124,11 +127,44 @@ public class EditProductController extends HttpServlet {
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
                 java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
-                int stock = Integer.parseInt(request.getParameter("stock"));
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                dao.updateProductVariant(variantId, sku, variantName, price, stock);
+                dao.updateProductVariant(variantId, sku, variantName, price);
                 response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/inventory");
+            return;
+        } else if ("updateProduct".equals(action)) {
+            try {
+                int productId = Integer.parseInt(request.getParameter("productId"));
+                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String productName = request.getParameter("productName");
+                int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+                int brandId = Integer.parseInt(request.getParameter("brandId"));
+                String description = request.getParameter("description");
+                String warrantyPeriodStr = request.getParameter("warrantyPeriod");
+                String purpose = request.getParameter("purposeSelect");
+                if ("Khác".equals(purpose)) {
+                    purpose = request.getParameter("purposeCustom");
+                }
+                String seriesIdStr = request.getParameter("seriesId");
+                
+                int warrantyPeriod = 0;
+                if (warrantyPeriodStr != null && !warrantyPeriodStr.trim().isEmpty()) {
+                    warrantyPeriod = Integer.parseInt(warrantyPeriodStr.trim());
+                }
+                
+                int seriesId = 0;
+                if (seriesIdStr != null && !seriesIdStr.trim().isEmpty()) {
+                    seriesId = Integer.parseInt(seriesIdStr.trim());
+                }
+                
+                dal.ProductDAO dao = new dal.ProductDAO();
+                dao.updateProduct(productId, productName, categoryId, brandId, description, warrantyPeriod, purpose, seriesId);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory");
                 return;
             } catch (Exception e) {
                 e.printStackTrace();

@@ -65,6 +65,10 @@ public class ShippingTrackingServlet extends HttpServlet {
                 Order order = dao.getOrderById(orderId);
                 
                 if (order != null) {
+                    if ("STORE_PICKUP".equals(order.getShippingMethod())) {
+                        out.print("{\"success\": false, \"message\": \"Đơn hàng nhận tại cửa hàng không cần tạo vận đơn.\"}");
+                        return;
+                    }
                     Random rnd = new Random();
                     long number = 100000000L + (long)(rnd.nextDouble() * 900000000L);
                     String trackingNumber = "VTP" + number;
