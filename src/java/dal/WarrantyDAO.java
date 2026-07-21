@@ -480,7 +480,7 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
+                + "LEFT JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
                 + "WHERE (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
                 + "ORDER BY o.completed_at DESC, ii.serial_number ASC";
 
@@ -528,7 +528,7 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
+                + "LEFT JOIN WarrantyPolicies wp ON p.policy_id = wp.PolicyID "
                 + "WHERE ii.serial_number = ?";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
