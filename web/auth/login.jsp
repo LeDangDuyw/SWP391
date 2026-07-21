@@ -34,6 +34,10 @@
                 <div class="success-message">Đăng ký thành công! Hãy đăng nhập.</div>
                 <% } else if ("2".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.</div>
+                <% } else if ("3".equals(request.getParameter("success"))) { %>
+                <div class="success-message">Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản của bạn.</div>
+                <% } else if ("4".equals(request.getParameter("success"))) { %>
+                <div class="success-message">Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.</div>
                 <% } %>
                 <div class="error-message">${error}</div>
                 <form action="login" method="post">

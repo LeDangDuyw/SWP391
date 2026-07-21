@@ -917,10 +917,12 @@
                     Đơn hàng của tôi
                 </div>
 
+<%--
                 <div class="nav-item" id="nav-student-verify" onclick="switchTab('student-verify')">
                     <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
                     Xác minh sinh viên
                 </div>
+--%>
                 </c:if>
 
                 <div class="nav-divider"></div>

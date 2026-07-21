@@ -742,32 +742,34 @@
             </div>
             <nav>
                 <a href="${pageContext.request.contextPath}/staff/inventory">
-                    <span class="nav-icon">▤</span>Inventory
+                    <span class="nav-icon">▤</span>Quản lý kho
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/category">
-                    <span class="nav-icon">📁</span>Category
+                    <span class="nav-icon">📁</span>Danh mục
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/imei">
-                    <span class="nav-icon">🏷</span>IMEI
+                    <span class="nav-icon">🏷</span>Quản lý Serial
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/ticket/list">
-                    <span class="nav-icon">🎫</span>Tickets
+                    <span class="nav-icon">🎫</span>Phiếu hỗ trợ
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/order/list">
-                    <span class="nav-icon">📋</span>Orders
+                    <span class="nav-icon">📋</span>Đơn hàng
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/outbound/list">
-                    <span class="nav-icon">📦</span>Outbound
+                    <span class="nav-icon">📦</span>Xuất kho
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/reviews">
-                    <span class="nav-icon">★</span>Manage Reviews
+                    <span class="nav-icon">★</span>Đánh giá sản phẩm
                 </a>
                 <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
-                    <span class="nav-icon">🛠</span>Warranty
+                    <span class="nav-icon">🛠</span>Bảo hành
                 </a>
+<%--
                 <a href="${pageContext.request.contextPath}/staff/verifications">
                     <span class="nav-icon">🎓</span>Student Verify
                 </a>
+--%>
             </nav>
             <div class="profile">
                 <a href="${pageContext.request.contextPath}/profile" class="profile-link">

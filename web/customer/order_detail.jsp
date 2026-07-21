@@ -592,10 +592,12 @@
                         <div class="nav-icon"><i class="fas fa-shopping-bag"></i></div>
                         Đơn hàng của tôi
                     </a>
+<%--
                     <a href="${pageContext.request.contextPath}/profile#student-verify" class="nav-item" id="nav-student-verify">
                         <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
                         Xác minh sinh viên
                     </a>
+--%>
                 </c:if>
 
                 <div class="nav-divider"></div>
