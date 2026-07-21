@@ -222,7 +222,12 @@
 
                                             <!-- Product Series / Dòng sản phẩm -->
                                             <div class="flex-1" id="series-container">
-                                                <label class="block text-sm font-medium text-on-surface-variant mb-2">Dòng sản phẩm</label>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label class="block text-sm font-medium text-on-surface-variant">Dòng sản phẩm</label>
+                                                    <button type="button" onclick="openAddSeriesModal()" class="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
+                                                        <span class="material-symbols-outlined text-[14px]">add</span>Thêm dòng sản phẩm
+                                                    </button>
+                                                </div>
                                                 <div class="relative">
                                                     <select name="seriesId" id="seriesId"
                                                         class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
@@ -491,6 +496,73 @@
                         }
                     }
 
+                    function openAddSeriesModal() {
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        if (!brandSelect || !brandSelect.value) {
+                            alert("Vui lòng chọn Thương hiệu trước!");
+                            return;
+                        }
+                        document.getElementById('newSeriesName').value = "";
+                        document.getElementById('addSeriesError').classList.add('hidden');
+                        document.getElementById('addSeriesModal').classList.remove('hidden');
+                    }
+
+                    function closeAddSeriesModal() {
+                        document.getElementById('addSeriesModal').classList.add('hidden');
+                    }
+
+                    function submitAddSeries() {
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        const brandId = brandSelect.value;
+                        const seriesNameInput = document.getElementById('newSeriesName');
+                        const seriesName = seriesNameInput.value.trim();
+                        const errorDiv = document.getElementById('addSeriesError');
+                        
+                        if (!seriesName) {
+                            errorDiv.textContent = "Tên dòng sản phẩm không được để trống!";
+                            errorDiv.classList.remove('hidden');
+                            return;
+                        }
+                        
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "${pageContext.request.contextPath}/staff/series/add", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            allSeries.push({
+                                                id: response.id,
+                                                name: response.name,
+                                                brandId: response.brandId
+                                            });
+                                            
+                                            const seriesSelect = document.getElementById('seriesId');
+                                            
+                                            // Cập nhật lại dropdown và chọn phần tử mới
+                                            filterSeriesAndCategory();
+                                            seriesSelect.value = response.id;
+                                            
+                                            closeAddSeriesModal();
+                                        } else {
+                                            errorDiv.textContent = response.message;
+                                            errorDiv.classList.remove('hidden');
+                                        }
+                                    } catch (e) {
+                                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            }
+                        };
+                        xhr.send("seriesName=" + encodeURIComponent(seriesName) + "&brandId=" + encodeURIComponent(brandId));
+                    }
+
                     document.addEventListener('DOMContentLoaded', () => {
                         const categorySelect = document.querySelector('select[name="categoryId"]');
                         const brandSelect = document.querySelector('select[name="brandId"]');
@@ -500,6 +572,29 @@
                         filterSeriesAndCategory();
                     });
                 </script>
+
+                <!-- Add Series Modal -->
+                <div id="addSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-on-surface">Thêm dòng sản phẩm mới</h3>
+                            <button type="button" onclick="closeAddSeriesModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tên dòng sản phẩm</label>
+                                <input type="text" id="newSeriesName" class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface" placeholder="Nhập tên dòng sản phẩm (ví dụ: ROG, TUF, Zenbook)"/>
+                            </div>
+                            <div id="addSeriesError" class="text-red-600 text-sm hidden"></div>
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button type="button" onclick="closeAddSeriesModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                                <button type="button" onclick="submitAddSeries()" class="px-6 py-2 bg-primary text-white font-semibold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 text-sm">Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </body>
 
             </html>

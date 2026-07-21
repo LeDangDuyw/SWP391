@@ -87,4 +87,39 @@ public class ProductSeriesDAO extends DBContext {
         }
         return data;
     }
+
+    public boolean isSeriesExist(String name, int brandId) {
+        try {
+            String sql = "SELECT 1 FROM ProductSeries WHERE LOWER(series_name) = ? AND brand_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, name.trim().toLowerCase());
+            ps.setInt(2, brandId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int insertSeries(String seriesName, int brandId) {
+        try {
+            String sql = "INSERT INTO ProductSeries (series_name, brand_id) VALUES (?, ?)";
+            ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, seriesName.trim());
+            ps.setInt(2, brandId);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }
