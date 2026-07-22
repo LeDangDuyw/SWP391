@@ -73,6 +73,17 @@ public class OutboundUpdateStatusController extends HttpServlet {
                             Order updatedOrder = dao.getOrderById(orderId);
                             List<OrderDetail> details = dao.getOrderDetails(orderId);
                             updatedOrder.setDetails(details);
+
+                            // Award reward points (10,000 VND = 1 point)
+                            if (updatedOrder != null && updatedOrder.getUserId() > 0 && updatedOrder.getTotalAmount() != null) {
+                                int earnedPoints = updatedOrder.getTotalAmount().divide(new java.math.BigDecimal("10000"), 0, java.math.RoundingMode.DOWN).intValue();
+                                if (earnedPoints > 0) {
+                                    dal.UserDAO userDAO = new dal.UserDAO();
+                                    userDAO.addRewardPoints(updatedOrder.getUserId(), earnedPoints);
+                                    dao.addOrderLog(orderId, status, status, "System (Reward Service)",
+                                            "Tích lũy +" + earnedPoints + " điểm thưởng cho tài khoản ID: " + updatedOrder.getUserId());
+                                }
+                            }
                             
                             String fileName = PdfInvoiceService.generateInvoice(updatedOrder, realPath);
                             String dbInvoicePath = "invoices/" + fileName;

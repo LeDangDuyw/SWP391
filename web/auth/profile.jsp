@@ -1099,6 +1099,16 @@
                     Đơn hàng của tôi
                 </div>
 
+                <a href="${pageContext.request.contextPath}/rewards" class="nav-item" style="text-decoration:none; color:inherit;">
+                    <div class="nav-icon" style="color:#f59e0b;"><i class="fas fa-star"></i></div>
+                    Kho điểm thưởng (⭐ ${profileUser.rewardPoints})
+                </a>
+
+                <a href="${pageContext.request.contextPath}/wishlist" class="nav-item" style="text-decoration:none; color:inherit;">
+                    <div class="nav-icon" style="color:#e11d48;"><i class="fas fa-heart"></i></div>
+                    Sản phẩm yêu thích
+                </a>
+
 <%--
                 <div class="nav-item" id="nav-student-verify" onclick="switchTab('student-verify')">
                     <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>

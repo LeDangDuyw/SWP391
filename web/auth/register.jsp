@@ -66,7 +66,7 @@
                                maxlength="32"
                                value="${param.password}" required>
                         <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
-                            Mật khẩu từ 8-32 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+                            Mật khẩu ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
                         </small>
                     </div>
                     <div class="form-group">
@@ -95,7 +95,7 @@
                         var ruleSpecial = /[^a-zA-Z0-9]/.test(pw);
 
                         if (!ruleLength || !ruleUpper || !ruleLower || !ruleDigit || !ruleSpecial) {
-                            errDiv.innerText = "Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!";
+                            errDiv.innerText = "Mật khẩu ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!";
                             errDiv.style.display = "block";
                             return false;
                         }
