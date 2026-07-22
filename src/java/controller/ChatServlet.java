@@ -19,7 +19,7 @@ import model.Users;
 @WebServlet("/chat-ai")
 public class ChatServlet extends HttpServlet {
 
-    private static final String FASTAPI_URL = "http://localhost:8000/chat";
+    private static final String FASTAPI_URL = "https://chatbotapiminhbq.com/chat";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

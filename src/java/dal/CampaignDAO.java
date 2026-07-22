@@ -27,12 +27,14 @@ public class CampaignDAO extends DBContext {
     public CampaignDAO() {
         this.con = super.connection;
         ensureUserUsageLimitColumnExists();
+        checkAndUpdateExpiredCampaigns();
     }
 
     public CampaignDAO(ServletContext context) {
         super(context);
         this.con = super.connection;
         ensureUserUsageLimitColumnExists();
+        checkAndUpdateExpiredCampaigns();
     }
 
     private void ensureUserUsageLimitColumnExists() {
@@ -40,6 +42,18 @@ public class CampaignDAO extends DBContext {
         try (java.sql.Statement s = this.con.createStatement()) {
             s.execute("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('[dbo].[Campaign]') AND name = 'user_usage_limit') " +
                       "BEGIN ALTER TABLE [dbo].[Campaign] ADD [user_usage_limit] INT NULL; END");
+        } catch (SQLException e) {
+            // Quietly ignore
+        }
+    }
+
+    public void checkAndUpdateExpiredCampaigns() {
+        if (this.con == null) this.con = getConnection();
+        if (this.con == null) return;
+        String sql = "UPDATE [Campaign] SET status = 'expired', updated_at = GETDATE() " +
+                     "WHERE end_date IS NOT NULL AND end_date < GETDATE() AND LOWER(status) IN ('active', 'scheduled')";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.executeUpdate();
         } catch (SQLException e) {
             // Quietly ignore
         }
@@ -163,7 +177,13 @@ public class CampaignDAO extends DBContext {
         c.setTargetGroup(rs.getString("target_group"));
         c.setStartDate(toLocalDateTime(rs.getTimestamp("start_date")));
         c.setEndDate(toLocalDateTime(rs.getTimestamp("end_date")));
-        c.setStatus(rs.getString("status"));
+
+        String dbStatus = rs.getString("status");
+        if (c.getEndDate() != null && LocalDateTime.now().isAfter(c.getEndDate()) && ("active".equalsIgnoreCase(dbStatus) || "scheduled".equalsIgnoreCase(dbStatus))) {
+            c.setStatus("expired");
+        } else {
+            c.setStatus(dbStatus);
+        }
 
         try {
             c.setProductCount(rs.getInt("product_count"));

@@ -146,7 +146,20 @@
                             </div>
                             <div><dt class="font-medium text-on-surface-variant">Người nhận</dt><dd class="mt-1 font-medium text-on-surface">${order.shippingReceiver}</dd></div>
                             <div><dt class="font-medium text-on-surface-variant">Số điện thoại</dt><dd class="mt-1 font-medium text-on-surface">${order.shippingPhone}</dd></div>
-                            <div><dt class="font-medium text-on-surface-variant">Địa chỉ</dt><dd class="mt-1 text-on-surface leading-relaxed">${order.shippingAddress}</dd></div>
+                            <c:choose>
+                                <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                    <div>
+                                        <dt class="font-medium text-on-surface-variant">Phương thức nhận hàng</dt>
+                                        <dd class="mt-1 font-semibold text-on-surface">Nhận trực tiếp tại showroom UniLap (Hà Nội)</dd>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div>
+                                        <dt class="font-medium text-on-surface-variant">Địa chỉ</dt>
+                                        <dd class="mt-1 text-on-surface leading-relaxed">${order.shippingAddress}</dd>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
                             <div><dt class="font-medium text-on-surface-variant">Tổng tiền</dt><dd class="mt-1 font-semibold text-red-600"><fmt:formatNumber value="${order.totalAmount}" pattern="#,###"/> đ</dd></div>
                         </dl>
                     </div>

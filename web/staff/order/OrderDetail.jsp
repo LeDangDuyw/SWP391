@@ -1,10 +1,3 @@
-<%-- 
- * Name: OrderDetail.jsp
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Giao diện hiển thị chi tiết đơn hàng dành cho nhân viên (Staff Order Detail View)
- --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -75,13 +68,12 @@
         <nav>
             <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -123,7 +115,7 @@
             <!-- Page Title -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý đơn hàng</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý Đơn hàng</h2>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">Chi tiết đơn hàng #${order.orderCode}</p>
                 </div>
             </div>
@@ -183,10 +175,24 @@
 
                                 <!-- Status Processing: Fulfill, Cancel order -->
                                 <c:if test="${order.orderStatus == 'processing'}">
-                                    <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
-                                       class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
-                                        <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                            <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" style="display: inline;">
+                                                <input type="hidden" name="orderId" value="${order.orderId}">
+                                                <input type="hidden" name="status" value="delivered">
+                                                <input type="hidden" name="redirect" value="detail">
+                                                <button type="submit" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                                    <span class="material-symbols-outlined text-[18px]">check_circle</span> Đã giao thành công (Khách nhận tại quầy)
+                                                </button>
+                                            </form>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
+                                               class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                                <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                     
                                     <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');" style="display: inline;">
                                         <input type="hidden" name="orderId" value="${order.orderId}">
@@ -319,61 +325,68 @@
                                 <span class="text-on-surface-variant block text-[12px]">Số điện thoại</span>
                                 <strong class="text-on-surface text-[14px]">${order.shippingPhone}</strong>
                             </li>
-                            <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
+                            <c:choose>
+                                <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                    <li>
+                                        <span class="text-on-surface-variant block text-[12px]">Phương thức nhận hàng</span>
+                                        <strong class="text-on-surface text-[14px]">Nhận trực tiếp tại showroom UniLap (Hà Nội)</strong>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li>
+                                        <span class="text-on-surface-variant block text-[12px]">Địa chỉ giao nhận</span>
+                                        <strong class="text-on-surface text-[14px]">${order.shippingAddress}</strong>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
                             <li>
-                                <span class="text-on-surface-variant block text-[12px]">Địa chỉ giao nhận</span>
-                                <strong class="text-on-surface text-[14px]">${order.shippingAddress}</strong>
-                            </li>
-                            <li>
-                                <span class="text-on-surface-variant block text-[12px]">Ghi chú giao hàng</span>
+                                <span class="text-on-surface-variant block text-[12px]">Ghi chú nhận hàng</span>
                                 <strong class="text-on-surface text-[14px]">-</strong>
                             </li>
-                            </c:if>
                         </ul>
                     </div>
 
                     <!-- Shipping & Waybill Info -->
-                    <c:if test="${order.shippingMethod != 'STORE_PICKUP'}">
-                    <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
-                        <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
-                            <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
-                        </h3>
-                        <div class="text-body-sm flex flex-col gap-3">
-                            <c:choose>
-                                <c:when test="${not empty order.trackingNumber}">
-                                    <div>
-                                        <span class="text-on-surface-variant block text-[12px]">Đối tác vận chuyển</span>
-                                        <strong class="text-on-surface text-[14px]">${order.shippingPartner}</strong>
-                                    </div>
-                                    <div>
-                                        <span class="text-on-surface-variant block text-[12px]">Mã vận đơn (Viettel Post)</span>
-                                        <strong class="text-primary text-[14px] font-mono">${order.trackingNumber}</strong>
-                                    </div>
-                                    
-                                    <!-- Journey tracking timeline container -->
-                                    <div class="mt-4 border-t border-outline-variant/20 pt-3">
-                                        <span class="text-on-surface-variant block text-[12px] mb-2 font-semibold">Hành trình đơn hàng:</span>
-                                        <div id="viettel-post-tracking-timeline" class="flex flex-col gap-3 pl-3 border-l-2 border-primary-container relative">
-                                            <div class="text-xs text-on-surface-variant italic">Đang tải thông tin hành trình từ Viettel Post...</div>
+                    <c:if test="${order.shippingAddress != 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                        <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
+                            <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
+                                <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
+                            </h3>
+                            <div class="text-body-sm flex flex-col gap-3">
+                                <c:choose>
+                                    <c:when test="${not empty order.trackingNumber}">
+                                        <div>
+                                            <span class="text-on-surface-variant block text-[12px]">Đối tác vận chuyển</span>
+                                            <strong class="text-on-surface text-[14px]">${order.shippingPartner}</strong>
                                         </div>
-                                    </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="text-center py-2">
-                                        <p class="text-on-surface-variant text-[13px] mb-3">Đơn hàng này chưa được tạo mã vận đơn Viettel Post.</p>
-                                        <c:if test="${order.orderStatus == 'shipped' || order.orderStatus == 'delivered' || order.orderStatus == 'Completed' || order.orderStatus == 'Pending' || order.orderStatus == 'processing'}">
-                                            <button id="btn-create-waybill" onclick="createViettelPostWaybill(${order.orderId})"
-                                                    class="w-full bg-[#003ec7] hover:bg-[#002baf] text-white px-3 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center justify-center gap-1.5 transition-colors duration-200">
-                                                <span class="material-symbols-outlined text-[18px]">local_post_office</span> Tạo vận đơn Viettel Post
-                                            </button>
-                                        </c:if>
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
+                                        <div>
+                                            <span class="text-on-surface-variant block text-[12px]">Mã vận đơn (Viettel Post)</span>
+                                            <strong class="text-primary text-[14px] font-mono">${order.trackingNumber}</strong>
+                                        </div>
+                                        
+                                        <!-- Journey tracking timeline container -->
+                                        <div class="mt-4 border-t border-outline-variant/20 pt-3">
+                                            <span class="text-on-surface-variant block text-[12px] mb-2 font-semibold">Hành trình đơn hàng:</span>
+                                            <div id="viettel-post-tracking-timeline" class="flex flex-col gap-3 pl-3 border-l-2 border-primary-container relative">
+                                                <div class="text-xs text-on-surface-variant italic">Đang tải thông tin hành trình từ Viettel Post...</div>
+                                            </div>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="text-center py-2">
+                                            <p class="text-on-surface-variant text-[13px] mb-3">Đơn hàng này chưa được tạo mã vận đơn Viettel Post.</p>
+                                            <c:if test="${order.orderStatus == 'shipped' || order.orderStatus == 'delivered' || order.orderStatus == 'Completed' || order.orderStatus == 'Pending' || order.orderStatus == 'processing'}">
+                                                <button id="btn-create-waybill" onclick="createViettelPostWaybill(${order.orderId})"
+                                                        class="w-full bg-[#003ec7] hover:bg-[#002baf] text-white px-3 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center justify-center gap-1.5 transition-colors duration-200">
+                                                    <span class="material-symbols-outlined text-[18px]">local_post_office</span> Tạo vận đơn Viettel Post
+                                                </button>
+                                            </c:if>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
-                    </div>
                     </c:if>
-
 
                     <!-- Invoice Summary Card -->
                     <c:if test="${not empty order.invoicePath}">

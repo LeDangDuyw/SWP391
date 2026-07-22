@@ -1,10 +1,3 @@
-<%-- 
- * Name: order_detail.jsp
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Giao diện chi tiết đơn hàng dành cho khách hàng (Order Detail)
- --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -503,188 +496,6 @@
         .badge-delivered-order { background-color: #dcfce7; color: #166534; }
         .badge-cancelled-order { background-color: #fee2e2; color: #991b1b; }
 
-        /* ── REVIEW MODAL ─────────────────────────────────────────────── */
-        .review-modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .review-modal.show {
-            opacity: 1;
-        }
-        .review-modal-content {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            width: 90%;
-            max-width: 550px;
-            max-height: 85vh;
-            overflow-y: auto;
-            border: 1px solid var(--gray-200);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-        @keyframes modalSlideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .review-modal-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: var(--white);
-            z-index: 10;
-        }
-        .review-modal-header h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-        .review-modal-close {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--gray-500);
-            cursor: pointer;
-            transition: color 0.2s;
-            line-height: 1;
-        }
-        .review-modal-close:hover {
-            color: var(--red-600);
-        }
-        .review-modal-body {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .review-item {
-            padding: 16px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            background: var(--gray-50);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .review-product-info {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .review-product-img {
-            width: 60px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid var(--gray-200);
-            background: var(--white);
-        }
-        .review-product-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--gray-900);
-            margin-bottom: 2px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        .review-product-variant {
-            font-size: 11px;
-            color: var(--gray-500);
-        }
-        .review-stars {
-            display: flex;
-            gap: 6px;
-            font-size: 24px;
-            color: var(--gray-300);
-        }
-        .review-stars i {
-            cursor: pointer;
-            transition: color 0.2s, transform 0.1s;
-        }
-        .review-stars i:hover {
-            transform: scale(1.15);
-        }
-        .review-stars i.active {
-            color: #f59e0b;
-        }
-        .review-comment {
-            width: 100%;
-            min-height: 80px;
-            padding: 10px;
-            border: 1.5px solid var(--gray-300);
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .review-comment:focus {
-            border-color: var(--blue-500);
-        }
-        .review-submit-btn {
-            align-self: flex-end;
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-        .review-success-badge {
-            color: var(--green-600);
-            background: var(--green-100);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            align-self: flex-start;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .toast-notification {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: var(--gray-900);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 2000;
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
         .footer {
             margin-top: auto;
             background: #1a202c;
@@ -699,6 +510,159 @@
             .page-wrap { grid-direction: column; flex-direction: column; gap: 20px; }
             .sidebar { width: 100%; position: static; }
             .info-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── REVIEW SECTION STYLES ──────────────────────────────────── */
+        .alert-success-banner {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #15803d;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-review-toggle {
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-600);
+            background: #eff6ff;
+            border: 1.5px solid var(--blue-500);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 8px;
+        }
+        .btn-review-toggle:hover {
+            background: var(--blue-100);
+        }
+
+        .review-container-box {
+            margin-top: 14px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--gray-200);
+            width: 100%;
+        }
+
+        .review-box-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .star-rating-select {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .star-rating-select .star-icon {
+            font-size: 22px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .star-rating-select .star-icon.selected,
+        .star-rating-select .star-icon.hover {
+            color: #f59e0b;
+        }
+        .star-rating-select .star-icon:hover {
+            transform: scale(1.15);
+        }
+        .star-rating-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #d97706;
+            margin-left: 8px;
+        }
+
+        .review-textarea {
+            width: 100%;
+            height: 90px;
+            padding: 10px 14px;
+            font-size: 13px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease;
+            margin-bottom: 12px;
+        }
+        .review-textarea:focus {
+            border-color: var(--blue-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-submit-review {
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            background: var(--blue-600);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-submit-review:hover {
+            background: var(--blue-700);
+        }
+
+        .existing-review-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .existing-stars {
+            color: #f59e0b;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+        .existing-comment {
+            font-size: 13px;
+            color: var(--gray-800);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        .existing-date {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-top: 6px;
+        }
+
+        .reply-box-customer {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            border-left: 3.5px solid var(--blue-600);
+            border-radius: 6px;
+            font-size: 13px;
+            color: #1e3a8a;
+        }
+        .reply-box-customer strong {
+            color: var(--blue-700);
         }
     </style>
 </head>
@@ -781,12 +745,10 @@
                         <div class="nav-icon"><i class="fas fa-shopping-bag"></i></div>
                         Đơn hàng của tôi
                     </a>
-<%--
                     <a href="${pageContext.request.contextPath}/profile#student-verify" class="nav-item" id="nav-student-verify">
                         <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
                         Xác minh sinh viên
                     </a>
---%>
                 </c:if>
 
                 <div class="nav-divider"></div>
@@ -843,6 +805,14 @@
                     </c:choose>
                 </div>
 
+                <!-- Alert Banner when review saved -->
+                <c:if test="${param.reviewSuccess eq 'true'}">
+                    <div class="alert-success-banner">
+                        <i class="fas fa-check-circle" style="font-size: 16px;"></i>
+                        <span>Đánh giá của bạn đã được ghi nhận thành công và kết nối trực tiếp với hệ thống!</span>
+                    </div>
+                </c:if>
+
                 <!-- Products Purchased -->
                 <div class="products-list-wrap">
                     <c:set var="subtotal" value="0" />
@@ -850,42 +820,118 @@
                         <c:set var="itemTotal" value="${item.quantity * item.unitPrice}" />
                         <c:set var="subtotal" value="${subtotal + itemTotal}" />
                         
-                        <div class="product-item">
-                            <div class="product-info-wrap">
-                                <img src="${pageContext.request.contextPath}/images/${item.thumbnail}" 
-                                     onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" 
-                                     alt="product" class="product-img">
-                                <div class="product-details">
-                                    <h4 class="product-title" title="${item.productName}">${item.productName}</h4>
-                                    <p class="product-variant">Phân loại: ${item.variantName}</p>
-                                    <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 2px;">Thời hạn bảo hành đến: ${item.getFormattedWarrantyExpiry(order.completedAt != null ? order.completedAt : order.createdAt)}</p>
-                                    <div class="product-price-qty">
-                                        <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0"/>₫
-                                        <span>Số lượng: ${item.quantity}</span>
+                        <div class="product-item" id="review-${item.productId}" style="flex-direction: column; align-items: stretch; gap: 0;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%;">
+                                <div class="product-info-wrap">
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}">
+                                        <img src="${pageContext.request.contextPath}/images/${item.thumbnail}" 
+                                             onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" 
+                                             alt="product" class="product-img">
+                                    </a>
+                                    <div class="product-details">
+                                        <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}" style="text-decoration: none; color: inherit;">
+                                            <h4 class="product-title" title="${item.productName}">${item.productName}</h4>
+                                        </a>
+                                        <p class="product-variant">Phân loại: ${item.variantName}</p>
+                                        <p style="font-size: 11px; color: var(--gray-500); margin-bottom: 2px;">Thời hạn bảo hành đến: 10/07/2027</p>
+                                        <div class="product-price-qty">
+                                            <fmt:formatNumber value="${item.unitPrice}" pattern="#,##0"/>₫
+                                            <span>Số lượng: ${item.quantity}</span>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="btn-action-right" style="display: flex; align-items: center; gap: 6px;">
+                                    <c:if test="${isDelivered || order.orderStatus == 'delivered' || order.orderStatus == 'Completed'}">
+                                        <button type="button" class="btn-review-toggle" onclick="toggleReviewForm(${item.productId})">
+                                            <i class="fas fa-star" style="color: #f59e0b;"></i>
+                                            <c:choose>
+                                                <c:when test="${not empty productReviewsMap[item.productId]}">Sửa đánh giá</c:when>
+                                                <c:otherwise>Đánh giá</c:otherwise>
+                                            </c:choose>
+                                        </button>
+                                    </c:if>
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}" class="btn-buy-again">
+                                        <i class="fas fa-redo" style="margin-right: 4px; font-size: 10px;"></i> Mua lại
+                                    </a>
+                                </div>
                             </div>
-                            <div class="btn-action-right" style="display: flex; align-items: center; gap: 8px;">
-                                <c:if test="${order.orderStatus == 'delivered' || order.orderStatus == 'Completed'}">
-                                    <div id="action-container-${item.productId}">
-                                        <c:choose>
-                                            <c:when test="${item.reviewed}">
-                                                <span class="review-success-badge" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                                                    <i class="fas fa-check-circle"></i> Đã đánh giá
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <button type="button" class="btn btn-sm" onclick="openSingleProductReviewModal(${item.productId}, '${fn:escapeXml(item.productName)}', '${fn:escapeXml(item.variantName)}', '${item.thumbnail}', ${order.orderId})" style="background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; font-size: 12px; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);">
-                                                    <i class="fas fa-star" style="font-size: 10px;"></i> Đánh giá
-                                                </button>
-                                            </c:otherwise>
-                                        </c:choose>
+
+                            <!-- Review Section for Delivered/Completed Orders -->
+                            <c:if test="${isDelivered || order.orderStatus == 'delivered' || order.orderStatus == 'Completed'}">
+                                <c:set var="existingRev" value="${productReviewsMap[item.productId]}" />
+                                
+                                <!-- Display Existing Review Summary if present -->
+                                <c:if test="${not empty existingRev}">
+                                    <div class="existing-review-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div class="existing-stars">
+                                                <c:forEach begin="1" end="${existingRev.rating}">★</c:forEach><c:forEach begin="${existingRev.rating + 1}" end="5">☆</c:forEach>
+                                            </div>
+                                            <span style="font-size: 11px; font-weight: 600; color: #16a34a; background: #dcfce7; padding: 3px 10px; border-radius: 12px;">
+                                                <i class="fas fa-check-circle"></i> Đã đánh giá
+                                            </span>
+                                        </div>
+                                        <div class="existing-comment">
+                                            <c:out value="${existingRev.comment}" />
+                                        </div>
+                                        <div class="existing-date">
+                                            <i class="far fa-clock"></i> <fmt:formatDate value="${existingRev.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                        </div>
+
+                                        <c:if test="${not empty existingRev.replyContent}">
+                                            <div class="reply-box-customer">
+                                                <strong><i class="fas fa-reply"></i> Phản hồi từ UniLap (${existingRev.replierName}):</strong>
+                                                <div style="margin-top: 4px;"><c:out value="${existingRev.replyContent}" /></div>
+                                                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                                                    <fmt:formatDate value="${existingRev.repliedAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                                </div>
+                                            </div>
+                                        </c:if>
                                     </div>
                                 </c:if>
-                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${item.productId}" class="btn-buy-again">
-                                    <i class="fas fa-redo" style="margin-right: 4px; font-size: 10px;"></i> Mua lại
-                                </a>
-                            </div>
+
+                                <!-- Form review -->
+                                <div id="review-form-${item.productId}" class="review-container-box" style="display: ${empty existingRev ? 'block' : 'none'};">
+                                    <div class="review-box-header">
+                                        <span><i class="fas fa-pen-nib" style="color: var(--blue-600);"></i> 
+                                            <c:choose>
+                                                <c:when test="${not empty existingRev}">Cập nhật đánh giá & bình luận</c:when>
+                                                <c:otherwise>Viết đánh giá & bình luận sản phẩm</c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                        <span style="font-size: 12px; color: var(--gray-500); font-weight: normal;">Nhận xét giúp UniLap phục vụ bạn tốt hơn</span>
+                                    </div>
+
+                                    <form action="${pageContext.request.contextPath}/order-detail" method="POST">
+                                        <input type="hidden" name="orderId" value="${order.orderId}">
+                                        <input type="hidden" name="productId" value="${item.productId}">
+                                        <input type="hidden" id="rating-input-${item.productId}" name="rating" value="${not empty existingRev ? existingRev.rating : 5}">
+
+                                        <div class="star-rating-select" id="star-container-${item.productId}">
+                                            <span style="font-size: 13px; font-weight: 600; color: var(--gray-700); margin-right: 6px;">Đánh giá sao:</span>
+                                            <c:set var="curRating" value="${not empty existingRev ? existingRev.rating : 5}" />
+                                            <c:forEach begin="1" end="5" var="s">
+                                                <i class="star-icon ${s <= curRating ? 'fa-solid selected' : 'fa-regular'} fa-star" 
+                                                   onclick="setRating(${item.productId}, ${s})"></i>
+                                            </c:forEach>
+                                            <span class="star-rating-label" id="star-label-${item.productId}">${curRating} ★ (${curRating == 5 ? 'Rất tuyệt vời!' : (curRating == 4 ? 'Tốt' : (curRating == 3 ? 'Bình thường' : (curRating == 2 ? 'Tệ' : 'Rất tệ')))})</span>
+                                        </div>
+
+                                        <textarea class="review-textarea" name="comment" required
+                                                  placeholder="Chia sẻ nhận xét của bạn về sản phẩm này (chất lượng sản phẩm, tính năng, thái độ phục vụ...)...">${not empty existingRev ? existingRev.comment : ''}</textarea>
+
+                                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                            <button type="submit" class="btn-submit-review">
+                                                <i class="fas fa-paper-plane"></i> 
+                                                <c:choose>
+                                                    <c:when test="${not empty existingRev}">Cập nhật đánh giá</c:when>
+                                                    <c:otherwise>Gửi đánh giá</c:otherwise>
+                                                </c:choose>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </c:if>
                         </div>
                     </c:forEach>
                 </div>
@@ -901,7 +947,14 @@
                         <ul class="info-list">
                             <li>Họ và tên: <strong>${order.shippingReceiver}</strong></li>
                             <li>Số điện thoại: <strong>${order.shippingPhone}</strong></li>
-                            <li>Địa chỉ: <strong>${order.shippingAddress}</strong></li>
+                            <c:choose>
+                                <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                    <li>Phương thức nhận hàng: <strong>Nhận trực tiếp tại showroom UniLap (Hà Nội)</strong></li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li>Địa chỉ nhận hàng: <strong>${order.shippingAddress}</strong></li>
+                                </c:otherwise>
+                            </c:choose>
                             <li>Ghi chú: <strong>-</strong></li>
                         </ul>
                     </div>
@@ -910,7 +963,7 @@
                     <div class="info-card">
                         <h4 class="info-title"><i class="fas fa-headset"></i> Thông tin hỗ trợ</h4>
                         <ul class="info-list">
-                            <li>Địa chỉ cửa hàng: <strong>UniLap - Mỹ Đình, Hà Nội</strong></li>
+                            <li>Địa chỉ cửa hàng: <strong>42/A10 Lê Trọng Tấn, X. An Khánh, H. Hoài Đức, Hà Nội</strong></li>
                             <li>Số điện thoại: <strong>02471210042</strong></li>
                             <li>
                                 <a href="#" style="color: var(--blue-600); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
@@ -961,174 +1014,40 @@
     <footer class="footer">
         <p>© 2026 UNILAP Precision Engineering. All rights reserved.</p>
     </footer>
-    
-    <!-- Modal Đánh Giá Sản Phẩm -->
-    <div id="reviewModal" class="review-modal">
-        <div class="review-modal-content">
-            <div class="review-modal-header">
-                <h3>Đánh giá sản phẩm</h3>
-                <span class="review-modal-close" onclick="closeReviewModal()">&times;</span>
-            </div>
-            <div class="review-modal-body" id="reviewModalBody">
-                <!-- Nội dung đánh giá sẽ được chèn động ở đây -->
-            </div>
-        </div>
-    </div>
 
     <script>
-        // Store ratings dynamically in an object
-        const currentRatings = {};
-
-        function openSingleProductReviewModal(productId, productName, variantName, thumbnail, orderId) {
-            let html = `
-                <div class="review-item" id="review-item-${productId}">
-                    <div class="review-product-info">
-                        <img src="${pageContext.request.contextPath}/images/${thumbnail}" onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" class="review-product-img">
-                        <div>
-                            <div class="review-product-name">${productName}</div>
-                            <div class="review-product-variant">Cấu hình: ${variantName}</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:10px; margin-top: 10px;">
-                        <div class="review-stars" id="stars-${productId}">
-                            <i class="fa-regular fa-star" onclick="setRating(${productId}, 1)" data-val="1"></i>
-                            <i class="fa-regular fa-star" onclick="setRating(${productId}, 2)" data-val="2"></i>
-                            <i class="fa-regular fa-star" onclick="setRating(${productId}, 3)" data-val="3"></i>
-                            <i class="fa-regular fa-star" onclick="setRating(${productId}, 4)" data-val="4"></i>
-                            <i class="fa-regular fa-star" onclick="setRating(${productId}, 5)" data-val="5"></i>
-                        </div>
-                        <textarea class="review-comment" id="comment-${productId}" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
-                        <button type="button" class="btn btn-primary review-submit-btn" onclick="submitProductReview(${productId})" id="btn-submit-${productId}" style="background: linear-gradient(135deg, #1d4ed8, #1e3a8a); color: #fff;">
-                            Gửi đánh giá
-                        </button>
-                    </div>
-                </div>
-            `;
+        function setRating(productId, stars) {
+            document.getElementById('rating-input-' + productId).value = stars;
+            const container = document.getElementById('star-container-' + productId);
+            const icons = container.querySelectorAll('.star-icon');
+            const labels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tuyệt vời!"];
             
-            document.getElementById('reviewModalBody').innerHTML = html;
-            const modal = document.getElementById('reviewModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
-        }
-
-        function closeReviewModal() {
-            const modal = document.getElementById('reviewModal');
-            modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-
-        function setRating(productId, rating) {
-            currentRatings[productId] = rating;
-            const starsContainer = document.getElementById('stars-' + productId);
-            const stars = starsContainer.querySelectorAll('i');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.className = 'fa-solid fa-star active';
+            icons.forEach((icon, idx) => {
+                if (idx < stars) {
+                    icon.classList.add('selected', 'fa-solid');
+                    icon.classList.remove('fa-regular');
                 } else {
-                    star.className = 'fa-regular fa-star';
+                    icon.classList.remove('selected', 'fa-solid');
+                    icon.classList.add('fa-regular');
                 }
             });
+            
+            const labelEl = document.getElementById('star-label-' + productId);
+            if (labelEl && stars >= 1 && stars <= 5) {
+                labelEl.textContent = stars + " ★ (" + labels[stars - 1] + ")";
+            }
         }
 
-        function submitProductReview(productId) {
-            const rating = currentRatings[productId];
-            if (!rating) {
-                showToast('Vui lòng chọn số sao đánh giá!', 'error');
-                return;
-            }
-            const comment = document.getElementById('comment-' + productId).value.trim();
-            if (!comment) {
-                showToast('Vui lòng nhập nhận xét sản phẩm!', 'error');
-                return;
-            }
-            
-            const btn = document.getElementById('btn-submit-' + productId);
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
-            
-            fetch('${pageContext.request.contextPath}/ProductDetailServlet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'productId=' + productId + '&rating=' + rating + '&comment=' + encodeURIComponent(comment) + '&ajax=true'
-            })
-            .then(res => res.text())
-            .then(data => {
-                if (data.trim() === 'success') {
-                    showToast('Đánh giá sản phẩm thành công!');
-                    
-                    // Update actions container in order detail list
-                    const actionContainer = document.getElementById('action-container-' + productId);
-                    if (actionContainer) {
-                        actionContainer.innerHTML = `
-                            <span class="review-success-badge" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                                <i class="fas fa-check-circle"></i> Đã đánh giá
-                            </span>
-                        `;
-                    }
-                    
-                    // Update modal view
-                    const container = document.getElementById('review-item-' + productId);
-                    const prodName = container.querySelector('.review-product-name').textContent;
-                    const prodVariant = container.querySelector('.review-product-variant').textContent;
-                    const prodImg = container.querySelector('.review-product-img').src;
-                    
-                    container.innerHTML = `
-                        <div class="review-product-info">
-                            <img src="${prodImg}" class="review-product-img">
-                            <div>
-                                <div class="review-product-name">${prodName}</div>
-                                <div class="review-product-variant">${prodVariant}</div>
-                            </div>
-                        </div>
-                        <div class="review-success-badge" style="margin-top: 10px;">
-                            <i class="fas fa-check-circle"></i> Đã đánh giá
-                        </div>
-                    `;
+        function toggleReviewForm(productId) {
+            const form = document.getElementById('review-form-' + productId);
+            if (form) {
+                if (form.style.display === 'none' || form.style.display === '') {
+                    form.style.display = 'block';
                 } else {
-                    showToast('Gửi đánh giá thất bại. Vui lòng thử lại!', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = 'Gửi đánh giá';
+                    form.style.display = 'none';
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                showToast('Đã xảy ra lỗi kết nối!', 'error');
-                btn.disabled = false;
-                btn.innerHTML = 'Gửi đánh giá';
-            });
-        }
-
-        function showToast(message, type = 'success') {
-            let toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            const color = type === 'success' ? '#22c55e' : '#ef4444';
-            toast.innerHTML = `<i class="fas ${icon}" style="color: ${color}"></i> <span>${message}</span>`;
-            document.body.appendChild(toast);
-            
-            // trigger reflow
-            toast.offsetHeight;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            }, 3000);
-        }
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('reviewModal');
-            if (event.target === modal) {
-                closeReviewModal();
             }
-        });
+        }
     </script>
 </body>
 </html>

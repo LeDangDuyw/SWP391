@@ -24,7 +24,7 @@ public class ProductReviewDAO extends DBContext {
       
       // them review tu customers
     public boolean addReview(ProductReview review) {
-        String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status) VALUES (?, ?, ?, ?, 'approved')";
+        String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status, created_at) VALUES (?, ?, ?, ?, 'approved', GETDATE())";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, review.getProductId());
             ps.setInt(2, review.getUserId());
@@ -33,6 +33,55 @@ public class ProductReviewDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return false;
+    }
+
+    public ProductReview getReviewByUserAndProduct(int userId, int productId) {
+        String sql = "SELECT pr.*, u.full_name AS reviewer_name, p.product_name, mu.full_name AS moderator_name, ru.full_name AS replier_name " +
+                     "FROM ProductReview pr " +
+                     "JOIN [User] u ON pr.user_id = u.user_id " +
+                     "JOIN Product p ON pr.product_id = p.product_id " +
+                     "LEFT JOIN [User] mu ON pr.moderated_by = mu.user_id " +
+                     "LEFT JOIN [User] ru ON pr.replied_by = ru.user_id " +
+                     "WHERE pr.user_id = ? AND pr.product_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean saveOrUpdateReview(int productId, int userId, int rating, String comment) {
+        ProductReview existing = getReviewByUserAndProduct(userId, productId);
+        if (existing != null) {
+            String sql = "UPDATE ProductReview SET rating = ?, comment = ?, created_at = GETDATE(), status = 'approved' WHERE review_id = ?";
+            try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+                ps.setInt(1, rating);
+                ps.setString(2, comment);
+                ps.setInt(3, existing.getReviewId());
+                return ps.executeUpdate() > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status, created_at) VALUES (?, ?, ?, ?, 'approved', GETDATE())";
+            try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+                ps.setInt(1, productId);
+                ps.setInt(2, userId);
+                ps.setInt(3, rating);
+                ps.setString(4, comment);
+                return ps.executeUpdate() > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
@@ -265,19 +314,125 @@ public class ProductReviewDAO extends DBContext {
         return false;
     }
 
-    public boolean hasUserReviewedProduct(int userId, int productId) {
-        String sql = "SELECT COUNT(*) FROM ProductReview WHERE user_id = ? AND product_id = ?";
+    public Map<String, int[]> getDailyRatingStats(String fromDate, String toDate) {
+        Map<String, int[]> stats = new LinkedHashMap<>();
+        
+        if (fromDate == null || fromDate.isEmpty()) {
+            fromDate = java.time.LocalDate.now().minusDays(30).toString();
+        }
+        if (toDate == null || toDate.isEmpty()) {
+            toDate = java.time.LocalDate.now().toString();
+        }
+        
+        String sql = "SELECT CONVERT(VARCHAR(10), created_at, 120) AS review_date, rating, COUNT(*) AS cnt " +
+                     "FROM ProductReview " +
+                     "WHERE created_at >= ? AND created_at <= ? " +
+                     "GROUP BY CONVERT(VARCHAR(10), created_at, 120), rating " +
+                     "ORDER BY review_date ASC";
+                     
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, productId);
+            ps.setTimestamp(1, Timestamp.valueOf(fromDate + " 00:00:00"));
+            ps.setTimestamp(2, Timestamp.valueOf(toDate + " 23:59:59"));
+            
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
+                while (rs.next()) {
+                    String date = rs.getString("review_date");
+                    int rating = rs.getInt("rating");
+                    int count = rs.getInt("cnt");
+                    
+                    if (!stats.containsKey(date)) {
+                        stats.put(date, new int[5]); // [1*, 2*, 3*, 4*, 5*]
+                    }
+                    if (rating >= 1 && rating <= 5) {
+                        stats.get(date)[rating - 1] = count;
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return stats;
+    }
+
+    public Map<String, int[]> getProductRatingStats(String fromDate, String toDate) {
+        Map<String, int[]> stats = new LinkedHashMap<>();
+        
+        if (fromDate == null || fromDate.isEmpty()) {
+            fromDate = java.time.LocalDate.now().minusDays(30).toString();
+        }
+        if (toDate == null || toDate.isEmpty()) {
+            toDate = java.time.LocalDate.now().toString();
+        }
+        
+        String sql = "SELECT p.product_name, pr.rating, COUNT(*) AS cnt " +
+                     "FROM ProductReview pr " +
+                     "JOIN Product p ON pr.product_id = p.product_id " +
+                     "WHERE pr.created_at >= ? AND pr.created_at <= ? " +
+                     "GROUP BY p.product_name, pr.rating " +
+                     "ORDER BY p.product_name ASC";
+                     
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setTimestamp(1, Timestamp.valueOf(fromDate + " 00:00:00"));
+            ps.setTimestamp(2, Timestamp.valueOf(toDate + " 23:59:59"));
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString("product_name");
+                    int rating = rs.getInt("rating");
+                    int count = rs.getInt("cnt");
+                    
+                    if (!stats.containsKey(name)) {
+                        stats.put(name, new int[5]); // [1*, 2*, 3*, 4*, 5*]
+                    }
+                    if (rating >= 1 && rating <= 5) {
+                        stats.get(name)[rating - 1] = count;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    public List<Map<String, Object>> searchProductAverageRating(String query) {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        String sql = "SELECT " +
+                     "  p.product_id, " +
+                     "  p.product_name, " +
+                     "  AVG(CAST(pr.rating AS DECIMAL(3,2))) AS avg_rating, " +
+                     "  COUNT(pr.review_id) AS total_reviews, " +
+                     "  SUM(CASE WHEN pr.rating = 5 THEN 1 ELSE 0 END) AS star5, " +
+                     "  SUM(CASE WHEN pr.rating = 4 THEN 1 ELSE 0 END) AS star4, " +
+                     "  SUM(CASE WHEN pr.rating = 3 THEN 1 ELSE 0 END) AS star3, " +
+                     "  SUM(CASE WHEN pr.rating = 2 THEN 1 ELSE 0 END) AS star2, " +
+                     "  SUM(CASE WHEN pr.rating = 1 THEN 1 ELSE 0 END) AS star1 " +
+                     "FROM Product p " +
+                     "LEFT JOIN ProductReview pr ON p.product_id = pr.product_id " +
+                     "WHERE p.product_name LIKE ? " +
+                     "GROUP BY p.product_id, p.product_name " +
+                     "ORDER BY total_reviews DESC, p.product_name ASC";
+                     
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, "%" + query + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("productId", rs.getInt("product_id"));
+                    map.put("productName", rs.getString("product_name"));
+                    map.put("avgRating", rs.getObject("avg_rating") != null ? rs.getDouble("avg_rating") : 0.0);
+                    map.put("totalReviews", rs.getInt("total_reviews"));
+                    map.put("star5", rs.getInt("star5"));
+                    map.put("star4", rs.getInt("star4"));
+                    map.put("star3", rs.getInt("star3"));
+                    map.put("star2", rs.getInt("star2"));
+                    map.put("star1", rs.getInt("star1"));
+                    resultList.add(map);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultList;
     }
 }

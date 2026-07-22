@@ -122,31 +122,37 @@ public class CampaignDetailController extends PromotionServlet {
 
         List<CampaignProduct> products = detailDao.getProductPerformance(id);
         List<CampaignSalesVolume> salesVolume = detailDao.getSalesVolumeOverTime(id, 30);
-        int totalUnits = products.stream().mapToInt(CampaignProduct::getUnitsSold).sum();
-        BigDecimal revenue = products.stream()
-                .map(CampaignProduct::getRevenue)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        int customerGrowth = detailDao.getCustomerGrowth(id, 30);
-        int totalCustomers = detailDao.countCampaignCustomers(id);
-        double conversion = campaign.getUsageLimit() == null || campaign.getUsageLimit() == 0
-                ? 0.0
-                : (campaign.getUsedCount() * 100.0 / campaign.getUsageLimit());
-        int totalUnitsProgress = percent(totalUnits, campaign.getUsageLimit());
-        int revenueProgress = moneyPercent(revenue, campaign.getMinOrderValue());
-        int conversionProgress = clampPercent(conversion);
-        int customerGrowthProgress = percent(Math.abs(customerGrowth), Math.max(1, totalCustomers));
+
+        BigDecimal voucherRevenue = detailDao.getVoucherOrdersRevenue(id);
+        BigDecimal nonVoucherRevenue = detailDao.getNonVoucherOrdersRevenue(id);
+        int voucherOrdersCount = detailDao.getVoucherOrdersCount(id);
+        BigDecimal totalDiscountGiven = detailDao.getTotalDiscountGiven(id);
+
+        // 1. Doanh thu gia tăng (Incremental Sales) = Doanh thu đơn dùng voucher - Doanh thu đơn không dùng voucher
+        BigDecimal incrementalSales = voucherRevenue.subtract(nonVoucherRevenue);
+
+        // 2. Giá trị đơn hàng trung bình (AOV) = Doanh thu đơn dùng voucher / Số lượng đơn hàng
+        BigDecimal aov = voucherOrdersCount > 0
+                ? voucherRevenue.divide(BigDecimal.valueOf(voucherOrdersCount), 2, java.math.RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        // 3. Tỷ lệ ROAS = Doanh thu đơn dùng voucher / Chi phí giảm giá đã cấp
+        double roasRatio = totalDiscountGiven.compareTo(BigDecimal.ZERO) > 0
+                ? voucherRevenue.doubleValue() / totalDiscountGiven.doubleValue()
+                : (voucherRevenue.compareTo(BigDecimal.ZERO) > 0 ? 10.0 : 0.0);
+
+        int redemptionsProgress = percent(campaign.getUsedCount(), campaign.getUsageLimit());
 
         request.setAttribute("campaign", campaign);
         request.setAttribute("products", products != null ? products : new ArrayList<>());
-        request.setAttribute("totalUnits", totalUnits);
-        request.setAttribute("revenue", revenue);
-        request.setAttribute("revenueShort", shortMoney(revenue));
-        request.setAttribute("conversion", conversion);
-        request.setAttribute("customerGrowth", customerGrowth);
-        request.setAttribute("totalUnitsProgress", totalUnitsProgress);
-        request.setAttribute("revenueProgress", revenueProgress);
-        request.setAttribute("conversionProgress", conversionProgress);
-        request.setAttribute("customerGrowthProgress", customerGrowthProgress);
+        request.setAttribute("incrementalSales", incrementalSales);
+        request.setAttribute("incrementalSalesShort", shortMoney(incrementalSales));
+        request.setAttribute("aov", aov);
+        request.setAttribute("aovShort", shortMoney(aov));
+        request.setAttribute("roasRatio", String.format(Locale.US, "%.1fx", roasRatio));
+        request.setAttribute("voucherOrdersCount", voucherOrdersCount);
+        request.setAttribute("totalDiscountGiven", totalDiscountGiven);
+        request.setAttribute("redemptionsProgress", redemptionsProgress);
         request.setAttribute("salesVolume", salesVolume != null ? salesVolume : new ArrayList<>());
         request.setAttribute("salesAxisLabels", buildSalesAxisLabels(salesVolume));
         request.setAttribute("salesRangeLabel", (salesVolume == null || salesVolume.isEmpty()) ? "No Sales Data" : "Last 30 Sale Days");
