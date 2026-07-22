@@ -151,8 +151,8 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             double[] turnover = analyticsDAO.getInventoryTurnover(filter);
 
             // Lấy danh mục & thương hiệu cho dropdown bộ lọc
-            List<Category> categories = categoryDAO.getAllCategory();
-            List<Brand> brands = brandDao.getAllBrand();
+            List<Category> categories = categoryDAO.getAllCategories();
+            List<Brand> brands = brandDao.getAllBrands();
 
             // 5. Đẩy dữ liệu ra thuộc tính của request để render trên JSP
             request.setAttribute("filter", filter);
