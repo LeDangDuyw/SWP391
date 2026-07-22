@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.*"%>
 <%@page import="java.text.NumberFormat"%>
 <%@page import="model.Product"%>
@@ -47,7 +47,7 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Edit Product: <%= productName %> | UNILAP Admin</title>
+<title>Chỉnh sửa sản phẩm: <%= productName %> | UNILAP Admin</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -172,16 +172,16 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -194,9 +194,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -207,21 +207,21 @@
 <section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
 <div>
 <nav class="flex items-center gap-2 mb-3 text-on-surface-variant">
-<a class="font-label-md text-label-md hover:text-primary transition-colors" href="#">Inventory</a>
+<a class="font-label-md text-label-md hover:text-primary transition-colors" href="${pageContext.request.contextPath}/staff/inventory">Kho hàng</a>
 <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-<a class="font-label-md text-label-md hover:text-primary transition-colors" href="#">Products</a>
+<a class="font-label-md text-label-md hover:text-primary transition-colors" href="${pageContext.request.contextPath}/staff/inventory">Sản phẩm</a>
 <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-<span class="font-label-md text-label-md text-on-surface">Edit</span>
+<span class="font-label-md text-label-md text-on-surface">Chỉnh sửa</span>
 </nav>
-<h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Product: <%= productName %></h1>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Chỉnh sửa sản phẩm: <%= productName %></h1>
 </div>
 <div class="flex items-center gap-4">
-<span class="hidden lg:inline text-body-sm text-on-surface-variant mr-2">Variants: <%= variants.size() %></span>
-<button class="px-6 py-2 border border-primary text-primary font-bold hover:bg-primary-container/10 transition-all rounded-lg active:scale-95">
-                        Discard Changes
-                    </button>
-<button class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 active:scale-95">
-                        Update Product
+<span class="hidden lg:inline text-body-sm text-on-surface-variant mr-2">Biến thể: <%= variants.size() %></span>
+<a href="${pageContext.request.contextPath}/staff/inventory" class="px-6 py-2 border border-primary text-primary font-bold hover:bg-primary-container/10 transition-all rounded-lg active:scale-95 flex items-center justify-center">
+                        Hủy bỏ
+                    </a>
+<button form="productForm" type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 active:scale-95">
+                        Cập nhật sản phẩm
                     </button>
 </div>
 </section>
@@ -230,56 +230,115 @@
 <!-- Left Column: General Information -->
 <div class="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
 <!-- General Information Card -->
-<div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
-<div class="flex items-center gap-2 mb-6 text-primary">
-<span class="material-symbols-outlined" data-icon="info">info</span>
-<h2 class="font-headline-md text-headline-md">General Information</h2>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="col-span-2">
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Product Name</label>
-<input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="productName" value="<%= productName %>"/>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Category</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="categoryId">
-<% for (Category c : categories) { %>
-<option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
-<% } %>
-</select>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Brand</label>
-<select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none" name="brandId">
-<% for (Brand b : brands) { %>
-<option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
-<% } %>
-</select>
-</div>
-<div class="col-span-2">
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Description</label>
-<div class="border border-outline-variant rounded-lg overflow-hidden">
-<div class="flex items-center gap-1 p-2 bg-surface-container border-b border-outline-variant">
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
-<button class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">link</span></button>
-</div>
-<textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" name="description" rows="6"><%= description %></textarea>
-</div>
-</div>
-</div>
-</div>
+<form id="productForm" action="${pageContext.request.contextPath}/staff/inventory/edit" method="post">
+    <input type="hidden" name="action" value="updateProduct"/>
+    <input type="hidden" name="productId" value="<%= product != null ? product.getProductId() : "" %>"/>
+    <input type="hidden" name="variantId" value="${selectedVariantId}"/>
+    <div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
+        <div class="flex items-center gap-2 mb-6 text-primary">
+            <span class="material-symbols-outlined" data-icon="info">info</span>
+            <h2 class="font-headline-md text-headline-md">Thông tin chung</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="col-span-3">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Tên sản phẩm</label>
+                <input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" name="productName" value="<%= productName %>" required/>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Danh mục</label>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="categoryId">
+                        <% for (Category c : categories) { %>
+                            <option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
+                        <% } %>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thương hiệu</label>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId">
+                        <% for (Brand b : brands) { %>
+                            <option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
+                        <% } %>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thời gian bảo hành (tháng)</label>
+                <input class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" type="number" name="warrantyPeriod" min="0" value="<%= product != null ? product.getWarrantyPeriod() : 0 %>" required/>
+            </div>
+            <div class="col-span-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Nhu cầu sử dụng</label>
+                <%
+                    String currentPurpose = product != null ? product.getPurpose() : "";
+                    boolean isCustomPurpose = false;
+                    if (currentPurpose != null && !currentPurpose.trim().isEmpty()) {
+                        if (!"Văn phòng".equals(currentPurpose) && 
+                            !"Gaming".equals(currentPurpose) && 
+                            !"Đồ họa".equals(currentPurpose) && 
+                            !"Mỏng nhẹ".equals(currentPurpose)) {
+                            isCustomPurpose = true;
+                        }
+                    }
+                %>
+                <div class="flex flex-col gap-2">
+                    <div class="relative">
+                        <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="purposeSelect" id="purposeSelect" onchange="toggleCustomPurpose(this, 'purposeCustom')">
+                            <option value="">-- Chọn nhu cầu --</option>
+                            <option value="Văn phòng" <%= "Văn phòng".equals(currentPurpose) ? "selected" : "" %>>Học tập - Văn phòng</option>
+                            <option value="Gaming" <%= "Gaming".equals(currentPurpose) ? "selected" : "" %>>Gaming - Trải nghiệm</option>
+                            <option value="Đồ họa" <%= "Đồ họa".equals(currentPurpose) ? "selected" : "" %>>Đồ họa - Kỹ thuật</option>
+                            <option value="Mỏng nhẹ" <%= "Mỏng nhẹ".equals(currentPurpose) ? "selected" : "" %>>Mỏng nhẹ - Cao cấp</option>
+                            <option value="Khác" <%= isCustomPurpose ? "selected" : "" %>>Khác...</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                    </div>
+                    <input type="text" name="purposeCustom" id="purposeCustom" placeholder="Nhập nhu cầu khác..." value="<%= isCustomPurpose ? currentPurpose : "" %>"
+                        class="<%= isCustomPurpose ? "" : "hidden" %> w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" <%= isCustomPurpose ? "required" : "" %>>
+                </div>
+            </div>
+            <div class="col-span-1" id="series-container">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block font-label-md text-label-md text-on-surface-variant">Dòng sản phẩm</label>
+                    <button type="button" onclick="openAddSeriesModal()" class="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
+                        <span class="material-symbols-outlined text-[14px]">add</span>Thêm dòng sản phẩm
+                    </button>
+                </div>
+                <div class="relative">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="seriesId" id="seriesId">
+                        <option value="">-- Chọn dòng sản phẩm --</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Mô tả</label>
+                <div class="border border-outline-variant rounded-lg overflow-hidden">
+                    <div class="flex items-center gap-1 p-2 bg-surface-container border-b border-outline-variant">
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[20px]">link</span></button>
+                    </div>
+                    <textarea class="w-full p-4 bg-white border-none focus:ring-0 text-body-md outline-none" name="description" rows="6"><%= description %></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <!-- Product Variants Card -->
 <div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
 <div class="flex items-center justify-between mb-6">
 <div class="flex items-center gap-2 text-primary">
 <span class="material-symbols-outlined" data-icon="layers">layers</span>
-<h2 class="font-headline-md text-headline-md">Product Variants</h2>
+<h2 class="font-headline-md text-headline-md">Biến thể sản phẩm</h2>
 </div>
 <button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface font-bold hover:bg-surface-container-highest transition-all rounded-lg active:scale-95">
 <span class="material-symbols-outlined">add</span>
-                                Add Variant
+                                Thêm biến thể
                             </button>
 </div>
 <div class="overflow-x-auto border border-outline-variant rounded-lg">
@@ -287,16 +346,16 @@
 <thead>
 <tr class="bg-inverse-surface text-white">
 <th class="px-4 py-3 font-label-md text-label-md">SKU</th>
-<th class="px-4 py-3 font-label-md text-label-md">Price</th>
-<th class="px-4 py-3 font-label-md text-label-md">Attributes</th>
-<th class="px-4 py-3 font-label-md text-label-md text-center">Stock</th>
-<th class="px-4 py-3 font-label-md text-label-md text-right">Actions</th>
+<th class="px-4 py-3 font-label-md text-label-md">Giá bán (VNĐ)</th>
+<th class="px-4 py-3 font-label-md text-label-md">Thuộc tính</th>
+<th class="px-4 py-3 font-label-md text-label-md text-center">Tồn kho</th>
+<th class="px-4 py-3 font-label-md text-label-md text-right">Hành động</th>
 </tr>
 </thead>
 <tbody class="divide-y divide-outline-variant">
 <% if (variants.isEmpty()) { %>
 <tr>
-<td class="px-4 py-6 text-center text-on-surface-variant" colspan="5">No variants found for this product.</td>
+<td class="px-4 py-6 text-center text-on-surface-variant" colspan="5">Không tìm thấy biến thể nào cho sản phẩm này.</td>
 </tr>
 <% } else { %>
 <% for (int i = 0; i < variants.size(); i++) {
@@ -314,7 +373,7 @@
 <td class="px-4 py-4">
 <div class="flex flex-wrap gap-2">
 <% if (variantName.trim().isEmpty()) { %>
-<span class="text-on-surface-variant text-body-sm">No attributes</span>
+<span class="text-on-surface-variant text-body-sm">Không có thuộc tính</span>
 <% } else {
     String[] attrs = variantName.split("\\s*/\\s*|\\s*,\\s*");
     for (String attr : attrs) {
@@ -350,9 +409,9 @@
 <div class="flex items-center justify-between mb-6">
 <div class="flex items-center gap-2 text-primary">
 <span class="material-symbols-outlined" data-icon="image">image</span>
-<h2 class="font-headline-md text-headline-md">Thumbnail</h2>
+<h2 class="font-headline-md text-headline-md">Ảnh đại diện</h2>
 </div>
-<button class="text-primary font-bold text-label-md hover:underline">Change Image</button>
+<button class="text-primary font-bold text-label-md hover:underline">Thay đổi ảnh</button>
 </div>
 <div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant group relative aspect-video flex items-center justify-center">
 <% if (hasThumbnail) { %>
@@ -360,7 +419,7 @@
 <% } else { %>
 <div class="text-center text-on-surface-variant">
 <span class="material-symbols-outlined text-5xl mb-2">image_not_supported</span>
-<p>No thumbnail</p>
+<p>Không có ảnh đại diện</p>
 </div>
 <% } %>
 <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -368,42 +427,35 @@
 </div>
 </div>
 <p class="mt-4 text-center text-on-surface-variant text-body-sm">
-                            Supported formats: JPG, PNG, WEBP. Max size: 2MB.
+                            Định dạng hỗ trợ: JPG, PNG, WEBP. Dung lượng tối đa: 2MB.
                         </p>
 </div>
 <!-- Meta Data / Quick Stats Card -->
 <div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
-<h2 class="font-headline-md text-headline-md text-primary mb-6">Inventory Summary</h2>
+<h2 class="font-headline-md text-headline-md text-primary mb-6">Tổng quan tồn kho</h2>
 <div class="space-y-4">
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Total Stock</span>
-<span class="font-bold"><%= totalStock %> Units</span>
+<span class="text-on-surface-variant text-body-sm">Tổng tồn kho</span>
+<span class="font-bold"><%= totalStock %> sản phẩm</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Avg. Variant Price</span>
+<span class="text-on-surface-variant text-body-sm">Giá bán trung bình</span>
 <span class="font-bold"><%= moneyFormat.format(avgPrice) %>₫</span>
 </div>
 <div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Total Value</span>
+<span class="text-on-surface-variant text-body-sm">Tổng giá trị</span>
 <span class="font-bold text-primary"><%= moneyFormat.format(totalValue) %>₫</span>
 </div>
 <div class="flex justify-between items-center py-2">
-<span class="text-on-surface-variant text-body-sm">Store Visibility</span>
+<span class="text-on-surface-variant text-body-sm">Trạng thái hiển thị</span>
 <div class="flex items-center gap-2">
 <span class="w-3 h-3 <%= published ? "bg-emerald-500" : "bg-amber-500" %> rounded-full"></span>
-<span class="font-bold <%= published ? "text-emerald-600" : "text-amber-600" %> uppercase text-[12px]"><%= published ? "Published" : "Hidden" %></span>
+<span class="font-bold <%= published ? "text-emerald-600" : "text-amber-600" %> uppercase text-[12px]"><%= published ? "Đang hiển thị" : "Đã ẩn" %></span>
 </div>
 </div>
 </div>
 </div>
-<!-- Advanced Settings Prompt -->
-<div class="p-gutter rounded-xl bg-gradient-to-br from-primary to-primary-container text-white shadow-xl">
-<h3 class="font-bold text-lg mb-2">Need SEO customization?</h3>
-<p class="text-white/80 text-body-sm mb-4">Edit meta tags, URL handles, and social sharing previews in advanced settings.</p>
-<button class="w-full py-2 bg-white text-primary font-bold rounded-lg hover:bg-primary-fixed transition-colors">
-                            Manage SEO Settings
-                        </button>
-                            </div>
+
                         </div>
                     </div>
                 </main>
@@ -414,7 +466,7 @@
 <div id="editVariantModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Edit Variant</h3>
+            <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Chỉnh sửa biến thể</h3>
             <button type="button" onclick="closeEditVariantModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -429,24 +481,24 @@
             </div>
             
             <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Variant Attributes</label>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Thuộc tính biến thể</label>
                 <input type="text" name="variantName" id="editVariantName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Price (VND)</label>
-                    <input type="number" step="0.01" name="price" id="editPrice" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Giá bán (VNĐ)</label>
+                    <input type="number" step="1" name="price" id="editPrice" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
                 </div>
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Stock</label>
-                    <input type="number" name="stock" id="editStock" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tồn kho (Chỉ đọc)</label>
+                    <input type="number" name="stock" id="editStock" class="w-full px-4 py-3 bg-slate-100 text-on-surface-variant/70 border border-outline-variant rounded-lg cursor-not-allowed outline-none transition-all" readonly required/>
                 </div>
             </div>
             
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeEditVariantModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Cancel</button>
-                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Save Changes</button>
+                <button type="button" onclick="closeEditVariantModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Hủy</button>
+                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Lưu thay đổi</button>
             </div>
         </form>
     </div>
@@ -458,10 +510,10 @@
     if (updateBtn) {
         updateBtn.addEventListener('click', () => {
             const originalContent = updateBtn.innerHTML;
-            updateBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Updating...';
+            updateBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Đang cập nhật...';
             updateBtn.classList.add('opacity-80');
             setTimeout(() => {
-                updateBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Updated';
+                updateBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Đã cập nhật';
                 updateBtn.classList.replace('bg-primary', 'bg-emerald-600');
                 setTimeout(() => {
                     updateBtn.innerHTML = originalContent;
@@ -511,7 +563,174 @@
     function closeEditVariantModal() {
         document.getElementById('editVariantModal').classList.add('hidden');
     }
+
+    // --- Xử lý lọc dòng sản phẩm động theo hãng và ẩn/hiện theo danh mục cho Edit ---
+    const allSeries = [
+        <% List<model.ProductSeries> seriesList = (List<model.ProductSeries>) request.getAttribute("serieses");
+           if (seriesList != null) {
+               for (int i = 0; i < seriesList.size(); i++) {
+                   model.ProductSeries s = seriesList.get(i);
+        %>
+            { id: <%= s.getSeriesId() %>, name: "<%= s.getSeriesName().replace("\"", "\\\"") %>", brandId: <%= s.getBrandId() %> }<%= i < seriesList.size() - 1 ? "," : "" %>
+        <%     }
+           }
+        %>
+    ];
+
+    const initialSeriesId = <%= product != null ? product.getSeriesId() : 0 %>;
+
+    function filterSeriesAndCategory() {
+        const categorySelect = document.querySelector('select[name="categoryId"]');
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        const seriesSelect = document.getElementById('seriesId');
+        const seriesContainer = document.getElementById('series-container');
+
+        if (!categorySelect || !brandSelect || !seriesSelect || !seriesContainer) return;
+
+        const selectedCategoryId = categorySelect.value;
+        const selectedBrandId = parseInt(brandSelect.value) || 0;
+
+        // Chỉ dòng Laptop (categoryId = 1) mới hiển thị dòng sản phẩm (Series)
+        if (selectedCategoryId === "1") {
+            seriesContainer.style.display = "block";
+            seriesSelect.disabled = false;
+
+            // Lấy giá trị được chọn hiện tại (hoặc giá trị ban đầu nếu mới load)
+            let currentVal = seriesSelect.value || initialSeriesId;
+
+            seriesSelect.innerHTML = '<option value="">-- Chọn dòng sản phẩm --</option>';
+
+            const filtered = allSeries.filter(s => s.brandId === selectedBrandId);
+            filtered.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                if (parseInt(currentVal) === s.id) {
+                    opt.selected = true;
+                }
+                seriesSelect.appendChild(opt);
+            });
+        } else {
+            // Ẩn dropdown dòng sản phẩm nếu không phải laptop
+            seriesContainer.style.display = "none";
+            seriesSelect.value = "";
+            seriesSelect.disabled = true;
+        }
+    }
+
+    function toggleCustomPurpose(select, inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (select.value === "Khác") {
+            input.classList.remove('hidden');
+            input.setAttribute('required', 'required');
+            input.focus();
+        } else {
+            input.classList.add('hidden');
+            input.removeAttribute('required');
+            input.value = "";
+        }
+    }
+
+    function openAddSeriesModal() {
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        if (!brandSelect || !brandSelect.value) {
+            alert("Vui lòng chọn Thương hiệu trước!");
+            return;
+        }
+        document.getElementById('newSeriesName').value = "";
+        document.getElementById('addSeriesError').classList.add('hidden');
+        document.getElementById('addSeriesModal').classList.remove('hidden');
+    }
+
+    function closeAddSeriesModal() {
+        document.getElementById('addSeriesModal').classList.add('hidden');
+    }
+
+    function submitAddSeries() {
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        const brandId = brandSelect.value;
+        const seriesNameInput = document.getElementById('newSeriesName');
+        const seriesName = seriesNameInput.value.trim();
+        const errorDiv = document.getElementById('addSeriesError');
+        
+        if (!seriesName) {
+            errorDiv.textContent = "Tên dòng sản phẩm không được để trống!";
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "${pageContext.request.contextPath}/staff/series/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            allSeries.push({
+                                id: response.id,
+                                name: response.name,
+                                brandId: response.brandId
+                            });
+                            
+                            const seriesSelect = document.getElementById('seriesId');
+                            
+                            // Cập nhật lại dropdown và chọn phần tử mới
+                            filterSeriesAndCategory();
+                            seriesSelect.value = response.id;
+                            
+                            closeAddSeriesModal();
+                        } else {
+                            errorDiv.textContent = response.message;
+                            errorDiv.classList.remove('hidden');
+                        }
+                    } catch (e) {
+                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                        errorDiv.classList.remove('hidden');
+                    }
+                } else {
+                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                    errorDiv.classList.remove('hidden');
+                }
+            }
+        };
+        xhr.send("seriesName=" + encodeURIComponent(seriesName) + "&brandId=" + encodeURIComponent(brandId));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const categorySelect = document.querySelector('select[name="categoryId"]');
+        const brandSelect = document.querySelector('select[name="brandId"]');
+        if (categorySelect) categorySelect.addEventListener('change', filterSeriesAndCategory);
+        if (brandSelect) brandSelect.addEventListener('change', filterSeriesAndCategory);
+
+        filterSeriesAndCategory();
+    });
 </script>
+
+<!-- Add Series Modal -->
+<div id="addSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-on-surface">Thêm dòng sản phẩm mới</h3>
+            <button type="button" onclick="closeAddSeriesModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tên dòng sản phẩm</label>
+                <input type="text" id="newSeriesName" class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface" placeholder="Nhập tên dòng sản phẩm (ví dụ: ROG, TUF, Zenbook)"/>
+            </div>
+            <div id="addSeriesError" class="text-red-600 text-sm hidden"></div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeAddSeriesModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                <button type="button" onclick="submitAddSeries()" class="px-6 py-2 bg-primary text-white font-semibold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 text-sm">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 

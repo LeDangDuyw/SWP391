@@ -1,5 +1,5 @@
 <%-- 
-    Document   : AddProductImei
+    Document   : AddProductSerial
     Created on : Jun 14, 2026, 4:50:41 PM
     Author     : huy
 --%>
@@ -11,7 +11,7 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Add New Serial - UNILAP Staff</title>
+<title>Thêm Serial mới - UNILAP Staff</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -137,16 +137,16 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product Catalog</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -159,9 +159,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -171,7 +171,7 @@
             <div class="flex items-center flex-1 max-w-xl">
                 <div class="relative w-full">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
-                    <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search serial numbers, models, or batches..." type="text"/>
+                    <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Tìm kiếm số serial, kiểu máy hoặc lô hàng..." type="text"/>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -188,18 +188,18 @@
 <!-- Breadcrumbs & Header -->
 <nav class="mb-6">
 <ol class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
-<li>Inventory</li>
-<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>Serial Management</li>
-<li class="flex items-center gap-2 text-primary"><span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="chevron_right">chevron_right</span>Add New Serial</li>
+<li>Kho hàng</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>Quản lý Serial</li>
+<li class="flex items-center gap-2 text-primary"><span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="chevron_right">chevron_right</span>Thêm Serial mới</li>
 </ol>
-<h2 class="font-headline-lg text-headline-lg mt-2 text-on-surface">Add New Serial / IMEI</h2>
+<h2 class="font-headline-lg text-headline-lg mt-2 text-on-surface">Thêm Serial mới</h2>
 </nav>
 <div class="max-w-5xl">
 <c:if test="${not empty param.error}">
     <div class="mb-6 p-4 rounded-lg bg-error-container text-on-error-container flex items-center gap-3">
         <span class="material-symbols-outlined text-[20px]">error</span>
         <c:choose>
-            <c:when test="${param.error == 'MismatchImeisQuantity'}">
+            <c:when test="${param.error == 'MismatchSerialsQuantity'}">
                 Lỗi: Số lượng Serial Number nhập vào không khớp với yêu cầu! Yêu cầu: ${param.expected} (Thực tế: ${param.actual}).
             </c:when>
             <c:when test="${param.error == 'MissingRequiredFields'}">
@@ -208,47 +208,50 @@
             <c:when test="${param.error == 'InvalidImportDate'}">
                 Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.
             </c:when>
+            <c:when test="${param.error == 'DuplicateSerialInBatch'}">
+                Lỗi: Có mã Serial Number bị trùng lặp trong lô hàng vừa nhập! Vui lòng kiểm tra lại.
+            </c:when>
             <c:otherwise>
                 Đã xảy ra lỗi: ${param.error}
             </c:otherwise>
         </c:choose>
     </div>
 </c:if>
-<form action="${pageContext.request.contextPath}/staff/imei/add" method="POST" onsubmit="return validateForm(event)" class="space-y-6">
+<form action="${pageContext.request.contextPath}/staff/serial/add" method="POST" onsubmit="return validateForm(event)" class="space-y-6">
 <input type="hidden" name="ticketId" value="${not empty ticketId ? ticketId : param.ticketId}">
 <!-- Section 1: Product Information -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center gap-2 mb-6 text-primary">
 <span class="material-symbols-outlined" data-icon="laptop_mac">laptop_mac</span>
-<h3 class="font-headline-md text-headline-md">Product Information</h3>
+<h3 class="font-headline-md text-headline-md">Thông tin sản phẩm</h3>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <c:choose>
     <c:when test="${not empty selectedProduct and not empty selectedVariant}">
         <div class="space-y-2">
-            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <label class="font-label-md text-label-md text-on-surface-variant">Sản phẩm cha</label>
             <input type="text" readonly value="${selectedProduct.productName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
         </div>
         <div class="space-y-2">
-            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <label class="font-label-md text-label-md text-on-surface-variant">Biến thể</label>
             <input type="text" readonly value="${selectedVariant.sku} - ${selectedVariant.variantName}" class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
             <input type="hidden" name="variantId" value="${selectedVariant.variantId}">
         </div>
     </c:when>
     <c:otherwise>
         <div class="space-y-2">
-            <label class="font-label-md text-label-md text-on-surface-variant">Parent Product</label>
+            <label class="font-label-md text-label-md text-on-surface-variant">Sản phẩm cha</label>
             <select id="productSelect" onchange="filterVariants()" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-            <option value="" disabled selected>Select a Product</option>
+            <option value="" disabled selected>Chọn sản phẩm</option>
             <c:forEach var="p" items="${products}">
                 <option value="${p.productId}">${p.productName}</option>
             </c:forEach>
             </select>
         </div>
         <div class="space-y-2">
-            <label class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+            <label class="font-label-md text-label-md text-on-surface-variant">Biến thể</label>
             <select id="variantSelect" name="variantId" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-            <option value="" disabled selected>Select a Variant</option>
+            <option value="" disabled selected>Chọn biến thể</option>
             <c:forEach var="v" items="${variants}">
                 <option value="${v.variantId}" data-product-id="${v.productId}">${v.sku} - ${v.variantName}</option>
             </c:forEach>
@@ -258,22 +261,21 @@
 </c:choose>
 </div>
 <!-- Section 2: Unit Details -->
-<!-- Section 2: Unit Details -->
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center justify-between mb-6">
 <div class="flex items-center gap-2 text-primary">
 <span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
-<h3 class="font-headline-md text-headline-md">Unit Details</h3>
+<h3 class="font-headline-md text-headline-md">Chi tiết thiết bị</h3>
 </div>
 <div class="flex items-center gap-4">
 <c:if test="${not empty expectedQuantity}">
-<span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required Quantity: ${expectedQuantity}</span>
+<span class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Số lượng yêu cầu: ${expectedQuantity}</span>
 </c:if>
 </div>
 </div>
 <div class="space-y-4">
     <div class="grid grid-cols-1 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
-        <label>Serial Number</label>
+        <label>Số Serial</label>
     </div>
     
     <div id="unitRowsContainer" class="space-y-3">
@@ -292,23 +294,23 @@
 <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
 <div class="flex items-center gap-2 mb-6 text-primary">
 <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
-<h3 class="font-headline-md text-headline-md">Storage & Status</h3>
+<h3 class="font-headline-md text-headline-md">Kho &amp; Trạng thái</h3>
 </div>
 <div class="grid grid-cols-1 gap-6">
 <div class="space-y-2">
-<label class="font-label-md text-label-md text-on-surface-variant">Import Date</label>
+<label class="font-label-md text-label-md text-on-surface-variant">Ngày nhập kho</label>
 <input name="receivedDate" required class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="date"/>
 </div>
 </div>
 </div>
 <!-- Form Actions -->
 <div class="flex items-center justify-end gap-4 py-6 border-t border-outline-variant">
-<a href="${pageContext.request.contextPath}/staff/imei" class="px-6 py-2.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
-                        Cancel
+<a href="${pageContext.request.contextPath}/staff/serial" class="px-6 py-2.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                        Hủy
                     </a>
 <button class="px-8 py-2.5 rounded-lg bg-primary text-white font-label-md text-label-md hover:bg-primary/90 shadow-md transition-all active:scale-95 flex items-center gap-2" type="submit">
 <span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
-                        Register Units
+                        Đăng ký thiết bị
                     </button>
 </div>
 </form>

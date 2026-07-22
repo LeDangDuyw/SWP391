@@ -1,13 +1,13 @@
 /*
- * Name: ImeiManagement
+ * Name: SerialManagement
  * @Author: HuyDQ
  * Date: [05/06/2026]
  * Version: 1.0
- * Description: Controller quản lý và thống kê danh sách mã IMEI, Serial Number sản phẩm trong kho.
+ * Description: Controller quản lý và thống kê danh sách mã Serial Number sản phẩm trong kho.
  */
 package controller;
 
-import dal.ImeiDAO;
+import dal.SerialDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -17,8 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.InventoryItem;
 
-@WebServlet("/staff/imei")
-public class ImeiManagement extends HttpServlet {
+@WebServlet("/staff/serial")
+public class SerialManagement extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -41,7 +41,7 @@ public class ImeiManagement extends HttpServlet {
             }
         }
         
-        ImeiDAO dao = new ImeiDAO();
+        SerialDAO dao = new SerialDAO();
         
         int offset = (page - 1) * pageSize;
         
@@ -65,13 +65,13 @@ public class ImeiManagement extends HttpServlet {
         request.setAttribute("inStockUnits", inStockUnits);
         request.setAttribute("soldUnits", soldUnits);
         
-        request.getRequestDispatcher("/staff/ImeiManagement.jsp").forward(request, response);
+        request.getRequestDispatcher("/staff/SerialManagement.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Handle adding new IMEI or bulk import if needed
+        // Handle adding new Serial or bulk import if needed
     }
 
 }

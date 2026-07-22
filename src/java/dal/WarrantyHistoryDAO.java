@@ -5,8 +5,8 @@ package dal;
  * Description: Data Access Object ghi nhận lịch sử thay đổi trạng thái phiếu bảo hành.
  * 
  * Created: 2026-06-22
- * Updated: 2026-06-22
- * Version: v1.2
+ * Updated: 2026-07-19
+ * Version: v1.7
  *
  * @author DuyLD
  */

@@ -100,9 +100,9 @@ public class InventoryListController extends HttpServlet {
         }
         
         if ("products".equals(activeTab)) {
-            int totalRecords = dao.countSearchAllProducts(searchInput, category);
+            int totalRecords = dao.countSearchAllProducts(searchInput, category, itemStatus);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-            List<Product> product = dao.searchAllProducts(searchInput, category, sortBy, page, pageSize);
+            List<Product> product = dao.searchAllProducts(searchInput, category, sortBy, itemStatus, page, pageSize);
             
             request.setAttribute("product", product);
             request.setAttribute("currentPage", page);
@@ -146,27 +146,55 @@ public class InventoryListController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         ProductDAO dao = new ProductDAO();
-        // Kiểm tra xem hành động người dùng gửi lên là gì (xóa hay khôi phục)
         String action = request.getParameter("action");
+        String tab = request.getParameter("tab");
         
         if ("delete".equals(action)) {
-            // Xử lý ẩn (xóa mềm) sản phẩm
-            String variantIdToHide = request.getParameter("variantIdToDelete");
-            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
-                int v = Integer.parseInt(variantIdToHide);
-                dao.hideProduct(v);
+            String productIdToDelete = request.getParameter("productIdToDelete");
+            String variantIdToDelete = request.getParameter("variantIdToDelete");
+            if (productIdToDelete != null && !productIdToDelete.isEmpty()) {
+                int pId = Integer.parseInt(productIdToDelete);
+                dao.hideProductGroup(pId);
+            } else if (variantIdToDelete != null && !variantIdToDelete.isEmpty()) {
+                int vId = Integer.parseInt(variantIdToDelete);
+                dao.hideProduct(vId);
             }
-        }else if("restore".equals(action)) {
-            // Xử lý khôi phục lại sản phẩm đã ẩn
-            String variantIdToHide = request.getParameter("variantIdToDelete");
-            if (variantIdToHide != null && !variantIdToHide.isEmpty()) {
-                int v = Integer.parseInt(variantIdToHide);
-                dao.unhideProduct(v);
+        } else if ("restore".equals(action)) {
+            String productIdToDelete = request.getParameter("productIdToDelete");
+            String variantIdToDelete = request.getParameter("variantIdToDelete");
+            if (productIdToDelete != null && !productIdToDelete.isEmpty()) {
+                int pId = Integer.parseInt(productIdToDelete);
+                dao.unhideProductGroup(pId);
+            } else if (variantIdToDelete != null && !variantIdToDelete.isEmpty()) {
+                int vId = Integer.parseInt(variantIdToDelete);
+                dao.unhideProduct(vId);
             }
         }
         
-        // Load lại trang danh sách sản phẩm sau khi thực hiện thao tác
-        response.sendRedirect(request.getContextPath() + "/staff/inventory");
+        // Preserve parameters when redirecting back
+        String redirectUrl = request.getContextPath() + "/staff/inventory?tab=" + (tab != null ? tab : "variants");
+        String searchInput = request.getParameter("searchInput");
+        if (searchInput != null && !searchInput.isEmpty()) {
+            redirectUrl += "&searchInput=" + java.net.URLEncoder.encode(searchInput, "UTF-8");
+        }
+        String category = request.getParameter("category");
+        if (category != null && !category.isEmpty()) {
+            redirectUrl += "&category=" + java.net.URLEncoder.encode(category, "UTF-8");
+        }
+        String sortBy = request.getParameter("sortBy");
+        if (sortBy != null && !sortBy.isEmpty()) {
+            redirectUrl += "&sortBy=" + java.net.URLEncoder.encode(sortBy, "UTF-8");
+        }
+        String stockStatus = request.getParameter("stockStatus");
+        if (stockStatus != null && !stockStatus.isEmpty()) {
+            redirectUrl += "&stockStatus=" + java.net.URLEncoder.encode(stockStatus, "UTF-8");
+        }
+        String itemStatus = request.getParameter("itemStatus");
+        if (itemStatus != null && !itemStatus.isEmpty()) {
+            redirectUrl += "&itemStatus=" + java.net.URLEncoder.encode(itemStatus, "UTF-8");
+        }
+        
+        response.sendRedirect(redirectUrl);
     }
 
     /** 

@@ -5,8 +5,8 @@ package service;
  * Description: Lớp xử lý logic nghiệp vụ bảo hành (Warranty Service).
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-02
- * Version: v1.4
+ * Updated: 2026-07-19
+ * Version: v2.3
  *
  * @author DuyLD
  */
@@ -76,17 +76,13 @@ public class WarrantyService {
             throw new ValidationException("Mô tả lỗi không được để trống.");
         }
 
-        // Max-length guards — khớp với maxlength attribute trong warranty_center.jsp
-        // và giới hạn VARCHAR trong DB để tránh SQL exception thô
-        // Kiểm tra điều kiện
+        // BR-43: Warranty request field lengths: serial number <= 100 characters, title <= 200 characters, defect description <= 2000 characters
         if (serialNumber.trim().length() > 100) {
             throw new ValidationException("Số serial không được vượt quá 100 ký tự.");
         }
-        // Kiểm tra điều kiện
         if (title.trim().length() > 200) {
             throw new ValidationException("Tiêu đề không được vượt quá 200 ký tự.");
         }
-        // Kiểm tra điều kiện
         if (description.trim().length() > 2000) {
             throw new ValidationException("Mô tả lỗi không được vượt quá 2000 ký tự.");
         }
@@ -103,12 +99,12 @@ public class WarrantyService {
             throw new ValidationException("Số serial không tồn tại trong hệ thống.");
         }
 
-        // Kiểm tra điều kiện
+        // BR-15: A customer can submit a warranty request only for a product that belongs to their completed order
         if (!warrantyDAO.productBelongsToCustomer(serialNumber, customerId)) {
             throw new ValidationException("Sản phẩm này không thuộc đơn hàng đã hoàn thành của bạn.");
         }
 
-        // Kiểm tra điều kiện
+        // BR-15: ... and is linked to an active Warranty Policy, and is still within its warranty period.
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành. Không thể tạo yêu cầu.");
         }
@@ -128,17 +124,16 @@ public class WarrantyService {
         claim.setSerialNumber(serialNumber);
         claim.setTitle(title.trim());
         claim.setDescription(description.trim());
+        // BR-16: Every newly submitted warranty request shall be created with the initial status PENDING
         claim.setStatus("PENDING");
 
         int claimId = warrantyDAO.insertClaim(claim);
 
+        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log
         insertHistory(claimId, description.trim(), "PENDING",
                 "Yêu cầu bảo hành đã được gửi và đang chờ xử lý.");
 
-        // Lưu ảnh SAU khi claim đã có claimId. Nếu việc ghi file/DB ảnh lỗi,
-        // không rollback claim (claim vẫn hợp lệ, chỉ là thiếu ảnh) — nhưng
-        // ta vẫn throw để staff/customer biết và có thể upload lại qua trang detail.
-        // Kiểm tra điều kiện
+        // Lưu ảnh SAU khi claim đã có claimId
         if (!validImageParts.isEmpty()) {
             saveClaimImages(claimId, validImageParts);
         }
@@ -174,22 +169,27 @@ public class WarrantyService {
      * Ném ValidationException với message tiếng Việt rõ ràng cho từng trường hợp.
      */
     private void validateImages(List<Part> images) throws ValidationException {
-        // Kiểm tra điều kiện
+        // BR-08: All online warranty requests submitted by customers must include valid evidence (images, videos, or documents).
+        if (images == null || images.isEmpty()) {
+            throw new ValidationException("Yêu cầu bảo hành trực tuyến bắt buộc phải kèm theo ít nhất 1 ảnh bằng chứng.");
+        }
+
+        // BR-42: Warranty request images: up to 5 files may be attached
         if (images.size() > MAX_IMAGES) {
             throw new ValidationException(
                     "Chỉ được tải lên tối đa " + MAX_IMAGES + " ảnh.");
         }
 
         for (Part p : images) {
-            // Kiểm tra điều kiện
+            // BR-42: maximum 5MB per file
             if (p.getSize() > MAX_IMAGE_SIZE) {
                 throw new ValidationException(
                         "Ảnh \"" + p.getSubmittedFileName() + "\" vượt quá 5MB. "
                         + "Vui lòng chọn ảnh nhỏ hơn.");
             }
 
+            // BR-42: in JPEG, PNG, JPG, or WEBP format
             String contentType = p.getContentType();
-            // Kiểm tra điều kiện
             if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
                 throw new ValidationException(
                         "Ảnh \"" + p.getSubmittedFileName() + "\" không đúng định dạng. "
@@ -255,7 +255,7 @@ public class WarrantyService {
         WarrantyClaim claim = getClaim(claimId);
         assertOwner(claim, customerId);
 
-        // Kiểm tra điều kiện
+        // BR-05 & BR-19: Customers are only allowed to cancel a warranty request only while its status is PENDING. Once cancelled, the request cannot be restored.
         if (!"PENDING".equals(claim.getStatus())) {
             throw new ValidationException(
                     "Chỉ có thể huỷ yêu cầu bảo hành khi trạng thái là PENDING.");
@@ -263,6 +263,7 @@ public class WarrantyService {
 
         warrantyDAO.updateStatus(claimId, "CANCELLED");
 
+        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log
         insertHistory(claimId, claim.getDescription(), "CANCELLED",
                 "Khách hàng đã huỷ yêu cầu bảo hành.");
     }
@@ -306,6 +307,7 @@ public class WarrantyService {
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PENDING", "PROCESSING");
 
+        // BR-23: A warranty request cannot be processed simultaneously by multiple Staff members.
         // Atomic update: gán staff + đổi status trong 1 SQL, đồng thời dùng
         // optimistic lock (WHERE status = 'PENDING') để tránh race condition
         // khi 2 staff cùng nhận claim.
@@ -522,11 +524,11 @@ public class WarrantyService {
      * Phương thức này chỉ kiểm tra ownership thuần túy, không phân biệt role.
      */
     private void assertStaffOwner(WarrantyClaim claim, int staffId) throws ValidationException {
-        // Kiểm tra điều kiện
+        // BR-22: Only authorized Staff members are allowed to process warranty requests and update their processing status.
         if (claim.getStaffId() == null || claim.getStaffId() != staffId) {
             throw new ValidationException(
                     "Bạn không phải nhân viên đang xử lý yêu cầu bảo hành này. "
-                    + "Admin vui lòng dùng 'Take Over' hoặc 'Reassign' trước khi xử lý.");
+                    + "Admin vui lòng dùng 'Take Over' trước khi xử lý.");
         }
     }
 
@@ -575,7 +577,7 @@ public class WarrantyService {
                                   String targetStatus)
             throws ValidationException {
 
-        // Kiểm tra điều kiện
+        // BR-20: Warranty request status transitions shall strictly follow the workflow: PENDING -> PROCESSING -> APPROVED -> COMPLETED, or PENDING -> PROCESSING -> REJECTED.
         if (!expectedCurrent.equals(currentStatus)) {
             throw new ValidationException(
                     "Không thể chuyển sang " + targetStatus +
@@ -586,6 +588,7 @@ public class WarrantyService {
     private void insertHistory(int claimId, String issueDesc,
                                String repairStatus, String note) throws Exception {
 
+        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log together with the actor identity, action performed, and timestamp.
         WarrantyHistory h = new WarrantyHistory();
         h.setWarrantyId(claimId);
         h.setIssueDescription(issueDesc);
