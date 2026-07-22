@@ -19,6 +19,12 @@ public class OrderDetail {
     
     // For outbound fulfillment tracking
     private List<InventoryItem> assignedItems;
+    
+    // For review status display
+    private boolean isReviewed;
+    
+    // For warranty period
+    private int warrantyPeriod;
 
     public OrderDetail() {
     }
@@ -117,5 +123,21 @@ public class OrderDetail {
 
     public void setProductId(int productId) {
         this.productId = productId;
+    }
+
+    public boolean isReviewed() {
+        return isReviewed;
+    }
+
+    public void setReviewed(boolean isReviewed) {
+        this.isReviewed = isReviewed;
+    }
+
+    public int getWarrantyPeriod() {
+        return warrantyPeriod;
+    }
+
+    public void setWarrantyPeriod(int warrantyPeriod) {
+        this.warrantyPeriod = warrantyPeriod;
     }
 }

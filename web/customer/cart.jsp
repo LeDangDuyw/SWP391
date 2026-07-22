@@ -572,18 +572,9 @@
 
 
                     <!-- Checkout button -->
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.user}">
-                            <a href="${pageContext.request.contextPath}/CheckoutServlet" class="btn-checkout" id="btn-checkout">
-                                Tiến hành đặt hàng <i class="fas fa-shopping-cart"></i>
-                            </a>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="javascript:void(0);" onclick="alert('Bạn cần đăng nhập để tiến hành đặt hàng!'); window.location.href='${pageContext.request.contextPath}/login';" class="btn-checkout" id="btn-checkout">
-                                Tiến hành đặt hàng <i class="fas fa-shopping-cart"></i>
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
+                    <a href="${pageContext.request.contextPath}/CheckoutServlet" class="btn-checkout" id="btn-checkout">
+                        Tiến hành đặt hàng <i class="fas fa-shopping-cart"></i>
+                    </a>
 
                     <!-- Trust badges -->
                     <div class="trust-badges">

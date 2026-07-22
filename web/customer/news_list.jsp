@@ -137,6 +137,18 @@
                             <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
                         </c:if>
                     </c:forEach>
+
+                    <div class="nav-dropdown">
+                        <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
+                        <div class="dropdown-content">
+                            <c:forEach items="${categories}" var="cat">
+                                <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
+                                    <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
+                                </c:if>
+                            </c:forEach>
+                        </div>
+                    </div>
+
                     <a href="${pageContext.request.contextPath}/news" class="active">Tin tức & Khuyến mãi</a>
                 </nav>
                 <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
@@ -144,6 +156,9 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
+                    <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
+                        <i class="fas fa-heart" style="font-size: 18px;"></i>
+                    </a>
                     <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
                         <i class="fas fa-shopping-cart"></i>
                         <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
@@ -183,6 +198,26 @@
                                     <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
                                 </div>
                             </div>
+                            <script>
+                                (function () {
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        var triggers = document.querySelectorAll('.user-menu-trigger');
+                                        triggers.forEach(function (trigger) {
+                                            trigger.addEventListener('click', function (e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                var dropdown = this.nextElementSibling;
+                                                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                            });
+                                        });
+                                        document.addEventListener('click', function () {
+                                            document.querySelectorAll('.user-menu-dropdown-content').forEach(function (dropdown) {
+                                                dropdown.style.display = 'none';
+                                            });
+                                        });
+                                    });
+                                })();
+                            </script>
                         </c:when>
                         <c:otherwise>
                             <a href="${pageContext.request.contextPath}/login" style="font-size: 13px; font-weight: 600; color: #2563eb; text-decoration: none; padding: 6px 14px; border: 1px solid #2563eb; border-radius: 20px;">Đăng nhập</a>

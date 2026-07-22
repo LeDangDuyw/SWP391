@@ -101,7 +101,7 @@ public class CreateTicketController extends HttpServlet {
         int createdBy = (user != null) ? user.getUserId() : 1;
 
         if (title == null || title.trim().isEmpty() || variantIds == null || variantIds.length == 0) {
-            response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=MissingRequiredFields");
+            forwardWithError(request, response, "Vui lòng điền tiêu đề và chọn ít nhất một biến thể sản phẩm.", title, variantIds, quantities, expectedPrices);
             return;
         }
 
@@ -128,13 +128,12 @@ public class CreateTicketController extends HttpServlet {
 
                 // Validate expected price is positive
                 if (expectedPrice.compareTo(BigDecimal.ZERO) <= 0) {
-                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=InvalidPrice");
+                    forwardWithError(request, response, "Đơn giá đề xuất nhập kho của sản phẩm phải lớn hơn 0.", title, variantIds, quantities, expectedPrices);
                     return;
                 }
 
-
                 if (processedVariantIds.contains(variantId)) {
-                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=DuplicateVariant");
+                    forwardWithError(request, response, "Không được chọn trùng lặp biến thể trong cùng một phiếu.", title, variantIds, quantities, expectedPrices);
                     return;
                 }
                 processedVariantIds.add(variantId);
@@ -150,7 +149,7 @@ public class CreateTicketController extends HttpServlet {
         }
 
         if (details.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=NoVariantsSelected");
+            forwardWithError(request, response, "Vui lòng nhập số lượng (> 0) cho ít nhất một biến thể.", title, variantIds, quantities, expectedPrices);
             return;
         }
 
@@ -164,5 +163,45 @@ public class CreateTicketController extends HttpServlet {
         ticketDao.createTicket(ticket, details);
 
         response.sendRedirect(request.getContextPath() + "/staff/ticket/list?success=TicketCreated");
+    }
+
+    private void forwardWithError(HttpServletRequest request, HttpServletResponse response,
+            String errorMsg, String title, String[] variantIds, String[] quantities, String[] expectedPrices)
+            throws ServletException, IOException {
+        
+        request.setAttribute("error", errorMsg);
+        request.setAttribute("title", title);
+        
+        List<TicketDetail> savedDetails = new ArrayList<>();
+        if (variantIds != null && variantIds.length > 0) {
+            for (int i = 0; i < variantIds.length; i++) {
+                try {
+                    int vId = Integer.parseInt(variantIds[i]);
+                    int q = (quantities != null && i < quantities.length && quantities[i] != null && !quantities[i].trim().isEmpty()) 
+                            ? Integer.parseInt(quantities[i].trim()) : 0;
+                    BigDecimal p = (expectedPrices != null && i < expectedPrices.length && expectedPrices[i] != null && !expectedPrices[i].trim().isEmpty())
+                            ? new BigDecimal(expectedPrices[i].trim()) : BigDecimal.ZERO;
+                    
+                    TicketDetail d = new TicketDetail();
+                    d.setVariantId(vId);
+                    d.setQuantity(q);
+                    d.setExpectedPrice(p);
+                    savedDetails.add(d);
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+        request.setAttribute("savedDetails", savedDetails);
+
+        ProductDAO productDao = new ProductDAO();
+        dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+        dal.BrandDao brandDAO = new dal.BrandDao();
+        request.setAttribute("products", productDao.GetAllProducts());
+        request.setAttribute("variants", productDao.getAllVariants());
+        request.setAttribute("categories", categoryDAO.getAllCategories());
+        request.setAttribute("brands", brandDAO.getAllBrands());
+        
+        request.getRequestDispatcher("/staff/ticket/CreateTicket.jsp").forward(request, response);
     }
 }

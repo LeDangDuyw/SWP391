@@ -465,6 +465,50 @@
             document.getElementById('totalFooter').classList.add('hidden');
         }
     }
+
+    <c:if test="${not empty savedDetails}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedDetails = [
+            <c:forEach var="sd" items="${savedDetails}" varStatus="loop">
+                {
+                    variantId: ${sd.variantId},
+                    quantity: ${sd.quantity},
+                    expectedPrice: ${sd.expectedPrice}
+                }<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+        ];
+        
+        if (savedDetails.length > 0) {
+            variantSection.classList.remove('hidden');
+            savedDetails.forEach(sd => {
+                const v = allVariants.find(item => item.variantId === sd.variantId);
+                if (v) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-surface-container-lowest/50';
+                    tr.innerHTML = 
+                        '<td class="px-4 py-3 font-mono text-sm text-on-surface-variant">' + v.sku + '</td>' +
+                        '<td class="px-4 py-3 text-sm text-on-surface font-medium">' + v.variantName + '</td>' +
+                        '<td class="px-4 py-3 text-center">' +
+                            '<input type="hidden" name="variantId" value="' + v.variantId + '">' +
+                            '<input type="number" name="quantity" min="0" value="' + sd.quantity + '" onchange="updateTotal()" onkeyup="updateTotal()" ' +
+                                   'class="w-[100px] px-3 py-2 border border-outline-variant/50 rounded-lg bg-white text-on-surface text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">' +
+                        '</td>' +
+                        '<td class="px-4 py-3 text-center">' +
+                            '<input type="number" name="expectedPrice" min="0" step="1000" value="' + sd.expectedPrice + '" onchange="updateTotal()" onkeyup="updateTotal()" ' +
+                                   'class="w-[150px] px-3 py-2 border border-outline-variant/50 rounded-lg bg-white text-on-surface text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">' +
+                        '</td>' +
+                        '<td class="px-4 py-3 text-center">' +
+                            '<button type="button" onclick="removeVariantRow(this)" class="text-error hover:text-red-700 transition-colors p-1 flex items-center justify-center mx-auto">' +
+                                '<span class="material-symbols-outlined text-[20px]">delete</span>' +
+                            '</button>' +
+                        '</td>';
+                    variantTableBody.appendChild(tr);
+                }
+            });
+            updateTotal();
+        }
+    });
+    </c:if>
 </script>
 
 </body>

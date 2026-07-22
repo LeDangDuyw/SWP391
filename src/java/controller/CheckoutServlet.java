@@ -72,7 +72,7 @@ public class CheckoutServlet extends HttpServlet {
         Object userObj = session.getAttribute("user");
         if (userObj == null) {
             session.setAttribute("redirectAfterLogin", request.getContextPath() + "/CheckoutServlet");
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/login?error=" + java.net.URLEncoder.encode("Vui lòng đăng nhập để tiếp tục thanh toán đơn hàng!", "UTF-8"));
             return;
         }
 
