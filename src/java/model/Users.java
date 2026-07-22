@@ -15,6 +15,7 @@ public class Users {
     public String status;
     public int roleId;
     public String avatarUrl;
+    public int rewardPoints;
 
     public Users() {
     }
@@ -148,5 +149,13 @@ public class Users {
 
     public void setLastLoginAt(java.sql.Timestamp lastLoginAt) {
         this.lastLoginAt = lastLoginAt;
+    }
+
+    public int getRewardPoints() {
+        return rewardPoints;
+    }
+
+    public void setRewardPoints(int rewardPoints) {
+        this.rewardPoints = rewardPoints;
     }
 }

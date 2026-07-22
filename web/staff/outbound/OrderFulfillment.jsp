@@ -8,6 +8,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -163,11 +164,12 @@
 
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
                                         <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã IMEI/Serial cụ thể:</p>
+                                        <c:set var="availItems" value="${not empty availableImeisMap[detail.variantId] ? availableImeisMap[detail.variantId] : availableSerialsMap[detail.variantId]}" />
                                         <c:choose>
-                                            <c:when test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                            <c:when test="${empty availItems || fn:length(availItems) < detail.quantity}">
                                                 <div style="background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                                                     <span class="material-symbols-outlined">warning</span>
-                                                    Kho không đủ hàng (${availableImeisMap[detail.variantId] != null ? availableImeisMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
+                                                    Kho không đủ hàng (${not empty availItems ? fn:length(availItems) : 0} / ${detail.quantity}). Không thể xuất!
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
@@ -176,9 +178,9 @@
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>
                                                         <select name="detail_${detail.orderDetailId}" required class="flex-1 py-2 px-3 bg-white border border-outline-variant/50 rounded-lg text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                                             <option value="">-- Chọn IMEI / Serial --</option>
-                                                            <c:forEach var="item" items="${availableImeisMap[detail.variantId]}" varStatus="status">
+                                                            <c:forEach var="item" items="${availItems}" varStatus="status">
                                                                 <option value="${item.itemId}" ${status.count == i ? 'selected' : ''}>
-                                                                    SN: ${item.serialNumber} | IMEI: ${item.imei}
+                                                                    SN: ${item.serialNumber} ${not empty item.imei ? '| IMEI: ' += item.imei : ''}
                                                                 </option>
                                                             </c:forEach>
                                                         </select>
