@@ -2,29 +2,35 @@ package dal;
 
 /**
  * Class: WarrantyDAO
- * Description: Data Access Object truy xuất và cập nhật trạng thái yêu cầu bảo hành.
+ * Description: Data Access Object xử lý lưu trữ, truy vấn, tìm kiếm, phân trang và cập nhật trạng thái yêu cầu bảo hành (WarrantyClaims).
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-19
- * Version: v2.7
+ * Updated: 2026-07-22
+ * Version: v2.8
  *
  * @author DuyLD
  */
 
-import model.WarrantyClaim;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import model.Users;
+import model.WarrantyClaim;
+import model.WarrantyEligibilityInfo;
+import model.WarrantyPurchasedProduct;
 
 public class WarrantyDAO extends DBContext {
 
-    // ── INSERT ───────────────────────────────────────────────────────────────
     /**
-     * Inserts a new warranty claim and returns the generated claim ID.
+     * Thêm mới một phiếu bảo hành vào CSDL và trả về claim_id vừa tạo.
      *
-     * @param claim the WarrantyClaim to persist
-     * @return generated claimId, or -1 on failure
-     * @throws Exception on SQL error
+     * @param claim đối tượng WarrantyClaim chứa thông tin tạo mới
+     * @return claim_id được sinh tự động, hoặc -1 nếu thất bại
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int insertClaim(WarrantyClaim claim) throws Exception {
         String sql = "INSERT INTO WarrantyClaims "
@@ -32,9 +38,7 @@ public class WarrantyDAO extends DBContext {
                 + " title, description, status, created_at, updated_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, 'PENDING', GETDATE(), GETDATE())";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
             ps.setInt(1, claim.getOrderId());
             ps.setInt(2, claim.getOrderDetailId());
             ps.setInt(3, claim.getCustomerId());
@@ -43,9 +47,7 @@ public class WarrantyDAO extends DBContext {
             ps.setString(6, claim.getDescription());
             ps.executeUpdate();
 
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet keys = ps.getGeneratedKeys()) {
-                // Kiểm tra điều kiện
                 if (keys.next()) {
                     return keys.getInt(1);
                 }
@@ -54,13 +56,12 @@ public class WarrantyDAO extends DBContext {
         return -1;
     }
 
-    // ── UPDATE STATUS ─────────────────────────────────────────────────────────
     /**
-     * Updates the status (and optionally completed_at) of an existing claim.
+     * Cập nhật trạng thái phiếu bảo hành (và mốc completed_at nếu chuyển sang COMPLETED).
      *
-     * @param claimId ID of the claim to update
-     * @param newStatus the target status string
-     * @throws Exception on SQL error
+     * @param claimId   ID phiếu bảo hành
+     * @param newStatus trạng thái mới ("PROCESSING", "APPROVED", "REJECTED", "COMPLETED", "CANCELLED")
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public void updateStatus(int claimId, String newStatus) throws Exception {
         boolean isCompleted = "COMPLETED".equals(newStatus);
@@ -69,7 +70,6 @@ public class WarrantyDAO extends DBContext {
                 ? "UPDATE WarrantyClaims SET status = ?, updated_at = GETDATE(), completed_at = GETDATE() WHERE claim_id = ?"
                 : "UPDATE WarrantyClaims SET status = ?, updated_at = GETDATE() WHERE claim_id = ?";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, newStatus);
             ps.setInt(2, claimId);
@@ -78,18 +78,18 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Atomically assigns staff and transitions status PENDING → PROCESSING.
-     * Uses optimistic locking (WHERE status = 'PENDING') to prevent race
-     * condition when multiple staff click "Accept" on the same claim.
+     * BR-23: Phân công nhân viên xử lý và chuyển trạng thái PENDING -> PROCESSING trong 1 câu lệnh nguyên tử (Atomic Query).
+     * Sử dụng Optimistic Locking (WHERE status = 'PENDING') để tránh xung đột race condition khi 2 Staff cùng bấm tiếp nhận.
      *
-     * @return number of rows affected (0 = claim was already taken by someone
-     * else)
+     * @param claimId ID phiếu bảo hành
+     * @param staffId ID nhân viên tiếp nhận
+     * @return số dòng bị ảnh hưởng (0 = yêu cầu đã bị người khác nhận trước)
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int assignStaffAndProcess(int claimId, int staffId) throws Exception {
         String sql = "UPDATE WarrantyClaims "
                 + "SET staff_id = ?, status = 'PROCESSING', updated_at = GETDATE() "
                 + "WHERE claim_id = ? AND status = 'PENDING'";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, staffId);
             ps.setInt(2, claimId);
@@ -97,18 +97,15 @@ public class WarrantyDAO extends DBContext {
         }
     }
 
-    // ── FIND BY ID ────────────────────────────────────────────────────────────
     /**
-     * Retrieves a single WarrantyClaim by its ID, joining customer and product
-     * names.
+     * Truy vấn thông tin chi tiết một phiếu bảo hành theo claim_id (kèm tên khách hàng và tên sản phẩm).
      *
-     * @param claimId the claim's primary key
-     * @return WarrantyClaim or null if not found
-     * @throws Exception on SQL error
+     * @param claimId ID phiếu bảo hành
+     * @return đối tượng WarrantyClaim hoặc null nếu không tìm thấy
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public WarrantyClaim findById(int claimId) throws Exception {
-        String sql
-                = "SELECT wc.*, "
+        String sql = "SELECT wc.*, "
                 + "u.full_name AS customer_name, "
                 + "p.product_name "
                 + "FROM WarrantyClaims wc "
@@ -118,12 +115,9 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "WHERE wc.claim_id = ?";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return mapClaimWithJoin(rs);
                 }
@@ -132,13 +126,12 @@ public class WarrantyDAO extends DBContext {
         return null;
     }
 
-    // ── FIND BY CUSTOMER ─────────────────────────────────────────────────────
     /**
-     * Returns all warranty claims for a specific customer, newest first.
+     * Lấy toàn bộ danh sách phiếu bảo hành của một khách hàng cụ thể (mới nhất trước).
      *
-     * @param customerId ID of the customer
-     * @return list of WarrantyClaim (may be empty)
-     * @throws Exception on SQL error
+     * @param customerId ID khách hàng
+     * @return danh sách các WarrantyClaim
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public List<WarrantyClaim> findByCustomer(int customerId) throws Exception {
         String sql = "SELECT wc.*, "
@@ -153,10 +146,8 @@ public class WarrantyDAO extends DBContext {
                 + "ORDER BY wc.created_at DESC";
 
         List<WarrantyClaim> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapClaimWithJoin(rs));
@@ -166,14 +157,13 @@ public class WarrantyDAO extends DBContext {
         return list;
     }
 
-    // ── FIND ALL (paged) ─────────────────────────────────────────────────────
     /**
-     * Returns a page of all warranty claims, newest first.
+     * Lấy danh sách phiếu bảo hành có phân trang (dùng cho giao diện Quản trị).
      *
-     * @param offset zero-based row offset
-     * @param limit max rows to return
-     * @return list of WarrantyClaim
-     * @throws Exception on SQL error
+     * @param offset số dòng bỏ qua
+     * @param limit  số lượng bản ghi tối đa
+     * @return danh sách WarrantyClaim
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public List<WarrantyClaim> findAll(int offset, int limit) throws Exception {
         String sql = "SELECT wc.*, "
@@ -187,11 +177,9 @@ public class WarrantyDAO extends DBContext {
                 + "ORDER BY wc.created_at DESC "
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         List<WarrantyClaim> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, offset);
             ps.setInt(2, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapClaimWithJoin(rs));
@@ -201,14 +189,12 @@ public class WarrantyDAO extends DBContext {
         return list;
     }
 
-    // ── COUNT ─────────────────────────────────────────────────────────────────
     /**
-     * Returns the total number of warranty claims, optionally filtered by
-     * status.
+     * Đếm tổng số lượng phiếu bảo hành (có hỗ trợ lọc theo trạng thái).
      *
-     * @param status status filter, or null/empty for all
-     * @return row count
-     * @throws Exception on SQL error
+     * @param status trạng thái lọc (hoặc null nếu đếm tất cả)
+     * @return tổng số bản ghi
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int count(String status) throws Exception {
         boolean hasStatus = (status != null && !status.trim().isEmpty());
@@ -216,15 +202,11 @@ public class WarrantyDAO extends DBContext {
                 ? "SELECT COUNT(*) FROM WarrantyClaims WHERE status = ?"
                 : "SELECT COUNT(*) FROM WarrantyClaims";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            // Kiểm tra điều kiện
             if (hasStatus) {
                 ps.setString(1, status);
             }
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
@@ -233,16 +215,14 @@ public class WarrantyDAO extends DBContext {
         return 0;
     }
 
-    // ── SEARCH ────────────────────────────────────────────────────────────────
     /**
-     * Searches warranty claims by keyword (matches title, description, serial
-     * number).
+     * Tìm kiếm phiếu bảo hành theo từ khóa (khớp tiêu đề, mô tả lỗi hoặc số serial) có phân trang.
      *
-     * @param keyword search keyword
-     * @param offset zero-based row offset
-     * @param limit max rows to return
-     * @return matching claims
-     * @throws Exception on SQL error
+     * @param keyword từ khóa tìm kiếm
+     * @param offset  số dòng bỏ qua
+     * @param limit   số lượng bản ghi tối đa
+     * @return danh sách các WarrantyClaim thỏa điều kiện
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public List<WarrantyClaim> search(String keyword, int offset, int limit) throws Exception {
         String pattern = "%" + keyword.trim() + "%";
@@ -261,14 +241,12 @@ public class WarrantyDAO extends DBContext {
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<WarrantyClaim> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
             ps.setInt(4, offset);
             ps.setInt(5, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapClaimWithJoin(rs));
@@ -279,25 +257,22 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Returns the count of claims matching the search keyword.
+     * Đếm số lượng phiếu bảo hành thỏa mãn từ khóa tìm kiếm.
      *
-     * @param keyword search keyword
-     * @return matching row count
-     * @throws Exception on SQL error
+     * @param keyword từ khóa tìm kiếm
+     * @return số lượng bản ghi
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int countSearch(String keyword) throws Exception {
         String pattern = "%" + keyword.trim() + "%";
         String sql = "SELECT COUNT(*) FROM WarrantyClaims wc "
                 + "WHERE wc.title LIKE ? OR wc.description LIKE ? OR wc.serial_number LIKE ?";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
@@ -306,15 +281,14 @@ public class WarrantyDAO extends DBContext {
         return 0;
     }
 
-    // ── FILTER ────────────────────────────────────────────────────────────────
     /**
-     * Returns warranty claims filtered by status (paged).
+     * Lọc phiếu bảo hành theo trạng thái cụ thể có phân trang.
      *
-     * @param status status to filter by
-     * @param offset zero-based row offset
-     * @param limit max rows to return
-     * @return matching claims
-     * @throws Exception on SQL error
+     * @param status trạng thái cần lọc
+     * @param offset số dòng bỏ qua
+     * @param limit  số lượng bản ghi tối đa
+     * @return danh sách các WarrantyClaim
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public List<WarrantyClaim> filter(String status, int offset, int limit) throws Exception {
         String sql = "SELECT wc.*, "
@@ -330,12 +304,10 @@ public class WarrantyDAO extends DBContext {
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<WarrantyClaim> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, offset);
             ps.setInt(3, limit);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapClaimWithJoin(rs));
@@ -345,20 +317,17 @@ public class WarrantyDAO extends DBContext {
         return list;
     }
 
-    // ── VALIDATION HELPERS ────────────────────────────────────────────────────
     /**
-     * Checks whether a serial number exists in the ProductSerials table.
+     * Kiểm tra số serial có tồn tại trong bảng InventoryItem hay không.
      *
-     * @param serialNumber the serial number to check
-     * @return true if the serial exists
-     * @throws Exception on SQL error
+     * @param serialNumber số serial cần kiểm tra
+     * @return true nếu tồn tại, false nếu không
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public boolean serialExists(String serialNumber) throws Exception {
         String sql = "SELECT 1 FROM InventoryItem WHERE serial_number = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
@@ -366,13 +335,12 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Checks whether a serial number belongs to the given customer via a
-     * completed order.
+     * BR-15: Kiểm tra số serial có thuộc đơn hàng hoàn thành (COMPLETED/DELIVERED) của chính khách hàng đó không.
      *
-     * @param serialNumber the serial number
-     * @param customerId the customer to verify ownership
-     * @return true if the customer owns the product
-     * @throws Exception on SQL error
+     * @param serialNumber số serial
+     * @param customerId   ID khách hàng
+     * @return true nếu chính chủ sản phẩm, false nếu không
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public boolean productBelongsToCustomer(String serialNumber, int customerId) throws Exception {
         String sql = "SELECT 1 "
@@ -381,12 +349,10 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "WHERE ii.serial_number = ? AND (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered')";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
             ps.setInt(2, customerId);
             ps.setInt(3, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
@@ -394,16 +360,11 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Checks whether the product identified by serial number is still under
-     * warranty. Warranty expiry is computed as: order completion date +
-     * the product's own warranty_period (months), NOT the WarrantyPolicies
-     * template — warranty_period is the per-product value shown on the
-     * product detail page (e.g. "Bảo hành 24 tháng") and is what customers
-     * actually see when they buy.
+     * Kiểm tra sản phẩm mang số serial còn trong hạn bảo hành hay không (dựa vào mốc ngày mua + tháng bảo hành).
      *
-     * @param serialNumber the serial number to check
-     * @return true if warranty is still active
-     * @throws Exception on SQL error
+     * @param serialNumber số serial cần kiểm tra
+     * @return true nếu còn hạn bảo hành, false nếu hết hạn
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public boolean isUnderWarranty(String serialNumber) throws Exception {
         String sql = "SELECT 1 "
@@ -419,10 +380,8 @@ public class WarrantyDAO extends DBContext {
                 + "    OR "
                 + "    (ii.warranty_expired_date IS NULL AND DATEADD(MONTH, p.warranty_period, o.completed_at) >= GETDATE()) "
                 + ")";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
@@ -430,20 +389,17 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Checks whether an open (unfinished) claim already exists for the serial
-     * number. Unfinished statuses: PENDING, PROCESSING, APPROVED.
+     * Kiểm tra xem số serial đã có phiếu bảo hành nào đang trong quá trình xử lý (PENDING, PROCESSING, APPROVED) hay chưa.
      *
-     * @param serialNumber the serial number to check
-     * @return true if an active claim exists
-     * @throws Exception on SQL error
+     * @param serialNumber số serial
+     * @return true nếu đã có yêu cầu active, false nếu chưa
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public boolean hasActiveClaim(String serialNumber) throws Exception {
         String sql = "SELECT 1 FROM WarrantyClaims "
                 + "WHERE serial_number = ? AND status IN ('PENDING','PROCESSING','APPROVED')";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
@@ -451,18 +407,13 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Retrieves all purchased units (one row per serial number) for a
-     * customer, across all their completed orders. Used to render Step 1
-     * ("Select Product") of the Submit Claim wizard — replaces manual serial
-     * number entry. Each row includes purchase date, computed warranty
-     * expiry, and whether an active claim already exists, so the JSP can
-     * show eligibility state without an extra query per row.
+     * Truy vấn danh sách các sản phẩm đã mua của khách hàng (dùng cho Bước 1 Chọn sản phẩm của wizard tạo yêu cầu bảo hành).
      *
-     * @param customerId the customer whose purchases to list
-     * @return list of purchased products, most recently purchased first
-     * @throws Exception on SQL error
+     * @param customerId ID khách hàng
+     * @return danh sách các WarrantyPurchasedProduct
+     * @throws Exception nếu xảy ra lỗi SQL
      */
-    public List<model.WarrantyPurchasedProduct> findPurchasedProductsByCustomer(int customerId) throws Exception {
+    public List<WarrantyPurchasedProduct> findPurchasedProductsByCustomer(int customerId) throws Exception {
         String sql = "SELECT ii.serial_number AS serialNumber, "
                 + "p.product_name AS productName, "
                 + "o.completed_at AS purchaseDate, "
@@ -484,15 +435,13 @@ public class WarrantyDAO extends DBContext {
                 + "WHERE (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
                 + "ORDER BY o.completed_at DESC, ii.serial_number ASC";
 
-        List<model.WarrantyPurchasedProduct> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        List<WarrantyPurchasedProduct> list = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
             ps.setInt(2, customerId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    model.WarrantyPurchasedProduct item = new model.WarrantyPurchasedProduct();
+                    WarrantyPurchasedProduct item = new WarrantyPurchasedProduct();
                     item.setSerialNumber(rs.getString("serialNumber"));
                     item.setProductName(rs.getString("productName"));
                     item.setPurchaseDate(rs.getTimestamp("purchaseDate"));
@@ -508,17 +457,13 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Retrieves product name, warranty expiry date, and coverage (policy)
-     * name for a serial number. Used to populate Step 2 ("Warranty
-     * Information") of the Submit Claim wizard on warranty_center.jsp after
-     * a successful Check Eligibility call. Assumes the serial has already
-     * passed serialExists / productBelongsToCustomer / isUnderWarranty.
+     * Lấy thông tin tính hợp lệ bảo hành (tên sản phẩm, thời hạn, tên chính sách) theo số serial.
      *
-     * @param serialNumber the serial number to look up
-     * @return a populated WarrantyEligibilityInfo, or null if not found
-     * @throws Exception on SQL error
+     * @param serialNumber số serial
+     * @return đối tượng WarrantyEligibilityInfo
+     * @throws Exception nếu xảy ra lỗi SQL
      */
-    public model.WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
+    public WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
         String sql = "SELECT p.product_name AS productName, "
                 + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
                 + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName "
@@ -530,14 +475,11 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN Product p ON pv.product_id = p.product_id "
                 + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE ii.serial_number = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
-                    return new model.WarrantyEligibilityInfo(
+                    return new WarrantyEligibilityInfo(
                             serialNumber,
                             rs.getString("productName"),
                             rs.getDate("warrantyExpiry"),
@@ -549,24 +491,21 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Retrieves the order_detail_id for a given serial number.
+     * Lấy order_detail_id dựa trên số serial.
      *
-     * @param serialNumber the serial number
-     * @return order_detail_id, or -1 if not found
-     * @throws Exception on SQL error
+     * @param serialNumber số serial
+     * @return order_detail_id hoặc -1 nếu không tìm thấy
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int getOrderDetailIdBySerial(String serialNumber) throws Exception {
-        String sql = "SELECT od.order_detail_id, od.order_id "
+        String sql = "SELECT od.order_detail_id "
                 + "FROM InventoryItem ii "
                 + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "WHERE ii.serial_number = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt("order_detail_id");
                 }
@@ -576,11 +515,11 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Retrieves the order_id for a given serial number.
+     * Lấy order_id dựa trên số serial.
      *
-     * @param serialNumber the serial number
-     * @return order_id, or -1 if not found
-     * @throws Exception on SQL error
+     * @param serialNumber số serial
+     * @return order_id hoặc -1 nếu không tìm thấy
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int getOrderIdBySerial(String serialNumber) throws Exception {
         String sql = "SELECT od.order_id "
@@ -588,12 +527,9 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "WHERE ii.serial_number = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt("order_id");
                 }
@@ -602,11 +538,8 @@ public class WarrantyDAO extends DBContext {
         return -1;
     }
 
-    // ── PRIVATE MAPPING ───────────────────────────────────────────────────────
     /**
-     * Maps base fields from a ResultSet row to a WarrantyClaim object. Dùng làm
-     * helper nội bộ cho mapClaimWithJoin(). Tất cả query hiện tại đều có JOIN
-     * nên không gọi method này trực tiếp.
+     * Helper ánh xạ dữ liệu ResultSet sang WarrantyClaim.
      */
     private WarrantyClaim mapClaim(ResultSet rs) throws SQLException {
         WarrantyClaim c = new WarrantyClaim();
@@ -629,8 +562,7 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Map base fields + joined fields — dùng cho query có JOIN với Users và
-     * Products. Nếu column name bị typo, lỗi sẽ nổi lên ngay thay vì bị nuốt.
+     * Helper ánh xạ dữ liệu ResultSet (kèm JOIN User và Product) sang WarrantyClaim.
      */
     private WarrantyClaim mapClaimWithJoin(ResultSet rs) throws SQLException {
         WarrantyClaim c = mapClaim(rs);
@@ -640,13 +572,12 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Reassigns a claim to a different staff member (used by Admin for Take Over / Reassign).
-     * Does NOT check status — caller is responsible for validating.
+     * Phân công lại (Reassign) phiếu bảo hành cho nhân viên khác (dành cho Admin/Staff Take Over).
      *
-     * @param claimId    ID of the claim
-     * @param newStaffId ID of the new staff to assign
-     * @return rows affected
-     * @throws Exception on SQL error
+     * @param claimId    ID phiếu bảo hành
+     * @param newStaffId ID nhân viên mới
+     * @return số dòng bị ảnh hưởng
+     * @throws Exception nếu xảy ra lỗi SQL
      */
     public int reassignStaff(int claimId, int newStaffId) throws Exception {
         String sql = "UPDATE WarrantyClaims "
@@ -660,19 +591,19 @@ public class WarrantyDAO extends DBContext {
     }
 
     /**
-     * Returns all active staff users (role_id = 2) for the Reassign dropdown in Admin view.
+     * Lấy danh sách toàn bộ nhân viên (role_id = 2) đang active để đổ vào dropdown phân công lại.
      *
-     * @return list of staff Users
-     * @throws Exception on SQL error
+     * @return danh sách các Users nhân viên
+     * @throws Exception nếu xảy ra lỗi SQL
      */
-    public List<model.Users> findStaffList() throws Exception {
+    public List<Users> findStaffList() throws Exception {
         String sql = "SELECT user_id, full_name, email, phone, password, status, role_id "
                 + "FROM [User] WHERE role_id = 2 AND status = 'active' ORDER BY full_name";
-        List<model.Users> list = new ArrayList<>();
+        List<Users> list = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new model.Users(
+                    list.add(new Users(
                             rs.getInt("user_id"),
                             rs.getString("full_name"),
                             rs.getString("email"),

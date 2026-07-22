@@ -2,20 +2,21 @@ package service;
 
 /**
  * Class: WarrantyService
- * Description: Lớp xử lý logic nghiệp vụ bảo hành (Warranty Service).
+ * Description: Lớp xử lý nghiệp vụ bảo hành (Warranty Business Logic Layer).
+ *              Đảm nhận kiểm tra quy tắc nghiệp vụ (BR-05, BR-08, BR-15, BR-16, BR-17, BR-19, BR-20, BR-22, BR-23, BR-42, BR-43),
+ *              validate danh sách ảnh upload, lưu trữ ảnh xuống ổ đĩa, ghi log nhật ký lịch sử chuyển trạng thái
+ *              và quản lý phân công/chuyển giao nhiệm vụ xử lý cho Nhân viên/Admin.
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-19
- * Version: v2.3
+ * Updated: 2026-07-22
+ * Version: v2.4
  *
  * @author DuyLD
  */
 
+import dal.WarrantyClaimImageDAO;
 import dal.WarrantyDAO;
 import dal.WarrantyHistoryDAO;
-import dal.WarrantyClaimImageDAO;
-import model.WarrantyClaim;
-import model.WarrantyHistory;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.InputStream;
@@ -25,6 +26,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import model.Users;
+import model.WarrantyClaim;
+import model.WarrantyClaimImage;
+import model.WarrantyEligibilityInfo;
+import model.WarrantyHistory;
+import model.WarrantyPurchasedProduct;
 import utils.ValidationException;
 
 public class WarrantyService {
@@ -33,21 +40,18 @@ public class WarrantyService {
     private final WarrantyHistoryDAO historyDAO;
     private final WarrantyClaimImageDAO imageDAO;
 
-    // ── IMAGE UPLOAD CONFIG ───────────────────────────────────────────────────
-
+    // Cấu hình giới hạn upload ảnh (BR-42)
     private static final int MAX_IMAGES = 5;
-    private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024; // 5MB
+    private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024; // 5MB per image
     private static final List<String> ALLOWED_CONTENT_TYPES =
             List.of("image/jpeg", "image/png", "image/jpg", "image/webp");
 
-    // Thư mục lưu ảnh trên disk, nằm ngoài thư mục build của webapp để không bị
-    // mất khi redeploy. URL trả về cho client sẽ map qua servlet/context riêng
-    // (xem ghi chú ở WarrantyController khi đăng ký static resource mapping).
+    // Thư mục lưu đĩa ảnh upload vật lý
     private static final String UPLOAD_DIR = System.getProperty("warranty.upload.dir",
             System.getProperty("user.home") + File.separator + "uploads" + File.separator + "warranty");
 
     /**
-     * Phuong thuc WarrantyService
+     * Khởi tạo WarrantyService và các DAO phụ trợ.
      */
     public WarrantyService() {
         this.warrantyDAO = new WarrantyDAO();
@@ -55,26 +59,36 @@ public class WarrantyService {
         this.imageDAO    = new WarrantyClaimImageDAO();
     }
 
-    // ── SUBMIT ────────────────────────────────────────────────────────────────
-
+    /**
+     * Nộp yêu cầu bảo hành mới từ Khách hàng.
+     * Validate độ dài trường thông tin (BR-43), kiểm tra chính chủ & hạn bảo hành (BR-15),
+     * kiểm tra không trùng lặp active claim (BR-18), validate ảnh (BR-42, BR-08),
+     * khởi tạo trạng thái PENDING (BR-16), ghi log lịch sử (BR-17) và lưu trữ tập tin ảnh.
+     *
+     * @param customerId   ID khách hàng nộp đơn
+     * @param serialNumber số serial sản phẩm
+     * @param title        tiêu đề yêu cầu
+     * @param description  mô tả chi tiết lỗi
+     * @param images       danh sách Part ảnh upload từ HTTP form
+     * @return claim_id vừa tạo thành công
+     * @throws ValidationException nếu vi phạm quy tắc nghiệp vụ
+     * @throws Exception           nếu xảy ra lỗi hệ thống/CSDL
+     */
     public int submitWarranty(int customerId, String serialNumber,
             String title, String description, List<Part> images)
             throws ValidationException, Exception {
 
-        // Kiểm tra điều kiện
         if (serialNumber == null || serialNumber.trim().isEmpty()) {
             throw new ValidationException("Số serial không được để trống.");
         }
-        // Kiểm tra điều kiện
         if (title == null || title.trim().isEmpty()) {
             throw new ValidationException("Tiêu đề không được để trống.");
         }
-        // Kiểm tra điều kiện
         if (description == null || description.trim().isEmpty()) {
             throw new ValidationException("Mô tả lỗi không được để trống.");
         }
 
-        // BR-43: Warranty request field lengths: serial number <= 100 characters, title <= 200 characters, defect description <= 2000 characters
+        // BR-43: Giới hạn độ dài trường thông tin
         if (serialNumber.trim().length() > 100) {
             throw new ValidationException("Số serial không được vượt quá 100 ký tự.");
         }
@@ -85,29 +99,27 @@ public class WarrantyService {
             throw new ValidationException("Mô tả lỗi không được vượt quá 2000 ký tự.");
         }
 
-        // Validate ảnh TRƯỚC khi đụng tới DB hoặc disk, để fail-fast và
-        // không tạo claim "mồ côi" nếu ảnh không hợp lệ.
+        // Validate danh sách ảnh trước khi ghi vào CSDL (Fail-fast pattern)
         List<Part> validImageParts = filterImageParts(images);
         validateImages(validImageParts);
 
         serialNumber = serialNumber.trim();
 
-        // Kiểm tra điều kiện
         if (!warrantyDAO.serialExists(serialNumber)) {
             throw new ValidationException("Số serial không tồn tại trong hệ thống.");
         }
 
-        // BR-15: A customer can submit a warranty request only for a product that belongs to their completed order
+        // BR-15: Sản phẩm phải thuộc đơn hàng hoàn thành của chính khách hàng
         if (!warrantyDAO.productBelongsToCustomer(serialNumber, customerId)) {
             throw new ValidationException("Sản phẩm này không thuộc đơn hàng đã hoàn thành của bạn.");
         }
 
-        // BR-15: ... and is linked to an active Warranty Policy, and is still within its warranty period.
+        // BR-15: Sản phẩm phải còn trong thời hạn bảo hành
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành. Không thể tạo yêu cầu.");
         }
 
-        // Kiểm tra điều kiện
+        // BR-18: Chỉ 1 yêu cầu bảo hành đang xử lý cho mỗi số serial
         if (warrantyDAO.hasActiveClaim(serialNumber)) {
             throw new ValidationException("Đã tồn tại một yêu cầu bảo hành đang xử lý cho sản phẩm này.");
         }
@@ -122,16 +134,16 @@ public class WarrantyService {
         claim.setSerialNumber(serialNumber);
         claim.setTitle(title.trim());
         claim.setDescription(description.trim());
-        // BR-16: Every newly submitted warranty request shall be created with the initial status PENDING
+        // BR-16: Trạng thái khởi tạo ban đầu là PENDING
         claim.setStatus("PENDING");
 
         int claimId = warrantyDAO.insertClaim(claim);
 
-        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log
+        // BR-17: Ghi log nhật ký tạo mới
         insertHistory(claimId, description.trim(), "PENDING",
                 "Yêu cầu bảo hành đã được gửi và đang chờ xử lý.");
 
-        // Lưu ảnh SAU khi claim đã có claimId
+        // Lưu trữ tập tin ảnh minh chứng lên ổ đĩa & lưu URL vào CSDL
         if (!validImageParts.isEmpty()) {
             saveClaimImages(claimId, validImageParts);
         }
@@ -139,21 +151,15 @@ public class WarrantyService {
         return claimId;
     }
 
-    // ── IMAGE UPLOAD HELPERS ──────────────────────────────────────────────────
-
     /**
-     * Lọc ra các Part thực sự là file ảnh được chọn (bỏ qua các Part rỗng do
-     * trình duyệt gửi khi người dùng không chọn đủ 5 ô input, hoặc các Part
-     * không phải field file).
+     * Lọc danh sách Part thực sự là tập tin ảnh hợp lệ.
      */
     private List<Part> filterImageParts(List<Part> images) {
         List<Part> result = new ArrayList<>();
-        // Kiểm tra điều kiện
         if (images == null) {
             return result;
         }
         for (Part p : images) {
-            // Kiểm tra điều kiện
             if (p != null && p.getSize() > 0 && p.getSubmittedFileName() != null
                     && !p.getSubmittedFileName().trim().isEmpty()) {
                 result.add(p);
@@ -163,30 +169,28 @@ public class WarrantyService {
     }
 
     /**
-     * Validate số lượng, dung lượng và định dạng ảnh.
-     * Ném ValidationException với message tiếng Việt rõ ràng cho từng trường hợp.
+     * BR-42 & BR-08: Validate bắt buộc có ảnh minh chứng, tối đa 5 ảnh, dung lượng <= 5MB/ảnh và định dạng JPG, PNG, WEBP.
      */
     private void validateImages(List<Part> images) throws ValidationException {
-        // BR-08: All online warranty requests submitted by customers must include valid evidence (images, videos, or documents).
+        // BR-08: Bắt buộc đính kèm ảnh minh chứng
         if (images == null || images.isEmpty()) {
             throw new ValidationException("Yêu cầu bảo hành trực tuyến bắt buộc phải kèm theo ít nhất 1 ảnh bằng chứng.");
         }
 
-        // BR-42: Warranty request images: up to 5 files may be attached
+        // BR-42: Tối đa 5 ảnh
         if (images.size() > MAX_IMAGES) {
-            throw new ValidationException(
-                    "Chỉ được tải lên tối đa " + MAX_IMAGES + " ảnh.");
+            throw new ValidationException("Chỉ được tải lên tối đa " + MAX_IMAGES + " ảnh.");
         }
 
         for (Part p : images) {
-            // BR-42: maximum 5MB per file
+            // BR-42: Tối đa 5MB mỗi ảnh
             if (p.getSize() > MAX_IMAGE_SIZE) {
                 throw new ValidationException(
                         "Ảnh \"" + p.getSubmittedFileName() + "\" vượt quá 5MB. "
                         + "Vui lòng chọn ảnh nhỏ hơn.");
             }
 
-            // BR-42: in JPEG, PNG, JPG, or WEBP format
+            // BR-42: Định dạng JPEG, PNG, JPG, WEBP
             String contentType = p.getContentType();
             if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
                 throw new ValidationException(
@@ -197,9 +201,7 @@ public class WarrantyService {
     }
 
     /**
-     * Ghi các Part ảnh xuống disk dưới tên file ngẫu nhiên (UUID) để tránh
-     * trùng lặp/đụng tên cũng như tránh path traversal qua tên file gốc của
-     * người dùng, rồi insert batch các image_url tương ứng vào DB.
+     * Lưu ảnh xuống đĩa cứng sử dụng tên ngẫu nhiên UUID và chèn thông tin URL vào CSDL.
      */
     private void saveClaimImages(int claimId, List<Part> images) throws Exception {
         Path uploadPath = Paths.get(UPLOAD_DIR, String.valueOf(claimId));
@@ -211,12 +213,9 @@ public class WarrantyService {
             String originalName = p.getSubmittedFileName();
             String ext = "";
             int dot = originalName.lastIndexOf('.');
-            // Kiểm tra điều kiện
             if (dot >= 0) {
                 ext = originalName.substring(dot).toLowerCase();
             }
-            // Whitelist phần mở rộng để tránh lưu file thực thi dưới tên giả mạo
-            // Kiểm tra điều kiện
             if (!ext.matches("\\.(jpg|jpeg|png|webp)")) {
                 ext = ".jpg";
             }
@@ -224,13 +223,10 @@ public class WarrantyService {
             String storedFileName = UUID.randomUUID().toString() + ext;
             Path targetFile = uploadPath.resolve(storedFileName);
 
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (InputStream in = p.getInputStream()) {
                 Files.copy(in, targetFile);
             }
 
-            // URL tương đối — controller/servlet phục vụ ảnh tĩnh sẽ map từ
-            // đường dẫn này, ví dụ: /warranty-images/{claimId}/{storedFileName}
             String relativeUrl = "/warranty-images/" + claimId + "/" + storedFileName;
             savedUrls.add(relativeUrl);
         }
@@ -239,49 +235,52 @@ public class WarrantyService {
     }
 
     /**
-     * Lấy danh sách ảnh của một claim — dùng cho gallery trên detail.jsp.
+     * Lấy danh sách ảnh minh chứng đính kèm phiếu bảo hành.
+     *
+     * @param claimId ID phiếu bảo hành
+     * @return danh sách WarrantyClaimImage
+     * @throws Exception nếu xảy ra lỗi CSDL
      */
-    public List<model.WarrantyClaimImage> getClaimImages(int claimId) throws Exception {
+    public List<WarrantyClaimImage> getClaimImages(int claimId) throws Exception {
         return imageDAO.findByClaimId(claimId);
     }
 
-    // ── CANCEL ────────────────────────────────────────────────────────────────
-
+    /**
+     * Khách hàng tự hủy yêu cầu bảo hành của mình (BR-05 & BR-19: Chỉ cho phép hủy khi ở trạng thái PENDING).
+     *
+     * @param claimId    ID phiếu bảo hành
+     * @param customerId ID khách hàng thực hiện hủy
+     * @throws ValidationException nếu trạng thái khác PENDING hoặc không đúng chủ sở hữu
+     * @throws Exception           nếu xảy ra lỗi CSDL
+     */
     public void cancelWarranty(int claimId, int customerId)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertOwner(claim, customerId);
 
-        // BR-05 & BR-19: Customers are only allowed to cancel a warranty request only while its status is PENDING. Once cancelled, the request cannot be restored.
         if (!"PENDING".equals(claim.getStatus())) {
-            throw new ValidationException(
-                    "Chỉ có thể huỷ yêu cầu bảo hành khi trạng thái là PENDING.");
+            throw new ValidationException("Chỉ có thể huỷ yêu cầu bảo hành khi trạng thái là PENDING.");
         }
 
         warrantyDAO.updateStatus(claimId, "CANCELLED");
-
-        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log
-        insertHistory(claimId, claim.getDescription(), "CANCELLED",
-                "Khách hàng đã huỷ yêu cầu bảo hành.");
+        insertHistory(claimId, claim.getDescription(), "CANCELLED", "Khách hàng đã huỷ yêu cầu bảo hành.");
     }
 
-    // ── STAFF CANCEL ──────────────────────────────────────────────────────────
-
     /**
-     * Cho phép Staff/Admin huỷ một claim đang ở trạng thái PENDING.
-     * Không kiểm tra ownership vì staff được phép thao tác trên mọi claim.
+     * Nhân viên / Admin hủy yêu cầu bảo hành ở trạng thái PENDING (kèm ghi chú lý do).
      *
-     * @param claimId ID của claim cần huỷ
-     * @param staffId ID của staff thực hiện hành động (dùng để ghi log)
-     * @param note    Lý do huỷ (bắt buộc phải có)
+     * @param claimId ID phiếu bảo hành
+     * @param staffId ID nhân viên thao tác
+     * @param note    lý do hủy
+     * @throws ValidationException nếu trạng thái không phải PENDING
+     * @throws Exception           nếu xảy ra lỗi CSDL
      */
     public void staffCancelClaim(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
 
-        // Kiểm tra điều kiện
         if (!"PENDING".equals(claim.getStatus())) {
             throw new ValidationException(
                     "Chỉ có thể huỷ yêu cầu khi trạng thái là PENDING. "
@@ -289,92 +288,84 @@ public class WarrantyService {
         }
 
         warrantyDAO.updateStatus(claimId, "CANCELLED");
-
-        String historyNote = (note != null && !note.trim().isEmpty())
-                ? note.trim()
-                : "Staff đã huỷ yêu cầu bảo hành.";
-
+        String historyNote = (note != null && !note.trim().isEmpty()) ? note.trim() : "Staff đã huỷ yêu cầu bảo hành.";
         insertHistory(claimId, claim.getDescription(), "CANCELLED", historyNote);
     }
 
-    // ── PROCESS ───────────────────────────────────────────────────────────────
-
+    /**
+     * Tiếp nhận và bắt đầu xử lý phiếu bảo hành (chuyển PENDING -> PROCESSING - BR-23).
+     */
     private void processWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PENDING", "PROCESSING");
 
-        // BR-23: A warranty request cannot be processed simultaneously by multiple Staff members.
-        // Atomic update: gán staff + đổi status trong 1 SQL, đồng thời dùng
-        // optimistic lock (WHERE status = 'PENDING') để tránh race condition
-        // khi 2 staff cùng nhận claim.
+        // BR-23: Phân công nhân viên nguyên tử tránh 2 staff cùng nhận
         int rows = warrantyDAO.assignStaffAndProcess(claimId, staffId);
-        // Kiểm tra điều kiện
         if (rows == 0) {
-            throw new ValidationException(
-                "Yêu cầu đã được xử lý bởi người khác. Vui lòng tải lại trang.");
+            throw new ValidationException("Yêu cầu đã được xử lý bởi người khác. Vui lòng tải lại trang.");
         }
 
         insertHistory(claimId, claim.getDescription(), "PROCESSING",
                 (note != null && !note.trim().isEmpty()) ? note : "Đã tiếp nhận và bắt đầu xử lý.");
     }
 
-    // ── APPROVE ───────────────────────────────────────────────────────────────
-
+    /**
+     * Phê duyệt yêu cầu bảo hành (chuyển PROCESSING -> APPROVED).
+     */
     private void approveWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PROCESSING", "APPROVED");
-
-        // Chỉ staff được gán (staff_id) mới được phép approve claim
         assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "APPROVED");
-
         insertHistory(claimId, claim.getDescription(), "APPROVED",
                 (note != null && !note.trim().isEmpty()) ? note : "Yêu cầu đã được duyệt.");
     }
 
-    // ── REJECT ────────────────────────────────────────────────────────────────
-
+    /**
+     * Từ chối yêu cầu bảo hành (chuyển PROCESSING -> REJECTED).
+     */
     private void rejectWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "PROCESSING", "REJECTED");
-
-        // Chỉ staff được gán (staff_id) mới được phép reject claim
         assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "REJECTED");
-
         insertHistory(claimId, claim.getDescription(), "REJECTED",
                 (note != null && !note.trim().isEmpty()) ? note : "Yêu cầu bị từ chối.");
     }
 
-    // ── COMPLETE ──────────────────────────────────────────────────────────────
-
+    /**
+     * Hoàn tất quá trình sửa chữa/bảo hành (chuyển APPROVED -> COMPLETED).
+     */
     private void completeWarranty(int claimId, int staffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
         assertTransition(claim.getStatus(), "APPROVED", "COMPLETED");
-
-        // Chỉ staff được gán (staff_id) mới được phép complete claim
         assertStaffOwner(claim, staffId);
 
         warrantyDAO.updateStatus(claimId, "COMPLETED");
-
         insertHistory(claimId, claim.getDescription(), "COMPLETED",
-                (note != null && !note.trim().isEmpty())
-                        ? note
-                        : "Bảo hành hoàn tất. Sản phẩm đã được trả lại cho khách hàng.");
+                (note != null && !note.trim().isEmpty()) ? note : "Bảo hành hoàn tất. Sản phẩm đã được trả lại cho khách hàng.");
     }
 
-    // ── VALIDATE ROUTER ───────────────────────────────────────────────────────
-
+    /**
+     * Điều hướng tác vụ cập nhật trạng thái phiếu bảo hành theo đúng workflow (BR-20).
+     *
+     * @param claimId   ID phiếu bảo hành
+     * @param newStatus trạng thái đích
+     * @param staffId   ID nhân viên thao tác
+     * @param note      ghi chú nội dung xử lý
+     * @throws ValidationException nếu chuyển trạng thái không hợp lệ
+     * @throws Exception           nếu xảy ra lỗi CSDL
+     */
     public void validateClaim(int claimId, String newStatus, int staffId, String note)
             throws ValidationException, Exception {
 
@@ -383,19 +374,15 @@ public class WarrantyService {
                 processWarranty(claimId, staffId, note);
                 break;
             case "APPROVED":
-                // Truyền staffId để kiểm tra ownership trước khi approve
                 approveWarranty(claimId, staffId, note);
                 break;
             case "REJECTED":
-                // Truyền staffId để kiểm tra ownership trước khi reject
                 rejectWarranty(claimId, staffId, note);
                 break;
             case "COMPLETED":
-                // Truyền staffId để kiểm tra ownership trước khi complete
                 completeWarranty(claimId, staffId, note);
                 break;
             case "CANCELLED":
-                // Staff cancel: không check ownership, chỉ cho phép từ PENDING
                 staffCancelClaim(claimId, staffId, note);
                 break;
             default:
@@ -403,94 +390,84 @@ public class WarrantyService {
         }
     }
 
-    // ── QUERIES ───────────────────────────────────────────────────────────────
-
+    /**
+     * Lấy danh sách phiếu bảo hành của khách hàng.
+     */
     public List<WarrantyClaim> getCustomerClaims(int customerId) throws Exception {
         return warrantyDAO.findByCustomer(customerId);
     }
 
     /**
-     * Phuong thuc getClaimDetail
+     * Lấy thông tin chi tiết phiếu bảo hành.
      */
     public WarrantyClaim getClaimDetail(int claimId) throws ValidationException, Exception {
         return getClaim(claimId);
     }
 
     /**
-     * Phuong thuc getHistory
+     * Lấy nhật ký lịch sử timeline xử lý bảo hành (BR-17).
      */
     public List<WarrantyHistory> getHistory(int claimId) throws Exception {
         return historyDAO.findByWarrantyId(claimId);
     }
 
     /**
-     * Phuong thuc getAllClaims
+     * Lấy toàn bộ phiếu bảo hành có phân trang.
      */
     public List<WarrantyClaim> getAllClaims(int offset, int limit) throws Exception {
         return warrantyDAO.findAll(offset, limit);
     }
 
     /**
-     * Phuong thuc countClaims
+     * Đếm tổng số lượng phiếu bảo hành theo trạng thái.
      */
     public int countClaims(String status) throws Exception {
         return warrantyDAO.count(status);
     }
 
     /**
-     * Phuong thuc searchClaims
+     * Tìm kiếm phiếu bảo hành theo từ khóa có phân trang.
      */
     public List<WarrantyClaim> searchClaims(String keyword, int offset, int limit) throws Exception {
         return warrantyDAO.search(keyword, offset, limit);
     }
 
     /**
-     * Phuong thuc countSearch
+     * Đếm số kết quả tìm kiếm phiếu bảo hành.
      */
     public int countSearch(String keyword) throws Exception {
         return warrantyDAO.countSearch(keyword);
     }
 
     /**
-     * Phuong thuc filterByStatus
+     * Lọc danh sách phiếu bảo hành theo trạng thái có phân trang.
      */
     public List<WarrantyClaim> filterByStatus(String status, int offset, int limit) throws Exception {
         return warrantyDAO.filter(status, offset, limit);
     }
 
-    // ── PURCHASED PRODUCTS (Step 1 product picker) ────────────────────────────
-
     /**
-     * Lists all purchased units (one row per serial) for the customer, to
-     * populate Step 1 ("Select Product") of the Submit Claim wizard. Replaces
-     * manual serial number entry — the customer picks from their own
-     * purchase history instead of typing a serial.
+     * Lấy danh sách sản phẩm đã mua của khách hàng (phục vụ chọn sản phẩm tại Bước 1 của Wizard).
      */
-    public List<model.WarrantyPurchasedProduct> getPurchasedProducts(int customerId) throws Exception {
+    public List<WarrantyPurchasedProduct> getPurchasedProducts(int customerId) throws Exception {
         return warrantyDAO.findPurchasedProductsByCustomer(customerId);
     }
 
-    // ── CHECK ELIGIBILITY (FIXED - moved inside class) ────────────────────────
-
-    public model.WarrantyEligibilityInfo checkEligibility(String serialNumber, int customerId)
+    /**
+     * Kiểm tra tính hợp lệ bảo hành của sản phẩm trước khi cho phép mở wizard điền thông tin lỗi.
+     */
+    public WarrantyEligibilityInfo checkEligibility(String serialNumber, int customerId)
             throws ValidationException, Exception {
 
-        // Kiểm tra điều kiện
         if (!warrantyDAO.serialExists(serialNumber)) {
             throw new ValidationException("Số serial không tồn tại trong hệ thống.");
         }
-        // Kiểm tra điều kiện
         if (!warrantyDAO.productBelongsToCustomer(serialNumber, customerId)) {
             throw new ValidationException("Sản phẩm này không thuộc đơn hàng đã hoàn thành của bạn.");
         }
-        // Kiểm tra điều kiện
         if (!warrantyDAO.isUnderWarranty(serialNumber)) {
             throw new ValidationException("Sản phẩm đã hết hạn bảo hành.");
         }
-        // BR18 / UC27 E2: chỉ 1 active claim (PENDING/PROCESSING/APPROVED)
-        // cho mỗi serial. Step 1 của wizard phải chặn ở đây, không để khách
-        // điền hết Step 3 rồi mới bị từ chối ở submit.
-        // Kiểm tra điều kiện
         if (warrantyDAO.hasActiveClaim(serialNumber)) {
             throw new ValidationException("Đã tồn tại một yêu cầu bảo hành đang xử lý cho sản phẩm này.");
         }
@@ -498,11 +475,8 @@ public class WarrantyService {
         return warrantyDAO.getEligibilityInfo(serialNumber);
     }
 
-    // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
-
     private WarrantyClaim getClaim(int claimId) throws ValidationException, Exception {
         WarrantyClaim claim = warrantyDAO.findById(claimId);
-        // Kiểm tra điều kiện
         if (claim == null) {
             throw new ValidationException("Không tìm thấy yêu cầu bảo hành #" + claimId);
         }
@@ -510,19 +484,15 @@ public class WarrantyService {
     }
 
     private void assertOwner(WarrantyClaim claim, int customerId) throws ValidationException {
-        // Kiểm tra điều kiện
         if (claim.getCustomerId() != customerId) {
             throw new ValidationException("Bạn không có quyền thao tác trên yêu cầu này.");
         }
     }
 
     /**
-     * Kiểm tra staff đang thực hiện action có phải là staff được gán cho claim không.
-     * Admin (roleId = 1) được phép bypass — nhưng phải Take Over trước (xem takeOverClaim).
-     * Phương thức này chỉ kiểm tra ownership thuần túy, không phân biệt role.
+     * BR-22: Kiểm tra nhân viên thao tác có đúng là người được phân công phụ trách phiếu bảo hành hay không.
      */
     private void assertStaffOwner(WarrantyClaim claim, int staffId) throws ValidationException {
-        // BR-22: Only authorized Staff members are allowed to process warranty requests and update their processing status.
         if (claim.getStaffId() == null || claim.getStaffId() != staffId) {
             throw new ValidationException(
                     "Bạn không phải nhân viên đang xử lý yêu cầu bảo hành này. "
@@ -530,23 +500,14 @@ public class WarrantyService {
         }
     }
 
-    // ── TAKE OVER / REASSIGN (Admin only) ────────────────────────────────
-
     /**
-     * Admin tự tiếp nhận claim (Take Over) hoặc gán lại cho staff khác (Reassign).
-     * Chỉ áp dụng khi claim đang ở PROCESSING hoặc APPROVED.
-     *
-     * @param claimId     ID claim cần chuyển
-     * @param newStaffId  ID nhân viên mới được gán (có thể là Admin tự gán cho mình)
-     * @param note        Ghi chú lý do chuyển giao
-     * @throws ValidationException nếu claim không ở trạng thái hợp lệ
+     * Admin thực hiện tự tiếp nhận (Take Over) hoặc chuyển giao phiếu bảo hành cho nhân viên khác.
      */
     public void takeOverClaim(int claimId, int newStaffId, String note)
             throws ValidationException, Exception {
 
         WarrantyClaim claim = getClaim(claimId);
 
-        // Chỉ cho phép Take Over khi đang PROCESSING hoặc APPROVED
         if (!"PROCESSING".equals(claim.getStatus()) && !"APPROVED".equals(claim.getStatus())) {
             throw new ValidationException(
                     "Chỉ có thể chuyển giao yêu cầu khi đang ở trạng thái PROCESSING hoặc APPROVED. "
@@ -554,28 +515,26 @@ public class WarrantyService {
         }
 
         warrantyDAO.reassignStaff(claimId, newStaffId);
-
-        String historyNote = (note != null && !note.trim().isEmpty())
-                ? note.trim()
-                : "Admin đã chuyển giao yêu cầu bảo hành cho nhân viên khác.";
-
+        String historyNote = (note != null && !note.trim().isEmpty()) ? note.trim() : "Admin đã chuyển giao yêu cầu bảo hành cho nhân viên khác.";
         insertHistory(claimId, claim.getDescription(), claim.getStatus(), historyNote);
     }
 
     /**
-     * Lấy danh sách toàn bộ nhân viên (role_id = 2) đang active,
-     * dùng cho dropdown Reassign trong giao diện Admin.
+     * Lấy danh sách nhân viên active để hiển thị trên dropdown chuyển giao (Reassign).
      */
-    public List<model.Users> getStaffList() throws Exception {
+    public List<Users> getStaffList() throws Exception {
         return warrantyDAO.findStaffList();
     }
 
+    /**
+     * BR-20: Kiểm tra chuyển đổi trạng thái có tuân thủ đúng workflow chuẩn hay không:
+     * PENDING -> PROCESSING -> APPROVED -> COMPLETED hoặc PENDING -> PROCESSING -> REJECTED.
+     */
     private void assertTransition(String currentStatus,
                                   String expectedCurrent,
                                   String targetStatus)
             throws ValidationException {
 
-        // BR-20: Warranty request status transitions shall strictly follow the workflow: PENDING -> PROCESSING -> APPROVED -> COMPLETED, or PENDING -> PROCESSING -> REJECTED.
         if (!expectedCurrent.equals(currentStatus)) {
             throw new ValidationException(
                     "Không thể chuyển sang " + targetStatus +
@@ -583,10 +542,12 @@ public class WarrantyService {
         }
     }
 
+    /**
+     * Ghi nhận một mốc nhật ký lịch sử chuyển trạng thái (BR-17).
+     */
     private void insertHistory(int claimId, String issueDesc,
                                String repairStatus, String note) throws Exception {
 
-        // BR-17: Every warranty request creation, cancellation, and status transition shall be recorded in the Warranty History log together with the actor identity, action performed, and timestamp.
         WarrantyHistory h = new WarrantyHistory();
         h.setWarrantyId(claimId);
         h.setIssueDescription(issueDesc);

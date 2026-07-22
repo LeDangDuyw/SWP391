@@ -2,11 +2,14 @@ package controller;
 
 /**
  * Class: AdvancedAnalyticsServlet
- * Description: Controller xử lý báo cáo phân tích chuyên sâu nâng cao (Advanced Analytics).
+ * Description: Controller xử lý trang báo cáo phân tích kinh doanh chuyên sâu (Advanced Analytics).
+ *              Hỗ trợ lọc đa chiều (ngày bắt đầu/kết thúc, danh mục, thương hiệu, loại khách hàng,
+ *              phương thức thanh toán) và tính toán xu hướng doanh thu, cơ cấu sản phẩm,
+ *              chỉ số AOV, hệ số vòng quay hàng tồn kho (Inventory Turnover).
  * 
  * Created: 2026-07-09
- * Updated: 2026-07-11
- * Version: v1.3
+ * Updated: 2026-07-22
+ * Version: v1.4
  *
  * @author DuyLD
  */
@@ -35,6 +38,9 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
     private CategoryDAO categoryDAO;
     private BrandDao brandDao;
 
+    /**
+     * Khởi tạo Servlet và các lớp DAO phục vụ báo cáo phân tích.
+     */
     @Override
     public void init() {
         analyticsDAO = new AdvancedAnalyticsDAO();
@@ -42,192 +48,144 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
         brandDao = new BrandDao();
     }
 
+    /**
+     * Xử lý yêu cầu HTTP GET để tổng hợp báo cáo phân tích đa chiều và render giao diện.
+     *
+     * @param request  đối tượng HttpServletRequest chứa các tham số lọc đa chiều
+     * @param response đối tượng HttpServletResponse trả về trang JSP
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException      nếu xảy ra lỗi IO
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // 1. Kiểm tra quyền đăng nhập của người dùng
         HttpSession session = request.getSession(false);
         Users user = null;
 
-        // Kiểm tra điều kiện
         if (session != null) {
             user = (Users) session.getAttribute("user");
         }
 
-        // Defensive auth fallback (AuthorizationFilter should already handle this)
-        // Kiểm tra xác thực người dùng / phiên đăng nhập
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try {
-            // Load Category and Brand dropdown lists (shared across all section filters)
-            List<Category> categories = categoryDAO.getAllCategories();
-            List<Brand> brands = brandDao.getAllBrands();
+            // 2. Tiếp nhận các tham số lọc từ bộ lọc giao diện
+            String fromDate = request.getParameter("fromDate");
+            String toDate = request.getParameter("toDate");
+            String categoryIdParam = request.getParameter("categoryId");
+            String brandIdParam = request.getParameter("brandId");
+            String customerType = request.getParameter("customerType");
+            String paymentMethod = request.getParameter("paymentMethod");
+            String groupBy = request.getParameter("groupBy");
+
+            // Mặc định kiểu nhóm thời gian là theo Tháng nếu chưa được truyền
+            if (groupBy == null || groupBy.trim().isEmpty()) {
+                groupBy = "month";
+            }
+
+            // Đặt mốc thời gian mặc định bao phủ dữ liệu năm 2025-2026 nếu không chọn khoảng ngày
+            String defaultFromDate = "2025-01-01";
+            String defaultToDate = java.time.LocalDate.now().toString();
+
+            if (fromDate == null || fromDate.trim().isEmpty()) {
+                fromDate = defaultFromDate;
+            }
+            if (toDate == null || toDate.trim().isEmpty()) {
+                toDate = defaultToDate;
+            }
+
+            // 3. Khởi tạo đối tượng DTO AnalyticsFilter đóng gói tiêu chí lọc
+            AnalyticsFilter filter = new AnalyticsFilter();
+            filter.setFromDate(fromDate);
+            filter.setToDate(toDate);
+
+            if (categoryIdParam != null && !categoryIdParam.trim().isEmpty() && !"all".equalsIgnoreCase(categoryIdParam)) {
+                try {
+                    filter.setCategoryId(Integer.parseInt(categoryIdParam.trim()));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
+            if (brandIdParam != null && !brandIdParam.trim().isEmpty() && !"all".equalsIgnoreCase(brandIdParam)) {
+                try {
+                    filter.setBrandId(Integer.parseInt(brandIdParam.trim()));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
+            if (customerType != null && !customerType.trim().isEmpty() && !"all".equalsIgnoreCase(customerType)) {
+                filter.setCustomerType(customerType.trim());
+            }
+
+            if (paymentMethod != null && !paymentMethod.trim().isEmpty() && !"all".equalsIgnoreCase(paymentMethod)) {
+                filter.setPaymentMethod(paymentMethod.trim());
+            }
+
+            // 4. Truy vấn các báo cáo phân tích chuyên sâu từ AdvancedAnalyticsDAO
+            Map<String, Long> revenueTrend = analyticsDAO.getRevenueTrend(filter, groupBy);
+            Map<String, Long> revenueByCategory = analyticsDAO.getRevenueByCategory(filter);
+            Map<String, Long> revenueByBrand = analyticsDAO.getRevenueByBrand(filter);
+
+            Map<String, Integer> ordersTrend = analyticsDAO.getOrdersTrend(filter, groupBy);
+            double avgOrderValue = analyticsDAO.getAverageOrderValue(filter);
+
+            Map<String, Integer> paymentMethods = analyticsDAO.getSalesByPaymentMethod(filter);
+
+            Map<String, Long[]> customerBreakdown = analyticsDAO.getNewVsReturningCustomers(filter);
+            Map<String, Integer> customerGrowth = analyticsDAO.getCustomerGrowth(filter, groupBy);
+            List<String[]> topSpendingCustomers = analyticsDAO.getTopSpendingCustomers(filter, 10);
+
+            // Bảng xếp hạng sản phẩm bán chạy (mặc định xếp theo doanh thu giảm dần)
+            String prodSortBy = request.getParameter("prodSortBy");
+            if (prodSortBy == null || prodSortBy.trim().isEmpty()) {
+                prodSortBy = "revenue";
+            }
+            List<String[]> productRanking = analyticsDAO.getProductSalesRanking(filter, 10, prodSortBy, true);
+
+            // Chỉ số hiệu quả quản lý kho: Hệ số vòng quay tồn kho (Inventory Turnover Ratio)
+            double[] turnover = analyticsDAO.getInventoryTurnover(filter);
+
+            // Lấy danh mục & thương hiệu cho dropdown bộ lọc
+            List<Category> categories = categoryDAO.getAllCategory();
+            List<Brand> brands = brandDao.getAllBrand();
+
+            // 5. Đẩy dữ liệu ra thuộc tính của request để render trên JSP
+            request.setAttribute("filter", filter);
+            request.setAttribute("groupBy", groupBy);
+
+            request.setAttribute("revenueTrend", revenueTrend);
+            request.setAttribute("revenueByCategory", revenueByCategory);
+            request.setAttribute("revenueByBrand", revenueByBrand);
+
+            request.setAttribute("ordersTrend", ordersTrend);
+            request.setAttribute("avgOrderValue", avgOrderValue);
+
+            request.setAttribute("paymentMethods", paymentMethods);
+
+            request.setAttribute("customerBreakdown", customerBreakdown);
+            request.setAttribute("customerGrowth", customerGrowth);
+            request.setAttribute("topSpendingCustomers", topSpendingCustomers);
+
+            request.setAttribute("productRanking", productRanking);
+            request.setAttribute("prodSortBy", prodSortBy);
+
+            request.setAttribute("costOfGoodsSold", turnover[0]);
+            request.setAttribute("avgInventoryValue", turnover[1]);
+            request.setAttribute("turnoverRatio", turnover[2]);
+
             request.setAttribute("categories", categories);
             request.setAttribute("brands", brands);
 
-            // Get active section anchor so the JSP can auto-focus the active tab
-            String activeSection = request.getParameter("section");
-            // Kiểm tra điều kiện
-            if (activeSection == null || activeSection.isEmpty()) {
-                activeSection = "revenue";
-            }
-            request.setAttribute("activeSection", activeSection);
-
-            // Default date boundaries (covers the seeded data late 2025 to 2026)
-            String defaultFromDate = "2025-01-01";
-            String defaultToDate = "2026-12-31";
-
-            // 1. REVENUE SECTION FILTERS & DATA
-            String revFrom = request.getParameter("revenueFrom");
-            String revTo = request.getParameter("revenueTo");
-            // Kiểm tra điều kiện
-            if (revFrom == null || revFrom.trim().isEmpty()) revFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            if (revTo == null || revTo.trim().isEmpty()) revTo = defaultToDate;
-            
-            AnalyticsFilter revFilter = new AnalyticsFilter(
-                revFrom, revTo,
-                getIntegerParam(request.getParameter("revenueCategoryId")),
-                getIntegerParam(request.getParameter("revenueBrandId")),
-                request.getParameter("revenueCustomerType"),
-                request.getParameter("revenuePaymentMethod")
-            );
-            String revenueGroupBy = request.getParameter("revenueGroupBy");
-            // Kiểm tra điều kiện
-            if (revenueGroupBy == null || revenueGroupBy.trim().isEmpty()) {
-                revenueGroupBy = "month";
-            }
-            request.setAttribute("revFilter", revFilter);
-            request.setAttribute("revenueGroupBy", revenueGroupBy);
-            request.setAttribute("revenueTrend", analyticsDAO.getRevenueTrend(revFilter, revenueGroupBy));
-            request.setAttribute("revenueByCategory", analyticsDAO.getRevenueByCategory(revFilter));
-            request.setAttribute("revenueByBrand", analyticsDAO.getRevenueByBrand(revFilter));
-
-            // 2. SALES SECTION FILTERS & DATA
-            String salesFrom = request.getParameter("salesFrom");
-            String salesTo = request.getParameter("salesTo");
-            // Kiểm tra điều kiện
-            if (salesFrom == null || salesFrom.trim().isEmpty()) salesFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            if (salesTo == null || salesTo.trim().isEmpty()) salesTo = defaultToDate;
-
-            AnalyticsFilter salesFilter = new AnalyticsFilter(
-                salesFrom, salesTo,
-                getIntegerParam(request.getParameter("salesCategoryId")),
-                getIntegerParam(request.getParameter("salesBrandId")),
-                request.getParameter("salesCustomerType"),
-                request.getParameter("salesPaymentMethod")
-            );
-            String salesGroupBy = request.getParameter("salesGroupBy");
-            // Kiểm tra điều kiện
-            if (salesGroupBy == null || salesGroupBy.trim().isEmpty()) {
-                salesGroupBy = "month";
-            }
-            request.setAttribute("salesFilter", salesFilter);
-            request.setAttribute("salesGroupBy", salesGroupBy);
-            request.setAttribute("ordersTrend", analyticsDAO.getOrdersTrend(salesFilter, salesGroupBy));
-            request.setAttribute("avgOrderValue", analyticsDAO.getAverageOrderValue(salesFilter));
-            request.setAttribute("salesByPaymentMethod", analyticsDAO.getSalesByPaymentMethod(salesFilter));
-
-            // 3. CUSTOMER SECTION FILTERS & DATA
-            String custFrom = request.getParameter("customerFrom");
-            String custTo = request.getParameter("customerTo");
-            // Kiểm tra điều kiện
-            if (custFrom == null || custFrom.trim().isEmpty()) custFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            if (custTo == null || custTo.trim().isEmpty()) custTo = defaultToDate;
-
-            AnalyticsFilter custFilter = new AnalyticsFilter(
-                custFrom, custTo,
-                getIntegerParam(request.getParameter("customerCategoryId")),
-                getIntegerParam(request.getParameter("customerBrandId")),
-                null, // Customer type filtering not applicable for outer new vs returning cohort split
-                request.getParameter("customerPaymentMethod")
-            );
-            String customerGroupBy = request.getParameter("customerGroupBy");
-            // Kiểm tra điều kiện
-            if (customerGroupBy == null || customerGroupBy.trim().isEmpty()) {
-                customerGroupBy = "month";
-            }
-            String custTopNParam = request.getParameter("customerTopN");
-            int customerTopN = 10;
-            // Kiểm tra điều kiện
-            if (custTopNParam != null && !custTopNParam.isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                try { customerTopN = Integer.parseInt(custTopNParam); } catch (Exception ignored) {}
-            }
-            request.setAttribute("custFilter", custFilter);
-            request.setAttribute("customerGroupBy", customerGroupBy);
-            request.setAttribute("customerTopN", customerTopN);
-            request.setAttribute("newVsReturningCustomers", analyticsDAO.getNewVsReturningCustomers(custFilter));
-            request.setAttribute("customerGrowth", analyticsDAO.getCustomerGrowth(custFilter, customerGroupBy));
-            request.setAttribute("topSpendingCustomers", analyticsDAO.getTopSpendingCustomers(custFilter, customerTopN));
-
-            // 4. PRODUCT SECTION FILTERS & DATA
-            String prodFrom = request.getParameter("productFrom");
-            String prodTo = request.getParameter("productTo");
-            // Kiểm tra điều kiện
-            if (prodFrom == null || prodFrom.trim().isEmpty()) prodFrom = defaultFromDate;
-            // Kiểm tra điều kiện
-            if (prodTo == null || prodTo.trim().isEmpty()) prodTo = defaultToDate;
-
-            AnalyticsFilter prodFilter = new AnalyticsFilter(
-                prodFrom, prodTo,
-                getIntegerParam(request.getParameter("productCategoryId")),
-                getIntegerParam(request.getParameter("productBrandId")),
-                request.getParameter("productCustomerType"),
-                request.getParameter("productPaymentMethod")
-            );
-            String prodTopNParam = request.getParameter("productTopN");
-            int productTopN = 10;
-            // Kiểm tra điều kiện
-            if (prodTopNParam != null && !prodTopNParam.isEmpty()) {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-                try { productTopN = Integer.parseInt(prodTopNParam); } catch (Exception ignored) {}
-            }
-            String productSortBy = request.getParameter("productSortBy");
-            // Kiểm tra điều kiện
-            if (productSortBy == null || productSortBy.isEmpty()) {
-                productSortBy = "quantity";
-            }
-            request.setAttribute("prodFilter", prodFilter);
-            request.setAttribute("productTopN", productTopN);
-            request.setAttribute("productSortBy", productSortBy);
-            
-            // Reuses the same query flipping descending/ascending parameter
-            request.setAttribute("bestSellingProducts", analyticsDAO.getProductSalesRanking(prodFilter, productTopN, productSortBy, true));
-            request.setAttribute("worstSellingProducts", analyticsDAO.getProductSalesRanking(prodFilter, productTopN, productSortBy, false));
-            request.setAttribute("inventoryTurnover", analyticsDAO.getInventoryTurnover(prodFilter));
-
+            // 6. Forward sang giao diện JSP advanced_analytics
             request.getRequestDispatcher("/admin/advanced_analytics.jsp").forward(request, response);
 
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
-            throw new ServletException("Lỗi tải trang phân tích nâng cao.", e);
-        }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
-    }
-
-    private Integer getIntegerParam(String value) {
-        // Kiểm tra điều kiện
-        if (value == null || value.trim().isEmpty() || "all".equalsIgnoreCase(value.trim())) {
-            return null;
-        }
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
-        try {
-            return Integer.parseInt(value.trim());
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
-        } catch (NumberFormatException e) {
-            return null;
+            throw new ServletException("Lỗi tải báo cáo phân tích nâng cao.", e);
         }
     }
 }

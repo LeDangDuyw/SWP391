@@ -2,11 +2,13 @@ package model;
 
 /**
  * Class: AnalyticsFilter
- * Description: Model lưu trữ cấu hình bộ lọc phân tích (Analytics Filter).
+ * Description: Model Data Transfer Object (DTO) chứa các tham số lọc đa chiều
+ *              (ngày bắt đầu/kết thúc, danh mục, thương hiệu, loại khách hàng, phương thức thanh toán)
+ *              phục vụ báo cáo phân tích chuyên sâu (Advanced Analytics).
  * 
  * Created: 2026-07-09
- * Updated: 2026-07-09
- * Version: v1.2
+ * Updated: 2026-07-22
+ * Version: v1.3
  *
  * @author DuyLD
  */
@@ -20,13 +22,20 @@ public class AnalyticsFilter {
     private String paymentMethod;
 
     /**
-     * Phuong thuc AnalyticsFilter
+     * Khởi tạo đối tượng AnalyticsFilter mặc định.
      */
     public AnalyticsFilter() {
     }
 
     /**
-     * Phuong thuc AnalyticsFilter
+     * Khởi tạo đối tượng AnalyticsFilter với đầy đủ tham số lọc.
+     *
+     * @param fromDate      ngày bắt đầu (YYYY-MM-DD)
+     * @param toDate        ngày kết thúc (YYYY-MM-DD)
+     * @param categoryId    ID danh mục sản phẩm (hoặc null)
+     * @param brandId       ID thương hiệu (hoặc null)
+     * @param customerType  loại khách hàng ("new", "returning", hoặc null)
+     * @param paymentMethod phương thức thanh toán (hoặc null)
      */
     public AnalyticsFilter(String fromDate, String toDate, Integer categoryId, Integer brandId, String customerType, String paymentMethod) {
         this.fromDate = fromDate;
@@ -37,102 +46,51 @@ public class AnalyticsFilter {
         this.paymentMethod = paymentMethod;
     }
 
-    /**
-     * Phuong thuc getFromDate
-     */
     public String getFromDate() {
         return fromDate;
     }
 
-    /**
-     * Phuong thuc setFromDate
-     */
     public void setFromDate(String fromDate) {
         this.fromDate = fromDate;
     }
 
-    /**
-     * Phuong thuc getToDate
-     */
     public String getToDate() {
         return toDate;
     }
 
-    /**
-     * Phuong thuc setToDate
-     */
     public void setToDate(String toDate) {
         this.toDate = toDate;
     }
 
-    /**
-     * Phuong thuc getCategoryId
-     */
     public Integer getCategoryId() {
         return categoryId;
     }
 
-    /**
-     * Phuong thuc setCategoryId
-     */
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 
-    /**
-     * Phuong thuc getBrandId
-     */
     public Integer getBrandId() {
         return brandId;
     }
 
-    /**
-     * Phuong thuc setBrandId
-     */
     public void setBrandId(Integer brandId) {
         this.brandId = brandId;
     }
 
-    /**
-     * Phuong thuc getCustomerType
-     */
     public String getCustomerType() {
         return customerType;
     }
 
-    /**
-     * Phuong thuc setCustomerType
-     */
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
     }
 
-    /**
-     * Phuong thuc getPaymentMethod
-     */
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    /**
-     * Phuong thuc setPaymentMethod
-     */
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
-    }
-
-    @Override
-    /**
-     * Phuong thuc toString
-     */
-    public String toString() {
-        return "AnalyticsFilter{" +
-                "fromDate='" + fromDate + '\'' +
-                ", toDate='" + toDate + '\'' +
-                ", categoryId=" + categoryId +
-                ", brandId=" + brandId +
-                ", customerType='" + customerType + '\'' +
-                ", paymentMethod='" + paymentMethod + '\'' +
-                '}';
     }
 }
