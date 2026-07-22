@@ -27,11 +27,11 @@ import java.util.UUID;
     maxRequestSize = 1024 * 1024 * 50    // 50MB
 )
 public class ProfileController extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         HttpSession session = request.getSession(false);
         Users sessionUser = (session != null) ? (Users) session.getAttribute("user") : null;
 
@@ -41,7 +41,7 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
-        // Fetch fresh user data from database to display
+        // Tải thông tin người dùng mới nhất từ database
         UserDAO userDAO = new UserDAO();
         Users freshUser = userDAO.getUserById(sessionUser.getUserId());
         if (freshUser == null) {
@@ -50,12 +50,13 @@ public class ProfileController extends HttpServlet {
         session.setAttribute("user", freshUser);
         request.setAttribute("profileUser", freshUser);
         
-        // Load student verification status if customer or student
+        // Kiểm tra trạng thái phê duyệt tài khoản sinh viên (nếu thuộc vai trò Customer/Student)
         if (freshUser.getRoleId() == 3 || freshUser.getRoleId() == 4) {
             dal.StudentVerificationDAO svDAO = new dal.StudentVerificationDAO();
             model.StudentVerification sv = svDAO.getByUserId(freshUser.getUserId());
             request.setAttribute("studentVerify", sv);
 
+            // Kiểm tra giới hạn 30 ngày để cho phép yêu cầu xác thực lại nếu bị từ chối
             if (sv != null && ("rejected".equalsIgnoreCase(sv.getStatus()) || "revoked".equalsIgnoreCase(sv.getStatus()))) {
                 java.sql.Timestamp lastDate = sv.getUpdatedAt() != null ? sv.getUpdatedAt() : sv.getCreatedAt();
                 if (lastDate != null) {
@@ -73,13 +74,14 @@ public class ProfileController extends HttpServlet {
                 }
             }
 
-            // Load purchase history (orders & details)
+            // Tải lịch sử các đơn hàng đã đặt của người dùng
             dal.OrderDAO orderDAO = new dal.OrderDAO();
             dal.ProductReviewDAO reviewDAO = new dal.ProductReviewDAO();
             java.util.List<model.Order> userOrders = orderDAO.getOrdersByUserId(freshUser.getUserId());
             for (model.Order o : userOrders) {
                 java.util.List<model.OrderDetail> details = orderDAO.getOrderDetails(o.getOrderId());
                 for (model.OrderDetail od : details) {
+                    // Đánh dấu xem sản phẩm này đã được bình luận hay chưa
                     od.setReviewed(reviewDAO.hasUserReviewedProduct(freshUser.getUserId(), od.getProductId()));
                 }
                 o.setDetails(details);
@@ -87,7 +89,7 @@ public class ProfileController extends HttpServlet {
             request.setAttribute("userOrders", userOrders);
         }
 
-        // Support flash message notifications
+        // Hỗ trợ hiển thị thông báo thành công hoặc thất bại dạng Flash Message
         String tempSuccess = (String) session.getAttribute("tempSuccess");
         if (tempSuccess != null) {
             request.setAttribute("success", tempSuccess);
@@ -106,6 +108,7 @@ public class ProfileController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Xác minh trạng thái phiên đăng nhập của người dùng
         HttpSession session = request.getSession(false);
         Users sessionUser = (session != null) ? (Users) session.getAttribute("user") : null;
 
@@ -117,10 +120,9 @@ public class ProfileController extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        // Route by Content-Type:
-        // - Profile update form uses enctype="multipart/form-data"
-        // - Change password form is a regular POST (application/x-www-form-urlencoded)
-        // This avoids @MultipartConfig interfering with getParameter() on non-multipart requests.
+        // Định tuyến xử lý biểu mẫu dựa trên Content-Type:
+        // - Form cập nhật profile sử dụng định dạng Multipart để tải ảnh đại diện
+        // - Form đổi mật khẩu sử dụng phương thức POST thông thường
         String contentType = request.getContentType();
         boolean isMultipart = (contentType != null && contentType.toLowerCase().startsWith("multipart/form-data"));
 
@@ -142,7 +144,7 @@ public class ProfileController extends HttpServlet {
         String newPassword     = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
 
-        // Required-field check (VR-08)
+        // Kiểm tra các trường dữ liệu bắt buộc không được bỏ trống
         if (isBlank(currentPassword) || isBlank(newPassword) || isBlank(confirmPassword)) {
             request.setAttribute("pwError", "Vui lòng điền đầy đủ tất cả các trường mật khẩu!");
             doGet(request, response);
@@ -153,7 +155,7 @@ public class ProfileController extends HttpServlet {
         newPassword     = newPassword.trim();
         confirmPassword = confirmPassword.trim();
 
-        // Verify current password against stored BCrypt hash
+        // Kiểm tra mật khẩu hiện tại có trùng khớp với BCrypt hash trong Database không
         UserDAO userDAO  = new UserDAO();
         Users freshUser  = userDAO.getUserById(sessionUser.getUserId());
         String storedHash = (freshUser != null) ? freshUser.getPassword() : sessionUser.getPassword();
@@ -164,28 +166,28 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
-        // Validate strong password requirements (8+ chars, upper, lower, digit, special)
+        // Rà soát độ mạnh mật khẩu theo các quy tắc nghiệp vụ
         if (!hashPasswordUtil.isValidPassword(newPassword)) {
             request.setAttribute("pwError", "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             doGet(request, response);
             return;
         }
 
-        // MSG15: confirmation must match
+        // Đảm bảo mật khẩu xác nhận phải trùng với mật khẩu mới nhập
         if (!newPassword.equals(confirmPassword)) {
             request.setAttribute("pwError", "Xác nhận mật khẩu không khớp!");
             doGet(request, response);
             return;
         }
 
-        // Prevent reuse of the current password
+        // Đảm bảo mật khẩu mới không trùng lặp với mật khẩu hiện tại
         if (hashPasswordUtil.checkPassword(newPassword, storedHash)) {
             request.setAttribute("pwError", "Mật khẩu mới không được trùng với mật khẩu hiện tại!");
             doGet(request, response);
             return;
         }
 
-        // Commit the new password to the database
+        // Tiến hành cập nhật mật khẩu mới đã mã hóa vào database
         boolean changed = userDAO.changePassword(sessionUser.getUserId(), newPassword);
         if (changed) {
             Users updatedUser = userDAO.getUserById(sessionUser.getUserId());
@@ -214,6 +216,7 @@ public class ProfileController extends HttpServlet {
         String fullName = request.getParameter("fullName");
         String phone    = request.getParameter("phone");
 
+        // Rà soát không cho phép họ tên để trống
         if (isBlank(fullName)) {
             request.setAttribute("error", "Họ tên không được để trống!");
             doGet(request, response);
@@ -230,7 +233,7 @@ public class ProfileController extends HttpServlet {
         String currentAvatarUrl = (freshUser != null) ? freshUser.getAvatarUrl() : sessionUser.getAvatarUrl();
         String newAvatarUrl    = currentAvatarUrl;
 
-        // Process avatar file upload
+        // Xử lý luồng tải lên ảnh đại diện (avatar) của khách hàng
         try {
             Part filePart = request.getPart("avatar");
             if (filePart != null && filePart.getSize() > 0) {
@@ -250,7 +253,7 @@ public class ProfileController extends HttpServlet {
                     }
                     filePart.write(uploadPath + File.separator + fileName);
                     
-                    // Sync to source directory for persistence in local NetBeans environment
+                    // Đồng bộ ảnh từ thư mục build của máy chủ sang thư mục nguồn web của dự án
                     try {
                         String sourcePath = uploadPath.replace("build" + File.separator + "web", "web");
                         File sourceDir = new File(sourcePath);
@@ -279,6 +282,7 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
+        // Cập nhật thông tin hồ sơ vào Database
         boolean isUpdated = userDAO.updateProfile(sessionUser.getUserId(), fullName, phone, newAvatarUrl);
         if (isUpdated) {
             Users updatedUser = userDAO.getUserById(sessionUser.getUserId());
@@ -295,6 +299,7 @@ public class ProfileController extends HttpServlet {
 
     /** Null-safe blank check */
     private boolean isBlank(String s) {
+        // Kiểm tra xem chuỗi đầu vào có bị null hoặc rỗng hay không
         return s == null || s.trim().isEmpty();
     }
 }
