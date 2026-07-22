@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Staff - Ticket Details #${ticket.ticketId}</title>
+    <title>UNILAP Staff - Chi tiết Phiếu #${ticket.ticketId}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -117,9 +117,35 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar Navigation -->
-    <jsp:include page="/staff/sidebar.jsp">
-        <jsp:param name="activePage" value="ticket"/>
-    </jsp:include>
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Hồ sơ nhân viên</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+        </div>
+    </aside>
 
     <div class="main">
 
@@ -150,36 +176,36 @@
                            class="p-1 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-all">
                             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
                         </a>
-                        <h2 class="font-headline-lg text-headline-lg text-on-surface">Ticket #${ticket.ticketId}</h2>
+                        <h2 class="font-headline-lg text-headline-lg text-on-surface">Phiếu #${ticket.ticketId}</h2>
                         <!-- Status Badge -->
                         <c:choose>
                             <c:when test="${ticket.status == 'COMPLETED'}">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#E6F4EA] text-[#137333] text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">check_circle</span>
-                                    ${ticket.status}
+                                    Đã hoàn thành
                                 </span>
                             </c:when>
                             <c:when test="${ticket.status == 'CANCELLED'}">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-error-container text-on-error-container text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">cancel</span>
-                                    ${ticket.status}
+                                    Đã hủy
                                 </span>
                             </c:when>
                             <c:when test="${ticket.status == 'PENDING_APPROVAL'}">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#FEF7E0] text-[#B06000] text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">schedule</span>
-                                    ${ticket.status}
+                                    Chờ phê duyệt
                                 </span>
                             </c:when>
                             <c:otherwise>
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">info</span>
-                                    ${ticket.status}
+                                    ${ticket.status == 'APPROVED' ? 'Đã duyệt' : (ticket.status == 'REJECTED' ? 'Bị từ chối' : ticket.status)}
                                 </span>
                             </c:otherwise>
                         </c:choose>
                     </div>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant ml-9">Detailed information of the inbound request ticket.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant ml-9">Thông tin chi tiết của phiếu yêu cầu nhập kho.</p>
                 </div>
             </div>
 
@@ -193,22 +219,22 @@
                         <div class="px-6 py-4 border-b border-outline-variant/20">
                             <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">description</span>
-                                Ticket Information
+                                Thông tin Phiếu
                             </h3>
                         </div>
                         <div class="p-6">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                                 <div>
-                                    <p class="font-label-md text-label-md text-on-surface-variant mb-1">Title</p>
+                                    <p class="font-label-md text-label-md text-on-surface-variant mb-1">Tiêu đề</p>
                                     <p class="font-body-md text-on-surface font-bold">${ticket.title}</p>
                                 </div>
                                 <div>
-                                    <p class="font-label-md text-label-md text-on-surface-variant mb-1">Created At</p>
+                                    <p class="font-label-md text-label-md text-on-surface-variant mb-1">Ngày tạo</p>
                                     <p class="font-body-md text-on-surface">${ticket.createdAt}</p>
                                 </div>
                                 <c:if test="${not empty ticket.reason}">
                                     <div class="sm:col-span-2">
-                                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Reason</p>
+                                        <p class="font-label-md text-label-md text-on-surface-variant mb-1">Lý do</p>
                                         <div class="px-4 py-3 bg-[#FEF7E0] border border-[#FBBC04]/30 rounded-lg text-[#B06000] font-body-sm text-body-sm flex items-start gap-2">
                                             <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">warning</span>
                                             ${ticket.reason}
@@ -224,7 +250,7 @@
                         <div class="px-6 py-4 border-b border-outline-variant/20">
                             <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">inventory_2</span>
-                                Inbound Product Details
+                                Chi tiết sản phẩm nhập kho
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
@@ -232,10 +258,10 @@
                                 <thead>
                                     <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
                                         <th class="py-3 px-4 border-b border-outline-variant/20">SKU</th>
-                                        <th class="py-3 px-4 border-b border-outline-variant/20">Product Name</th>
-                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Quantity (Imported / Expected)</th>
-                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Expected Price</th>
-                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Actions</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20">Tên sản phẩm</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Số lượng (Đã nhập / Yêu cầu)</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-right">Giá dự kiến</th>
+                                        <th class="py-3 px-4 border-b border-outline-variant/20 text-center">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody class="font-body-sm text-body-sm">
@@ -254,16 +280,16 @@
                                                     <c:when test="${ticket.status == 'CARGO_RECEIVED'}">
                                                         <c:choose>
                                                             <c:when test="${d.importedQuantity < d.quantity}">
-                                                                <a href="${pageContext.request.contextPath}/staff/imei/add?ticketId=${ticket.ticketId}&variantId=${d.variantId}" 
+                                                                <a href="${pageContext.request.contextPath}/staff/serial/add?ticketId=${ticket.ticketId}&variantId=${d.variantId}" 
                                                                    class="inline-flex items-center gap-1 px-3 py-1 bg-primary text-white font-bold text-xs rounded hover:bg-primary/95 transition-colors">
                                                                     <span class="material-symbols-outlined text-[14px]">qr_code_scanner</span>
-                                                                    Register IMEI
+                                                                    Đăng ký Serial
                                                                 </a>
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
                                                                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                                                    Registered
+                                                                    Đã đăng ký
                                                                 </span>
                                                             </c:otherwise>
                                                         </c:choose>
@@ -271,7 +297,7 @@
                                                     <c:when test="${ticket.status == 'COMPLETED'}">
                                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#E6F4EA] text-[#137333] text-[12px] font-bold">
                                                             <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                                            Registered
+                                                            Đã đăng ký
                                                         </span>
                                                     </c:when>
                                                     <c:otherwise>
@@ -301,9 +327,9 @@
                         <div class="px-6 py-4 border-b border-outline-variant/20">
                             <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">settings</span>
-                                Workflow Actions
+                                Hành động Quy trình
                             </h3>
-                            <p class="font-body-sm text-[12px] text-on-surface-variant mt-1">For Staff</p>
+                            <p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Dành cho nhân viên</p>
                         </div>
                         <div class="p-6">
                             <form action="${pageContext.request.contextPath}/staff/ticket/workflow" method="post">
@@ -314,18 +340,18 @@
                                         <div class="flex flex-col gap-3">
                                             <div class="px-4 py-3 bg-primary-fixed/50 rounded-lg text-on-primary-fixed font-body-sm text-body-sm flex items-start gap-2">
                                                 <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">info</span>
-                                                Ticket has been approved by Admin. Waiting for goods to arrive.
+                                                Phiếu yêu cầu đã được Admin phê duyệt. Đang chờ hàng về.
                                             </div>
                                             <button type="submit" name="action" value="receive" 
                                                     class="w-full px-4 py-3 bg-[#137333] text-white font-bold rounded-lg hover:bg-[#0d5c28] transition-all font-label-md text-label-md flex items-center justify-center gap-2 shadow-sm">
                                                 <span class="material-symbols-outlined text-[20px]">local_shipping</span>
-                                                Goods Arrived
+                                                Hàng đã về
                                             </button>
                                             <button type="submit" name="action" value="cancel" 
-                                                    onclick="return confirm('Are you sure you want to cancel this ticket?');"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn hủy phiếu này không?');"
                                                     class="w-full px-4 py-3 bg-white text-error border border-error/30 font-bold rounded-lg hover:bg-error/10 transition-all font-label-md text-label-md flex items-center justify-center gap-2">
                                                 <span class="material-symbols-outlined text-[20px]">cancel</span>
-                                                Cancel Ticket
+                                                Hủy phiếu
                                             </button>
                                         </div>
                                     </c:when>
@@ -334,13 +360,13 @@
                                         <div class="flex flex-col gap-3">
                                             <div class="px-4 py-3 bg-[#E6F4EA] rounded-lg text-[#137333] font-body-sm text-body-sm flex items-start gap-2">
                                                 <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">info</span>
-                                                Please click "Register IMEI" next to each product variant in the table to register Serial/IMEI numbers.
+                                                Vui lòng nhấp vào "Đăng ký Serial" bên cạnh mỗi biến thể sản phẩm trong bảng để đăng ký số Serial.
                                             </div>
                                             <div class="border-t border-outline-variant/20 pt-3">
                                                 <button type="submit" name="action" value="request_edit" 
                                                         class="w-full px-4 py-3 bg-[#FEF7E0] text-[#B06000] border border-[#FBBC04]/30 font-bold rounded-lg hover:bg-[#FEF7E0]/80 transition-all font-label-md text-label-md flex items-center justify-center gap-2">
                                                     <span class="material-symbols-outlined text-[20px]">edit_note</span>
-                                                    Request Modification (Return to Admin)
+                                                    Yêu cầu chỉnh sửa (Trả lại Admin)
                                                 </button>
                                             </div>
                                         </div>
@@ -351,8 +377,8 @@
                                             <div class="w-16 h-16 bg-[#E6F4EA] rounded-full flex items-center justify-center">
                                                 <span class="material-symbols-outlined icon-fill text-[#137333] text-[32px]">task_alt</span>
                                             </div>
-                                            <p class="text-[#137333] font-bold font-label-md text-label-md text-center">Ticket Completed</p>
-                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">Goods have been successfully imported into inventory.</p>
+                                            <p class="text-[#137333] font-bold font-label-md text-label-md text-center">Phiếu đã hoàn thành</p>
+                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">Hàng hóa đã được nhập thành công vào kho.</p>
                                         </div>
                                     </c:when>
                                     
@@ -361,8 +387,8 @@
                                             <div class="w-16 h-16 bg-error-container rounded-full flex items-center justify-center">
                                                 <span class="material-symbols-outlined icon-fill text-on-error-container text-[32px]">block</span>
                                             </div>
-                                            <p class="text-on-error-container font-bold font-label-md text-label-md text-center">Ticket Cancelled</p>
-                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">This ticket has been cancelled and cannot be operated.</p>
+                                            <p class="text-on-error-container font-bold font-label-md text-label-md text-center">Phiếu đã hủy</p>
+                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">Phiếu này đã bị hủy và không thể thực hiện thao tác.</p>
                                         </div>
                                     </c:when>
                                     
@@ -371,8 +397,8 @@
                                             <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center">
                                                 <span class="material-symbols-outlined text-on-surface-variant text-[32px]">hourglass_empty</span>
                                             </div>
-                                            <p class="text-on-surface-variant font-bold font-label-md text-label-md text-center">Pending Processing</p>
-                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">No operations available in this state.</p>
+                                            <p class="text-on-surface-variant font-bold font-label-md text-label-md text-center">Đang chờ xử lý</p>
+                                            <p class="text-on-surface-variant font-body-sm text-body-sm text-center">Không có thao tác nào khả dụng trong trạng thái này.</p>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>

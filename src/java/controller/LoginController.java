@@ -55,7 +55,11 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
             request.getRequestDispatcher("auth/login.jsp").forward(request, response);
         } else if (!user.isStatus()) {
-            request.setAttribute("error", "Tài khoản của bạn đã bị khóa!");
+            if ("unactivated".equalsIgnoreCase(user.getStatus())) {
+                request.setAttribute("error", "Tài khoản của bạn chưa được kích hoạt! Vui lòng kiểm tra email để kích hoạt.");
+            } else {
+                request.setAttribute("error", "Tài khoản của bạn đã bị khóa!");
+            }
             request.getRequestDispatcher("auth/login.jsp").forward(request, response);
         } else {
             // Manage cookies based on Remember checkbox

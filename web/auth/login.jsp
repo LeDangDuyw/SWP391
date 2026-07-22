@@ -9,8 +9,9 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Đăng Nhập - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     </head>
     <body>
 
@@ -24,46 +25,56 @@
             <div class="card">
 
                 <div class="tabs">
-                    <a href="login" class="tab active">Login</a>
-                    <a href="register" class="tab">Register</a>
+                    <a href="login" class="tab active">Đăng Nhập</a>
+                    <a href="register" class="tab">Đăng Ký</a>
                 </div>
 
-                <h2 class="card-title">Welcome Back</h2>
-                <p class="card-subtitle">Access your precision engineering dashboard.</p>
+                <h2 class="card-title">Chào Mừng Trở Lại</h2>
+                <p class="card-subtitle">Truy cập tài khoản UniLap của bạn.</p>
                 <% if ("1".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Đăng ký thành công! Hãy đăng nhập.</div>
                 <% } else if ("2".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.</div>
+                <% } else if ("3".equals(request.getParameter("success"))) { %>
+                <div class="success-message">Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản của bạn.</div>
+                <% } else if ("4".equals(request.getParameter("success"))) { %>
+                <div class="success-message">Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.</div>
                 <% } %>
                 <div class="error-message">${error}</div>
                 <form action="login" method="post">
                     <div class="form-group">
-                        <label>Corporate Email</label>
+                        <label>Email</label>
                         <input type="text" name="email" 
                                placeholder="user@unilap.co" 
                                value="${not empty param.email ? param.email : cookie.c_email.value}" required>
                     </div>
                     <div class="form-group">
                         <div class="label-row">
-                            <label>Password</label>
-                            <a href="forgot-password" class="forgot-link">Forgot password?</a>
+                            <label>Mật Khẩu</label>
+                            <a href="forgot-password" class="forgot-link">Quên mật khẩu?</a>
                         </div>
-                        <input type="password" name="password" 
-                               placeholder="••••••••" 
-                               value="${cookie.c_password.value}" required>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" name="password" 
+                                   placeholder="••••••••" 
+                                   value="${cookie.c_password.value}" required
+                                   style="padding-right: 40px;">
+                            <span id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; font-size: 16px;">
+                                <i class="fas fa-eye-slash"></i>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group-remember">
                         <label class="remember-label">
                             <input type="checkbox" name="remember" value="ON" ${not empty cookie.c_remember.value ? 'checked' : ''}>
-                            <span>Remember password</span>
+                            <span>Ghi nhớ mật khẩu</span>
                         </label>
                     </div>
                     <button type="submit" class="btn-submit">
-                       Login →
+                        Đăng Nhập →
                     </button>
 
                     <div class="divider">
-                        <span>or</span>
+                        <span>hoặc</span>
                     </div>
 
                     <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile&redirect_uri=http://localhost:8080/UniLap/login-google&response_type=code&client_id=560009557221-md9sba4a9jhc2o6uqmenduo1pbeansmo.apps.googleusercontent.com&approval_prompt=force" class="btn-google">
@@ -73,7 +84,7 @@
                             <path fill="#4caf50" d="M24,44c5.166,0,9.86-1.977,13.422-5.192l-6.239-5.192C29.22,35.15,26.712,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
                             <path fill="#1565c0" d="M43.611,20.083L43.611,20.083H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.239,5.192C40.948,35.53,44,30.344,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
                         </svg>
-                        Continue with Google
+                        Tiếp tục với Google
                     </a>
                 </form>
             </div>
@@ -82,18 +93,33 @@
         <footer class="footer">
             <div class="footer-left">
                 <span class="logo">UNILAP</span>
-                <p>© 2024 UNILAP Precision Engineering. All rights reserved.</p>
+                <p>© 2024 UNILAP. Tất cả quyền được bảo lưu.</p>
             </div>
             <div class="footer-right">
-                <a href="#">Support</a>
-                <a href="#">Warranty</a>
-                <a href="#">Shipping</a>
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
+                <a href="#">Hỗ Trợ</a>
+                <a href="#">Bảo Hành</a>
+                <a href="#">Vận Chuyển</a>
+                <a href="#">Bảo Mật</a>
+                <a href="#">Điều Khoản</a>
             </div>
         </footer>
 
 
 
+        <script>
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                var pwField = document.getElementById('loginPassword');
+                var icon = this.querySelector('i');
+                if (pwField.type === 'password') {
+                    pwField.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    pwField.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        </script>
     </body>
 </html>

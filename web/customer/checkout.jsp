@@ -1,3 +1,10 @@
+<%-- 
+ * Name: checkout.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện thanh toán và đặt hàng cho khách hàng (Checkout)
+ --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -209,7 +216,7 @@
                     </div>
                 </div>
 
-                <div class="checkout-card">
+                <div class="checkout-card" id="payment-method-card">
                     <h2 class="card-title"><i class="fas fa-credit-card"></i> Phương thức thanh toán</h2>
                     
                     <div class="payment-selector">
@@ -353,6 +360,7 @@
         const radioHome = document.getElementById('radio-home');
         const radioStore = document.getElementById('radio-store');
         const shippingCard = document.getElementById('shipping-info-card');
+        const paymentMethodCard = document.getElementById('payment-method-card');
         
         const fullNameInput = document.getElementById('fullName');
         const phoneInput = document.getElementById('phone');
@@ -511,6 +519,11 @@
                     shippingCard.style.display = 'block';
                 }
                 
+                // Show payment method card
+                if (paymentMethodCard) {
+                    paymentMethodCard.style.display = 'block';
+                }
+                
                 // Show shipping fee line
                 const shippingFeeLine = document.getElementById('shipping-fee-line');
                 if (shippingFeeLine) {
@@ -543,6 +556,11 @@
                 // Hide shipping card
                 if (shippingCard) {
                     shippingCard.style.display = 'none';
+                }
+                
+                // Hide payment method card
+                if (paymentMethodCard) {
+                    paymentMethodCard.style.display = 'none';
                 }
                 
                 // Hide shipping fee line

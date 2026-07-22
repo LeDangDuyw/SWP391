@@ -1,3 +1,10 @@
+<%-- 
+ * Name: order_success.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện thông báo đặt hàng thành công và hiển thị tóm tắt đơn hàng (Order Success)
+ --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -341,10 +348,10 @@
                     </div>
                     <div class="btn-actions">
                         <a href="${pageContext.request.contextPath}/HomeServlet" class="btn-submit-order" style="margin-top: 0; width: auto; padding: 12px 32px;">
-                            <i class="fas fa-house"></i> Tiếp tục mua sắm
+                            <i class="fas fa-house"></i> Trang chủ
                         </a>
                         <a href="${pageContext.request.contextPath}/profile#orders" class="btn-secondary">
-                            Theo dõi đơn hàng
+                            <i class="fas fa-truck"></i> Theo dõi đơn hàng
                         </a>
                     </div>
                 </c:otherwise>

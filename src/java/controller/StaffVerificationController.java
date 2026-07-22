@@ -102,6 +102,20 @@ public class StaffVerificationController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/staff/verifications?error=" + 
                         URLEncoder.encode("Từ chối yêu cầu thất bại. Vui lòng thử lại!", "UTF-8"));
             }
+        } else if ("revoke".equalsIgnoreCase(action) || "lock".equalsIgnoreCase(action)) {
+            if (staffNote == null || staffNote.trim().isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/staff/verifications?error=" + 
+                        URLEncoder.encode("Vui lòng nhập lý do khóa / thu hồi quyền sinh viên!", "UTF-8"));
+                return;
+            }
+            success = svDAO.updateStatus(verificationId, "revoked", staffNote.trim());
+            if (success) {
+                response.sendRedirect(request.getContextPath() + "/staff/verifications?success=" + 
+                        URLEncoder.encode("Thu hồi quyền sinh viên thành công!", "UTF-8"));
+            } else {
+                response.sendRedirect(request.getContextPath() + "/staff/verifications?error=" + 
+                        URLEncoder.encode("Thu hồi quyền sinh viên thất bại. Vui lòng thử lại!", "UTF-8"));
+            }
         } else {
             response.sendRedirect(request.getContextPath() + "/staff/verifications?error=" + 
                     URLEncoder.encode("Hành động không hợp lệ!", "UTF-8"));

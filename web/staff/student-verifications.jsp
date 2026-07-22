@@ -150,17 +150,20 @@
         }
 
         .card-image-wrap {
-            height: 180px;
+            min-height: 180px;
             background: #f1f5f9;
             position: relative;
-            overflow: hidden;
+            overflow-x: auto;
             cursor: zoom-in;
+            display: flex;
+            gap: 4px;
         }
 
         .card-image-wrap img {
-            width: 100%;
-            height: 100%;
+            min-width: 100%;
+            height: 180px;
             object-fit: cover;
+            flex-shrink: 0;
         }
 
         .image-overlay {
@@ -423,9 +426,35 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar Navigation -->
-    <jsp:include page="/staff/sidebar.jsp">
-        <jsp:param name="activePage" value="verifications"/>
-    </jsp:include>
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    model.Users u = (model.Users) session.getAttribute("user");
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Staff Profile</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
 
     <!-- Main Content Area -->
     <main class="main-content">
@@ -486,8 +515,10 @@
                                 <c:forEach var="req" items="${requestsList}">
                                     <c:if test="${req.status == 'pending'}">
                                         <div class="request-card">
-                                            <div class="card-image-wrap" onclick="viewImage('${pageContext.request.contextPath}/images/${req.studentCardImage}')">
-                                                <img src="${pageContext.request.contextPath}/images/${req.studentCardImage}" alt="Thẻ sinh viên">
+                                            <div class="card-image-wrap">
+                                                <c:forEach var="imgName" items="${req.studentCardImage.split(',')}">
+                                                    <img src="${pageContext.request.contextPath}/images/${imgName}" alt="Thẻ sinh viên" onclick="viewImage('${pageContext.request.contextPath}/images/${imgName}')">
+                                                </c:forEach>
                                                 <div class="image-overlay">
                                                     <i class="fas fa-search-plus" style="font-size:20px; margin-bottom:8px;"></i>
                                                     <span>Xem ảnh thẻ</span>
@@ -539,6 +570,7 @@
                             <th>Trạng Thái</th>
                             <th>Ngày Xử Lý</th>
                             <th>Phản Hồi / Lý do từ chối</th>
+                            <th>Thao Tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -550,16 +582,23 @@
                                     <td style="font-weight:600; color:var(--blue-900);">${req.userName}</td>
                                     <td>${req.userEmail}</td>
                                     <td>
-                                        <img src="${pageContext.request.contextPath}/images/${req.studentCardImage}" 
-                                             class="table-image-preview" 
-                                             alt="Thẻ sinh viên"
-                                             onclick="viewImage('${pageContext.request.contextPath}/images/${req.studentCardImage}')">
+                                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                            <c:forEach var="imgName" items="${req.studentCardImage.split(',')}">
+                                                <img src="${pageContext.request.contextPath}/images/${imgName}" 
+                                                     class="table-image-preview" 
+                                                     alt="Thẻ sinh viên"
+                                                     onclick="viewImage('${pageContext.request.contextPath}/images/${imgName}')">
+                                            </c:forEach>
+                                        </div>
                                     </td>
                                     <td><fmt:formatDate value="${req.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${req.status == 'approved'}">
                                                 <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã duyệt</span>
+                                            </c:when>
+                                            <c:when test="${req.status == 'revoked'}">
+                                                <span class="badge badge-error" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;"><i class="fas fa-user-slash"></i> Đã thu hồi</span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="badge badge-error"><i class="fas fa-times-circle"></i> Từ chối</span>
@@ -570,12 +609,24 @@
                                     <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${req.staffNote}">
                                         ${not empty req.staffNote ? req.staffNote : '-'}
                                     </td>
+                                    <td>
+                                        <c:if test="${req.status == 'approved'}">
+                                            <button class="btn btn-danger" style="padding:6px 10px; font-size:12px; background:#ea580c; border:none;" onclick="openRevokeModal(${req.verificationId}, '${req.userName}')">
+                                                <i class="fas fa-user-slash"></i> Thu hồi
+                                            </button>
+                                        </c:if>
+                                        <c:if test="${req.status == 'revoked' || req.status == 'rejected'}">
+                                            <button class="btn btn-success" style="padding:6px 10px; font-size:12px; background:#16a34a; border:none;" onclick="reApproveRequest(${req.verificationId}, '${req.userName}')">
+                                                <i class="fas fa-undo"></i> Duyệt lại
+                                            </button>
+                                        </c:if>
+                                    </td>
                                 </tr>
                             </c:if>
                         </c:forEach>
                         <c:if test="${not hasHistory}">
                             <tr>
-                                <td colspan="7" style="text-align:center; padding:40px; color:var(--gray-500);">Chưa có lịch sử xử lý yêu cầu nào.</td>
+                                <td colspan="8" style="text-align:center; padding:40px; color:var(--gray-500);">Chưa có lịch sử xử lý yêu cầu nào.</td>
                             </tr>
                         </c:if>
                     </tbody>
@@ -615,6 +666,30 @@
     </div>
 </div>
 
+<!-- Revoke Modal -->
+<div class="modal" id="revokeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Thu Hồi / Khóa Quyền Sinh Viên</h3>
+            <button class="modal-close" onclick="closeRevokeModal()">&times;</button>
+        </div>
+        <form action="${pageContext.request.contextPath}/staff/verifications" method="post">
+            <input type="hidden" name="action" value="revoke">
+            <input type="hidden" name="verificationId" id="revokeId">
+            <div class="modal-body">
+                <p style="font-size:14px; margin-bottom:12px; color:var(--gray-700);">
+                    Bạn đang thu hồi/khóa quyền sinh viên của <strong id="revokeUserName"></strong> (phát hiện hành vi gian lận hoặc vi phạm). Vui lòng nhập lý do khóa:
+                </p>
+                <textarea class="textarea-control" name="staffNote" required placeholder="Ví dụ: Phát hiện gian lận thẻ sinh viên, Thẻ không hợp lệ..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" style="background:#e2e8f0; color:var(--gray-700);" onclick="closeRevokeModal()">Hủy</button>
+                <button type="submit" class="btn btn-danger" style="background:#ea580c; border:none;">Xác nhận thu hồi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Full Image View Modal -->
 <div class="modal image-modal" id="imageModal" onclick="closeImageModal()">
     <button class="modal-close" onclick="closeImageModal()">&times;</button>
@@ -637,9 +712,27 @@
         button.classList.add('active');
     }
 
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash === '#history' || document.referrer.includes('verifications')) {
+            var alertSuccess = document.querySelector('.alert-success');
+            if (alertSuccess && (alertSuccess.textContent.includes('Thu hồi') || alertSuccess.textContent.includes('Duyệt'))) {
+                var historyBtn = document.querySelectorAll('.tab-btn')[1];
+                if (historyBtn) switchPane('history-pane', historyBtn);
+            }
+        }
+    });
+
     // Direct approve confirmation
     function approveRequest(id, name) {
         if (confirm("Bạn có chắc chắn muốn DUYỆT yêu cầu xác minh sinh viên của \"" + name + "\"?")) {
+            document.getElementById('approveId').value = id;
+            document.getElementById('approveForm').submit();
+        }
+    }
+
+    // Direct re-approve (restore) confirmation for revoked/rejected requests
+    function reApproveRequest(id, name) {
+        if (confirm("Bạn có chắc chắn muốn DUYỆT LẠI (Khôi phục) quyền sinh viên cho tài khoản \"" + name + "\"?")) {
             document.getElementById('approveId').value = id;
             document.getElementById('approveForm').submit();
         }
@@ -656,6 +749,17 @@
         document.getElementById('rejectModal').style.display = 'none';
     }
 
+    // Revoke modal for approved users
+    function openRevokeModal(id, name) {
+        document.getElementById('revokeId').value = id;
+        document.getElementById('revokeUserName').textContent = name;
+        document.getElementById('revokeModal').style.display = 'flex';
+    }
+
+    function closeRevokeModal() {
+        document.getElementById('revokeModal').style.display = 'none';
+    }
+
     // Image Zoom modal open/close
     function viewImage(src) {
         document.getElementById('fullImage').src = src;
@@ -665,6 +769,22 @@
     function closeImageModal() {
         document.getElementById('imageModal').style.display = 'none';
     }
+
+    // Auto dismiss notification alerts after 4 seconds
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert-success, .alert-error');
+        alerts.forEach(function(alert) {
+            alert.style.transition = 'opacity 0.6s ease, max-height 0.6s ease, margin 0.6s ease, padding 0.6s ease';
+            alert.style.opacity = '0';
+            alert.style.maxHeight = '0px';
+            alert.style.margin = '0px';
+            alert.style.padding = '0px';
+            alert.style.overflow = 'hidden';
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 600);
+        });
+    }, 4000);
 </script>
 </body>
 </html>

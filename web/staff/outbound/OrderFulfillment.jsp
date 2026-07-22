@@ -1,6 +1,14 @@
+<%-- 
+ * Name: OrderFulfillment.jsp
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Giao diện chuẩn bị và xuất kho đơn hàng dành cho nhân viên (Staff Order Fulfillment and Outbound Processing)
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -37,13 +45,32 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     </style>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
+    <!-- JavaScript: Xử lý kiểm tra dữ liệu chọn mã Serial trước khi xuất kho -->
     <script>
+        /**
+         * Kiểm tra dữ liệu Form chọn Serial trước khi thực hiện xuất kho (Fulfill Order):
+         * 1. Đảm bảo tất cả các sản phẩm biến thể trong đơn hàng đều được chọn đủ mã Serial/IMEI.
+         * 2. Đảm bảo không chọn trùng 1 mã Serial/IMEI cho 2 sản phẩm/dòng khác nhau.
+         * 
+         * @param {Event} event Sự kiện submit form
+         * @returns {boolean} true nếu hợp lệ, false và hủy submit nếu vi phạm
+         */
         function validateForm(event) {
             const allSelects = document.querySelectorAll('select[name^="detail_"]');
             const chosen = new Set();
             for (const sel of allSelects) {
-                if (!sel.value) { alert("Vui lòng chọn Serial Number cho tất cả sản phẩm."); event.preventDefault(); return false; }
-                if (chosen.has(sel.value)) { alert("Lỗi: Bạn đã chọn trùng 1 Serial Number cho 2 dòng khác nhau!"); event.preventDefault(); return false; }
+                // Kiểm tra xem đã chọn mã Serial hay chưa
+                if (!sel.value) { 
+                    alert("Vui lòng chọn IMEI cho tất cả sản phẩm."); 
+                    event.preventDefault(); 
+                    return false; 
+                }
+                // Kiểm tra mã Serial trùng lặp trong cùng 1 lần xuất kho
+                if (chosen.has(sel.value)) { 
+                    alert("Lỗi: Bạn đã chọn trùng 1 IMEI/Serial cho 2 dòng khác nhau!"); 
+                    event.preventDefault(); 
+                    return false; 
+                }
                 chosen.add(sel.value);
             }
             return true;
@@ -55,9 +82,31 @@
 %>
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
-    <jsp:include page="/staff/sidebar.jsp">
-        <jsp:param name="activePage" value="outbound"/>
-    </jsp:include>
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <% if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) { %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Hồ sơ nhân viên</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+        </div>
+    </aside>
 
     <div class="main">
         <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
@@ -97,7 +146,20 @@
                             </div>
                             <div><dt class="font-medium text-on-surface-variant">Người nhận</dt><dd class="mt-1 font-medium text-on-surface">${order.shippingReceiver}</dd></div>
                             <div><dt class="font-medium text-on-surface-variant">Số điện thoại</dt><dd class="mt-1 font-medium text-on-surface">${order.shippingPhone}</dd></div>
-                            <div><dt class="font-medium text-on-surface-variant">Địa chỉ</dt><dd class="mt-1 text-on-surface leading-relaxed">${order.shippingAddress}</dd></div>
+                            <c:choose>
+                                <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                                    <div>
+                                        <dt class="font-medium text-on-surface-variant">Phương thức nhận hàng</dt>
+                                        <dd class="mt-1 font-semibold text-on-surface">Nhận trực tiếp tại showroom UniLap (Hà Nội)</dd>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div>
+                                        <dt class="font-medium text-on-surface-variant">Địa chỉ</dt>
+                                        <dd class="mt-1 text-on-surface leading-relaxed">${order.shippingAddress}</dd>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
                             <div><dt class="font-medium text-on-surface-variant">Tổng tiền</dt><dd class="mt-1 font-semibold text-red-600"><fmt:formatNumber value="${order.totalAmount}" pattern="#,###"/> đ</dd></div>
                         </dl>
                     </div>
@@ -116,7 +178,7 @@
                                         <div class="h-14 w-14 flex-shrink-0 rounded-lg border border-outline-variant/30 bg-white overflow-hidden flex items-center justify-center">
                                             <c:choose>
                                                 <c:when test="${not empty detail.thumbnail}">
-                                                    <img src="${pageContext.request.contextPath}/${detail.thumbnail}" alt="" class="h-full w-full object-contain">
+                                                    <img src="${pageContext.request.contextPath}/images/${detail.thumbnail}" alt="" class="h-full w-full object-contain">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="material-symbols-outlined text-on-surface-variant">image</span>
@@ -134,12 +196,13 @@
                                     </div>
 
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
-                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã Serial Number cụ thể:</p>
+                                        <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã IMEI/Serial cụ thể:</p>
+                                        <c:set var="availItems" value="${not empty availableImeisMap[detail.variantId] ? availableImeisMap[detail.variantId] : availableSerialsMap[detail.variantId]}" />
                                         <c:choose>
-                                            <c:when test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                            <c:when test="${empty availItems || fn:length(availItems) < detail.quantity}">
                                                 <div style="background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                                                     <span class="material-symbols-outlined">warning</span>
-                                                    Kho không đủ hàng (${availableImeisMap[detail.variantId] != null ? availableImeisMap[detail.variantId].size() : 0} / ${detail.quantity}). Không thể xuất!
+                                                    Kho không đủ hàng (${not empty availItems ? fn:length(availItems) : 0} / ${detail.quantity}). Không thể xuất!
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
@@ -147,10 +210,10 @@
                                                     <div class="flex items-center gap-3">
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>
                                                         <select name="detail_${detail.orderDetailId}" required class="flex-1 py-2 px-3 bg-white border border-outline-variant/50 rounded-lg text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                                            <option value="">-- Chọn Serial Number --</option>
-                                                            <c:forEach var="item" items="${availableImeisMap[detail.variantId]}" varStatus="status">
+                                                            <option value="">-- Chọn IMEI / Serial --</option>
+                                                            <c:forEach var="item" items="${availItems}" varStatus="status">
                                                                 <option value="${item.itemId}" ${status.count == i ? 'selected' : ''}>
-                                                                    SN: ${item.serialNumber}
+                                                                    SN: ${item.serialNumber} ${not empty item.imei ? '| IMEI: ' += item.imei : ''}
                                                                 </option>
                                                             </c:forEach>
                                                         </select>
@@ -166,7 +229,7 @@
                         <div class="mt-8 flex justify-end pt-4 border-t border-outline-variant/30">
                             <c:set var="canFulfill" value="true" />
                             <c:forEach var="detail" items="${details}">
-                                <c:if test="${availableImeisMap[detail.variantId] == null || availableImeisMap[detail.variantId].size() < detail.quantity}">
+                                <c:if test="${availableSerialsMap[detail.variantId] == null || availableSerialsMap[detail.variantId].size() < detail.quantity}">
                                     <c:set var="canFulfill" value="false" />
                                 </c:if>
                             </c:forEach>

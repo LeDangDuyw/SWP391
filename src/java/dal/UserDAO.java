@@ -40,7 +40,7 @@ public class UserDAO extends DBContext {
                         System.out.println("Error updating last_login_at: " + ex);
                     }
                     
-                    return new Users(
+                    Users user = new Users(
                             userId,
                             rs.getString("full_name"),
                             rs.getString("email"),
@@ -49,6 +49,8 @@ public class UserDAO extends DBContext {
                             rs.getString("status"),
                             rs.getInt("role_id"),
                             rs.getString("avatar_url"));
+                    user.setRewardPoints(rs.getInt("reward_points"));
+                    return user;
                 }
             }
         } catch (SQLException e) {
@@ -109,7 +111,7 @@ public class UserDAO extends DBContext {
      * ghi mới vào cơ sở dữ liệu
      */
     public boolean register(String userName, String email, String phone, String password) {
-        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'active', 3)";
+        String sql = "INSERT INTO [User] (full_name, email, phone, password, status, role_id) VALUES (?, ?, ?, ?, 'unactivated', 3)";
         try {
 
             String hashedPassword = hashPasswordUtil.hashPassword(password);
@@ -121,6 +123,18 @@ public class UserDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println(e);
+        }
+        return false;
+    }
+
+    public boolean activateUser(int userId) {
+        String sql = "UPDATE [User] SET status = 'active' WHERE user_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error activating user: " + e.getMessage());
         }
         return false;
     }
@@ -226,12 +240,44 @@ public class UserDAO extends DBContext {
                 u.setCreatedAt(rs.getTimestamp("created_at"));
                 u.setUpdatedAt(rs.getTimestamp("updated_at"));
                 u.setLastLoginAt(rs.getTimestamp("last_login_at"));
+                u.setRewardPoints(rs.getInt("reward_points"));
                 return u;
             }
         } catch (SQLException e) {
             System.out.println(e);
         }
         return null;
+    }
+
+    public boolean addRewardPoints(int userId, int pointsToAdd) {
+        String sql = "UPDATE [User] SET reward_points = ISNULL(reward_points, 0) + ? WHERE user_id = ?";
+        try {
+            if (connection == null || connection.isClosed()) connection = getConnection();
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, pointsToAdd);
+                ps.setInt(2, userId);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("UserDAO.addRewardPoints Error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deductRewardPoints(int userId, int pointsToDeduct) {
+        String sql = "UPDATE [User] SET reward_points = reward_points - ? WHERE user_id = ? AND reward_points >= ?";
+        try {
+            if (connection == null || connection.isClosed()) connection = getConnection();
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, pointsToDeduct);
+                ps.setInt(2, userId);
+                ps.setInt(3, pointsToDeduct);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("UserDAO.deductRewardPoints Error: " + e.getMessage());
+            return false;
+        }
     }
 
     /*

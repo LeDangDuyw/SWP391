@@ -124,9 +124,34 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar Navigation -->
-    <jsp:include page="/staff/sidebar.jsp">
-        <jsp:param name="activePage" value="imei"/>
-    </jsp:include>
+    <aside class="sidebar">
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
+        <nav>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
+        </nav>
+        <div class="profile">
+            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                <%
+                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                %>
+                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
+                <% } else { %>
+                    <span>♙</span>
+                <% } %>
+                <span>Hồ sơ nhân viên</span>
+            </div>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
+        </div>
+    </aside>
 
     <div class="main">
         <!-- Top Navigation Bar -->
@@ -204,7 +229,7 @@
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Search Serial..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Search Serial or IMEI..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                             <button type="submit" class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-sm">search</span>
                             </button>
@@ -228,11 +253,9 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
-                                <th class="px-6 py-4">Serial Number</th>
+                                <th class="px-6 py-4">Serial / IMEI Number</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4">Received Date</th>
-                                <th class="px-6 py-4">Linked Order</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/30 bg-surface-container-lowest font-body-sm text-body-sm">
@@ -242,6 +265,7 @@
                                         <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest group">
                                             <td class="px-6 py-4">
                                                 <p class="font-code-sm text-code-sm font-bold text-primary">${item.serialNumber != null ? item.serialNumber : "N/A"}</p>
+                                                <p class="text-[11px] text-on-surface-variant font-code-sm">IMEI: ${item.imei != null ? item.imei : "N/A"}</p>
                                                 <p class="text-[11px] text-on-surface-variant font-code-sm mt-1">Product: ${item.productName} (${item.sku})</p>
                                             </td>
                                             <td class="px-6 py-4">
@@ -258,23 +282,12 @@
                                                 </c:choose>
                                             </td>
                                             <td class="px-6 py-4 text-on-surface-variant">${item.importDate}</td>
-                                            <td class="px-6 py-4 text-on-surface-variant italic">${item.note != null ? item.note : "—"}</td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                                    </button>
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="History">
-                                                        <span class="material-symbols-outlined text-[20px]">history</span>
-                                                    </button>
-                                                </div>
-                                            </td>
                                         </tr>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
+                                        <td colspan="3" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>

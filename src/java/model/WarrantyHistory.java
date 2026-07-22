@@ -1,17 +1,29 @@
 package model;
+/**
+ * Class: WarrantyHistory
+ * Description: Model lịch sử xử lý và thay đổi trạng thái bảo hành.
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
 
 /**
  * Class: WarrantyHistory
  * Description: Model lịch sử xử lý và thay đổi trạng thái bảo hành.
  * 
- * Created: 2026-06-22
- * Updated: 2026-06-22
- * Version: v1.2
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
  *
  * @author DuyLD
  */
 
 import java.sql.Timestamp;
+
 
 public class WarrantyHistory {
 

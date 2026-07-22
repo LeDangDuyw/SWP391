@@ -124,7 +124,7 @@ public class StudentVerificationDAO extends DBContext {
             ps.setInt(3, verificationId);
             int updated = ps.executeUpdate();
             
-            if (updated > 0 && "approved".equalsIgnoreCase(status)) {
+            if (updated > 0) {
                 // Get user_id for this verification
                 String getUserIdSql = "SELECT user_id FROM StudentVerification WHERE verification_id = ?";
                 int userId = -1;
@@ -138,11 +138,20 @@ public class StudentVerificationDAO extends DBContext {
                 }
                 
                 if (userId != -1) {
-                    // Update user's role to 4 (student)
-                    String updateUserSql = "UPDATE [User] SET role_id = 4, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
-                    try (PreparedStatement ps3 = connection.prepareStatement(updateUserSql)) {
-                        ps3.setInt(1, userId);
-                        ps3.executeUpdate();
+                    if ("approved".equalsIgnoreCase(status)) {
+                        // Update user's role to 4 (student)
+                        String updateUserSql = "UPDATE [User] SET role_id = 4, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+                        try (PreparedStatement ps3 = connection.prepareStatement(updateUserSql)) {
+                            ps3.setInt(1, userId);
+                            ps3.executeUpdate();
+                        }
+                    } else if ("rejected".equalsIgnoreCase(status) || "revoked".equalsIgnoreCase(status)) {
+                        // Downgrade user's role back to 3 (customer) if revoking/rejecting
+                        String updateUserSql = "UPDATE [User] SET role_id = 3, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+                        try (PreparedStatement ps3 = connection.prepareStatement(updateUserSql)) {
+                            ps3.setInt(1, userId);
+                            ps3.executeUpdate();
+                        }
                     }
                 }
             }

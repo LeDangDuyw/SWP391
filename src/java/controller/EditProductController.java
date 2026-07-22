@@ -1,13 +1,16 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: EditProductController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc chỉnh sửa thông tin sản phẩm và các biến thể sản phẩm.
  */
-
 package controller;
 
 import dal.BrandDao;
 import dal.CategoryDAO;
 import dal.ProductDAO;
+import dal.ProductSeriesDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -91,11 +94,13 @@ public class EditProductController extends HttpServlet {
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(product.getProductId());
         List<Category> categories = new CategoryDAO().getAllCategories();
         List<Brand> brands = new BrandDao().getAllBrands();
+        List<model.ProductSeries> serieses = new ProductSeriesDAO().getAllSeries();
 
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
         request.setAttribute("categories", categories);
         request.setAttribute("brands", brands);
+        request.setAttribute("serieses", serieses);
         request.setAttribute("selectedVariantId", variantId);
         request.getRequestDispatcher("/staff/EditProduct.jsp").forward(request, response);
     } 
@@ -120,14 +125,66 @@ public class EditProductController extends HttpServlet {
         String action = request.getParameter("action");
         if ("updateVariant".equals(action)) {
             try {
-                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String variantIdStr = request.getParameter("variantId");
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
-                java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
+                String priceStr = request.getParameter("price");
+                
+                if (variantIdStr == null || sku == null || sku.trim().isEmpty() ||
+                    variantName == null || variantName.trim().isEmpty() ||
+                    priceStr == null || priceStr.trim().isEmpty()) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantIdStr + "&error=EmptyFields");
+                    return;
+                }
+                
+                int variantId = Integer.parseInt(variantIdStr);
+                java.math.BigDecimal price = new java.math.BigDecimal(priceStr.trim());
+                if (price.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&error=InvalidPrice");
+                    return;
+                }
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                dao.updateProductVariant(variantId, sku, variantName, price);
-                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
+                dao.updateProductVariant(variantId, sku.trim(), variantName.trim(), price);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&success=Updated");
+                return;
+            } catch (NumberFormatException e) {
+                String vId = request.getParameter("variantId");
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + (vId != null ? vId : "") + "&error=InvalidNumberFormat");
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/inventory");
+            return;
+        } else if ("updateProduct".equals(action)) {
+            try {
+                int productId = Integer.parseInt(request.getParameter("productId"));
+                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String productName = request.getParameter("productName");
+                int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+                int brandId = Integer.parseInt(request.getParameter("brandId"));
+                String description = request.getParameter("description");
+                String warrantyPeriodStr = request.getParameter("warrantyPeriod");
+                String purpose = request.getParameter("purposeSelect");
+                if ("Khác".equals(purpose)) {
+                    purpose = request.getParameter("purposeCustom");
+                }
+                String seriesIdStr = request.getParameter("seriesId");
+                
+                int warrantyPeriod = 0;
+                if (warrantyPeriodStr != null && !warrantyPeriodStr.trim().isEmpty()) {
+                    warrantyPeriod = Integer.parseInt(warrantyPeriodStr.trim());
+                }
+                
+                int seriesId = 0;
+                if (seriesIdStr != null && !seriesIdStr.trim().isEmpty()) {
+                    seriesId = Integer.parseInt(seriesIdStr.trim());
+                }
+                
+                dal.ProductDAO dao = new dal.ProductDAO();
+                dao.updateProduct(productId, productName, categoryId, brandId, description, warrantyPeriod, purpose, seriesId);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory");
                 return;
             } catch (Exception e) {
                 e.printStackTrace();

@@ -19,7 +19,7 @@ public class OrderDAO extends DBContext {
 
     public Order insertOrder(BigDecimal totalAmount, BigDecimal shippingFee, String receiver, String phone, String address, Integer userId, Integer voucherId) {
         try {
-            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id, completed_at) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, GETDATE())";
             ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, totalAmount);
             ps.setBigDecimal(2, shippingFee);
@@ -50,6 +50,17 @@ public class OrderDAO extends DBContext {
                         ups.setString(1, orderCode);
                         ups.setInt(2, orderId);
                         ups.executeUpdate();
+                    }
+
+                    if (voucherId != null) {
+                        String updateCampaignSql = "UPDATE [Campaign] SET used_count = ISNULL(used_count, 0) + 1 WHERE campaign_id = ? OR voucher_id = ?";
+                        try (PreparedStatement cps = cnn.prepareStatement(updateCampaignSql)) {
+                            cps.setInt(1, voucherId);
+                            cps.setInt(2, voucherId);
+                            cps.executeUpdate();
+                        } catch (Exception e) {
+                            System.out.println("Failed to update campaign used_count: " + e.getMessage());
+                        }
                     }
                     
                     Order order = new Order();
@@ -179,7 +190,7 @@ public class OrderDAO extends DBContext {
     public List<model.OrderDetail> getOrderDetails(int orderId) {
         List<model.OrderDetail> list = new java.util.ArrayList<>();
         try {
-            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail " +
+            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, pv.product_id " +
                          "FROM OrderDetail od " +
                          "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
                          "JOIN Product p ON pv.product_id = p.product_id " +
@@ -199,6 +210,7 @@ public class OrderDAO extends DBContext {
                 detail.setVariantName(rs.getString("variant_name"));
                 detail.setSku(rs.getString("sku"));
                 detail.setThumbnail(rs.getString("thumbnail"));
+                detail.setProductId(rs.getInt("product_id"));
                 
                 list.add(detail);
             }

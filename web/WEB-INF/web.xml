@@ -9,14 +9,7 @@
          <welcome-file>HomeServlet</welcome-file>
     </welcome-file-list>
 
-    <servlet>
-        <servlet-name>ImeiManagement</servlet-name>
-        <servlet-class>controller.ImeiManagement</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ImeiManagement</servlet-name>
-        <url-pattern>/imeimanage</url-pattern>
-    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>HomeServlet</servlet-name>

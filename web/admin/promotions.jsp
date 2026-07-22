@@ -62,21 +62,11 @@
             <div class="alert success"><c:out value="${msg}"/></div>
         </c:if>
 
-        <section class="stats-grid">
+        <section class="stats-grid" style="grid-template-columns: minmax(280px, 360px);">
             <article class="stat-card">
                 <h3>Active Campaigns</h3>
                 <strong class="blue">${stats.activeCampaigns}</strong>
                 <p><span class="up">↗</span> running now</p>
-            </article>
-            <article class="stat-card">
-                <h3>Total Redemptions (MTD)</h3>
-                <strong><fmt:formatNumber value="${stats.totalRedemptions}" type="number"/></strong>
-                <p><span class="up blue-text">↗</span> voucher usage</p>
-            </article>
-            <article class="stat-card">
-                <h3>Pending Approvals</h3>
-                <strong class="red">${stats.pendingApprovals}</strong>
-                <p>Requires Admin Review</p>
             </article>
         </section>
 

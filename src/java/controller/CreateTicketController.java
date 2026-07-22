@@ -1,10 +1,9 @@
 /*
- * Name: CreateTicketController
- * @Author: HuyDQ
- * Date: [05/06/2026]
- * Version: 2.0
- * Description: Controller xử lý việc tạo phiếu yêu cầu nhập kho (Import Ticket) từ nhân viên.
- *              Hỗ trợ chọn sản phẩm và nhập số lượng/giá cho từng biến thể.
+ * Name: CreateTicketController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc tạo phiếu yêu cầu nhập kho (Import Ticket) từ nhân viên, chọn sản phẩm và các biến thể.
  */
 package controller;
 
@@ -28,6 +27,16 @@ import java.util.List;
 @WebServlet(name = "CreateTicketController", urlPatterns = {"/staff/ticket/create"})
 public class CreateTicketController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Hiển thị form tạo phiếu yêu cầu nhập kho (Ticket).
+     * Hàm này load danh sách sản phẩm, các biến thể, danh mục và thương hiệu để hiển thị lên UI.
+     * Đồng thời xử lý việc hiển thị thông báo lỗi (nếu có) khi người dùng submit sai thông tin.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa thông tin request
+     * @param response đối tượng HttpServletResponse để gửi phản hồi
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -41,19 +50,43 @@ public class CreateTicketController extends HttpServlet {
                 case "NoVariantsSelected":
                     errorMsg = "Vui lòng nhập số lượng (> 0) cho ít nhất một biến thể.";
                     break;
+                case "InvalidPrice":
+                    errorMsg = "Đơn giá đề xuất nhập kho của sản phẩm phải lớn hơn 0.";
+                    break;
+                case "DuplicateVariant":
+                    errorMsg = "Không được chọn trùng lặp biến thể trong cùng một phiếu.";
+                    break;
                 default:
                     errorMsg = "Đã xảy ra lỗi không xác định.";
             }
             request.setAttribute("error", errorMsg);
         }
         ProductDAO productDao = new ProductDAO();
+        dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+        dal.BrandDao brandDAO = new dal.BrandDao();
         List<Product> products = productDao.GetAllProducts();
         List<ProductVariant> variants = productDao.getAllVariants();
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
+        request.setAttribute("categories", categoryDAO.getAllCategories());
+        request.setAttribute("brands", brandDAO.getAllBrands());
         request.getRequestDispatcher("/staff/ticket/CreateTicket.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Nhận dữ liệu từ form và tạo phiếu nhập kho mới.
+     * Các bước xử lý:
+     * 1. Validate tiêu đề và danh sách các biến thể (variantIds).
+     * 2. Duyệt qua từng biến thể, kiểm tra số lượng và đơn giá đề xuất. Bỏ qua nếu số lượng <= 0.
+     * 3. Tránh chọn trùng lặp biến thể trong cùng một form.
+     * 4. Gọi TicketDAO để lưu Ticket (phiếu) và TicketDetail (chi tiết phiếu).
+     * 5. Điều hướng người dùng về trang danh sách phiếu nhập.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa form data
+     * @param response đối tượng HttpServletResponse để điều hướng sau khi xử lý
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -92,6 +125,13 @@ public class CreateTicketController extends HttpServlet {
                 if (expectedPrices != null && i < expectedPrices.length && expectedPrices[i] != null && !expectedPrices[i].trim().isEmpty()) {
                     expectedPrice = new BigDecimal(expectedPrices[i].trim());
                 }
+
+                // Validate expected price is positive
+                if (expectedPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                    response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=InvalidPrice");
+                    return;
+                }
+
 
                 if (processedVariantIds.contains(variantId)) {
                     response.sendRedirect(request.getContextPath() + "/staff/ticket/create?error=DuplicateVariant");

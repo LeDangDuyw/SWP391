@@ -1,3 +1,10 @@
+/*
+ * Name: Order
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Model đại diện cho đơn đặt hàng (Order)
+ */
 package model;
 
 import java.math.BigDecimal;
@@ -123,8 +130,39 @@ public class Order {
         this.completedAt = completedAt;
     }
 
+    private java.time.LocalDateTime createdAt;
+
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getFormattedCreatedAt() {
+        if (createdAt == null) return "N/A";
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return createdAt.format(formatter);
+    }
+
     private String shippingPartner;
     private String trackingNumber;
+    private String shippingMethod;
+
+    public String getShippingMethod() {
+        if (shippingMethod == null || shippingMethod.trim().isEmpty()) {
+            if (shippingAddress != null && shippingAddress.contains("Nhận tại cửa hàng")) {
+                return "STORE_PICKUP";
+            }
+            return "HOME_DELIVERY";
+        }
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
 
     public List<OrderDetail> getDetails() {
         return details;

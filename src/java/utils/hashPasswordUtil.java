@@ -41,4 +41,18 @@ public class hashPasswordUtil {
             return false;
         }
     }
+
+    public static boolean isValidPassword(String password) {
+        if (password == null || password.length() < 8) {
+            return false;
+        }
+        boolean hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else hasSpecial = true;
+        }
+        return hasLower && hasUpper && hasDigit && hasSpecial;
+    }
 }

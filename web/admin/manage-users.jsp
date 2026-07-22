@@ -884,8 +884,8 @@
 
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; text-transform: uppercase;">Mật khẩu khởi tạo <span style="color: red;">*</span></label>
-                            <input type="password" name="password" id="addPassword" required minlength="6"
-                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Nhập ít nhất 6 ký tự">
+                            <input type="password" name="password" id="addPassword" required minlength="8"
+                                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;" placeholder="Bao gồm 8+ ký tự, chữ hoa, số & ký tự đặc biệt">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0;">
@@ -1098,9 +1098,15 @@
                     }
                 }
 
-                // Password length check
-                if (password.length < 6) {
-                    alert("Mật khẩu khởi tạo phải có ít nhất 6 ký tự!");
+                // Password complexity check (8+ chars, upper, lower, digit, special)
+                var ruleLength  = password.length >= 8;
+                var ruleUpper   = /[A-Z]/.test(password);
+                var ruleLower   = /[a-z]/.test(password);
+                var ruleDigit   = /[0-9]/.test(password);
+                var ruleSpecial = /[^a-zA-Z0-9]/.test(password);
+
+                if (!ruleLength || !ruleUpper || !ruleLower || !ruleDigit || !ruleSpecial) {
+                    alert("Mật khẩu khởi tạo phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
                     event.preventDefault();
                     return false;
                 }

@@ -1,12 +1,23 @@
 package model;
+/**
+ * Class: WarrantyClaim
+ * Description: Model thông tin chi tiết một phiếu yêu cầu bảo hành (Warranty Claim).
+ * 
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
 
 /**
  * Class: WarrantyClaim
  * Description: Model thông tin chi tiết một phiếu yêu cầu bảo hành (Warranty Claim).
  * 
- * Created: 2026-06-22
- * Updated: 2026-06-22
- * Version: v1.2
+ * Created: 2026-06-22 21:12:34 +0700
+ * Updated: 2026-06-22 21:12:34 +0700
+ * Version: v1.0
  *
  * @author DuyLD
  */

@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundUpdateStatusController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller cập nhật trạng thái quy trình xuất kho và đơn hàng (SHIPPED, DELIVERED, CANCELLED).
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -19,6 +26,20 @@ import java.util.List;
 @WebServlet(name = "OutboundUpdateStatusController", urlPatterns = {"/staff/outbound/update-status"})
 public class OutboundUpdateStatusController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Cập nhật trạng thái của đơn hàng (Order) trong quá trình xuất kho/giao hàng.
+     * Nhân viên có thể chuyển trạng thái từ Shipped -> Delivered, hoặc Cancelled.
+     * Quá trình xử lý:
+     * 1. Nhận orderId và trạng thái mới (status).
+     * 2. Gọi OutboundDAO để cập nhật vào cơ sở dữ liệu và ghi log (Audit Log).
+     * 3. (Tùy chọn) Gửi Email thông báo hóa đơn tự động bằng PdfInvoiceService nếu cấu hình bật.
+     * 4. Điều hướng về trang danh sách phù hợp (danh sách chờ hoặc lịch sử xuất).
+     * 
+     * @param request  đối tượng HttpServletRequest chứa tham số orderId, status, redirect
+     * @param response đối tượng HttpServletResponse điều hướng về trang tương ứng
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -52,31 +73,22 @@ public class OutboundUpdateStatusController extends HttpServlet {
                             Order updatedOrder = dao.getOrderById(orderId);
                             List<OrderDetail> details = dao.getOrderDetails(orderId);
                             updatedOrder.setDetails(details);
+
+                            // Award reward points (10,000 VND = 1 point)
+                            if (updatedOrder != null && updatedOrder.getUserId() > 0 && updatedOrder.getTotalAmount() != null) {
+                                int earnedPoints = updatedOrder.getTotalAmount().divide(new java.math.BigDecimal("10000"), 0, java.math.RoundingMode.DOWN).intValue();
+                                if (earnedPoints > 0) {
+                                    dal.UserDAO userDAO = new dal.UserDAO();
+                                    userDAO.addRewardPoints(updatedOrder.getUserId(), earnedPoints);
+                                    dao.addOrderLog(orderId, status, status, "System (Reward Service)",
+                                            "Tích lũy +" + earnedPoints + " điểm thưởng cho tài khoản ID: " + updatedOrder.getUserId());
+                                }
+                            }
                             
                             String fileName = PdfInvoiceService.generateInvoice(updatedOrder, realPath);
                             String dbInvoicePath = "invoices/" + fileName;
                             
-                            String customerEmail = dao.getCustomerEmailByUserId(updatedOrder.getUserId());
-                            int emailSentStatus = 0;
-                            
-                            if (customerEmail != null && !customerEmail.trim().isEmpty()) {
-                                File pdfFile = new File(realPath, fileName);
-                                boolean emailSent = EmailService.sendInvoiceEmail(customerEmail, updatedOrder.getOrderCode(), pdfFile);
-                                if (emailSent) {
-                                    emailSentStatus = 1;
-                                    dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                                   "Đã gửi hóa đơn điện tử thành công đến email: " + customerEmail);
-                                } else {
-                                    emailSentStatus = 2;
-                                    dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                                   "Gửi email hóa đơn thất bại đến email: " + customerEmail + " (Lỗi xác thực SMTP/Kết nối)");
-                                }
-                            } else {
-                                dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                               "Không tìm thấy email khách hàng để gửi hóa đơn.");
-                            }
-                            
-                            dao.updateInvoiceDetails(orderId, dbInvoicePath, emailSentStatus);
+                            dao.updateInvoiceDetails(orderId, dbInvoicePath, 0);
                         }
                     } else {
                         session.setAttribute("error", "Không thể cập nhật trạng thái đơn hàng. Vui lòng kiểm tra lại trạng thái hiện tại.");

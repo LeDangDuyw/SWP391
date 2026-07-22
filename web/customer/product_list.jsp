@@ -12,7 +12,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=10">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product_list.css?v=6">
+    <style>
+        .wishlist-card-heart-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid #e2e8f0;
+            color: #e11d48;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 15px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .wishlist-card-heart-btn:hover {
+            background: #ffe4e6;
+            transform: scale(1.15);
+            border-color: #fda4af;
+        }
+        .wishlist-card-heart-btn.active {
+            background: #fff1f2;
+            color: #e11d48;
+            border-color: #f43f5e;
+        }
+    </style>
 </head>
 <body class="product-list-page">
     <header class="header">
@@ -47,6 +78,9 @@
                     <input type="text" name="search" value="${param.search}" placeholder="Tìm kiếm sản phẩm..." class="product-search-input">
                     <button type="submit" class="product-search-btn"><i class="fas fa-search"></i></button>
                 </form>
+                <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
+                    <i class="fas fa-heart" style="font-size: 18px;"></i>
+                </a>
                 <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative; color: inherit;">
                     <i class="fas fa-shopping-cart"></i>
                     <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
@@ -61,7 +95,7 @@
                                 <i class="fas fa-user"></i>
                                 <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
                             </a>
-                            <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
+                            <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 160px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
                                 <c:choose>
                                     <c:when test="${sessionScope.user.roleId == 1}">
                                         <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
@@ -73,7 +107,7 @@
                                         <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
                                     </c:otherwise>
                                 </c:choose>
-                                <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
+
                                 <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
                             </div>
                         </div>
@@ -358,9 +392,12 @@
 
                     <div class="product-grid">
                         <c:forEach items="${products}" var="p">
-                            <div class="product-card">
+                            <div class="product-card" style="position: relative;">
+                                <button type="button" class="wishlist-card-heart-btn" data-product-id="${p.productId}" onclick="toggleCardWishlist(event, ${p.productId}, this)" title="Lưu sản phẩm yêu thích">
+                                    <i class="far fa-heart"></i>
+                                </button>
                                 <c:if test="${p.discountPercent > 0}">
-                                    <div class="product-badge discount">-${p.discountPercent}%</div>
+                                    <div class="product-badge discount" style="top: 48px; left: 16px;">-${p.discountPercent}%</div>
                                 </c:if>
                                 <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" class="product-card-link">
                                     <div class="product-img-wrap">
@@ -427,6 +464,65 @@
         <script>window.contextPath = '${pageContext.request.contextPath}';</script>
         <script src="${pageContext.request.contextPath}/js/compare.js?v=2"></script>
         <script src="${pageContext.request.contextPath}/js/product_list.js?v=3"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                syncWishlistCardButtons();
+            });
+
+            function syncWishlistCardButtons() {
+                fetch('${pageContext.request.contextPath}/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: 'action=getWishlistIds'
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'success' && d.ids) {
+                        d.ids.forEach(id => {
+                            var btns = document.querySelectorAll('.wishlist-card-heart-btn[data-product-id="' + id + '"]');
+                            btns.forEach(btn => {
+                                btn.classList.add('active');
+                                var icon = btn.querySelector('i');
+                                if (icon) icon.className = 'fas fa-heart';
+                            });
+                        });
+                    }
+                })
+                .catch(err => console.log(err));
+            }
+
+            function toggleCardWishlist(event, productId, btn) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                fetch('${pageContext.request.contextPath}/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: 'action=toggle&productId=' + productId
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'unauthorized') {
+                        window.location.href = '${pageContext.request.contextPath}/login';
+                    } else if (d.status === 'success') {
+                        var btns = document.querySelectorAll('.wishlist-card-heart-btn[data-product-id="' + productId + '"]');
+                        btns.forEach(b => {
+                            var icon = b.querySelector('i');
+                            if (d.action === 'added') {
+                                b.classList.add('active');
+                                if (icon) icon.className = 'fas fa-heart';
+                            } else {
+                                b.classList.remove('active');
+                                if (icon) icon.className = 'far fa-heart';
+                            }
+                        });
+                    } else {
+                        alert(d.message || "Có lỗi xảy ra");
+                    }
+                })
+                .catch(err => console.error(err));
+            }
+        </script>
         <jsp:include page="chatbot.jsp" />
 </body>
 </html>
