@@ -56,7 +56,7 @@ public class WarrantyController extends HttpServlet {
     private void loadCategories(HttpServletRequest request) {
         try {
             CategoryDAO categoryDAO = new CategoryDAO();
-            List<Category> categories = categoryDAO.getAllCategory();
+            List<Category> categories = categoryDAO.getAllCategories();
             request.setAttribute("categories", categories);
         } catch (Exception e) {
             System.out.println("WarrantyController.loadCategories Error: " + e.getMessage());
