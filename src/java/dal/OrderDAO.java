@@ -51,6 +51,17 @@ public class OrderDAO extends DBContext {
                         ups.setInt(2, orderId);
                         ups.executeUpdate();
                     }
+
+                    if (voucherId != null) {
+                        String updateCampaignSql = "UPDATE [Campaign] SET used_count = ISNULL(used_count, 0) + 1 WHERE campaign_id = ? OR voucher_id = ?";
+                        try (PreparedStatement cps = cnn.prepareStatement(updateCampaignSql)) {
+                            cps.setInt(1, voucherId);
+                            cps.setInt(2, voucherId);
+                            cps.executeUpdate();
+                        } catch (Exception e) {
+                            System.out.println("Failed to update campaign used_count: " + e.getMessage());
+                        }
+                    }
                     
                     Order order = new Order();
                     order.setOrderId(orderId);

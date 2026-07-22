@@ -111,10 +111,30 @@
                     </div>
 
                     <section class="metric-grid four">
-                        <article class="metric-card"><span class="icon">▭</span><small>TOTAL UNITS SOLD</small><b><fmt:formatNumber value="${totalUnits}" type="number"/></b><div class="bar"><i style="width:${totalUnitsProgress}%"></i></div></article>
-                        <article class="metric-card"><span class="icon">▣</span><small>TOTAL REVENUE</small><b>${revenueShort}</b><div class="bar"><i style="width:${revenueProgress}%"></i></div></article>
-                        <article class="metric-card"><span class="icon">◉</span><small>CONVERSION RATE</small><b><fmt:formatNumber value="${conversion}" maxFractionDigits="1"/>%</b><div class="bar"><i style="width:${conversionProgress}%"></i></div></article>
-                        <article class="metric-card"><span class="icon">♙</span><small>CUSTOMER GROWTH</small><b>${customerGrowth > 0 ? '+' : ''}<fmt:formatNumber value="${customerGrowth}" type="number"/></b><div class="bar"><i style="width:${customerGrowthProgress}%"></i></div></article>
+                        <article class="metric-card">
+                            <span class="icon">📈</span>
+                            <small>INCREMENTAL SALES (DOANH THU GIA TĂNG)</small>
+                            <b title="<fmt:formatNumber value="${incrementalSales}" pattern="#,##0"/>₫">${incrementalSalesShort}</b>
+                            <div class="bar"><i style="width: 100%; background: #059669;"></i></div>
+                        </article>
+                        <article class="metric-card">
+                            <span class="icon">💳</span>
+                            <small>AVERAGE ORDER VALUE (AOV)</small>
+                            <b title="<fmt:formatNumber value="${aov}" pattern="#,##0"/>₫">${aovShort}</b>
+                            <div class="bar"><i style="width: 100%; background: #2563eb;"></i></div>
+                        </article>
+                        <article class="metric-card">
+                            <span class="icon">🎯</span>
+                            <small>ROAS (HIỆU QUẢ GIẢM GIÁ)</small>
+                            <b style="color: #7c3aed;">${roasRatio}</b>
+                            <div class="bar"><i style="width: 100%; background: #7c3aed;"></i></div>
+                        </article>
+                        <article class="metric-card">
+                            <span class="icon">🎟</span>
+                            <small>REDEMPTIONS (LƯỢT DÙNG VOUCHER)</small>
+                            <b><fmt:formatNumber value="${campaign.usedCount}" type="number"/> <span style="font-size: 14px; font-weight: normal; color: #6b7280;">/ ${empty campaign.usageLimit ? '∞' : campaign.usageLimit}</span></b>
+                            <div class="bar"><i style="width:${redemptionsProgress}%"></i></div>
+                        </article>
                     </section>
 
                     <div class="analytics-grid">

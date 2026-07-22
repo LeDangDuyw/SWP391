@@ -7,12 +7,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
-
-
-
 import java.sql.SQLException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -398,5 +395,82 @@ public class CampaignDetailDAO extends CampaignDAO {
         }
 
         return salePrice.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getVoucherOrdersRevenue(int campaignId) throws SQLException {
+        Campaign c = getCampaignById(campaignId);
+        if (c == null) return BigDecimal.ZERO;
+        String sql = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] " +
+                     "WHERE voucher_id = ? AND order_status NOT IN ('cancelled', 'Cancelled')";
+        try (PreparedStatement ps = prepare(sql)) {
+            ps.setInt(1, campaignId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return nvl(rs.getBigDecimal(1)).setScale(2, RoundingMode.HALF_UP);
+                }
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal getNonVoucherOrdersRevenue(int campaignId) throws SQLException {
+        Campaign c = getCampaignById(campaignId);
+        if (c == null) return BigDecimal.ZERO;
+        String sql = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] " +
+                     "WHERE voucher_id IS NULL AND order_status NOT IN ('cancelled', 'Cancelled') ";
+        if (c.getStartDate() != null && c.getEndDate() != null) {
+            sql += "AND completed_at >= ? AND completed_at <= ? ";
+        }
+        try (PreparedStatement ps = prepare(sql)) {
+            int idx = 1;
+            if (c.getStartDate() != null && c.getEndDate() != null) {
+                ps.setTimestamp(idx++, Timestamp.valueOf(c.getStartDate()));
+                ps.setTimestamp(idx++, Timestamp.valueOf(c.getEndDate()));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return nvl(rs.getBigDecimal(1)).setScale(2, RoundingMode.HALF_UP);
+                }
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public int getVoucherOrdersCount(int campaignId) throws SQLException {
+        Campaign c = getCampaignById(campaignId);
+        if (c == null) return 0;
+        String sql = "SELECT COUNT(*) FROM [Order] " +
+                     "WHERE voucher_id = ? AND order_status NOT IN ('cancelled', 'Cancelled')";
+        try (PreparedStatement ps = prepare(sql)) {
+            ps.setInt(1, campaignId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public BigDecimal getTotalDiscountGiven(int campaignId) throws SQLException {
+        Campaign c = getCampaignById(campaignId);
+        if (c == null) return BigDecimal.ZERO;
+        
+        int ordersCount = getVoucherOrdersCount(campaignId);
+        if (ordersCount == 0) return BigDecimal.ZERO;
+        
+        if (c.getDiscountValue() != null && c.getDiscountValue().compareTo(BigDecimal.ZERO) > 0) {
+            if ("percentage".equalsIgnoreCase(c.getCampaignType()) || "flash".equalsIgnoreCase(c.getCampaignType()) || "bundle_discount".equalsIgnoreCase(c.getCampaignType())) {
+                BigDecimal voucherRev = getVoucherOrdersRevenue(campaignId);
+                BigDecimal pct = c.getDiscountValue().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                if (pct.compareTo(BigDecimal.ONE) < 0 && pct.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal originalVal = voucherRev.divide(BigDecimal.ONE.subtract(pct), 2, RoundingMode.HALF_UP);
+                    return originalVal.subtract(voucherRev);
+                }
+            } else {
+                return c.getDiscountValue().multiply(BigDecimal.valueOf(ordersCount));
+            }
+        }
+        return BigDecimal.ZERO;
     }
 }
