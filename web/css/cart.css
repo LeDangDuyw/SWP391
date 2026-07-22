@@ -63,11 +63,16 @@ a { text-decoration: none; color: inherit; }
     font-weight: 800 !important;
     color: #1a56db !important;
     letter-spacing: -0.5px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
 }
 
 .main-nav {
     display: flex !important;
-    gap: 32px !important;
+    align-items: center !important;
+    gap: 16px !important;
+    flex-wrap: nowrap !important;
 }
 
 .main-nav a {
@@ -75,6 +80,8 @@ a { text-decoration: none; color: inherit; }
     color: #64748b !important;
     font-size: 15px !important;
     position: relative !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
 }
 
 .main-nav a:hover, .main-nav a.active {

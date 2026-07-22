@@ -18,8 +18,15 @@ public class OrderDAO extends DBContext {
     }
 
     public Order insertOrder(BigDecimal totalAmount, BigDecimal shippingFee, String receiver, String phone, String address, Integer userId, Integer voucherId) {
+        return insertOrder(totalAmount, shippingFee, receiver, phone, address, userId, voucherId, "HOME_DELIVERY");
+    }
+
+    public Order insertOrder(BigDecimal totalAmount, BigDecimal shippingFee, String receiver, String phone, String address, Integer userId, Integer voucherId, String shippingMethod) {
         try {
-            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id, completed_at) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, GETDATE())";
+            if (shippingMethod == null || shippingMethod.trim().isEmpty()) {
+                shippingMethod = "HOME_DELIVERY";
+            }
+            String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id, shipping_method, completed_at) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, ?, GETDATE())";
             ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, totalAmount);
             ps.setBigDecimal(2, shippingFee);
@@ -36,6 +43,7 @@ public class OrderDAO extends DBContext {
             } else {
                 ps.setNull(7, java.sql.Types.INTEGER);
             }
+            ps.setString(8, shippingMethod);
             
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {

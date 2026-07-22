@@ -91,10 +91,14 @@ public class PolicyController extends HttpServlet {
                 types.add("NEWS");
                 request.setAttribute("activeTab", "ALL");
             }
+            dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+            request.setAttribute("categories", categoryDAO.getAllCategories());
             List<GeneralPolicy> articles = generalPolicyDAO.getPoliciesByTypes(types);
             request.setAttribute("articles", articles);
             request.getRequestDispatcher("/customer/news_list.jsp").forward(request, response);
         } else if ("/policy".equals(path)) {
+            dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
+            request.setAttribute("categories", categoryDAO.getAllCategories());
             String idStr = request.getParameter("id");
             if (idStr != null && !idStr.trim().isEmpty()) {
                 try {

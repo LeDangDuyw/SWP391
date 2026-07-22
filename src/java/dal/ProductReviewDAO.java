@@ -59,6 +59,10 @@ public class ProductReviewDAO extends DBContext {
         return null;
     }
 
+    public boolean hasUserReviewedProduct(int userId, int productId) {
+        return getReviewByUserAndProduct(userId, productId) != null;
+    }
+
     public boolean saveOrUpdateReview(int productId, int userId, int rating, String comment) {
         ProductReview existing = getReviewByUserAndProduct(userId, productId);
         if (existing != null) {

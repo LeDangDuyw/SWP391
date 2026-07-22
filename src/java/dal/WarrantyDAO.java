@@ -417,9 +417,9 @@ public class WarrantyDAO extends DBContext {
         String sql = "SELECT ii.serial_number AS serialNumber, "
                 + "p.product_name AS productName, "
                 + "o.completed_at AS purchaseDate, "
-                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
-                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName, "
-                + "CASE WHEN ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) >= GETDATE() "
+                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, ISNULL(p.warranty_period, 12), ISNULL(o.completed_at, GETDATE()))) AS warrantyExpiry, "
+                + "N'Bảo hành chính hãng (' + CAST(ISNULL(p.warranty_period, 12) AS NVARCHAR(10)) + N' tháng)' AS coverageName, "
+                + "CASE WHEN ISNULL(ii.warranty_expired_date, DATEADD(MONTH, ISNULL(p.warranty_period, 12), ISNULL(o.completed_at, GETDATE()))) >= GETDATE() "
                 + "     THEN 1 ELSE 0 END AS underWarranty, "
                 + "CASE WHEN EXISTS (SELECT 1 FROM WarrantyClaims wc "
                 + "                  WHERE wc.serial_number = ii.serial_number "
@@ -431,14 +431,12 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
-                + "WHERE (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
-                + "ORDER BY o.completed_at DESC, ii.serial_number ASC";
+                + "WHERE o.user_id = ? AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered', 'SHIPPED', 'Shipped', 'shipped') "
+                + "ORDER BY ISNULL(o.completed_at, GETDATE()) DESC, ii.serial_number ASC";
 
         List<WarrantyPurchasedProduct> list = new ArrayList<>();
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
-            ps.setInt(2, customerId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     WarrantyPurchasedProduct item = new WarrantyPurchasedProduct();
@@ -465,15 +463,14 @@ public class WarrantyDAO extends DBContext {
      */
     public WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
         String sql = "SELECT p.product_name AS productName, "
-                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
-                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName "
+                + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, ISNULL(p.warranty_period, 12), ISNULL(o.completed_at, GETDATE()))) AS warrantyExpiry, "
+                + "N'Bảo hành chính hãng (' + CAST(ISNULL(p.warranty_period, 12) AS NVARCHAR(10)) + N' tháng)' AS coverageName "
                 + "FROM InventoryItem ii "
                 + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE ii.serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);

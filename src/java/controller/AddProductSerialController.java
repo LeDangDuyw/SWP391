@@ -199,7 +199,19 @@ public class AddProductSerialController extends HttpServlet {
         }
 
         SerialDAO imeiDao = new SerialDAO();
-        imeiDao.insertInventoryItems(items);
+        try {
+            imeiDao.insertInventoryItems(items);
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            String sn = "";
+            if (msg != null && msg.contains("Duplicate Serial Number found:")) {
+                sn = msg.substring(msg.indexOf(":") + 1).trim();
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=DuplicateSerial&sn=" + java.net.URLEncoder.encode(sn, "UTF-8") +
+                    (ticketId != null ? "&ticketId=" + ticketId : "") +
+                    "&variantId=" + variantId);
+            return;
+        }
 
         if (ticketId != null) {
             if (ticketDao.isTicketFullyImported(ticketId)) {

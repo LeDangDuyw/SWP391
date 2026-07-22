@@ -9,7 +9,7 @@
             <head>
                 <meta charset="utf-8" />
                 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-                <title>Add New Serial - UNILAP Staff</title>
+                <title>Đăng Ký Mã Serial - UNILAP Staff</title>
                 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
                 <link
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -170,9 +170,9 @@
                                     <% } else { %>
                                         <span>♙</span>
                                         <% } %>
-                                            <span>Staff Profile</span>
+                                            <span>Hồ sơ nhân viên</span>
                             </div>
-                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+                            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
                         </div>
                     </aside>
 
@@ -187,7 +187,7 @@
                                         data-icon="search">search</span>
                                     <input
                                         class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-primary/20 transition-all"
-                                        placeholder="Search serial numbers, models, or batches..." type="text" />
+                                        placeholder="Tìm kiếm mã serial, mẫu sản phẩm hoặc lô hàng..." type="text" />
                                 </div>
                             </div>
                             <div class="flex items-center gap-4">
@@ -207,14 +207,14 @@
                             <!-- Breadcrumbs & Header -->
                             <nav class="mb-6">
                                 <ol class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
-                                    <li>Inventory</li>
+                                    <li>Kho hàng</li>
                                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                                            data-icon="chevron_right">chevron_right</span>Serial Management</li>
+                                            data-icon="chevron_right">chevron_right</span>Quản lý Serial</li>
                                     <li class="flex items-center gap-2 text-primary"><span
                                             class="material-symbols-outlined text-sm text-on-surface-variant"
-                                            data-icon="chevron_right">chevron_right</span>Add New Serial</li>
+                                            data-icon="chevron_right">chevron_right</span>Đăng ký Serial mới</li>
                                 </ol>
-                                <h2 class="font-headline-lg text-headline-lg mt-2 text-on-surface">Add New Serial / IMEI
+                                <h2 class="font-headline-lg text-headline-lg mt-2 text-on-surface">Đăng Ký Mã Serial / IMEI Mới
                                 </h2>
                             </nav>
                             <div class="max-w-5xl">
@@ -223,6 +223,9 @@
                                         class="mb-6 p-4 rounded-lg bg-error-container text-on-error-container flex items-center gap-3">
                                         <span class="material-symbols-outlined text-[20px]">error</span>
                                         <c:choose>
+                                            <c:when test="${param.error == 'DuplicateSerial'}">
+                                                Lỗi: Mã Serial Number <strong>'${param.sn}'</strong> đã tồn tại trong hệ thống! Vui lòng kiểm tra và nhập mã Serial khác.
+                                            </c:when>
                                             <c:when test="${param.error == 'MismatchImeisQuantity'}">
                                                 Lỗi: Số lượng Serial Number nhập vào không khớp với yêu cầu! Yêu cầu:
                                                 ${param.expected} (Thực tế: ${param.actual}).
@@ -249,7 +252,7 @@
                                         <div class="flex items-center gap-2 mb-6 text-primary">
                                             <span class="material-symbols-outlined"
                                                 data-icon="laptop_mac">laptop_mac</span>
-                                            <h3 class="font-headline-md text-headline-md">Product Information</h3>
+                                            <h3 class="font-headline-md text-headline-md">Thông Tin Sản Phẩm</h3>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <c:choose>
@@ -257,15 +260,14 @@
                                                     test="${not empty selectedProduct and not empty selectedVariant}">
                                                     <div class="space-y-2">
                                                         <label
-                                                            class="font-label-md text-label-md text-on-surface-variant">Parent
-                                                            Product</label>
+                                                            class="font-label-md text-label-md text-on-surface-variant">Sản Phẩm Chính</label>
                                                         <input type="text" readonly
                                                             value="${selectedProduct.productName}"
                                                             class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
                                                     </div>
                                                     <div class="space-y-2">
                                                         <label
-                                                            class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+                                                            class="font-label-md text-label-md text-on-surface-variant">Biến Thể Sản Phẩm</label>
                                                         <input type="text" readonly
                                                             value="${selectedVariant.sku} - ${selectedVariant.variantName}"
                                                             class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-body-md text-on-surface-variant outline-none cursor-not-allowed">
@@ -276,11 +278,10 @@
                                                 <c:otherwise>
                                                     <div class="space-y-2">
                                                         <label
-                                                            class="font-label-md text-label-md text-on-surface-variant">Parent
-                                                            Product</label>
+                                                            class="font-label-md text-label-md text-on-surface-variant">Sản Phẩm Chính</label>
                                                         <select id="productSelect" onchange="filterVariants()"
                                                             class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-                                                            <option value="" disabled selected>Select a Product</option>
+                                                            <option value="" disabled selected>-- Chọn sản phẩm --</option>
                                                             <c:forEach var="p" items="${products}">
                                                                 <option value="${p.productId}">${p.productName}</option>
                                                             </c:forEach>
@@ -288,10 +289,10 @@
                                                     </div>
                                                     <div class="space-y-2">
                                                         <label
-                                                            class="font-label-md text-label-md text-on-surface-variant">Variant</label>
+                                                            class="font-label-md text-label-md text-on-surface-variant">Biến Thể Sản Phẩm</label>
                                                         <select id="variantSelect" name="variantId" required
                                                             class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
-                                                            <option value="" disabled selected>Select a Variant</option>
+                                                            <option value="" disabled selected>-- Chọn biến thể --</option>
                                                             <c:forEach var="v" items="${variants}">
                                                                 <option value="${v.variantId}"
                                                                     data-product-id="${v.productId}">${v.sku} -
@@ -310,20 +311,19 @@
                                                 <div class="flex items-center gap-2 text-primary">
                                                     <span class="material-symbols-outlined"
                                                         data-icon="qr_code_scanner">qr_code_scanner</span>
-                                                    <h3 class="font-headline-md text-headline-md">Unit Details</h3>
+                                                    <h3 class="font-headline-md text-headline-md">Chi Tiết Mã Serial / IMEI</h3>
                                                 </div>
                                                 <div class="flex items-center gap-4">
                                                     <c:if test="${not empty expectedQuantity}">
                                                         <span
-                                                            class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Required
-                                                            Quantity: ${expectedQuantity}</span>
+                                                            class="font-label-md text-label-md px-3 py-1 bg-[#d3e4fe] text-[#001452] rounded-full">Số lượng cần nhập: ${expectedQuantity}</span>
                                                     </c:if>
                                                 </div>
                                             </div>
                                             <div class="space-y-4">
                                                 <div
                                                     class="grid grid-cols-1 gap-6 font-label-md text-label-md text-on-surface-variant hidden md:grid">
-                                                    <label>Serial Number</label>
+                                                    <label>Mã Serial / IMEI</label>
                                                 </div>
 
                                                 <div id="unitRowsContainer" class="space-y-3">
@@ -334,8 +334,7 @@
                                                             class="grid grid-cols-1 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent">
                                                             <div class="space-y-1">
                                                                 <label
-                                                                    class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial
-                                                                    Number</label>
+                                                                    class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
                                                                 <input type="text" name="serialNumbers" required
                                                                     pattern="[A-Za-z0-9_\-]{3,30}"
                                                                     title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch"
@@ -352,13 +351,12 @@
                                                 <div class="flex items-center gap-2 mb-6 text-primary">
                                                     <span class="material-symbols-outlined"
                                                         data-icon="inventory_2">inventory_2</span>
-                                                    <h3 class="font-headline-md text-headline-md">Storage & Status</h3>
+                                                    <h3 class="font-headline-md text-headline-md">Thông Tin Lưu Kho</h3>
                                                 </div>
                                                 <div class="grid grid-cols-1 gap-6">
                                                     <div class="space-y-2">
                                                         <label
-                                                            class="font-label-md text-label-md text-on-surface-variant">Import
-                                                            Date</label>
+                                                            class="font-label-md text-label-md text-on-surface-variant">Ngày Nhập Kho</label>
                                                         <input name="receivedDate" required
                                                             class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                                             type="date" />
@@ -370,14 +368,14 @@
                                                 class="flex items-center justify-end gap-4 py-6 border-t border-outline-variant">
                                                 <a href="${pageContext.request.contextPath}/staff/imei"
                                                     class="px-6 py-2.5 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
-                                                    Cancel
+                                                    Hủy bỏ
                                                 </a>
                                                 <button
                                                     class="px-8 py-2.5 rounded-lg bg-primary text-white font-label-md text-label-md hover:bg-primary/90 shadow-md transition-all active:scale-95 flex items-center gap-2"
                                                     type="submit">
                                                     <span class="material-symbols-outlined"
                                                         data-icon="check_circle">check_circle</span>
-                                                    Register Units
+                                                    Đăng Ký Nhập Kho
                                                 </button>
                                             </div>
                                 </form>
@@ -401,7 +399,7 @@
                         row.className = 'grid grid-cols-1 gap-6 p-4 md:p-0 border border-outline-variant md:border-none rounded-lg bg-surface-container-lowest md:bg-transparent';
                         row.innerHTML = `
             <div class="space-y-1">
-                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Serial Number</label>
+                <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
                 <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
             </div>
         `;
