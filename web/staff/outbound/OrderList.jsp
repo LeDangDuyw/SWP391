@@ -112,7 +112,7 @@
             <div class="flex justify-between items-end mb-6">
                 <div>
                     <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Đơn hàng chờ xuất kho</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Danh sách các đơn hàng đã thanh toán / chờ xử lý, cần chuẩn bị hàng hóa để giao cho khách.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Danh sách các đơn hàng đã được xác nhận (Đang xử lý), cần chuẩn bị hàng hóa & gán số Serial để xuất kho.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <a href="${pageContext.request.contextPath}/staff/outbound/history" class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">

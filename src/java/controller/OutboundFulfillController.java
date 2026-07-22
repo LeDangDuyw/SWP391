@@ -49,8 +49,8 @@ public class OutboundFulfillController extends HttpServlet {
             int orderId = Integer.parseInt(idStr);
             OutboundDAO dao = new OutboundDAO();
             Order order = dao.getOrderById(orderId);
-            if (order == null || (!"pending".equalsIgnoreCase(order.getOrderStatus()) && !"processing".equalsIgnoreCase(order.getOrderStatus()))) {
-                request.setAttribute("error", "Đơn hàng không hợp lệ hoặc đã được xử lý.");
+            if (order == null || !"processing".equalsIgnoreCase(order.getOrderStatus())) {
+                request.setAttribute("error", "Đơn hàng chưa được xác nhận hoặc không ở trạng thái sẵn sàng xuất kho.");
                 request.getRequestDispatcher("/staff/outbound/list").forward(request, response);
                 return;
             }
