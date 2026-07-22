@@ -73,31 +73,22 @@ public class OutboundUpdateStatusController extends HttpServlet {
                             Order updatedOrder = dao.getOrderById(orderId);
                             List<OrderDetail> details = dao.getOrderDetails(orderId);
                             updatedOrder.setDetails(details);
+
+                            // Award reward points (10,000 VND = 1 point)
+                            if (updatedOrder != null && updatedOrder.getUserId() > 0 && updatedOrder.getTotalAmount() != null) {
+                                int earnedPoints = updatedOrder.getTotalAmount().divide(new java.math.BigDecimal("10000"), 0, java.math.RoundingMode.DOWN).intValue();
+                                if (earnedPoints > 0) {
+                                    dal.UserDAO userDAO = new dal.UserDAO();
+                                    userDAO.addRewardPoints(updatedOrder.getUserId(), earnedPoints);
+                                    dao.addOrderLog(orderId, status, status, "System (Reward Service)",
+                                            "Tích lũy +" + earnedPoints + " điểm thưởng cho tài khoản ID: " + updatedOrder.getUserId());
+                                }
+                            }
                             
                             String fileName = PdfInvoiceService.generateInvoice(updatedOrder, realPath);
                             String dbInvoicePath = "invoices/" + fileName;
                             
-                            String customerEmail = dao.getCustomerEmailByUserId(updatedOrder.getUserId());
-                            int emailSentStatus = 0;
-                            
-                            if (customerEmail != null && !customerEmail.trim().isEmpty()) {
-                                File pdfFile = new File(realPath, fileName);
-                                boolean emailSent = EmailService.sendInvoiceEmail(customerEmail, updatedOrder.getOrderCode(), pdfFile);
-                                if (emailSent) {
-                                    emailSentStatus = 1;
-                                    dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                                   "Đã gửi hóa đơn điện tử thành công đến email: " + customerEmail);
-                                } else {
-                                    emailSentStatus = 2;
-                                    dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                                   "Gửi email hóa đơn thất bại đến email: " + customerEmail + " (Lỗi xác thực SMTP/Kết nối)");
-                                }
-                            } else {
-                                dao.addOrderLog(orderId, status, status, "System (Email Service)", 
-                                               "Không tìm thấy email khách hàng để gửi hóa đơn.");
-                            }
-                            
-                            dao.updateInvoiceDetails(orderId, dbInvoicePath, emailSentStatus);
+                            dao.updateInvoiceDetails(orderId, dbInvoicePath, 0);
                         }
                     } else {
                         session.setAttribute("error", "Không thể cập nhật trạng thái đơn hàng. Vui lòng kiểm tra lại trạng thái hiện tại.");

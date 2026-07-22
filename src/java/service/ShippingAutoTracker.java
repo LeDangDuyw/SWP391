@@ -58,27 +58,7 @@ public class ShippingAutoTracker implements ServletContextListener {
                             String fileName = PdfInvoiceService.generateInvoice(updatedOrder, finalRealPath);
                             String dbInvoicePath = "invoices/" + fileName;
                             
-                            String customerEmail = dao.getCustomerEmailByUserId(updatedOrder.getUserId());
-                            int emailSentStatus = 0; 
-                            
-                            if (customerEmail != null && !customerEmail.trim().isEmpty()) {
-                                File pdfFile = new File(finalRealPath, fileName);
-                                boolean emailSent = EmailService.sendInvoiceEmail(customerEmail, updatedOrder.getOrderCode(), pdfFile);
-                                if (emailSent) {
-                                    emailSentStatus = 1; 
-                                    dao.addOrderLog(updatedOrder.getOrderId(), newStatus, newStatus, "System (Email Service)", 
-                                                   "Đã gửi hóa đơn điện tử thành công đến email: " + customerEmail);
-                                } else {
-                                    emailSentStatus = 2; 
-                                    dao.addOrderLog(updatedOrder.getOrderId(), newStatus, newStatus, "System (Email Service)", 
-                                                   "Gửi email hóa đơn thất bại đến email: " + customerEmail + " (Lỗi xác thực SMTP/Kết nối)");
-                                }
-                            } else {
-                                dao.addOrderLog(updatedOrder.getOrderId(), newStatus, newStatus, "System (Email Service)", 
-                                               "Không tìm thấy email khách hàng để gửi hóa đơn.");
-                            }
-                            
-                            dao.updateInvoiceDetails(updatedOrder.getOrderId(), dbInvoicePath, emailSentStatus);
+                            dao.updateInvoiceDetails(updatedOrder.getOrderId(), dbInvoicePath, 0);
                             System.out.println("[AutoTracker] Completed Order: " + updatedOrder.getOrderCode() + ". Invoice generated at: " + dbInvoicePath);
                         }
                     }

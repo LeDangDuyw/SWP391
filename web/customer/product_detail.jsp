@@ -45,6 +45,9 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
+                    <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48; margin-right: 2px;" title="Sản phẩm yêu thích">
+                        <i class="fas fa-heart" style="font-size: 18px;"></i>
+                    </a>
                     <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative; color: inherit;">
                         <i class="fas fa-shopping-cart"></i>
                         <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
@@ -342,20 +345,25 @@
                     </div>
 
                     <!-- Purchase quantity and action buttons -->
-                    <div class="pd-actions">
+                    <div class="pd-actions" style="display: flex; gap: 10px; align-items: center;">
                         <div class="pd-qty">
                             <button type="button" id="qtyMinus" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>−</button>
                             <input type="text" id="qtyInput" value="1" readonly>
                             <button type="button" id="qtyPlus" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>+</button>
                         </div>
-                        <form id="addCartForm" method="post" action="${pageContext.request.contextPath}/CartServlet">
+                        <form id="addCartForm" method="post" action="${pageContext.request.contextPath}/CartServlet" style="flex: 1;">
                             <input type="hidden" name="action" id="cartAction" value="add">
                             <input type="hidden" name="variantId" id="selectedVariantId" value="${variants[0].variantId}">
                             <input type="hidden" name="quantity" id="formQty" value="1">
-                            <button type="submit" class="pd-add-cart" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
+                            <button type="submit" class="pd-add-cart" style="width: 100%;" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}><i class="fas fa-shopping-cart"></i> Giỏ hàng</button>
                         </form>
-                        <button type="button" id="btnBuyNow" class="pd-btn-buy" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>
+                        <button type="button" id="btnBuyNow" class="pd-btn-buy" style="flex: 1;" ${variants[0].availableQuantity == 0 ? 'disabled' : ''}>
                             Mua ngay
+                        </button>
+                        <button type="button" id="btnToggleWishlist" onclick="toggleWishlistProductDetail(${product.productId})"
+                                title="Lưu vào sản phẩm yêu thích"
+                                style="width: 46px; height: 46px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #ffffff; color: #e11d48; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;">
+                            <i id="wishlistHeartIcon" class="far fa-heart"></i>
                         </button>
                     </div>
 
@@ -532,6 +540,59 @@
         <script>window.contextPath = '${pageContext.request.contextPath}';</script>
         <script src="${pageContext.request.contextPath}/js/compare.js?v=2"></script>
         <script src="${pageContext.request.contextPath}/js/product_detail.js?v=2" defer></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                checkWishlistStatus(${product.productId});
+            });
+
+            function checkWishlistStatus(productId) {
+                fetch('${pageContext.request.contextPath}/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: 'action=checkStatus&productId=' + productId
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'success' && d.isWishlisted) {
+                        setHeartActive(true);
+                    }
+                })
+                .catch(err => console.log(err));
+            }
+
+            function toggleWishlistProductDetail(productId) {
+                fetch('${pageContext.request.contextPath}/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: 'action=toggle&productId=' + productId
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status === 'unauthorized') {
+                        window.location.href = '${pageContext.request.contextPath}/login';
+                    } else if (d.status === 'success') {
+                        setHeartActive(d.action === 'added');
+                    } else {
+                        alert(d.message || "Có lỗi xảy ra");
+                    }
+                })
+                .catch(err => console.error(err));
+            }
+
+            function setHeartActive(active) {
+                var icon = document.getElementById("wishlistHeartIcon");
+                var btn = document.getElementById("btnToggleWishlist");
+                if (icon) {
+                    if (active) {
+                        icon.className = "fas fa-heart";
+                        if (btn) btn.style.background = "#fff1f2";
+                    } else {
+                        icon.className = "far fa-heart";
+                        if (btn) btn.style.background = "#ffffff";
+                    }
+                }
+            }
+        </script>
         <jsp:include page="chatbot.jsp" />
     </body>
 </html>

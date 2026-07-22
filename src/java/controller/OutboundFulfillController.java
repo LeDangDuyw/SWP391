@@ -68,6 +68,7 @@ public class OutboundFulfillController extends HttpServlet {
             request.setAttribute("order", order);
             request.setAttribute("details", details);
             request.setAttribute("availableSerialsMap", availableSerialsMap);
+            request.setAttribute("availableImeisMap", availableSerialsMap);
             
             request.getRequestDispatcher("/staff/outbound/OrderFulfillment.jsp").forward(request, response);
 

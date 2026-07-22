@@ -11,6 +11,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Đăng Nhập - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     </head>
     <body>
 
@@ -52,9 +53,15 @@
                             <label>Mật Khẩu</label>
                             <a href="forgot-password" class="forgot-link">Quên mật khẩu?</a>
                         </div>
-                        <input type="password" name="password" 
-                               placeholder="••••••••" 
-                               value="${cookie.c_password.value}" required>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" name="password" 
+                                   placeholder="••••••••" 
+                                   value="${cookie.c_password.value}" required
+                                   style="padding-right: 40px;">
+                            <span id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; font-size: 16px;">
+                                <i class="fas fa-eye-slash"></i>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group-remember">
                         <label class="remember-label">
@@ -99,5 +106,20 @@
 
 
 
+        <script>
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                var pwField = document.getElementById('loginPassword');
+                var icon = this.querySelector('i');
+                if (pwField.type === 'password') {
+                    pwField.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    pwField.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        </script>
     </body>
 </html>

@@ -404,23 +404,9 @@
                                 </div>
                                 <div>
                                     <span class="text-on-surface-variant block text-[12px]">Trạng thái gửi Email khách hàng</span>
-                                    <c:choose>
-                                        <c:when test="${order.invoiceEmailSent == 1}">
-                                            <span class="inline-flex items-center gap-1 text-green-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">check_circle</span> Đã gửi thành công
-                                            </span>
-                                        </c:when>
-                                        <c:when test="${order.invoiceEmailSent == 2}">
-                                            <span class="inline-flex items-center gap-1 text-red-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">error</span> Gửi thất bại (Lỗi SMTP)
-                                            </span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="inline-flex items-center gap-1 text-amber-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">pending</span> Chưa gửi
-                                            </span>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <span class="inline-flex items-center gap-1 text-on-surface-variant font-semibold mt-1">
+                                        <span class="material-symbols-outlined text-[18px]">do_not_disturb_on</span> Đã tắt gửi Email hóa đơn
+                                    </span>
                                 </div>
                             </div>
                         </div>
