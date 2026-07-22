@@ -256,8 +256,6 @@
                                 <th class="px-6 py-4">Serial / IMEI Number</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4">Received Date</th>
-                                <th class="px-6 py-4">Linked Order</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/30 bg-surface-container-lowest font-body-sm text-body-sm">
@@ -284,23 +282,12 @@
                                                 </c:choose>
                                             </td>
                                             <td class="px-6 py-4 text-on-surface-variant">${item.importDate}</td>
-                                            <td class="px-6 py-4 text-on-surface-variant italic">${item.note != null ? item.note : "—"}</td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                                    </button>
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="History">
-                                                        <span class="material-symbols-outlined text-[20px]">history</span>
-                                                    </button>
-                                                </div>
-                                            </td>
                                         </tr>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
+                                        <td colspan="3" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
