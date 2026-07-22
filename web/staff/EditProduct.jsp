@@ -176,12 +176,13 @@
         <nav>
             <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
             <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -256,9 +257,14 @@
                 </div>
             </div>
             <div class="col-span-1">
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Thương hiệu</label>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block font-label-md text-label-md text-on-surface-variant">Thương hiệu</label>
+                    <button type="button" onclick="openAddBrandModal()" class="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
+                        <span class="material-symbols-outlined text-[14px]">add</span>Thêm thương hiệu
+                    </button>
+                </div>
                 <div class="relative">
-                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId" id="brandId">
                         <% for (Brand b : brands) { %>
                             <option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
                         <% } %>
@@ -538,6 +544,10 @@
         });
     }
 
+    /**
+     * Mở modal chỉnh sửa thông tin biến thể sản phẩm và điền thông tin hiện tại vào form.
+     * @param {HTMLElement} btn Nút Chỉnh sửa trên dòng tương ứng
+     */
     function openEditVariantModal(btn) {
         const tr = btn.closest('tr');
         const sku = tr.querySelector('td:nth-child(1) span').innerText.trim();
@@ -560,6 +570,9 @@
         document.getElementById('editVariantModal').classList.remove('hidden');
     }
 
+    /**
+     * Đóng modal chỉnh sửa biến thể sản phẩm.
+     */
     function closeEditVariantModal() {
         document.getElementById('editVariantModal').classList.add('hidden');
     }
@@ -579,6 +592,9 @@
 
     const initialSeriesId = <%= product != null ? product.getSeriesId() : 0 %>;
 
+    /**
+     * Lọc danh sách Dòng sản phẩm (Series) động theo Thương hiệu (Brand) được chọn cho màn hình cập nhật sản phẩm.
+     */
     function filterSeriesAndCategory() {
         const categorySelect = document.querySelector('select[name="categoryId"]');
         const brandSelect = document.querySelector('select[name="brandId"]');
@@ -590,7 +606,7 @@
         const selectedCategoryId = categorySelect.value;
         const selectedBrandId = parseInt(brandSelect.value) || 0;
 
-        // Chỉ dòng Laptop (categoryId = 1) mới hiển thị dòng sản phẩm (Series)
+        // Chỉ danh mục Laptop (categoryId = 1) mới hiển thị dòng sản phẩm (Series)
         if (selectedCategoryId === "1") {
             seriesContainer.style.display = "block";
             seriesSelect.disabled = false;
@@ -618,6 +634,9 @@
         }
     }
 
+    /**
+     * Ẩn/hiện ô nhập dữ liệu tùy chỉnh khi chọn tùy chọn "Khác".
+     */
     function toggleCustomPurpose(select, inputId) {
         const input = document.getElementById(inputId);
         if (!input) return;
@@ -632,6 +651,9 @@
         }
     }
 
+    /**
+     * Mở Modal thêm nhanh Dòng sản phẩm (Series) mới.
+     */
     function openAddSeriesModal() {
         const brandSelect = document.querySelector('select[name="brandId"]');
         if (!brandSelect || !brandSelect.value) {
@@ -643,10 +665,16 @@
         document.getElementById('addSeriesModal').classList.remove('hidden');
     }
 
+    /**
+     * Đóng Modal thêm Dòng sản phẩm.
+     */
     function closeAddSeriesModal() {
         document.getElementById('addSeriesModal').classList.add('hidden');
     }
 
+    /**
+     * Gửi yêu cầu AJAX tạo mới Dòng sản phẩm và cập nhật danh sách chọn.
+     */
     function submitAddSeries() {
         const brandSelect = document.querySelector('select[name="brandId"]');
         const brandId = brandSelect.value;
@@ -699,6 +727,62 @@
         xhr.send("seriesName=" + encodeURIComponent(seriesName) + "&brandId=" + encodeURIComponent(brandId));
     }
 
+    function openAddBrandModal() {
+        document.getElementById('newBrandName').value = "";
+        document.getElementById('addBrandError').classList.add('hidden');
+        document.getElementById('addBrandModal').classList.remove('hidden');
+    }
+
+    function closeAddBrandModal() {
+        document.getElementById('addBrandModal').classList.add('hidden');
+    }
+
+    function submitAddBrand() {
+        const brandNameInput = document.getElementById('newBrandName');
+        const brandName = brandNameInput.value.trim();
+        const errorDiv = document.getElementById('addBrandError');
+        
+        if (!brandName) {
+            errorDiv.textContent = "Tên thương hiệu không được để trống!";
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "${pageContext.request.contextPath}/staff/brand/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            const brandSelect = document.querySelector('select[name="brandId"]');
+                            const opt = document.createElement('option');
+                            opt.value = response.id;
+                            opt.textContent = response.name;
+                            opt.selected = true;
+                            brandSelect.appendChild(opt);
+                            
+                            filterSeriesAndCategory();
+                            closeAddBrandModal();
+                        } else {
+                            errorDiv.textContent = response.message;
+                            errorDiv.classList.remove('hidden');
+                        }
+                    } catch (e) {
+                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                        errorDiv.classList.remove('hidden');
+                    }
+                } else {
+                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                    errorDiv.classList.remove('hidden');
+                }
+            }
+        };
+        xhr.send("brandName=" + encodeURIComponent(brandName));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const categorySelect = document.querySelector('select[name="categoryId"]');
         const brandSelect = document.querySelector('select[name="brandId"]');
@@ -708,6 +792,29 @@
         filterSeriesAndCategory();
     });
 </script>
+
+<!-- Add Brand Modal -->
+<div id="addBrandModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-on-surface">Thêm thương hiệu mới</h3>
+            <button type="button" onclick="closeAddBrandModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tên thương hiệu</label>
+                <input type="text" id="newBrandName" class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface" placeholder="Nhập tên thương hiệu (ví dụ: Apple, ASUS, Dell)"/>
+            </div>
+            <div id="addBrandError" class="text-red-600 text-sm hidden"></div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeAddBrandModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                <button type="button" onclick="submitAddBrand()" class="px-6 py-2 bg-primary text-white font-semibold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 text-sm">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Add Series Modal -->
 <div id="addSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">

@@ -9,14 +9,7 @@
          <welcome-file>HomeServlet</welcome-file>
     </welcome-file-list>
 
-    <servlet>
-        <servlet-name>SerialManagement</servlet-name>
-        <servlet-class>controller.SerialManagement</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>SerialManagement</servlet-name>
-        <url-pattern>/serialmanage</url-pattern>
-    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>HomeServlet</servlet-name>

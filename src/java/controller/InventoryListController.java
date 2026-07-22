@@ -1,8 +1,10 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: InventoryListController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller quản lý và hiển thị danh sách sản phẩm trong kho hàng (Inventory Management).
  */
-
 package controller;
 
 import dal.ProductDAO;

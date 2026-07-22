@@ -1,12 +1,23 @@
 package model;
+/**
+ * Class: DashboardSummary
+ * Description: Model đại diện cho số liệu thống kê tổng quan hiển thị trên Dashboard.
+ * 
+ * Created: 2026-05-31 23:29:28 +0700
+ * Updated: 2026-06-18 20:32:25 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
 
 /**
  * Class: DashboardSummary
  * Description: Model đại diện cho số liệu thống kê tổng quan hiển thị trên Dashboard.
  * 
- * Created: 2026-05-31
- * Updated: 2026-06-18
- * Version: v1.3
+ * Created: 2026-05-31 23:29:28 +0700
+ * Updated: 2026-06-18 20:32:25 +0700
+ * Version: v1.0
  *
  * @author DuyLD
  */
@@ -14,7 +25,9 @@ package model;
 import java.util.List;
 import java.util.Map;
 
+
 public class DashboardSummary {
+
 
     // KPI Cards
     private double todayRevenue;
@@ -22,32 +35,43 @@ public class DashboardSummary {
     private int newCustomersToday;
     private int pendingAlerts;
 
+
     // Revenue Chart
     private Map<String, Double> monthlyRevenue;
+
 
     // Orders Chart
     private Map<String, Integer> ordersByStatus;
 
+
     // Product Category Chart
     private Map<String, Integer> productsByCategory;
+
 
     // Low Stock Table
     private List<Product> lowStockProducts;
 
+
     // Top Products Chart
     private Map<String, Integer> topProducts;
+
 
     // Top Customers Chart
     private Map<String, Double> topCustomers;
 
+
     // Recent Activities
     private List<String[]> recentActivities;
+
+
 
     /**
      * Phuong thuc DashboardSummary
      */
     public DashboardSummary() {
     }
+
+
 
     /**
      * Phuong thuc getTodayRevenue
@@ -63,6 +87,8 @@ public class DashboardSummary {
         this.todayRevenue = todayRevenue;
     }
 
+
+
     /**
      * Phuong thuc getTodayOrders
      */
@@ -76,6 +102,8 @@ public class DashboardSummary {
     public void setTodayOrders(int todayOrders) {
         this.todayOrders = todayOrders;
     }
+
+
 
     /**
      * Phuong thuc getNewCustomersToday
@@ -91,6 +119,8 @@ public class DashboardSummary {
         this.newCustomersToday = newCustomersToday;
     }
 
+
+
     /**
      * Phuong thuc getPendingAlerts
      */
@@ -104,6 +134,8 @@ public class DashboardSummary {
     public void setPendingAlerts(int pendingAlerts) {
         this.pendingAlerts = pendingAlerts;
     }
+
+
 
     /**
      * Phuong thuc getMonthlyRevenue
@@ -119,6 +151,8 @@ public class DashboardSummary {
         this.monthlyRevenue = monthlyRevenue;
     }
 
+
+
     /**
      * Phuong thuc getOrdersByStatus
      */
@@ -132,6 +166,8 @@ public class DashboardSummary {
     public void setOrdersByStatus(Map<String, Integer> ordersByStatus) {
         this.ordersByStatus = ordersByStatus;
     }
+
+
 
     /**
      * Phuong thuc getProductsByCategory
@@ -147,6 +183,8 @@ public class DashboardSummary {
         this.productsByCategory = productsByCategory;
     }
 
+
+
     /**
      * Phuong thuc getLowStockProducts
      */
@@ -160,6 +198,8 @@ public class DashboardSummary {
     public void setLowStockProducts(List<Product> lowStockProducts) {
         this.lowStockProducts = lowStockProducts;
     }
+
+
 
     /**
      * Phuong thuc getTopProducts
@@ -175,6 +215,8 @@ public class DashboardSummary {
         this.topProducts = topProducts;
     }
 
+
+
     /**
      * Phuong thuc getTopCustomers
      */
@@ -188,6 +230,8 @@ public class DashboardSummary {
     public void setTopCustomers(Map<String, Double> topCustomers) {
         this.topCustomers = topCustomers;
     }
+
+
 
     /**
      * Phuong thuc getRecentActivities

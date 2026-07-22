@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Reset Password - UNILAP</title>
+        <title>Đặt Lại Mật Khẩu - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
         <style>
             .back-to-login {
@@ -34,8 +34,14 @@
                 var confirmPassword = document.getElementById("confirmPassword").value;
                 var errorDiv = document.getElementById("client-error");
 
-                if (password.length < 6) {
-                    errorDiv.innerText = "Mật khẩu phải có ít nhất 6 ký tự!";
+                var ruleLength  = password.length >= 8;
+                var ruleUpper   = /[A-Z]/.test(password);
+                var ruleLower   = /[a-z]/.test(password);
+                var ruleDigit   = /[0-9]/.test(password);
+                var ruleSpecial = /[^a-zA-Z0-9]/.test(password);
+
+                if (!ruleLength || !ruleUpper || !ruleLower || !ruleDigit || !ruleSpecial) {
+                    errorDiv.innerText = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!";
                     errorDiv.style.display = "block";
                     return false;
                 }
@@ -60,11 +66,11 @@
         <main class="main">
             <div class="card">
                 <div class="tabs">
-                    <a href="#" class="tab active">Reset Password</a>
+                    <a href="#" class="tab active">Đặt Lại Mật Khẩu</a>
                 </div>
 
-                <h2 class="card-title">Setup New Password</h2>
-                <p class="card-subtitle">Establish a secure password for your system account.</p>
+                <h2 class="card-title">Tạo Mật Khẩu Mới</h2>
+                <p class="card-subtitle">Thiết lập mật khẩu mới an toàn cho tài khoản của bạn.</p>
 
                 <div id="client-error" class="client-error"></div>
 
@@ -82,38 +88,41 @@
                         <input type="hidden" name="token" value="${token}">
                         
                         <div class="form-group">
-                            <label>New Password</label>
+                            <label>Mật Khẩu Mới</label>
                             <input type="password" id="password" name="password" 
-                                   placeholder="••••••••" required>
+                                   placeholder="••••••••" minlength="8" required>
+                            <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+                                Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+                            </small>
                         </div>
 
                         <div class="form-group">
-                            <label>Confirm Password</label>
+                            <label>Xác Nhận Mật Khẩu</label>
                             <input type="password" id="confirmPassword" name="confirmPassword" 
-                                   placeholder="••••••••" required>
+                                   placeholder="••••••••" minlength="8" required>
                         </div>
                         
                         <button type="submit" class="btn-submit">
-                            Save New Password →
+                            Lưu Mật Khẩu Mới →
                         </button>
                     </form>
                 <% } %>
 
-                <a href="login" class="back-to-login">← Back to Login</a>
+                <a href="login" class="back-to-login">← Quay Lại Đăng Nhập</a>
             </div>
         </main>
 
         <footer class="footer">
             <div class="footer-left">
                 <span class="logo">UNILAP</span>
-                <p>© 2024 UNILAP Precision Engineering. All rights reserved.</p>
+                <p>© 2024 UNILAP. Tất cả quyền được bảo lưu.</p>
             </div>
             <div class="footer-right">
-                <a href="#">Support</a>
-                <a href="#">Warranty</a>
-                <a href="#">Shipping</a>
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
+                <a href="#">Hỗ Trợ</a>
+                <a href="#">Bảo Hành</a>
+                <a href="#">Vận Chuyển</a>
+                <a href="#">Bảo Mật</a>
+                <a href="#">Điều Khoản</a>
             </div>
         </footer>
 

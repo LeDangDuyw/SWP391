@@ -807,6 +807,188 @@
             .warranty-cta { flex-wrap: wrap; }
             .warranty-cta-btn { margin-left: 0; }
         }
+
+        /* ── REVIEW MODAL ─────────────────────────────────────────────── */
+        .review-modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .review-modal.show {
+            opacity: 1;
+        }
+        .review-modal-content {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .review-modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 10;
+        }
+        .review-modal-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .review-modal-close {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+        .review-modal-close:hover {
+            color: var(--red-600);
+        }
+        .review-modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .review-item {
+            padding: 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            background: var(--gray-50);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .review-product-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .review-product-img {
+            width: 60px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+        }
+        .review-product-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .review-product-variant {
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+        .review-stars {
+            display: flex;
+            gap: 6px;
+            font-size: 24px;
+            color: var(--gray-300);
+        }
+        .review-stars i {
+            cursor: pointer;
+            transition: color 0.2s, transform 0.1s;
+        }
+        .review-stars i:hover {
+            transform: scale(1.15);
+        }
+        .review-stars i.active {
+            color: #f59e0b;
+        }
+        .review-comment {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1.5px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .review-comment:focus {
+            border-color: var(--blue-500);
+        }
+        .review-submit-btn {
+            align-self: flex-end;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .review-success-badge {
+            color: var(--green-600);
+            background: var(--green-100);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .toast-notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--gray-900);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -917,10 +1099,12 @@
                     Đơn hàng của tôi
                 </div>
 
+<%--
                 <div class="nav-item" id="nav-student-verify" onclick="switchTab('student-verify')">
                     <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
                     Xác minh sinh viên
                 </div>
+--%>
                 </c:if>
 
                 <div class="nav-divider"></div>
@@ -1095,7 +1279,11 @@
 
                     <!-- Password rules -->
                     <ul class="pw-rules" id="pwRules">
-                        <li id="rule-length"><i class="fas fa-circle"></i> Ít nhất 6 ký tự</li>
+                        <li id="rule-length"><i class="fas fa-circle"></i> Ít nhất 8 ký tự</li>
+                        <li id="rule-upper"><i class="fas fa-circle"></i> Có chữ hoa (A-Z)</li>
+                        <li id="rule-lower"><i class="fas fa-circle"></i> Có chữ thường (a-z)</li>
+                        <li id="rule-digit"><i class="fas fa-circle"></i> Có chữ số (0-9)</li>
+                        <li id="rule-special"><i class="fas fa-circle"></i> Có ký tự đặc biệt (!@#$...)</li>
                         <li id="rule-match"><i class="fas fa-circle"></i> Xác nhận khớp</li>
                     </ul>
 
@@ -1174,7 +1362,7 @@
                         </div>
                     </div>
                     <ul style="padding-left:20px;color:var(--gray-700);font-size:14px;line-height:2;">
-                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số.</li>
+                        <li>Sử dụng mật khẩu ít nhất 8 ký tự gồm chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$...).</li>
                         <li>Không sử dụng cùng một mật khẩu cho nhiều tài khoản.</li>
                         <li>Không chia sẻ mật khẩu với bất kỳ ai.</li>
                         <li>Thay đổi mật khẩu định kỳ 3-6 tháng một lần.</li>
@@ -1423,14 +1611,40 @@
                                                 </div>
                                             </div>
 
-                                            <div style="text-align: right; flex-shrink: 0;">
+                                            <div style="text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end;">
                                                 <p style="font-size: 12px; color: var(--gray-500); margin-bottom: 4px;">Tổng thanh toán</p>
                                                 <p style="font-size: 16px; font-weight: 800; color: var(--red-600); margin-bottom: 12px;">
                                                     <fmt:formatNumber value="${ord.totalAmount}" pattern="#,##0"/>₫
                                                 </p>
-                                                <a href="${pageContext.request.contextPath}/order-detail?id=${ord.orderId}" class="btn btn-outline btn-sm" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center;">
+                                                <a href="${pageContext.request.contextPath}/order-detail?id=${ord.orderId}" class="btn btn-outline btn-sm" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; margin-bottom: 6px;">
                                                     Xem chi tiết <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px;"></i>
                                                 </a>
+                                                
+                                                <c:if test="${ord.orderStatus == 'delivered' || ord.orderStatus == 'Completed'}">
+                                                    <c:set var="allReviewed" value="true" />
+                                                    <c:forEach items="${ord.details}" var="item">
+                                                        <c:if test="${!item.reviewed}">
+                                                            <c:set var="allReviewed" value="false" />
+                                                        </c:if>
+                                                    </c:forEach>
+                                                    
+                                                    <div id="action-order-${ord.orderId}">
+                                                        <c:choose>
+                                                            <c:when test="${allReviewed}">
+                                                                <span class="review-success-badge" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                    <i class="fas fa-check-circle"></i> Đã đánh giá
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <button type="button" class="btn btn-sm" onclick="openOrderReviewModal('${ord.orderId}')" style="background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; font-size: 11px; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);">
+                                                                    <i class="fas fa-star" style="font-size: 10px;"></i> Đánh giá
+                                                                </button>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                    
+                                                    <div id="order-details-json-${ord.orderId}" style="display:none;">[<c:forEach items="${ord.details}" var="item" varStatus="loop">{"productId": ${item.productId},"productName": "${fn:escapeXml(item.productName)}","variantName": "${fn:escapeXml(item.variantName)}","thumbnail": "${item.thumbnail}","reviewed": ${item.reviewed}}${not loop.last ? ',' : ''}</c:forEach>]</div>
+                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
@@ -1469,7 +1683,11 @@
                                 <c:if test="${not empty studentVerify}">
                                     <div style="margin-top:20px;">
                                         <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên của bạn:</p>
-                                        <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                            <c:forEach var="imgName" items="${studentVerify.studentCardImage.split(',')}">
+                                                <img src="${pageContext.request.contextPath}/images/${imgName}" alt="Thẻ sinh viên" style="max-width:300px; max-height:220px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200); object-fit:cover; cursor:pointer;">
+                                            </c:forEach>
+                                        </div>
                                     </div>
                                 </c:if>
                             </c:when>
@@ -1484,37 +1702,61 @@
                                 </div>
                                 <div style="margin-top:20px;">
                                     <p style="font-weight:500; margin-bottom:8px; color:var(--gray-700);">Ảnh thẻ sinh viên đã gửi:</p>
-                                    <img src="${pageContext.request.contextPath}/images/${studentVerify.studentCardImage}" alt="Thẻ sinh viên" style="max-width:400px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200);">
+                                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                        <c:forEach var="imgName" items="${studentVerify.studentCardImage.split(',')}">
+                                            <img src="${pageContext.request.contextPath}/images/${imgName}" alt="Thẻ sinh viên" style="max-width:300px; max-height:220px; border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--gray-200); object-fit:cover;">
+                                        </c:forEach>
+                                    </div>
                                 </div>
                             </c:when>
-                            <c:when test="${not empty studentVerify && studentVerify.status == 'rejected'}">
+                            <c:when test="${not empty studentVerify && (studentVerify.status == 'rejected' || studentVerify.status == 'revoked')}">
                                 <div class="alert alert-error" style="background:#fef2f2; border-left:4px solid #b91c1c; color:#991b1b; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
                                     <i class="fas fa-times-circle" style="font-size:24px;"></i>
                                     <div>
-                                        <h4 style="font-weight:600; margin-bottom:4px;">Yêu cầu xác minh bị từ chối</h4>
-                                        <p style="font-size:14px; opacity:0.9;"><strong>Lý do từ chối:</strong> ${studentVerify.staffNote}</p>
+                                        <h4 style="font-weight:600; margin-bottom:4px;">
+                                            <c:choose>
+                                                <c:when test="${studentVerify.status == 'revoked'}">Tài khoản sinh viên đã bị thu hồi</c:when>
+                                                <c:otherwise>Yêu cầu xác minh bị từ chối</c:otherwise>
+                                            </c:choose>
+                                        </h4>
+                                        <p style="font-size:14px; opacity:0.9;"><strong>Lý do:</strong> ${not empty studentVerify.staffNote ? studentVerify.staffNote : 'Không có chi tiết'}</p>
                                     </div>
                                 </div>
-                                <p style="margin-bottom:20px; color:var(--gray-700);">Vui lòng tải lên ảnh thẻ sinh viên hợp lệ khác dưới đây để gửi lại yêu cầu xác minh.</p>
-                                
-                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
-                                    <div class="form-group" style="margin-bottom:20px;">
-                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên mới</label>
-                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu xác minh
-                                    </button>
-                                </form>
+                                <c:choose>
+                                    <c:when test="${canResubmit == false}">
+                                        <div class="alert alert-warning" style="background:#fffbeb; border-left:4px solid #b45309; color:#92400e; padding:16px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                                            <i class="fas fa-exclamation-triangle" style="font-size:24px;"></i>
+                                            <div>
+                                                <h4 style="font-weight:600; margin-bottom:4px;">Giới hạn lượt gửi lại</h4>
+                                                <p style="font-size:14px; opacity:0.9;">Mỗi tháng bạn chỉ được gửi lại yêu cầu xác minh 1 lần. Vui lòng chờ thêm <strong>${daysRemaining} ngày</strong> nữa mới có thể gửi lại yêu cầu mới.</p>
+                                            </div>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <p style="margin-bottom:20px; color:var(--gray-700);">Vui lòng tải lên ảnh thẻ sinh viên hợp lệ khác dưới đây để gửi lại yêu cầu xác minh.</p>
+                                        
+                                        <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data" onsubmit="return validateStudentCard(this)">
+                                            <div class="form-group" style="margin-bottom:20px;">
+                                                <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên mới (tối thiểu 1, tối đa 3 ảnh)</label>
+                                                <input type="file" name="studentCard" accept="image/*" required multiple class="form-control" style="padding:10px;" onchange="checkFileCount(this)">
+                                                <small style="color:var(--gray-500); margin-top:6px; display:block;">Chấp nhận ảnh JPG, PNG, WEBP. Tối đa 3 ảnh, mỗi ảnh không quá 10MB.</small>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu xác minh
+                                            </button>
+                                        </form>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:when>
 
                             <c:otherwise>
                                 <p style="margin-bottom:20px; color:var(--gray-700);">Để kích hoạt tài khoản Sinh viên, vui lòng chụp ảnh thẻ sinh viên của bạn rõ ràng các thông tin cá nhân và tải lên tại đây. Nhân viên của chúng tôi sẽ tiến hành phê duyệt.</p>
                                 
-                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data">
+                                <form action="${pageContext.request.contextPath}/profile/student-verify" method="post" enctype="multipart/form-data" onsubmit="return validateStudentCard(this)">
                                     <div class="form-group" style="margin-bottom:20px;">
-                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên</label>
-                                        <input type="file" name="studentCard" accept="image/*" required class="form-control" style="padding:10px;">
+                                        <label style="font-weight:600; display:block; margin-bottom:8px;">Tải lên ảnh thẻ sinh viên (tối thiểu 1, tối đa 3 ảnh)</label>
+                                        <input type="file" name="studentCard" accept="image/*" required multiple class="form-control" style="padding:10px;" onchange="checkFileCount(this)">
+                                        <small style="color:var(--gray-500); margin-top:6px; display:block;">Chấp nhận ảnh JPG, PNG, WEBP. Tối đa 3 ảnh, mỗi ảnh không quá 10MB.</small>
                                     </div>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-paper-plane"></i> Gửi yêu cầu xác minh
@@ -1671,18 +1913,27 @@
             var pw      = document.getElementById('newPassword').value      || '';
             var confirm = document.getElementById('confirmPassword').value  || '';
 
-            var ruleLength = pw.length >= 6;
-            var ruleMatch  = pw.length > 0 && pw === confirm;
+            var ruleLength  = pw.length >= 8;
+            var ruleUpper   = /[A-Z]/.test(pw);
+            var ruleLower   = /[a-z]/.test(pw);
+            var ruleDigit   = /[0-9]/.test(pw);
+            var ruleSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pw);
+            var ruleMatch   = pw.length > 0 && pw === confirm;
 
-            setRule('rule-length', ruleLength);
-            setRule('rule-match',  ruleMatch);
+            setRule('rule-length',  ruleLength);
+            setRule('rule-upper',   ruleUpper);
+            setRule('rule-lower',   ruleLower);
+            setRule('rule-digit',   ruleDigit);
+            setRule('rule-special', ruleSpecial);
+            setRule('rule-match',   ruleMatch);
 
+            var passedCount = [ruleLength, ruleUpper, ruleLower, ruleDigit, ruleSpecial].filter(Boolean).length;
             var fill = document.getElementById('pwStrengthFill');
             var color, width;
-            if      (pw.length === 0)  { color = ''; width = '0%'; }
-            else if (pw.length < 6)    { color = '#ef4444'; width = '33%'; }
-            else if (pw.length < 10)   { color = '#eab308'; width = '66%'; }
-            else                       { color = '#22c55e'; width = '100%'; }
+            if      (pw.length === 0)    { color = ''; width = '0%'; }
+            else if (passedCount <= 2)   { color = '#ef4444'; width = '33%'; }
+            else if (passedCount <= 4)   { color = '#eab308'; width = '66%'; }
+            else                         { color = '#22c55e'; width = '100%'; }
             fill.style.width      = width;
             fill.style.background = color;
         }
@@ -1696,7 +1947,7 @@
 
         function resetPwForm() {
             document.getElementById('changePwForm').reset();
-            ['rule-length','rule-match'].forEach(function(id){ setRule(id, false); });
+            ['rule-length','rule-upper','rule-lower','rule-digit','rule-special','rule-match'].forEach(function(id){ setRule(id, false); });
             var fill = document.getElementById('pwStrengthFill');
             fill.style.width = '0';
             fill.style.background = '';
@@ -1903,6 +2154,231 @@
 
             if (hash && document.getElementById('tab-' + hash)) {
                 switchTab(hash);
+            }
+        });
+        // Student card file upload validation (max 3 images)
+        function checkFileCount(input) {
+            if (input.files.length > 3) {
+                alert('Bạn chỉ được tải lên tối đa 3 ảnh! Vui lòng chọn lại.');
+                input.value = '';
+            }
+        }
+        function validateStudentCard(form) {
+            var fileInput = form.querySelector('input[name="studentCard"]');
+            if (!fileInput || fileInput.files.length === 0) {
+                alert('Vui lòng chọn ít nhất 1 ảnh thẻ sinh viên!');
+                return false;
+            }
+            if (fileInput.files.length > 3) {
+                alert('Bạn chỉ được tải lên tối đa 3 ảnh!');
+                fileInput.value = '';
+                return false;
+            }
+            return true;
+        }
+    </script>
+    <!-- Modal Đánh Giá Sản Phẩm -->
+    <div id="reviewModal" class="review-modal">
+        <div class="review-modal-content">
+            <div class="review-modal-header">
+                <h3>Đánh giá sản phẩm</h3>
+                <span class="review-modal-close" onclick="closeReviewModal()">&times;</span>
+            </div>
+            <div class="review-modal-body" id="reviewModalBody">
+                <!-- Nội dung đánh giá sẽ được chèn động ở đây -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store ratings for each product dynamically in an object
+        const currentRatings = {};
+
+        function openOrderReviewModal(orderId) {
+            const jsonElement = document.getElementById('order-details-json-' + orderId);
+            if (!jsonElement) return;
+            const items = JSON.parse(jsonElement.textContent);
+            
+            let html = '';
+            items.forEach(item => {
+                html += `
+                    <div class="review-item" id="review-item-${item.productId}">
+                        <div class="review-product-info">
+                            <img src="${pageContext.request.contextPath}/images/${item.thumbnail}" onerror="this.src='https://placehold.co/80x60/f1f5f9/94a3b8?text=UniLap'" class="review-product-img">
+                            <div>
+                                <div class="review-product-name">${item.productName}</div>
+                                <div class="review-product-variant">Cấu hình: ${item.variantName}</div>
+                            </div>
+                        </div>
+                `;
+                
+                if (item.reviewed) {
+                    html += `
+                        <div class="review-success-badge" style="margin-top: 10px;">
+                            <i class="fas fa-check-circle"></i> Đã đánh giá
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div style="display:flex; flex-direction:column; gap:10px; margin-top: 10px;">
+                            <div class="review-stars" id="stars-${item.productId}">
+                                <i class="fa-regular fa-star" onclick="setRating(${item.productId}, 1)" data-val="1"></i>
+                                <i class="fa-regular fa-star" onclick="setRating(${item.productId}, 2)" data-val="2"></i>
+                                <i class="fa-regular fa-star" onclick="setRating(${item.productId}, 3)" data-val="3"></i>
+                                <i class="fa-regular fa-star" onclick="setRating(${item.productId}, 4)" data-val="4"></i>
+                                <i class="fa-regular fa-star" onclick="setRating(${item.productId}, 5)" data-val="5"></i>
+                            </div>
+                            <textarea class="review-comment" id="comment-${item.productId}" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                            <button type="button" class="btn btn-primary review-submit-btn" onclick="submitProductReview(${item.productId}, ${orderId})" id="btn-submit-${item.productId}" style="background: linear-gradient(135deg, #1d4ed8, #1e3a8a); color: #fff;">
+                                Gửi đánh giá
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+            });
+            
+            document.getElementById('reviewModalBody').innerHTML = html;
+            const modal = document.getElementById('reviewModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeReviewModal() {
+            const modal = document.getElementById('reviewModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function setRating(productId, rating) {
+            currentRatings[productId] = rating;
+            const starsContainer = document.getElementById('stars-' + productId);
+            const stars = starsContainer.querySelectorAll('i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.className = 'fa-solid fa-star active';
+                } else {
+                    star.className = 'fa-regular fa-star';
+                }
+            });
+        }
+
+        function submitProductReview(productId, orderId) {
+            const rating = currentRatings[productId];
+            if (!rating) {
+                showToast('Vui lòng chọn số sao đánh giá!', 'error');
+                return;
+            }
+            const comment = document.getElementById('comment-' + productId).value.trim();
+            if (!comment) {
+                showToast('Vui lòng nhập nhận xét sản phẩm!', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('btn-submit-' + productId);
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+            
+            fetch('${pageContext.request.contextPath}/ProductDetailServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'productId=' + productId + '&rating=' + rating + '&comment=' + encodeURIComponent(comment) + '&ajax=true'
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data.trim() === 'success') {
+                    showToast('Đánh giá sản phẩm thành công!');
+                    
+                    // Update dynamic review status in hidden JSON text
+                    const jsonElement = document.getElementById('order-details-json-' + orderId);
+                    if (jsonElement) {
+                        const items = JSON.parse(jsonElement.textContent);
+                        let allReviewed = true;
+                        items.forEach(item => {
+                            if (item.productId === productId) {
+                                item.reviewed = true;
+                            }
+                            if (!item.reviewed) {
+                                allReviewed = false;
+                            }
+                        });
+                        jsonElement.textContent = JSON.stringify(items);
+                        
+                        // Update status button in order history page list
+                        const actionContainer = document.getElementById('action-order-' + orderId);
+                        if (actionContainer) {
+                            if (allReviewed) {
+                                actionContainer.innerHTML = `
+                                    <span class="review-success-badge" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-check-circle"></i> Đã đánh giá
+                                    </span>
+                                `;
+                            }
+                        }
+                    }
+                    
+                    // Update UI inside the modal directly
+                    const container = document.getElementById('review-item-' + productId);
+                    const prodName = container.querySelector('.review-product-name').textContent;
+                    const prodVariant = container.querySelector('.review-product-variant').textContent;
+                    const prodImg = container.querySelector('.review-product-img').src;
+                    
+                    container.innerHTML = `
+                        <div class="review-product-info">
+                            <img src="${prodImg}" class="review-product-img">
+                            <div>
+                                <div class="review-product-name">${prodName}</div>
+                                <div class="review-product-variant">${prodVariant}</div>
+                            </div>
+                        </div>
+                        <div class="review-success-badge" style="margin-top: 10px;">
+                            <i class="fas fa-check-circle"></i> Đã đánh giá
+                        </div>
+                    `;
+                } else {
+                    showToast('Gửi đánh giá thất bại. Vui lòng thử lại!', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Gửi đánh giá';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Đã xảy ra lỗi kết nối!', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Gửi đánh giá';
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            let toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            const color = type === 'success' ? '#22c55e' : '#ef4444';
+            toast.innerHTML = `<i class="fas ${icon}" style="color: ${color}"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            
+            // trigger reflow
+            toast.offsetHeight;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target === modal) {
+                closeReviewModal();
             }
         });
     </script>

@@ -1,17 +1,29 @@
 package model;
+/**
+ * Class: WarrantyClaimImage
+ * Description: Model ảnh đính kèm phiếu bảo hành.
+ * 
+ * Created: 2026-06-26 00:12:55 +0700
+ * Updated: 2026-06-26 00:12:55 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
 
 /**
  * Class: WarrantyClaimImage
  * Description: Model ảnh đính kèm phiếu bảo hành.
  * 
- * Created: 2026-06-26
- * Updated: 2026-06-26
- * Version: v1.2
+ * Created: 2026-06-26 00:12:55 +0700
+ * Updated: 2026-06-26 00:12:55 +0700
+ * Version: v1.0
  *
  * @author DuyLD
  */
 
 import java.sql.Timestamp;
+
 
 public class WarrantyClaimImage {
 

@@ -1,7 +1,7 @@
 /*
- * Name: AdminTicketDetailController
- * @Author: HuyDQ
- * Date: [05/06/2026]
+ * Name: AdminTicketDetailController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
  * Version: 1.0
  * Description: Controller hiển thị thông tin chi tiết của một phiếu nhập kho để Admin phê duyệt hoặc từ chối.
  */
@@ -20,6 +20,16 @@ import java.io.IOException;
 @WebServlet(name = "AdminTicketDetailController", urlPatterns = {"/admin/ticket/detail"})
 public class AdminTicketDetailController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Lấy và hiển thị thông tin chi tiết của một phiếu nhập kho (Ticket).
+     * Hàm này được Admin sử dụng để xem xét các chi tiết bên trong phiếu (danh sách biến thể, số lượng,
+     * đơn giá, lý do tạo, v.v.) trước khi ra quyết định duyệt hoặc từ chối.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa tham số id của Ticket
+     * @param response đối tượng HttpServletResponse để gửi phản hồi
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -1,9 +1,9 @@
 /*
- * Name: AddProductSerialController
- * @Author: HuyDQ
- * Date: [05/06/2026]
+ * Name: AddProductSerialController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
  * Version: 1.0
- * Description: Controller xử lý việc đăng ký số Serial Number và mã vạch cho sản phẩm thực tế khi nhập kho.
+ * Description: Controller xử lý việc đăng ký số Serial Number / IMEI cho sản phẩm khi nhập kho.
  */
 package controller;
 
@@ -24,25 +24,35 @@ import model.Product;
 import model.ProductVariant;
 import model.TicketDetail;
 
-@WebServlet(name = "AddProductSerialController", urlPatterns = {"/staff/serial/add"})
+@WebServlet(name = "AddProductSerialController", urlPatterns = { "/staff/imei/add", "/staff/serial/add" })
 public class AddProductSerialController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Hiển thị giao diện đăng ký mã Serial/IMEI.
+     * Nếu có truyền vào ticketId và variantId từ phiếu nhập kho (Inbound), hệ thống sẽ
+     * tự động lấy thông tin số lượng yêu cầu (expectedQuantity) và sản phẩm tương ứng để điền sẵn vào form.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa thông tin request
+     * @param response đối tượng HttpServletResponse để gửi phản hồi
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String ticketIdStr = request.getParameter("ticketId");
         String variantIdStr = request.getParameter("variantId");
-        
+
         ProductDAO productDao = new ProductDAO();
         TicketDAO ticketDao = new TicketDAO();
-        
+
         if (ticketIdStr != null && !ticketIdStr.trim().isEmpty() &&
-            variantIdStr != null && !variantIdStr.trim().isEmpty()) {
-            
+                variantIdStr != null && !variantIdStr.trim().isEmpty()) {
+
             try {
                 int ticketId = Integer.parseInt(ticketIdStr.trim());
                 int variantId = Integer.parseInt(variantIdStr.trim());
-                
+
                 List<model.TicketDetail> details = ticketDao.getTicketDetails(ticketId);
                 int expectedQuantity = -1;
                 for (model.TicketDetail td : details) {
@@ -51,32 +61,47 @@ public class AddProductSerialController extends HttpServlet {
                         break;
                     }
                 }
-                
+
                 model.ProductVariant selectedVariant = productDao.getVariantById(variantId);
                 model.Product selectedProduct = null;
                 if (selectedVariant != null) {
                     selectedProduct = productDao.getProductByVariantId(variantId);
                 }
-                
+
                 request.setAttribute("ticketId", ticketId);
                 request.setAttribute("expectedQuantity", expectedQuantity);
                 request.setAttribute("selectedVariant", selectedVariant);
                 request.setAttribute("selectedProduct", selectedProduct);
-                
+
             } catch (NumberFormatException e) {
                 // Ignore parse errors, fall back to normal
             }
         }
-        
+
         List<Product> products = productDao.GetAllProducts();
         List<ProductVariant> variants = productDao.getAllVariants();
-        
+
         request.setAttribute("products", products);
         request.setAttribute("variants", variants);
-        
+
         request.getRequestDispatcher("/staff/AddProductSerial.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Nhận danh sách mã Serial/IMEI do nhân viên nhập và lưu vào cơ sở dữ liệu.
+     * Các bước xử lý:
+     * 1. Validate dữ liệu đầu vào (mã biến thể, danh sách serial, ngày nhập).
+     * 2. Kiểm tra ngày nhập không được vượt quá ngày hiện tại (không ở tương lai).
+     * 3. Lọc bỏ các serial trống và khởi tạo danh sách InventoryItem trạng thái "in_stock".
+     * 4. Gọi SerialDAO để lưu hàng loạt serial mới vào kho và cập nhật số lượng khả dụng (available_quantity).
+     * 5. (Nghiệp vụ Inbound) Nếu nhập qua phiếu nhập kho, gọi kiểm tra tự động xem toàn bộ các sản phẩm
+     *    trong phiếu đã nhập đủ chưa để cập nhật trạng thái phiếu thành COMPLETED.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa form data
+     * @param response đối tượng HttpServletResponse để điều hướng sau khi xử lý
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -84,57 +109,44 @@ public class AddProductSerialController extends HttpServlet {
         String[] serialNumbers = request.getParameterValues("serialNumbers");
         String receivedDate = request.getParameter("receivedDate");
         String ticketIdStr = request.getParameter("ticketId");
-        
+
         if (variantIdStr == null || variantIdStr.trim().isEmpty() ||
-            serialNumbers == null) {
-            response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
-                (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") + 
-                (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
+                serialNumbers == null) {
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" +
+                    (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") +
+                    (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
             return;
         }
-        
+
         int variantId = Integer.parseInt(variantIdStr.trim());
         Integer ticketId = null;
         if (ticketIdStr != null && !ticketIdStr.trim().isEmpty()) {
             try {
-                int id = Integer.parseInt(ticketIdStr.trim());
-                ticketId = id;
+                ticketId = Integer.parseInt(ticketIdStr.trim());
             } catch (NumberFormatException e) {
                 // Ignore
             }
         }
-        
+
         List<String> validSerials = new ArrayList<>();
-        
+
         for (int i = 0; i < serialNumbers.length; i++) {
             String sn = (serialNumbers[i] != null) ? serialNumbers[i].trim() : "";
-            
+
             if (sn.isEmpty()) {
                 continue; // Skip empty rows
             }
-            
+
             validSerials.add(sn);
         }
-        
+
         if (validSerials.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
-                (ticketId != null ? "&ticketId=" + ticketId : "") + 
-                "&variantId=" + variantId);
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" +
+                    (ticketId != null ? "&ticketId=" + ticketId : "") +
+                    "&variantId=" + variantId);
             return;
         }
 
-        // Validate duplicates within the submitted batch to prevent SQL unique constraint violations
-        java.util.Set<String> uniqueSerials = new java.util.HashSet<>();
-        for (String sn : validSerials) {
-            if (!uniqueSerials.add(sn)) {
-                response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=DuplicateSerialInBatch" + 
-                    (ticketId != null ? "&ticketId=" + ticketId : "") + 
-                    "&variantId=" + variantId);
-                return;
-            }
-        }
-
-        
         TicketDAO ticketDao = new TicketDAO();
         int expectedQuantity = -1;
         if (ticketId != null) {
@@ -148,7 +160,9 @@ public class AddProductSerialController extends HttpServlet {
         }
 
         if (expectedQuantity != -1 && validSerials.size() != expectedQuantity) {
-            response.sendRedirect(request.getContextPath() + "/staff/serial/add?ticketId=" + ticketId + "&variantId=" + variantId + "&error=MismatchSerialsQuantity&expected=" + expectedQuantity + "&actual=" + validSerials.size());
+            response.sendRedirect(request.getContextPath() + "/staff/imei/add?ticketId=" + ticketId + "&variantId="
+                    + variantId + "&error=MismatchImeisQuantity&expected=" + expectedQuantity + "&actual="
+                    + validSerials.size());
             return;
         }
 
@@ -158,20 +172,20 @@ public class AddProductSerialController extends HttpServlet {
                 LocalDate importDate = LocalDate.parse(receivedDate);
                 LocalDate today = LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
                 if (importDate.isAfter(today)) {
-                    response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=InvalidImportDate" + 
-                        (ticketId != null ? "&ticketId=" + ticketId : "") + 
-                        "&variantId=" + variantId);
+                    response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=InvalidImportDate" +
+                            (ticketId != null ? "&ticketId=" + ticketId : "") +
+                            "&variantId=" + variantId);
                     return;
                 }
                 warrantyExpiredDate = importDate.plusWeeks(2);
             } catch (java.time.format.DateTimeParseException e) {
-                response.sendRedirect(request.getContextPath() + "/staff/serial/add?error=MissingRequiredFields" + 
-                    (ticketId != null ? "&ticketId=" + ticketId : "") + 
-                    "&variantId=" + variantId);
+                response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=MissingRequiredFields" +
+                        (ticketId != null ? "&ticketId=" + ticketId : "") +
+                        "&variantId=" + variantId);
                 return;
             }
         }
-        
+
         List<InventoryItem> items = new ArrayList<>();
         for (int i = 0; i < validSerials.size(); i++) {
             InventoryItem item = new InventoryItem();
@@ -183,19 +197,21 @@ public class AddProductSerialController extends HttpServlet {
             item.setTicketId(ticketId != null ? ticketId : 0);
             items.add(item);
         }
-        
-        SerialDAO serialDao = new SerialDAO();
-        serialDao.insertInventoryItems(items);
-        
+
+        SerialDAO imeiDao = new SerialDAO();
+        imeiDao.insertInventoryItems(items);
+
         if (ticketId != null) {
             if (ticketDao.isTicketFullyImported(ticketId)) {
-                ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and all serials registered");
-                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=InboundCompleted");
+                ticketDao.updateTicketStatus(ticketId, "COMPLETED", "Stock received and all IMEIs registered");
+                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId
+                        + "&success=InboundCompleted");
             } else {
-                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId + "&success=VariantImported");
+                response.sendRedirect(request.getContextPath() + "/staff/ticket/workflow?id=" + ticketId
+                        + "&success=VariantImported");
             }
         } else {
-            response.sendRedirect(request.getContextPath() + "/staff/serial?success=Added");
+            response.sendRedirect(request.getContextPath() + "/staff/imei?success=Added");
         }
     }
 }

@@ -1,3 +1,10 @@
+/*
+ * Name: CartDAO
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý lưu trữ và đồng bộ thông tin giỏ hàng của người dùng vào cơ sở dữ liệu.
+ */
 package dal;
 
 import java.math.BigDecimal;
@@ -18,12 +25,14 @@ public class CartDAO extends DBContext {
     }
 
     private void checkConnection() throws SQLException {
+        // Đảm bảo kết nối CSDL luôn hoạt động
         if (cnn == null || cnn.isClosed()) {
             this.cnn = getConnection();
         }
     }
 
     public int getCartIdByUserId(int userId) throws SQLException {
+        // Lấy cart_id của người dùng từ CSDL, nếu chưa có thì tự động khởi tạo giỏ hàng mới
         checkConnection();
         String selectSql = "SELECT cart_id FROM [Cart] WHERE user_id = ?";
         try (PreparedStatement ps = cnn.prepareStatement(selectSql)) {
@@ -49,6 +58,7 @@ public class CartDAO extends DBContext {
     }
 
     public List<CartItem> getCart(int userId) {
+        // Lấy toàn bộ các mặt hàng đang có trong giỏ của người dùng kèm theo giá bán (bao gồm cả Flash Sale đang hoạt động) và thông tin bảo hành
         List<CartItem> list = new ArrayList<>();
         try {
             checkConnection();

@@ -13,8 +13,8 @@ import java.util.Properties;
 public class EmailService {
 
     public static boolean sendInvoiceEmail(String toEmail, String orderCode, File pdfFile) {
-        final String from = "unilap.store@gmail.com"; 
-        final String password = "unilapPassMock123"; 
+        final String from = "trinhvanluc412@gmail.com"; 
+        final String password = "inodknqihcjqxlbb"; 
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

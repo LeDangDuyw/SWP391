@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundFulfillController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc gán mã Serial và hoàn tất thủ tục xuất kho cho đơn hàng.
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -19,6 +26,16 @@ import java.util.Map;
 @WebServlet(name = "OutboundFulfillController", urlPatterns = {"/staff/outbound/fulfill"})
 public class OutboundFulfillController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Hiển thị giao diện xuất kho (Fulfillment) cho một đơn hàng cụ thể.
+     * Hàm này load chi tiết đơn hàng, danh sách các sản phẩm cần xuất và đồng thời truy xuất
+     * danh sách các mã Serial (InventoryItem) đang có sẵn (in_stock) cho từng sản phẩm đó để nhân viên chọn.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa orderId
+     * @param response đối tượng HttpServletResponse điều hướng tới OrderFulfillment.jsp
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -59,6 +76,19 @@ public class OutboundFulfillController extends HttpServlet {
         }
     }
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Thực hiện gán mã Serial cho các sản phẩm trong đơn hàng và chốt xuất kho.
+     * Các bước thực hiện:
+     * 1. Lấy thông tin orderId và danh sách các mã Serial do nhân viên chọn cho từng dòng sản phẩm.
+     * 2. Kiểm tra xem nhân viên đã chọn ĐỦ số lượng Serial yêu cầu cho mỗi sản phẩm chưa.
+     * 3. Gọi OutboundDAO thực hiện transaction: Ghi nhận OrderItem (mapping Serial - Đơn hàng) và chuyển trạng thái Serial thành "sold".
+     * 4. Cập nhật trạng thái đơn hàng thành "shipped" (đã xuất kho, chờ giao) hoặc hoàn tất.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa form data chọn Serial
+     * @param response đối tượng HttpServletResponse điều hướng sau khi xuất kho thành công
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

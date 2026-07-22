@@ -21,9 +21,12 @@ import java.util.List;
 import model.CampaignBanner;
 import model.PageContent;
 
-/**
- *
- * @author ASUS
+/*
+ * Name: HomeServlet
+ * @Author: MinhCTHE200700
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý và chuẩn bị dữ liệu hiển thị cho trang chủ (Home Page)
  */
 public class HomeServlet extends HttpServlet {
 

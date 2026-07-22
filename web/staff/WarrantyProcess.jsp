@@ -738,35 +738,35 @@
         <aside class="sidebar">
             <div class="brand">
                 <span>UNILAP Staff</span>
-                <small>System Controller</small>
+                <small>Hệ thống Quản trị</small>
             </div>
             <nav>
                 <a href="${pageContext.request.contextPath}/staff/inventory">
-                    <span class="nav-icon">▤</span>Inventory
+                    <span class="nav-icon">▤</span>Danh mục sản phẩm
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/category">
-                    <span class="nav-icon">📁</span>Category
+                    <span class="nav-icon">📁</span>Danh mục
                 </a>
-                <a href="${pageContext.request.contextPath}/staff/serial">
-                    <span class="nav-icon">🏷</span>Serial
+                <a href="${pageContext.request.contextPath}/staff/imei">
+                    <span class="nav-icon">🏷</span>Quản lý Serial
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/ticket/list">
-                    <span class="nav-icon">🎫</span>Tickets
+                    <span class="nav-icon">🎫</span>Phiếu nhập kho
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/order/list">
-                    <span class="nav-icon">📋</span>Orders
+                    <span class="nav-icon">📋</span>Đơn hàng
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/outbound/list">
-                    <span class="nav-icon">📦</span>Outbound
+                    <span class="nav-icon">📦</span>Xuất kho
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/reviews">
-                    <span class="nav-icon">★</span>Manage Reviews
+                    <span class="nav-icon">★</span>Đánh giá sản phẩm
                 </a>
-                <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
-                    <span class="nav-icon">🛠</span>Warranty
+                <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
+                    <span class="nav-icon">🛠</span>Bảo hành
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/verifications">
-                    <span class="nav-icon">🎓</span>Student Verify
+                    <span class="nav-icon">🎓</span>Xác thực sinh viên
                 </a>
             </nav>
             <div class="profile">

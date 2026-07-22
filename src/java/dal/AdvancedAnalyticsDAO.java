@@ -1,12 +1,23 @@
 package dal;
+/**
+ * Class: AdvancedAnalyticsDAO
+ * Description: Data Access Object truy vấn số liệu doanh số, sản phẩm bán chạy, tồn kho và hệ số vòng quay.
+ * 
+ * Created: 2026-07-09 18:10:23 +0700
+ * Updated: 2026-07-11 23:58:52 +0700
+ * Version: v1.0
+ *
+ * @author DuyLD
+ */
+
 
 /**
  * Class: AdvancedAnalyticsDAO
  * Description: Data Access Object truy vấn số liệu doanh số, sản phẩm bán chạy, tồn kho và hệ số vòng quay.
  * 
- * Created: 2026-07-09
- * Updated: 2026-07-11
- * Version: v1.6
+ * Created: 2026-07-09 18:10:23 +0700
+ * Updated: 2026-07-11 23:58:52 +0700
+ * Version: v1.0
  *
  * @author DuyLD
  */
@@ -21,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import model.AnalyticsFilter;
 
+
 public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
 
     /**
@@ -32,12 +44,16 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         List<String> rawStatuses = new ArrayList<>();
         String sql = "SELECT DISTINCT order_status FROM [Order] WHERE order_status IS NOT NULL";
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 rawStatuses.add(rs.getString(1));
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getValidRawStatuses Error: " + e.getMessage());
@@ -47,12 +63,16 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         for (String raw : rawStatuses) {
             String norm = normalizeStatus(raw);
             // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if ("Delivered".equals(norm) || "Completed".equals(norm) || "Shipped".equals(norm)) {
                 valid.add(raw);
             }
         }
         
         // Fallback defaults if database contains no records or connection fails
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (valid.isEmpty()) {
             valid.add("delivered");
@@ -68,6 +88,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
     @Override
     protected String normalizeStatus(String status) {
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (status == null) return "Unknown";
         status = status.trim().toUpperCase();
         switch (status) {
@@ -81,6 +103,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
                 return "Cancelled";
             default:
                 // Kiểm tra điều kiện
+                // Kiểm tra điều kiện
+                // Kiểm tra điều kiện
                 if (status.isEmpty()) return "";
                 return status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
         }
@@ -93,6 +117,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append(" AND o.order_status IN (");
         for (int i = 0; i < validStatuses.size(); i++) {
             sql.append("?");
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (i < validStatuses.size() - 1) {
                 sql.append(", ");
@@ -117,6 +143,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
      */
     private void appendCustomerTypeCondition(StringBuilder sql, String customerType, List<String> validStatuses) {
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (customerType == null || customerType.trim().isEmpty()) {
             return;
         }
@@ -124,6 +152,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append(" AND (SELECT COUNT(*) FROM [Order] o_prev WHERE o_prev.user_id = o.user_id AND o_prev.completed_at < o.completed_at AND o_prev.completed_at IS NOT NULL AND o_prev.order_status IN (");
         for (int i = 0; i < validStatuses.size(); i++) {
             sql.append("?");
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (i < validStatuses.size() - 1) {
                 sql.append(", ");
@@ -136,6 +166,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
      * Helper to bind customer type parameters.
      */
     private int bindCustomerTypeParams(PreparedStatement ps, String customerType, List<String> validStatuses, int startIndex) throws SQLException {
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (customerType == null || customerType.trim().isEmpty()) {
             return startIndex;
@@ -152,15 +184,21 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
      */
     private void appendOrderFilters(StringBuilder sql, AnalyticsFilter filter, List<Object> paramValues) {
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             paramValues.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
             paramValues.add(java.sql.Date.valueOf(filter.getToDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
@@ -171,16 +209,22 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         boolean hasCategory = filter.getCategoryId() != null && filter.getCategoryId() > 0;
         boolean hasBrand = filter.getBrandId() != null && filter.getBrandId() > 0;
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (hasCategory || hasBrand) {
             sql.append(" AND EXISTS (SELECT 1 FROM OrderDetail od_f ")
                .append(" JOIN ProductVariant pv_f ON od_f.variant_id = pv_f.variant_id ")
                .append(" JOIN Product p_f ON pv_f.product_id = p_f.product_id ")
                .append(" WHERE od_f.order_id = o.order_id ");
             // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (hasCategory) {
                 sql.append(" AND p_f.category_id = ? ");
                 paramValues.add(filter.getCategoryId());
             }
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             // Kiểm tra điều kiện
             if (hasBrand) {
                 sql.append(" AND p_f.brand_id = ? ");
@@ -194,6 +238,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
      * Helper to return time grouping expressions based on standard granularity.
      */
     private String getGroupExpression(String groupBy) {
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (groupBy == null || groupBy.trim().isEmpty()) {
             groupBy = "month";
@@ -233,25 +279,35 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         List<Object> dynamicParams = new ArrayList<>();
         // Apply date range, customer type, payment method filters
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getToDate().trim()));
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
             dynamicParams.add(filter.getPaymentMethod().trim());
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             sql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
@@ -264,6 +320,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append("GROUP BY ").append(groupExpr).append(" ORDER BY MIN(o.completed_at) ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -275,11 +333,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     map.put(rs.getString("label"), rs.getLong("revenue"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getRevenueTrend Error: " + e.getMessage());
@@ -305,15 +367,21 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> dynamicParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getToDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
@@ -322,11 +390,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         // Do NOT apply Category filter here so the chart remains an overview of all categories!
         /*
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             sql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
         */
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
@@ -337,6 +409,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         appendStatusCondition(sql, validStatuses);
         sql.append("GROUP BY c.category_name ORDER BY revenue DESC ");
         
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
@@ -349,11 +423,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     map.put(rs.getString("category_name"), rs.getLong("revenue"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getRevenueByCategory Error: " + e.getMessage());
@@ -379,20 +457,28 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> dynamicParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getToDate().trim()));
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
             dynamicParams.add(filter.getPaymentMethod().trim());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             sql.append(" AND p.category_id = ? ");
@@ -400,6 +486,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         }
         // Do NOT apply Brand filter here so the chart remains an overview of all brands!
         /*
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
@@ -412,6 +500,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append("GROUP BY b.brand_name ORDER BY revenue DESC ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -423,11 +513,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     map.put(rs.getString("brand_name"), rs.getLong("revenue"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getRevenueByBrand Error: " + e.getMessage());
@@ -459,6 +553,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append("GROUP BY ").append(groupExpr).append(" ORDER BY MIN(o.completed_at) ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -470,11 +566,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     map.put(rs.getString("label"), rs.getInt("order_count"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getOrdersTrend Error: " + e.getMessage());
@@ -499,6 +599,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         appendStatusCondition(sql, validStatuses);
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -510,12 +612,18 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
+                // Nếu tồn tại bản ghi kết quả từ database
+                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getDouble("aov");
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getAverageOrderValue Error: " + e.getMessage());
@@ -543,6 +651,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         sql.append("GROUP BY pay.payment_method ORDER BY order_count DESC ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -554,9 +664,13 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String method = rs.getString("payment_method");
+                    // Kiểm tra điều kiện
+                    // Kiểm tra điều kiện
                     // Kiểm tra điều kiện
                     if (method == null || method.trim().isEmpty()) {
                         method = "COD"; // fallback default
@@ -564,6 +678,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
                     map.put(method, rs.getInt("order_count"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getSalesByPaymentMethod Error: " + e.getMessage());
@@ -588,6 +704,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         for (int i = 0; i < validStatuses.size(); i++) {
             sql.append("?");
             // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (i < validStatuses.size() - 1) sql.append(", ");
         }
         sql.append(")) AS prior_orders ")
@@ -610,6 +728,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
            .append("GROUP BY CASE WHEN prior_orders = 0 THEN 'New' ELSE 'Returning' END ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -626,6 +746,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String type = rs.getString("customer_type");
@@ -636,15 +758,21 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
                 }
             }
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getNewVsReturningCustomers Error: " + e.getMessage());
         }
         
         // Ensure both categories exist in returned map
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (!map.containsKey("New")) {
             map.put("New", new Long[]{0L, 0L, 0L});
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (!map.containsKey("Returning")) {
             map.put("Returning", new Long[]{0L, 0L, 0L});
@@ -669,6 +797,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         for (int i = 0; i < validStatuses.size(); i++) {
             sql.append("?");
             // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
+            // Kiểm tra điều kiện
             if (i < validStatuses.size() - 1) sql.append(", ");
         }
         sql.append(") GROUP BY user_id ")
@@ -679,10 +809,14 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> dynamicParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
@@ -691,6 +825,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         sql.append("GROUP BY ").append(groupExpr).append(" ORDER BY MIN(o.completed_at) ");
         
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
@@ -702,11 +838,15 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             }
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     map.put(rs.getString("label"), rs.getInt("new_cust_count"));
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getCustomerGrowth Error: " + e.getMessage());
@@ -739,6 +879,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
            .append("ORDER BY total_spent DESC ");
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -750,6 +892,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(new String[]{
@@ -760,6 +904,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
                     });
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getTopSpendingCustomers Error: " + e.getMessage());
@@ -792,25 +938,35 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> dynamicParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getFromDate() != null && !filter.getFromDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) >= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getFromDate().trim()));
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getToDate() != null && !filter.getToDate().trim().isEmpty()) {
             sql.append(" AND CAST(o.completed_at AS DATE) <= ? ");
             dynamicParams.add(java.sql.Date.valueOf(filter.getToDate().trim()));
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             sql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
             dynamicParams.add(filter.getPaymentMethod().trim());
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             sql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             sql.append(" AND p.brand_id = ? ");
@@ -824,6 +980,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
            .append("ORDER BY ").append(metric).append(" ").append(direction);
         
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             
@@ -834,6 +992,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             idx = bindCustomerTypeParams(ps, filter.getCustomerType(), validStatuses, idx);
             bindStatusParams(ps, validStatuses, idx);
             
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -846,6 +1006,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
                 }
             }
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getProductSalesRanking Error: " + e.getMessage());
         }
@@ -854,7 +1016,7 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
 
     /**
      * 12. Inventory Turnover Calculation (Option A - Historical Accounting Style).
-     * Assumes catalog is 100% serialized (verified as of 09/07/2026: 53/53 variants in unilap_db1.sql have is_serialized = 1).
+     * Assumes catalog is 100% serialized (all variants are tracked as individual inventory items).
      * WARNING: If non-serialized accessories are added, they must be tracked in a separate table, and this query must be updated to avoid undercounting inventory valuation.
      */
     public double[] getInventoryTurnover(AnalyticsFilter filter) {
@@ -888,15 +1050,21 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> dynamicParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getPaymentMethod() != null && !filter.getPaymentMethod().trim().isEmpty()) {
             cogsSql.append(" AND EXISTS (SELECT 1 FROM Payment pay WHERE pay.order_id = o.order_id AND pay.payment_method = ?) ");
             dynamicParams.add(filter.getPaymentMethod().trim());
         }
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             cogsSql.append(" AND p.category_id = ? ");
             dynamicParams.add(filter.getCategoryId());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             cogsSql.append(" AND p.brand_id = ? ");
@@ -906,6 +1074,8 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         appendCustomerTypeCondition(cogsSql, filter.getCustomerType(), validStatuses);
         appendStatusCondition(cogsSql, validStatuses);
         
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(cogsSql.toString())) {
@@ -920,12 +1090,18 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             bindStatusParams(ps, validStatuses, idx);
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
+                // Nếu tồn tại bản ghi kết quả từ database
+                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     cogs = rs.getDouble("cogs");
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getInventoryTurnover (COGS) Error: " + e.getMessage());
@@ -942,16 +1118,22 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> begParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             begInvSql.append(" AND p.category_id = ? ");
             begParams.add(filter.getCategoryId());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             begInvSql.append(" AND p.brand_id = ? ");
             begParams.add(filter.getBrandId());
         }
         
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(begInvSql.toString())) {
@@ -964,12 +1146,18 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             }
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
+                // Nếu tồn tại bản ghi kết quả từ database
+                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     begInventoryVal = rs.getDouble("beg_val");
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getInventoryTurnover (BegInventory) Error: " + e.getMessage());
@@ -986,16 +1174,22 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         List<Object> endParams = new ArrayList<>();
         // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         if (filter.getCategoryId() != null && filter.getCategoryId() > 0) {
             endInvSql.append(" AND p.category_id = ? ");
             endParams.add(filter.getCategoryId());
         }
+        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện
         // Kiểm tra điều kiện
         if (filter.getBrandId() != null && filter.getBrandId() > 0) {
             endInvSql.append(" AND p.brand_id = ? ");
             endParams.add(filter.getBrandId());
         }
         
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(endInvSql.toString())) {
@@ -1008,12 +1202,18 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
             }
             
             // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
+                // Nếu tồn tại bản ghi kết quả từ database
+                // Nếu tồn tại bản ghi kết quả từ database
                 // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     endInventoryVal = rs.getDouble("end_val");
                 }
             }
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
+        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             System.out.println("AdvancedAnalyticsDAO.getInventoryTurnover (EndInventory) Error: " + e.getMessage());
@@ -1025,4 +1225,6 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
         
         return new double[]{cogs, avgInventoryVal, ratio};
     }
+
+
 }

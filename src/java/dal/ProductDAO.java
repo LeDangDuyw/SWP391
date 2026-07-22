@@ -1,3 +1,10 @@
+/*
+ * Name: ProductDAO
+ * @Author: MinhCTHE200700 & HUYDQHE204239
+ * Date: [7/7/2026]
+ * Version: 1.0
+ * Description: Data Access Object quản lý và truy xuất dữ liệu liên quan đến sản phẩm, dòng máy và các biến thể.
+ */
 package dal;
 import dal.DBContext;
 import java.sql.Connection;
@@ -22,7 +29,7 @@ public class ProductDAO extends DBContext {
     }
 
     private void connect() {
-
+        // Gán kết nối cơ sở dữ liệu từ lớp cha DBContext
         cnn = super.connection;
 
         if (cnn != null) {
@@ -31,11 +38,12 @@ public class ProductDAO extends DBContext {
             System.out.println("Connect fail");
         }
     }
-    //B├ín Chß║íy 
-   // Lß║Ñy top 10 laptop b├ín chß║íy nhß║Ñt 
+    //Bán Chạy 
+   // Lấy top 10 laptop bán chạy nhất 
     public ArrayList<Product> getTopLapTop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
+        // Truy vấn lấy ra 10 sản phẩm laptop có tổng số lượng bán nhiều nhất, kèm theo thông tin giá thấp nhất hiện tại (có tính đến Flash Sale)
         String sql = """
                      SELECT TOP 10
                          p.product_id,
@@ -139,7 +147,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// Lß║Ñy top 10 b├án ph├¡m b├ín chß║íy nhß║Ñt 
+// Lấy top 10 bàn phím bán chạy nhất 
  public ArrayList<Product> getTopKeyboard() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -193,8 +201,8 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
- //Sß║ún phß║⌐m mß╗¢i 
- //sql lß║Ñy  10 Laptop mß╗¢i 
+ //Sản phẩm mới 
+ //sql lấy  10 Laptop mới 
  public ArrayList<Product> getNewLaptop() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -246,7 +254,7 @@ public class ProductDAO extends DBContext {
     return data;
 }
  
-// 10 sp chuß╗Öt mß╗¢i 
+// 10 sp chuột mới 
  public ArrayList<Product> getNewMouse() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -297,7 +305,7 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
- // 10 sp b├án ph├¡m mß╗¢i
+ // 10 sp bàn phím mới
  public ArrayList<Product> getNewKeyborad() {
     ArrayList<Product> data = new ArrayList<>();
     try {
@@ -615,6 +623,7 @@ public class ProductDAO extends DBContext {
  // Lß║Ñy th├┤ng tin chi tiß║┐t 1 sß║ún phß║⌐m theo product_id (cho trang chi tiß║┐t)
 public Product getProductById(int productId) {
     try {
+        // Thực hiện câu SQL JOIN để lấy chi tiết thông tin sản phẩm và các thông số đặc trưng (CPU, RAM, SSD, GPU, DPI...)
         String sql = "SELECT p.product_id, p.product_name, p.description, p.warranty_period, p.purpose, p.series_id, "
                    + "p.thumbnail, p.category_id, p.brand_id, c.category_name, b.brand_name, "
                    + "spec.cpu, spec.ram, spec.ssd, spec.gpu, spec.screen, spec.connectivity, spec.switch_type, spec.dpi "
@@ -642,6 +651,8 @@ public Product getProductById(int productId) {
         if (rs.next()) {
             int catId = rs.getInt("category_id");
             Product p;
+            
+            // Khởi tạo đối tượng Product phù hợp dựa trên danh mục (Laptop, Bàn phím, Chuột)
             if (catId == 1) {
                 Product.Laptop laptop = new Product.Laptop();
                 laptop.setCpu(rs.getString("cpu"));
@@ -663,6 +674,8 @@ public Product getProductById(int productId) {
             } else {
                 p = new Product();
             }
+            
+            // Thiết lập các thuộc tính chung cho sản phẩm
             p.setProductId(rs.getInt("product_id"));
             p.setProductName(rs.getString("product_name"));
             p.setDescription(rs.getString("description"));
@@ -862,7 +875,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
                 pv.setThumbnail(rs.getString("thumbnail"));
@@ -878,7 +890,7 @@ public List<Product> GetAllProducts() {
         List<ProductVariant> variants = new ArrayList<>();
         try {
             String sql = "select pv.variant_id, pv.product_id, pv.sku, pv.variant_name, pv.import_price, " +
-                         "pv.selling_price, pv.is_serialized, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
+                         "pv.selling_price, pv.status, isnull(i.available_quantity, 0) as available_quantity, " +
                          "fsi.sale_price as flash_sale_price, " +
                          "cast(round((pv.selling_price - fsi.sale_price) * 100.0 / pv.selling_price, 0) as int) as discount_percent " +
                          "from ProductVariant pv " +
@@ -902,7 +914,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status"),
                         rs.getInt("available_quantity")
                 );
@@ -943,7 +954,6 @@ public List<Product> GetAllProducts() {
                         rs.getString("variant_name"),
                         rs.getBigDecimal("import_price"),
                         rs.getBigDecimal("selling_price"),
-                        rs.getBoolean("is_serialized"),
                         rs.getString("status")
                 );
                 pv.setThumbnail(rs.getString("thumbnail"));
@@ -1321,17 +1331,16 @@ public List<Product> GetAllProducts() {
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
         try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
             ps.setString(3, variantName);
             ps.setBigDecimal(4, importPrice);
             ps.setBigDecimal(5, sellingPrice);
-            ps.setBoolean(6, false);
-            ps.setString(7, "active");
-            ps.setString(8, null);
+            ps.setString(6, "active");
+            ps.setString(7, null);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -1361,17 +1370,16 @@ public List<Product> GetAllProducts() {
     public void insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock, String thumbnail) {
         try {
-            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, is_serialized, status, thumbnail) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, productId);
             ps.setString(2, sku);
             ps.setString(3, variantName);
             ps.setBigDecimal(4, importPrice);
             ps.setBigDecimal(5, sellingPrice);
-            ps.setBoolean(6, false);
-            ps.setString(7, "active");
-            ps.setString(8, thumbnail);
+            ps.setString(6, "active");
+            ps.setString(7, thumbnail);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
