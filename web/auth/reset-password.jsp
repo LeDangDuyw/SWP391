@@ -34,8 +34,14 @@
                 var confirmPassword = document.getElementById("confirmPassword").value;
                 var errorDiv = document.getElementById("client-error");
 
-                if (password.length < 6) {
-                    errorDiv.innerText = "Mật khẩu phải có ít nhất 6 ký tự!";
+                var ruleLength  = password.length >= 8;
+                var ruleUpper   = /[A-Z]/.test(password);
+                var ruleLower   = /[a-z]/.test(password);
+                var ruleDigit   = /[0-9]/.test(password);
+                var ruleSpecial = /[^a-zA-Z0-9]/.test(password);
+
+                if (!ruleLength || !ruleUpper || !ruleLower || !ruleDigit || !ruleSpecial) {
+                    errorDiv.innerText = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!";
                     errorDiv.style.display = "block";
                     return false;
                 }
@@ -84,13 +90,16 @@
                         <div class="form-group">
                             <label>Mật Khẩu Mới</label>
                             <input type="password" id="password" name="password" 
-                                   placeholder="••••••••" required>
+                                   placeholder="••••••••" minlength="8" required>
+                            <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+                                Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+                            </small>
                         </div>
 
                         <div class="form-group">
                             <label>Xác Nhận Mật Khẩu</label>
                             <input type="password" id="confirmPassword" name="confirmPassword" 
-                                   placeholder="••••••••" required>
+                                   placeholder="••••••••" minlength="8" required>
                         </div>
                         
                         <button type="submit" class="btn-submit">

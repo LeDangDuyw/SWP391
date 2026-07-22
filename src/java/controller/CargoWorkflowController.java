@@ -21,6 +21,15 @@ import java.io.IOException;
 @WebServlet(name = "CargoWorkflowController", urlPatterns = {"/staff/ticket/workflow"})
 public class CargoWorkflowController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Lấy thông tin chi tiết của một phiếu nhập kho (Ticket).
+     * Chuyển tiếp tới trang TicketDetail.jsp để nhân viên theo dõi trạng thái quy trình và thực hiện các hành động tiếp theo.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa id của phiếu
+     * @param response đối tượng HttpServletResponse để chuyển hướng hoặc gửi giao diện
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,6 +52,18 @@ public class CargoWorkflowController extends HttpServlet {
         request.getRequestDispatcher("/staff/ticket/TicketDetail.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Thực hiện chuyển đổi trạng thái phiếu nhập kho (Workflow / State Machine).
+     * Các hành động hỗ trợ:
+     * 1. "cancel": Hủy phiếu nhập (chỉ cho phép khi ở trạng thái WAITING_FOR_ADMIN_REVIEW hoặc APPROVED_EXECUTION).
+     * 2. "receive": Xác nhận đã nhận hàng hóa về kho (chỉ cho phép khi ở trạng thái APPROVED_EXECUTION). Chuyển thành CARGO_RECEIVED.
+     * 3. "request_edit": Gửi lại yêu cầu phê duyệt cho Admin sau khi bị từ chối (chỉ cho phép khi ở trạng thái REJECTED). Chuyển lại thành WAITING_FOR_ADMIN_REVIEW.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa ticketId và action
+     * @param response đối tượng HttpServletResponse để điều hướng sau khi cập nhật
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

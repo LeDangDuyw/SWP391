@@ -31,9 +31,12 @@
                 <h2 class="card-title">Tạo Tài Khoản</h2>
                 <p class="card-subtitle">Tham gia nền tảng công nghệ UniLap.</p>
 
-                <div class="error-message">${error}</div>
+                <div id="client-error" class="error-message" style="display: none;"></div>
+                <c:if style="display:none;" test="${not empty error}">
+                    <div class="error-message">${error}</div>
+                </c:if>
 
-                <form action="register" method="post">
+                <form action="register" method="post" onsubmit="return validateRegisterForm()">
                     <div class="form-group">
                         <label>Họ và Tên</label>
                         <input type="text" name="fullname" 
@@ -57,15 +60,18 @@
                     </div>
                     <div class="form-group">
                         <label>Mật Khẩu</label>
-                        <input type="password" name="password" 
+                        <input type="password" id="regPassword" name="password" 
                                placeholder="••••••••" 
                                minlength="8"
                                maxlength="32"
                                value="${param.password}" required>
+                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+                            Mật khẩu từ 8-32 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+                        </small>
                     </div>
                     <div class="form-group">
                         <label>Xác Nhận Mật Khẩu</label>
-                        <input type="password" name="confirmPassword" 
+                        <input type="password" id="regConfirmPassword" name="confirmPassword" 
                                placeholder="••••••••" 
                                minlength="8"
                                maxlength="32"
@@ -75,6 +81,35 @@
                         Đăng Ký →
                     </button>
                 </form>
+
+                <script>
+                    function validateRegisterForm() {
+                        var pw = document.getElementById("regPassword").value;
+                        var confirm = document.getElementById("regConfirmPassword").value;
+                        var errDiv = document.getElementById("client-error");
+
+                        var ruleLength  = pw.length >= 8 && pw.length <= 32;
+                        var ruleUpper   = /[A-Z]/.test(pw);
+                        var ruleLower   = /[a-z]/.test(pw);
+                        var ruleDigit   = /[0-9]/.test(pw);
+                        var ruleSpecial = /[^a-zA-Z0-9]/.test(pw);
+
+                        if (!ruleLength || !ruleUpper || !ruleLower || !ruleDigit || !ruleSpecial) {
+                            errDiv.innerText = "Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!";
+                            errDiv.style.display = "block";
+                            return false;
+                        }
+
+                        if (pw !== confirm) {
+                            errDiv.innerText = "Xác nhận mật khẩu không trùng khớp!";
+                            errDiv.style.display = "block";
+                            return false;
+                        }
+
+                        errDiv.style.display = "none";
+                        return true;
+                    }
+                </script>
 
                 <p class="alt-link">Đã có tài khoản? <a href="login">Đăng Nhập</a></p>
             </div>

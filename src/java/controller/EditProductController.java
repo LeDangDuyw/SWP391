@@ -1,8 +1,10 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: EditProductController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc chỉnh sửa thông tin sản phẩm và các biến thể sản phẩm.
  */
-
 package controller;
 
 import dal.BrandDao;
@@ -22,12 +24,9 @@ import model.Category;
 import model.Product;
 import model.ProductVariant;
 
-/*
- * Name: EditProductController
- * @Author: HUYDQHE204239
- * Date: [04/06/2026]
- * Version: 2.0
- * Description: Controller quản lý giao diện và thực hiện cập nhật thông tin sản phẩm cùng biến thể (RAM/SSD/Giá)
+/**
+ *
+ * @author huy
  */
 @WebServlet("/staff/inventory/edit")
 public class EditProductController extends HttpServlet {
@@ -81,26 +80,22 @@ public class EditProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Khởi tạo ProductDAO để đọc thông tin từ database
+        // Chuyển hướng người dùng sang trang giao diện sửa sản phẩm (EditProduct.jsp)
+        // Lưu ý: Cần bổ sung logic lấy thông tin sản phẩm từ CSDL trước khi forward
         ProductDAO productDAO = new ProductDAO();
-        // Lấy mã định danh biến thể sản phẩm từ request
         int variantId = parseInt(request.getParameter("variantId"), 1);
 
-        // Lấy chi tiết thông tin sản phẩm dựa trên mã biến thể
         Product product = productDAO.getProductByVariantId(variantId);
         if (product == null) {
-            // Nếu không tìm thấy sản phẩm, chuyển hướng về trang quản lý kho
             response.sendRedirect(request.getContextPath() + "/staff/inventory");
             return;
         }
 
-        // Đọc danh sách các biến thể liên quan của sản phẩm, danh mục, thương hiệu và dòng máy
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(product.getProductId());
         List<Category> categories = new CategoryDAO().getAllCategories();
         List<Brand> brands = new BrandDao().getAllBrands();
         List<model.ProductSeries> serieses = new ProductSeriesDAO().getAllSeries();
 
-        // Đặt thuộc tính truyền sang giao diện EditProduct.jsp
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
         request.setAttribute("categories", categories);
@@ -128,30 +123,41 @@ public class EditProductController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         String action = request.getParameter("action");
-        
-        // Nhánh xử lý cập nhật thông tin một biến thể sản phẩm cụ thể (SKU, tên, giá bán)
         if ("updateVariant".equals(action)) {
             try {
-                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                String variantIdStr = request.getParameter("variantId");
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
-                java.math.BigDecimal price = new java.math.BigDecimal(request.getParameter("price"));
+                String priceStr = request.getParameter("price");
+                
+                if (variantIdStr == null || sku == null || sku.trim().isEmpty() ||
+                    variantName == null || variantName.trim().isEmpty() ||
+                    priceStr == null || priceStr.trim().isEmpty()) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantIdStr + "&error=EmptyFields");
+                    return;
+                }
+                
+                int variantId = Integer.parseInt(variantIdStr);
+                java.math.BigDecimal price = new java.math.BigDecimal(priceStr.trim());
+                if (price.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                    response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&error=InvalidPrice");
+                    return;
+                }
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                // Thực thi câu lệnh SQL cập nhật thông tin biến thể
-                dao.updateProductVariant(variantId, sku, variantName, price);
-                // Quay lại trang chỉnh sửa với tham số variantId vừa cập nhật
-                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId);
+                dao.updateProductVariant(variantId, sku.trim(), variantName.trim(), price);
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&success=Updated");
+                return;
+            } catch (NumberFormatException e) {
+                String vId = request.getParameter("variantId");
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + (vId != null ? vId : "") + "&error=InvalidNumberFormat");
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
             }
             response.sendRedirect(request.getContextPath() + "/staff/inventory");
             return;
-        } 
-        
-        // Nhánh xử lý cập nhật các thông số chung của sản phẩm gốc (Tên, danh mục, hãng, mô tả, bảo hành, dòng máy)
-        else if ("updateProduct".equals(action)) {
+        } else if ("updateProduct".equals(action)) {
             try {
                 int productId = Integer.parseInt(request.getParameter("productId"));
                 int variantId = Integer.parseInt(request.getParameter("variantId"));
@@ -161,7 +167,6 @@ public class EditProductController extends HttpServlet {
                 String description = request.getParameter("description");
                 String warrantyPeriodStr = request.getParameter("warrantyPeriod");
                 String purpose = request.getParameter("purposeSelect");
-                // Hỗ trợ điền mục đích sử dụng tùy chỉnh khác
                 if ("Khác".equals(purpose)) {
                     purpose = request.getParameter("purposeCustom");
                 }
@@ -178,9 +183,7 @@ public class EditProductController extends HttpServlet {
                 }
                 
                 dal.ProductDAO dao = new dal.ProductDAO();
-                // Thực thi câu lệnh SQL cập nhật các thuộc tính chung của sản phẩm
                 dao.updateProduct(productId, productName, categoryId, brandId, description, warrantyPeriod, purpose, seriesId);
-                // Quay về trang quản lý kho chung sau khi cập nhật thành công
                 response.sendRedirect(request.getContextPath() + "/staff/inventory");
                 return;
             } catch (Exception e) {
@@ -193,7 +196,6 @@ public class EditProductController extends HttpServlet {
     }
 
     private int parseInt(String value, int defaultValue) {
-        // Chuyển đổi an toàn chuỗi số nguyên sang kiểu int, trả về defaultValue nếu xảy ra lỗi
         try {
             return value == null || value.trim().isEmpty() ? defaultValue : Integer.parseInt(value);
         } catch (NumberFormatException e) {

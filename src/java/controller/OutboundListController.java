@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundListController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị danh sách các đơn hàng chờ xuất kho cho nhân viên.
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -14,6 +21,16 @@ import java.util.List;
 @WebServlet(name = "OutboundListController", urlPatterns = {"/staff/outbound/list"})
 public class OutboundListController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Lấy và hiển thị danh sách các đơn hàng (Orders) đang chờ xử lý xuất kho.
+     * Nhân viên kho sẽ xem danh sách này để biết đơn hàng nào cần soạn hàng và xuất kho.
+     * Hỗ trợ phân trang (pagination) để tối ưu hiệu suất khi có nhiều đơn hàng.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa tham số page (trang hiện tại)
+     * @param response đối tượng HttpServletResponse để điều hướng về OrderList.jsp
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

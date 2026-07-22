@@ -1,3 +1,10 @@
+/*
+ * Name: OutboundHistoryController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller hiển thị lịch sử các đơn hàng đã thực hiện xuất kho thành công.
+ */
 package controller;
 
 import dal.OutboundDAO;
@@ -14,6 +21,16 @@ import java.util.List;
 @WebServlet(name = "OutboundHistoryController", urlPatterns = {"/staff/outbound/history"})
 public class OutboundHistoryController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP GET: Lấy và hiển thị lịch sử các đơn hàng đã được xuất kho thành công.
+     * Cung cấp cho nhân viên kho cái nhìn tổng quan về các đơn hàng đã xử lý xong.
+     * Dữ liệu được truy xuất qua OutboundDAO và có hỗ trợ phân trang để dễ dàng tra cứu.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa tham số page (trang hiện tại)
+     * @param response đối tượng HttpServletResponse để điều hướng về OrderHistory.jsp
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

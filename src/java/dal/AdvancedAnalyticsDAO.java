@@ -1016,7 +1016,7 @@ public class AdvancedAnalyticsDAO extends AdminDashboardDAO {
 
     /**
      * 12. Inventory Turnover Calculation (Option A - Historical Accounting Style).
-     * Assumes catalog is 100% serialized (verified as of 09/07/2026: 53/53 variants in unilap_db1.sql have is_serialized = 1).
+     * Assumes catalog is 100% serialized (all variants are tracked as individual inventory items).
      * WARNING: If non-serialized accessories are added, they must be tracked in a separate table, and this query must be updated to avoid undercounting inventory valuation.
      */
     public double[] getInventoryTurnover(AnalyticsFilter filter) {

@@ -738,11 +738,11 @@
         <aside class="sidebar">
             <div class="brand">
                 <span>UNILAP Staff</span>
-                <small>System Controller</small>
+                <small>Hệ thống Quản trị</small>
             </div>
             <nav>
                 <a href="${pageContext.request.contextPath}/staff/inventory">
-                    <span class="nav-icon">▤</span>Quản lý kho
+                    <span class="nav-icon">▤</span>Danh mục sản phẩm
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/category">
                     <span class="nav-icon">📁</span>Danh mục
@@ -751,7 +751,7 @@
                     <span class="nav-icon">🏷</span>Quản lý Serial
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/ticket/list">
-                    <span class="nav-icon">🎫</span>Phiếu hỗ trợ
+                    <span class="nav-icon">🎫</span>Phiếu nhập kho
                 </a>
                 <a href="${pageContext.request.contextPath}/staff/order/list">
                     <span class="nav-icon">📋</span>Đơn hàng
@@ -762,14 +762,12 @@
                 <a href="${pageContext.request.contextPath}/staff/reviews">
                     <span class="nav-icon">★</span>Đánh giá sản phẩm
                 </a>
-                <a class="active" href="${pageContext.request.contextPath}/staff/staff/warranty?action=list">
+                <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
                     <span class="nav-icon">🛠</span>Bảo hành
                 </a>
-<%--
                 <a href="${pageContext.request.contextPath}/staff/verifications">
-                    <span class="nav-icon">🎓</span>Student Verify
+                    <span class="nav-icon">🎓</span>Xác thực sinh viên
                 </a>
---%>
             </nav>
             <div class="profile">
                 <a href="${pageContext.request.contextPath}/profile" class="profile-link">

@@ -147,19 +147,17 @@
                 <div class="layout">
                     <!-- Sidebar Navigation -->
                     <aside class="sidebar">
-                        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+                        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
                         <nav>
-                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Product
-                                Catalog</a>
-                            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-                            <a class="active"
-                                href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-                            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-                            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-                            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-                            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-                            <a
-                                href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+                            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+                            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+                            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+                            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+                            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+                            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+                            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+                            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+                            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
                         </nav>
                         <div class="profile">
                             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;"
@@ -388,10 +386,14 @@
                         </main>
                     </div>
                 </div>
+                <!-- JavaScript: Xử lý nhập danh sách Serial, validate dữ liệu và lọc biến thể theo sản phẩm -->
                 <script>
                     const expectedQty = parseInt("${expectedQuantity}");
                     const isTicketContext = ${ not empty expectedQuantity && expectedQuantity > 0};
 
+                    /**
+                     * Thêm một dòng ô nhập mã Serial/IMEI mới vào giao diện.
+                     */
                     function addUnitRow() {
                         const container = document.getElementById('unitRowsContainer');
                         const rowCount = container.children.length + 1;
@@ -406,6 +408,15 @@
                         container.appendChild(row);
                     }
 
+                    /**
+                     * Kiểm tra dữ liệu Form nhập Serial trước khi bấm "Đăng ký":
+                     * 1. Phải điền mã Serial cho ít nhất 1 dòng.
+                     * 2. Không vượt quá số lượng yêu cầu trong phiếu nhập kho.
+                     * 3. Ngày nhập sản phẩm không được là một ngày trong tương lai.
+                     * 
+                     * @param {Event} event Sự kiện submit form
+                     * @returns {boolean} true nếu hợp lệ, false nếu vi phạm
+                     */
                     function validateForm(event) {
                         const rows = document.querySelectorAll('#unitRowsContainer > div');
                         let filledRowsCount = 0;
@@ -456,6 +467,9 @@
                         return true;
                     }
 
+                    /**
+                     * Lọc danh sách biến thể tương ứng với sản phẩm được chọn và đặt lại vị trí chọn đầu tiên.
+                     */
                     function filterVariants() {
                         filterVariantsWithoutReset();
                         const variantSelect = document.getElementById('variantSelect');
@@ -464,6 +478,9 @@
                         }
                     }
 
+                    /**
+                     * Lọc các option biến thể theo productId mà không làm mất giá trị đang chọn.
+                     */
                     function filterVariantsWithoutReset() {
                         const productSelect = document.getElementById('productSelect');
                         const variantSelect = document.getElementById('variantSelect');
@@ -481,9 +498,12 @@
                         });
                     }
 
+                    /**
+                     * Tự động chọn biến thể theo tham số variantId trên URL khi trang vừa tải xong.
+                     */
                     window.addEventListener('DOMContentLoaded', () => {
                         if (!isTicketContext) {
-                            // Auto select variant from URL params if present
+                            // Tự động chọn biến thể từ URL nếu có truyền tham số variantId
                             const urlParams = new URLSearchParams(window.location.search);
                             const urlVariantId = urlParams.get('variantId');
 

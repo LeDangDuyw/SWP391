@@ -1,6 +1,9 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: ProductListServlet.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hiển thị danh sách sản phẩm và bộ lọc sản phẩm cho khách hàng.
  */
 package controller;
 
@@ -15,14 +18,6 @@ import dal.BrandDao;
 import dal.CategoryDAO;
 import dal.ProductListFilterDAO;
 import dal.ProductSeriesDAO;
-
-/*
- * Name: ProductListServlet
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Servlet xử lý hiển thị danh sách sản phẩm và bộ lọc sản phẩm (Product List)
- */
 public class ProductListServlet extends HttpServlet {
 
     /**
