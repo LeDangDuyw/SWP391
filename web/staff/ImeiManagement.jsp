@@ -125,16 +125,17 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -146,9 +147,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -255,8 +256,6 @@
                                 <th class="px-6 py-4">Serial / IMEI Number</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4">Received Date</th>
-                                <th class="px-6 py-4">Linked Order</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/30 bg-surface-container-lowest font-body-sm text-body-sm">
@@ -283,23 +282,12 @@
                                                 </c:choose>
                                             </td>
                                             <td class="px-6 py-4 text-on-surface-variant">${item.importDate}</td>
-                                            <td class="px-6 py-4 text-on-surface-variant italic">${item.note != null ? item.note : "—"}</td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                                    </button>
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="History">
-                                                        <span class="material-symbols-outlined text-[20px]">history</span>
-                                                    </button>
-                                                </div>
-                                            </td>
                                         </tr>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
+                                        <td colspan="3" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>

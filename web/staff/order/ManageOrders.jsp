@@ -212,16 +212,17 @@
 
     <!-- ════ SIDEBAR (đồng nhất với trang khác) ════ -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống quản lý</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor:pointer;display:flex;align-items:center;gap:8px;"
@@ -232,7 +233,7 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Hồ sơ cá nhân</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
             <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
@@ -542,6 +543,19 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- ════ CẤU HÌNH GIAO DIỆN PHÂN TRANG (PAGINATION HTML UI) ════ -->
+                <!-- Hiển thị thanh phân trang đẹp mắt bên dưới bảng với thông tin trang hiện tại -->
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between flex-wrap gap-4 bg-gray-50/50" id="pagination-container">
+                    <div class="text-sm text-gray-500">
+                        Hiển thị từ <span id="pag-start" class="font-semibold text-gray-900">0</span> đến <span id="pag-end" class="font-semibold text-gray-900">0</span> trong tổng số <span id="pag-total" class="font-semibold text-gray-900">0</span> đơn hàng
+                    </div>
+                    <div class="flex items-center gap-1.5" id="pag-buttons">
+                        <!-- Các nút Next/Prev và số trang sẽ được tạo tự động bằng Javascript -->
+                    </div>
+                </div>
+                <!-- ════ HẾT PHÂN TRANG UI ════ -->
+
             </div><!-- /table-card -->
 
         </main>
@@ -551,6 +565,12 @@
 <script>
     var currentStatus = 'all';
     var currentMethod = 'HOME_DELIVERY';
+
+    // ════ CẤU HÌNH PHÂN TRANG CLIENT-SIDE (PAGINATION CONFIG) ════
+    // currentPage: Lưu trang hiện tại (mặc định là 1)
+    // pageSize: Số lượng đơn hàng tối đa trên mỗi trang (15 đơn hàng)
+    var currentPage = 1;
+    const pageSize = 15;
 
     function switchMethod(method, btn) {
         currentMethod = method;
@@ -589,7 +609,7 @@
         document.querySelectorAll('#' + activeTabsId + ' .filter-tab').forEach(t => t.classList.remove('active'));
         if (btn) btn.classList.add('active');
         
-        applyFilters();
+        applyFilters(true); // Reset về trang 1 khi lọc trạng thái mới
     }
 
     function handleDatePresetChange() {
@@ -603,10 +623,16 @@
             document.getElementById('date-from').value = '';
             document.getElementById('date-to').value = '';
         }
-        applyFilters();
+        applyFilters(true); // Reset về trang 1 khi lọc ngày mới
     }
 
-    function applyFilters() {
+    // applyFilters: Lọc danh sách đơn hàng dựa trên từ khoá, ngày đặt hàng, phương thức ship và trạng thái
+    // resetPage: Nếu là true sẽ reset trang hiện tại về 1 (khi người dùng thao tác bộ lọc mới)
+    function applyFilters(resetPage = true) {
+        if (resetPage) {
+            currentPage = 1;
+        }
+
         var q = document.getElementById('search-input').value.toLowerCase().trim();
         var preset = document.getElementById('date-filter-preset').value;
         var dateFromVal = document.getElementById('date-from').value;
@@ -618,8 +644,9 @@
         var sevenDaysAgoStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
         var thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
-        var visibleCount = 0;
+        var matchedRows = [];
 
+        // Lọc tất cả hàng hóa dựa trên điều kiện lọc
         document.querySelectorAll('.order-row').forEach(row => {
             var rowStatus = row.getAttribute('data-status').toLowerCase();
             var rowMethod = row.getAttribute('data-method');
@@ -662,23 +689,147 @@
             }
 
             if (methodMatch && statusMatch && searchMatch && dateMatch) {
-                row.style.display = '';
-                visibleCount++;
+                matchedRows.push(row);
             } else {
                 row.style.display = 'none';
             }
         });
 
-        // Show/hide empty state row if visibleCount == 0
+        // ════ XỬ LÝ PHÂN TRANG CHO DANH SÁCH ĐÃ LỌC (PAGINATION LOGIC FOR MATCHED ITEMS) ════
+        var totalItems = matchedRows.length;
+        var totalPages = Math.ceil(totalItems / pageSize);
+        
+        // Điều chỉnh trang hiện tại nếu vượt quá tổng số trang
+        if (currentPage > totalPages) {
+            currentPage = totalPages > 0 ? totalPages : 1;
+        }
+
+        var startIndex = (currentPage - 1) * pageSize;
+        var endIndex = startIndex + pageSize;
+
+        // Chỉ hiển thị tối đa 15 dòng trên trang hiện tại
+        matchedRows.forEach((row, index) => {
+            if (index >= startIndex && index < endIndex) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide empty state row if totalItems == 0
         var emptyRow = document.getElementById('empty-row');
         if (emptyRow) {
-            emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+            emptyRow.style.display = (totalItems === 0) ? '' : 'none';
         }
+
+        // Gọi hàm render thanh điều hướng phân trang
+        renderPagination(totalItems, totalPages);
     }
 
-    // Initialize display when page loads
+    // renderPagination: Tạo giao diện các nút điều hướng phân trang
+    function renderPagination(totalItems, totalPages) {
+        var paginationContainer = document.getElementById('pagination-container');
+        if (totalItems === 0) {
+            paginationContainer.style.display = 'none';
+            return;
+        } else {
+            paginationContainer.style.display = 'flex';
+        }
+
+        var startIndex = (currentPage - 1) * pageSize + 1;
+        var endIndex = Math.min(currentPage * pageSize, totalItems);
+
+        // Cập nhật thông tin text hiển thị
+        document.getElementById('pag-start').textContent = startIndex;
+        document.getElementById('pag-end').textContent = endIndex;
+        document.getElementById('pag-total').textContent = totalItems;
+
+        var pagButtons = document.getElementById('pag-buttons');
+        pagButtons.innerHTML = '';
+
+        // Nút Quay lại trang trước (Prev Button)
+        var prevBtn = document.createElement('button');
+        prevBtn.className = `flex items-center justify-center p-1.5 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-transparent transition cursor-pointer`;
+        prevBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">chevron_left</span>';
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilters(false); // Gọi bộ lọc nhưng không reset số trang về 1
+            }
+        };
+        pagButtons.appendChild(prevBtn);
+
+        // Logic tạo danh sách số trang thông minh (Smart pagination: show first, last, và các trang lân cận)
+        var maxVisiblePages = 5;
+        var startPage = Math.max(1, currentPage - 2);
+        var endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            // Nút trang đầu tiên
+            pagButtons.appendChild(createPageButton(1));
+            if (startPage > 2) {
+                var dots = document.createElement('span');
+                dots.className = 'text-gray-400 px-1 text-sm';
+                dots.textContent = '...';
+                pagButtons.appendChild(dots);
+            }
+        }
+
+        // Tạo các nút số trang ở giữa
+        for (var i = startPage; i <= endPage; i++) {
+            pagButtons.appendChild(createPageButton(i));
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                var dots = document.createElement('span');
+                dots.className = 'text-gray-400 px-1 text-sm';
+                dots.textContent = '...';
+                pagButtons.appendChild(dots);
+            }
+            // Nút trang cuối cùng
+            pagButtons.appendChild(createPageButton(totalPages));
+        }
+
+        // Nút Sang trang tiếp theo (Next Button)
+        var nextBtn = document.createElement('button');
+        nextBtn.className = `flex items-center justify-center p-1.5 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-transparent transition cursor-pointer`;
+        nextBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">chevron_right</span>';
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = function() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFilters(false); // Gọi bộ lọc nhưng không reset số trang về 1
+            }
+        };
+        pagButtons.appendChild(nextBtn);
+    }
+
+    // createPageButton: Tạo một nút số trang cụ thể
+    function createPageButton(page) {
+        var btn = document.createElement('button');
+        btn.className = `min-w-[32px] h-8 px-2 flex items-center justify-center text-sm font-semibold rounded-lg transition border cursor-pointer `;
+        if (page === currentPage) {
+            // Đánh dấu trang hiện tại bằng màu thương hiệu UniLap
+            btn.className += `bg-primary border-primary text-white`;
+        } else {
+            btn.className += `border-gray-300 text-gray-600 hover:bg-gray-50`;
+        }
+        btn.textContent = page;
+        btn.onclick = function() {
+            currentPage = page;
+            applyFilters(false); // Gọi bộ lọc nhưng không reset số trang về 1
+        };
+        return btn;
+    }
+
+    // Khởi tạo hiển thị ban đầu khi tải trang
     window.addEventListener('DOMContentLoaded', (event) => {
-        applyFilters();
+        applyFilters(true);
     });
 </script>
 </body>

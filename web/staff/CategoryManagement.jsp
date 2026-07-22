@@ -126,17 +126,15 @@
     <aside class="sidebar">
         <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-<%--
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Student Verify</a>
---%>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -166,8 +164,6 @@
                 <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
                     <span class="material-symbols-outlined">help_outline</span>
                 </button>
-                <div class="h-8 w-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md ml-2 border border-outline-variant/50">
-                    <span class="material-symbols-outlined">person</span>
                 <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container" style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
                     <%
                         if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
@@ -233,17 +229,6 @@
                                 <td class="py-2 px-4 text-right">
                                     <button type="button" onclick="openEditModal(this)" class="p-1 text-on-surface-variant hover:text-primary transition-colors">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
-                                    </button>
-                                    <form action="${pageContext.request.contextPath}/staff/category" method="post" class="inline-block">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="categoryIdToDelete" value="<%= c.getCategoryId() %>">
-                                        <% if(request.getParameter("searchInput") != null) { %>
-                                            <input type="hidden" name="searchInput" value="${param.searchInput}">
-                                        <% } %>
-                                        <button class="p-1 text-on-surface-variant hover:text-error transition-colors" onclick="return confirm('Bạn có chắc chắn muốn xóa category này không? Thao tác này sẽ xóa cứng (Hard Delete) khỏi Database!');">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                             <% } %> 
@@ -267,7 +252,7 @@
                     </a>
                     <div class="flex gap-1 items-center flex-wrap">
                     <%
-                        if (totalPages <= 7) {
+                        if (totalPages <= 5) {
                             for (int i = 1; i <= totalPages; i++) {
                     %>
                                 <a href="?page=<%= i %><%= queryStr %>" 
@@ -277,26 +262,8 @@
                     <%
                             }
                         } else {
-                    %>
-                            <a href="?page=1<%= queryStr %>" 
-                               class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == 1 ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">1</a>
-                    <%
-                            if (currentPage > 4) {
-                    %>
-                                <span class="px-1 text-on-surface-variant font-label-md">...</span>
-                    <%
-                            }
-                            int startPage = currentPage - 2;
-                            int endPage = currentPage + 2;
-                            if (startPage < 2) {
-                                startPage = 2;
-                                endPage = 6;
-                            }
-                            if (endPage >= totalPages) {
-                                startPage = totalPages - 5;
-                                endPage = totalPages - 1;
-                            }
-                            for (int i = startPage; i <= endPage; i++) {
+                            // 3 trang đầu
+                            for (int i = 1; i <= 3; i++) {
                     %>
                                 <a href="?page=<%= i %><%= queryStr %>" 
                                    class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
@@ -304,15 +271,25 @@
                                 </a>
                     <%
                             }
-                            if (currentPage < totalPages - 3) {
                     %>
-                                <span class="px-1 text-on-surface-variant font-label-md">...</span>
+                            <!-- Nút ... và ô nhập -->
+                            <div class="relative flex items-center justify-center w-8 h-8">
+                                <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer">...</button>
+                                <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
+                                    <input type="number" min="1" max="<%= totalPages %>" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
+                                    <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                                </div>
+                            </div>
+                    <%
+                            // 2 trang cuối
+                            for (int i = totalPages - 1; i <= totalPages; i++) {
+                    %>
+                                <a href="?page=<%= i %><%= queryStr %>" 
+                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
+                                   <%= i %>
+                                </a>
                     <%
                             }
-                    %>
-                            <a href="?page=<%= totalPages %><%= queryStr %>" 
-                               class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == totalPages ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md"><%= totalPages %></a>
-                    <%
                         }
                     %>
                     </div>
@@ -406,6 +383,29 @@
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function toggleJumpPageInput(button) {
+            const container = button.nextElementSibling;
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                container.querySelector('.jumpPageInput').focus();
+            }
+        }
+
+        function jumpToPage(element) {
+            const container = element.closest('.jumpPageForm');
+            const input = container.querySelector('.jumpPageInput');
+            let page = parseInt(input.value);
+            const maxPage = parseInt(input.getAttribute('max'));
+            
+            if (page && page >= 1 && page <= maxPage) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                window.location.search = urlParams.toString();
+            } else {
+                alert('Vui lòng nhập trang từ 1 đến ' + maxPage);
+            }
         }
     </script>
 </body>

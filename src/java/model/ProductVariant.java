@@ -9,8 +9,6 @@ public class ProductVariant {
     private String variantName;
     private BigDecimal importPrice;
     private BigDecimal sellingPrice;
-    private boolean isSerialized;
-    private boolean serialized;
     private String status;
     private int availableQuantity;
     private String thumbnail;
@@ -20,27 +18,23 @@ public class ProductVariant {
     public ProductVariant() {
     }
 
-    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status) {
+    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, String status) {
         this.variantId = variantId;
         this.productId = productId;
         this.sku = sku;
         this.variantName = variantName;
         this.importPrice = importPrice;
         this.sellingPrice = sellingPrice;
-        this.isSerialized = isSerialized;
-        this.serialized = isSerialized;
         this.status = status;
     }
 
-    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, boolean isSerialized, String status, int availableQuantity) {
+    public ProductVariant(int variantId, int productId, String sku, String variantName, BigDecimal importPrice, BigDecimal sellingPrice, String status, int availableQuantity) {
         this.variantId = variantId;
         this.productId = productId;
         this.sku = sku;
         this.variantName = variantName;
         this.importPrice = importPrice;
         this.sellingPrice = sellingPrice;
-        this.isSerialized = isSerialized;
-        this.serialized = isSerialized;
         this.status = status;
         this.availableQuantity = availableQuantity;
     }
@@ -93,23 +87,7 @@ public class ProductVariant {
         this.sellingPrice = sellingPrice;
     }
 
-    public boolean isIsSerialized() {
-        return isSerialized;
-    }
 
-    public void setIsSerialized(boolean isSerialized) {
-        this.isSerialized = isSerialized;
-        this.serialized = isSerialized;
-    }
-
-    public boolean isSerialized() {
-        return serialized;
-    }
-
-    public void setSerialized(boolean serialized) {
-        this.serialized = serialized;
-        this.isSerialized = serialized;
-    }
 
     public String getStatus() {
         return status;

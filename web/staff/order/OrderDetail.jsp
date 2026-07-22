@@ -71,16 +71,17 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Quản lý kho</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
             <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
             <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu hỗ trợ</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
             <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
             <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
             <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
             <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -89,9 +90,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -122,7 +123,7 @@
             <!-- Page Title -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Staff - Order Management</h2>
+                    <h2 class="font-headline-lg text-headline-lg text-[#003ec7] mb-1">Quản lý đơn hàng</h2>
                     <p class="font-body-sm text-body-sm text-on-surface-variant">Chi tiết đơn hàng #${order.orderCode}</p>
                 </div>
             </div>
@@ -390,23 +391,9 @@
                                 </div>
                                 <div>
                                     <span class="text-on-surface-variant block text-[12px]">Trạng thái gửi Email khách hàng</span>
-                                    <c:choose>
-                                        <c:when test="${order.invoiceEmailSent == 1}">
-                                            <span class="inline-flex items-center gap-1 text-green-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">check_circle</span> Đã gửi thành công
-                                            </span>
-                                        </c:when>
-                                        <c:when test="${order.invoiceEmailSent == 2}">
-                                            <span class="inline-flex items-center gap-1 text-red-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">error</span> Gửi thất bại (Lỗi SMTP)
-                                            </span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="inline-flex items-center gap-1 text-amber-600 font-semibold mt-1">
-                                                <span class="material-symbols-outlined text-[18px]">pending</span> Chưa gửi
-                                            </span>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <span class="inline-flex items-center gap-1 text-on-surface-variant font-semibold mt-1">
+                                        <span class="material-symbols-outlined text-[18px]">do_not_disturb_on</span> Đã tắt gửi Email hóa đơn
+                                    </span>
                                 </div>
                             </div>
                         </div>

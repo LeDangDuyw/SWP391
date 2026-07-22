@@ -1,10 +1,9 @@
 /*
- * Name: ReviewTicketController
- * @Author: HuyDQ
- * Date: [05/06/2026]
- * Version: 2.0
+ * Name: ReviewTicketController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
  * Description: Controller xử lý việc duyệt hoặc từ chối phiếu yêu cầu nhập kho của nhân viên bởi Admin.
- *              Kiểm tra trạng thái hiện tại của phiếu trước khi cho phép thao tác (State Machine).
  */
 package controller;
 
@@ -21,6 +20,21 @@ import java.io.IOException;
 @WebServlet(name = "ReviewTicketController", urlPatterns = {"/admin/ticket/review"})
 public class ReviewTicketController extends HttpServlet {
 
+    /**
+     * Xử lý yêu cầu HTTP POST: Quản trị viên (Admin) duyệt hoặc từ chối phiếu yêu cầu nhập kho.
+     * Quá trình xử lý:
+     * 1. Lấy thông tin ticketId, hành động (approve/reject) và lý do (nếu có).
+     * 2. Kiểm tra xem Ticket có tồn tại không bằng TicketDAO.
+     * 3. Kiểm tra tính hợp lệ của trạng thái (State Machine): Chỉ những phiếu đang ở trạng thái 
+     *    WAITING_FOR_ADMIN_REVIEW mới được phép duyệt hoặc từ chối.
+     * 4. Nếu duyệt, chuyển trạng thái thành APPROVED_EXECUTION. Nếu từ chối, chuyển thành REJECTED.
+     * 5. Cập nhật vào cơ sở dữ liệu kèm theo lý do từ chối (nếu có) và điều hướng lại trang danh sách.
+     * 
+     * @param request  đối tượng HttpServletRequest chứa thông tin hành động
+     * @param response đối tượng HttpServletResponse để điều hướng sau khi xử lý
+     * @throws ServletException nếu xảy ra lỗi Servlet
+     * @throws IOException nếu xảy ra lỗi I/O
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

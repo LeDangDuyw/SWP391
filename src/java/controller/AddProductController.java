@@ -1,3 +1,10 @@
+/*
+ * Name: AddProductController.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Controller xử lý việc thêm sản phẩm mới và các biến thể sản phẩm vào hệ thống.
+ */
 package controller;
 
 import dal.BrandDao;
@@ -123,30 +130,43 @@ public class AddProductController extends HttpServlet {
         ProductDAO productDAO = new ProductDAO();
 
         for (int i = 0; i < skus.length; i++) {
+            String vName = (variantNames != null && i < variantNames.length) ? variantNames[i] : "";
             if (skus[i] == null || skus[i].trim().isEmpty() ||
+                vName == null || vName.trim().isEmpty() ||
                 importPrices == null || importPrices.length <= i || importPrices[i] == null || importPrices[i].trim().isEmpty() ||
                 prices[i] == null || prices[i].trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin cho các biến thể (SKU, Giá Nhập, Giá Bán)!");
+                request.setAttribute("errorMessage", "Tất cả các ô thông tin biến thể (Tên biến thể, SKU, Giá Nhập, Giá Bán) không được để trống!");
                 doGet(request, response);
                 return;
             }
             
             try {
-                java.math.BigDecimal ip = new java.math.BigDecimal(importPrices[i]);
-                java.math.BigDecimal sp = new java.math.BigDecimal(prices[i]);
+                java.math.BigDecimal ip = new java.math.BigDecimal(importPrices[i].trim());
+                java.math.BigDecimal sp = new java.math.BigDecimal(prices[i].trim());
+                
+                if (ip.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                    request.setAttribute("errorMessage", "Giá nhập phải là số dương lớn hơn 0 (SKU: " + skus[i] + ")!");
+                    doGet(request, response);
+                    return;
+                }
+                if (sp.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                    request.setAttribute("errorMessage", "Giá bán phải là số dương lớn hơn 0 (SKU: " + skus[i] + ")!");
+                    doGet(request, response);
+                    return;
+                }
                 if (sp.compareTo(ip) < 0) {
                     request.setAttribute("errorMessage", "Giá bán không được nhỏ hơn giá nhập (SKU: " + skus[i] + ")!");
                     doGet(request, response);
                     return;
                 }
             } catch (Exception e) {
-                request.setAttribute("errorMessage", "Giá nhập hoặc giá bán không hợp lệ!");
+                request.setAttribute("errorMessage", "Giá nhập và giá bán phải là số hợp lệ, không chứa chữ cái hoặc ký tự đặc biệt (SKU: " + skus[i] + ")!");
                 doGet(request, response);
                 return;
             }
 
-            if (productDAO.isSkuExist(skus[i])) {
-                request.setAttribute("errorMessage", "SKU " + skus[i] + " đã tồn tại trong hệ thống!");
+            if (productDAO.isSkuExist(skus[i].trim())) {
+                request.setAttribute("errorMessage", "Mã SKU '" + skus[i] + "' đã tồn tại trong hệ thống!");
                 doGet(request, response);
                 return;
             }

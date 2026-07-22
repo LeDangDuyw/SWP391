@@ -42,6 +42,7 @@ public class OrderDAO extends DBContext {
 
     public Order insertOrder(BigDecimal totalAmount, BigDecimal shippingFee, String receiver, String phone, String address, Integer userId, Integer voucherId, String shippingMethod) {
         try {
+            // Thực hiện câu lệnh SQL INSERT để lưu thông tin đơn hàng mới với trạng thái ban đầu là 'Pending'
             String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id, shipping_method) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, ?)";
             ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, totalAmount);
@@ -66,9 +67,10 @@ public class OrderDAO extends DBContext {
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     int orderId = rs.getInt(1);
+                    // Sinh mã code đơn hàng duy nhất theo định dạng UNILAP_ + ID tự tăng
                     String orderCode = "UNILAP_" + orderId;
                     
-                    // Update order_code
+                    // Cập nhật lại cột order_code trong bảng Order
                     String updateSql = "UPDATE [Order] SET order_code = ? WHERE order_id = ?";
                     try (PreparedStatement ups = cnn.prepareStatement(updateSql)) {
                         ups.setString(1, orderCode);
@@ -76,6 +78,7 @@ public class OrderDAO extends DBContext {
                         ups.executeUpdate();
                     }
                     
+                    // Trả về đối tượng Order mới vừa khởi tạo thành công
                     Order order = new Order();
                     order.setOrderId(orderId);
                     order.setTotalAmount(totalAmount);
@@ -224,6 +227,7 @@ public class OrderDAO extends DBContext {
     public List<Order> getOrdersByUserId(int userId) {
         List<Order> list = new java.util.ArrayList<>();
         try {
+            // Lấy danh sách toàn bộ các đơn hàng của một người dùng cụ thể, sắp xếp theo thứ tự mới nhất trước
             String sql = "SELECT * FROM [Order] WHERE user_id = ? ORDER BY order_id DESC";
             ps = cnn.prepareStatement(sql);
             ps.setInt(1, userId);

@@ -11,7 +11,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Admin - Serial &amp; IMEI Management</title>
+    <title>UNILAP Admin - Quản lý Serial</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
@@ -125,16 +125,17 @@
 <div class="layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>System Controller</small></div>
+        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
         <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Inventory</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Category</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>IMEI</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Tickets</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Orders</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Outbound</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Manage Reviews</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Warranty</a>
+            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
+            <a class="active" href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
+            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
+            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
+            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
+            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
+            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
         </nav>
         <div class="profile">
             <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -146,9 +147,9 @@
                 <% } else { %>
                     <span>♙</span>
                 <% } %>
-                <span>Staff Profile</span>
+                <span>Hồ sơ nhân viên</span>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
         </div>
     </aside>
 
@@ -181,13 +182,8 @@
             <!-- Breadcrumbs & Header -->
             <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Serial / IMEI Management</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Manage product serial numbers and IMEIs for stock tracking.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg hover:bg-surface-container-high transition-colors font-label-md text-label-md text-on-surface flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">file_upload</span> Bulk Import
-                    </button>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Quản lý Serial</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Quản lý mã Serial của các sản phẩm trong kho.</p>
                 </div>
             </div>
 
@@ -198,7 +194,7 @@
                         <span class="material-symbols-outlined text-[32px]">inventory</span>
                     </div>
                     <div>
-                        <p class="text-label-md font-label-md text-on-surface-variant">Total Units</p>
+                        <p class="text-label-md font-label-md text-on-surface-variant">Tổng số lượng</p>
                         <p class="text-headline-md font-headline-md text-on-surface">${totalUnits != null ? totalUnits : 0}</p>
                     </div>
                 </div>
@@ -207,7 +203,7 @@
                         <span class="material-symbols-outlined text-[32px]">check_circle</span>
                     </div>
                     <div>
-                        <p class="text-label-md font-label-md text-on-surface-variant">In Stock</p>
+                        <p class="text-label-md font-label-md text-on-surface-variant">Trong kho</p>
                         <p class="text-headline-md font-headline-md text-on-surface">${inStockUnits != null ? inStockUnits : 0}</p>
                     </div>
                 </div>
@@ -216,7 +212,7 @@
                         <span class="material-symbols-outlined text-[32px]">sell</span>
                     </div>
                     <div>
-                        <p class="text-label-md font-label-md text-on-surface-variant">Sold / Active</p>
+                        <p class="text-label-md font-label-md text-on-surface-variant">Đã bán</p>
                         <p class="text-headline-md font-headline-md text-on-surface">${soldUnits != null ? soldUnits : 0}</p>
                     </div>
                 </div>
@@ -228,7 +224,7 @@
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
                         <div class="relative flex-1 min-w-[300px]">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Search Serial or IMEI..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Tìm kiếm theo mã Serial..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                             <button type="submit" class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-sm">search</span>
                             </button>
@@ -236,9 +232,9 @@
 
                         <div class="relative">
                             <select name="status" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none cursor-pointer">
-                                <option value="All" ${statusFilter == 'All' ? 'selected' : ''}>Status: All</option>
-                                <option value="in_stock" ${statusFilter == 'in_stock' ? 'selected' : ''}>In Stock</option>
-                                <option value="sold" ${statusFilter == 'sold' ? 'selected' : ''}>Sold</option>
+                                <option value="All" ${statusFilter == 'All' ? 'selected' : ''}>Trạng thái: Tất cả</option>
+                                <option value="in_stock" ${statusFilter == 'in_stock' ? 'selected' : ''}>Trong kho</option>
+                                <option value="sold" ${statusFilter == 'sold' ? 'selected' : ''}>Đã bán</option>
                             </select>
                             <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                         </div>
@@ -252,11 +248,9 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
-                                <th class="px-6 py-4">Serial / IMEI Number</th>
-                                <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4">Received Date</th>
-                                <th class="px-6 py-4">Linked Order</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
+                                <th class="px-6 py-4">Mã Serial</th>
+                                <th class="px-6 py-4">Trạng thái</th>
+                                <th class="px-6 py-4">Ngày nhập</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/30 bg-surface-container-lowest font-body-sm text-body-sm">
@@ -266,16 +260,15 @@
                                         <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest group">
                                             <td class="px-6 py-4">
                                                 <p class="font-code-sm text-code-sm font-bold text-primary">${item.serialNumber != null ? item.serialNumber : "N/A"}</p>
-                                                <p class="text-[11px] text-on-surface-variant font-code-sm">IMEI: ${item.imei != null ? item.imei : "N/A"}</p>
-                                                <p class="text-[11px] text-on-surface-variant font-code-sm mt-1">Product: ${item.productName} (${item.sku})</p>
+                                                <p class="text-[11px] text-on-surface-variant font-code-sm mt-1">Sản phẩm: ${item.productName} (${item.sku})</p>
                                             </td>
                                             <td class="px-6 py-4">
                                                 <c:choose>
                                                     <c:when test="${item.status == 'in_stock'}">
-                                                        <span class="inline-flex items-center px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[12px] font-bold">in_stock</span>
+                                                        <span class="inline-flex items-center px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[12px] font-bold">Trong kho</span>
                                                     </c:when>
                                                     <c:when test="${item.status == 'sold'}">
-                                                        <span class="inline-flex items-center px-2 py-1 rounded bg-orange-50 text-orange-700 border border-orange-200 text-[12px] font-bold">sold</span>
+                                                        <span class="inline-flex items-center px-2 py-1 rounded bg-orange-50 text-orange-700 border border-orange-200 text-[12px] font-bold">Đã bán</span>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <span class="inline-flex items-center px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[12px] font-bold">${item.status}</span>
@@ -283,23 +276,12 @@
                                                 </c:choose>
                                             </td>
                                             <td class="px-6 py-4 text-on-surface-variant">${item.importDate}</td>
-                                            <td class="px-6 py-4 text-on-surface-variant italic">${item.note != null ? item.note : "—"}</td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                                    </button>
-                                                    <button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="History">
-                                                        <span class="material-symbols-outlined text-[20px]">history</span>
-                                                    </button>
-                                                </div>
-                                            </td>
                                         </tr>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">No items found matching your criteria.</td>
+                                        <td colspan="3" class="px-6 py-8 text-center text-on-surface-variant">Không tìm thấy Serial nào phù hợp.</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
@@ -316,54 +298,42 @@
                     <c:choose>
                         <c:when test="${currentPage > 1}">
                             <a href="?page=${currentPage - 1}${queryParams}" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low">
-                                Previous
+                                Trước
                             </a>
                         </c:when>
                         <c:otherwise>
                             <a href="#" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md pointer-events-none opacity-50">
-                                Previous
+                                Trước
                             </a>
                         </c:otherwise>
                     </c:choose>
 
                     <div class="flex gap-1 items-center flex-wrap">
                         <c:choose>
-                            <c:when test="${totalPages <= 7}">
+                            <c:when test="${totalPages <= 5}">
                                 <c:forEach begin="1" end="${totalPages}" var="i">
                                     <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <!-- Page 1 -->
-                                <a href="?page=1${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == 1 ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">1</a>
-
-                                <c:if test="${currentPage > 4}">
-                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
-                                </c:if>
-
-                                <!-- Middle pages -->
-                                <c:set var="startPage" value="${currentPage - 2}" />
-                                <c:set var="endPage" value="${currentPage + 2}" />
-                                
-                                <c:if test="${startPage < 2}">
-                                    <c:set var="startPage" value="2" />
-                                    <c:set var="endPage" value="6" />
-                                </c:if>
-                                <c:if test="${endPage >= totalPages}">
-                                    <c:set var="startPage" value="${totalPages - 5}" />
-                                    <c:set var="endPage" value="${totalPages - 1}" />
-                                </c:if>
-
-                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                                <!-- 3 trang đầu tiên -->
+                                <c:forEach begin="1" end="3" var="i">
                                     <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
                                 </c:forEach>
 
-                                <c:if test="${currentPage < totalPages - 3}">
-                                    <span class="px-1 text-on-surface-variant font-label-md">...</span>
-                                </c:if>
+                                <!-- Nút ... và ô nhập số trang -->
+                                <div class="relative flex items-center justify-center w-8 h-8">
+                                    <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer">...</button>
+                                    <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
+                                        <input type="number" min="1" max="${totalPages}" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
+                                        <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                                    </div>
+                                </div>
 
-                                <!-- Last page -->
-                                <a href="?page=${totalPages}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == totalPages ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${totalPages}</a>
+                                <!-- 2 trang cuối -->
+                                <c:forEach begin="${totalPages - 1}" end="${totalPages}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -371,12 +341,12 @@
                     <c:choose>
                         <c:when test="${currentPage < totalPages}">
                             <a href="?page=${currentPage + 1}${queryParams}" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low">
-                                Next
+                                Sau
                             </a>
                         </c:when>
                         <c:otherwise>
                             <a href="#" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md pointer-events-none opacity-50">
-                                Next
+                                Sau
                             </a>
                         </c:otherwise>
                     </c:choose>
@@ -402,5 +372,29 @@
         });
     });
 </script>
+    <script>
+        function toggleJumpPageInput(button) {
+            const container = button.nextElementSibling;
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                container.querySelector('.jumpPageInput').focus();
+            }
+        }
+
+        function jumpToPage(element) {
+            const container = element.closest('.jumpPageForm');
+            const input = container.querySelector('.jumpPageInput');
+            let page = parseInt(input.value);
+            const maxPage = parseInt(input.getAttribute('max'));
+            
+            if (page && page >= 1 && page <= maxPage) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                window.location.search = urlParams.toString();
+            } else {
+                alert('Vui lòng nhập trang từ 1 đến ' + maxPage);
+            }
+        }
+    </script>
 </body>
 </html>

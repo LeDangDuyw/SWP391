@@ -1,8 +1,11 @@
 package controller;
 
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Name: ProductDetailServlet.java
+ * @Author: HuyDQHE204239
+ * Date: [22/7/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hiển thị trang thông tin chi tiết sản phẩm và các biến thể.
  */
 
 import dal.ProductDAO;
@@ -19,13 +22,6 @@ import model.Product;
 import model.ProductVariant;
 import model.ProductReview;
 
-/*
- * Name: ProductDetailServlet
- * @Author: MinhCTHE200700
- * Date: [7/7/2026]
- * Version: 1.0
- * Description: Servlet xử lý và hiển thị thông tin chi tiết của sản phẩm (Product Detail)
- */
 @WebServlet(urlPatterns = {"/ProductDetailServlet"})
 public class ProductDetailServlet extends HttpServlet {
 
@@ -67,7 +63,7 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         // 1) Đọc & kiểm tra id sản phẩm
+        // Đọc tham số id sản phẩm từ URL/request
         String idParam = request.getParameter("id");
         if (idParam == null || idParam.isEmpty()) {
             response.sendRedirect("HomeServlet");
@@ -81,28 +77,30 @@ public class ProductDetailServlet extends HttpServlet {
             return;
         }
 
+        // Khởi tạo các DAO để truy xuất thông tin sản phẩm và danh mục
         ProductDAO productDAO = new ProductDAO();
         dal.CategoryDAO categoryDAO = new dal.CategoryDAO();
 
-        // 2) Lấy thông tin sản phẩm
+        // Lấy chi tiết thông tin sản phẩm theo productId
         Product product = productDAO.getProductById(productId);
         if (product == null) {
-            // EF1: sản phẩm không tồn tại / đã bị gỡ
+            // Trường hợp sản phẩm không tồn tại hoặc đã bị ẩn khỏi hệ thống
             request.setAttribute("errorMessage", "Sản phẩm không tồn tại.");
             request.setAttribute("categories", categoryDAO.getAllCategories());
             request.getRequestDispatcher("customer/product_detail.jsp").forward(request, response);
             return;
         }
 
-        // 3) Lấy các biến thể (RAM/SSD) kèm tồn kho
+        // Lấy các biến thể sản phẩm (dung lượng RAM/SSD) và danh sách sản phẩm tương tự gợi ý
         List<ProductVariant> variants = productDAO.getProductVariantsByProductId(productId);
         List<Product> similarProducts = productDAO.getSimilarProducts(product.getPurpose(), product.getCategoryId(), product.getProductId(), 4);
 
-        // 4) Lấy đánh giá & bình luận sản phẩm
+        // Lấy danh sách các đánh giá của sản phẩm đã được phê duyệt từ khách hàng
         ProductReviewDAO reviewDAO = new ProductReviewDAO();
         List<ProductReview> reviews = reviewDAO.getApprovedReviewsByProductId(productId);
         
-        double averageRating = 5.0; // Mặc định là 5 sao nếu chưa có đánh giá
+        // Tính toán điểm số đánh giá trung bình (Rating Average)
+        double averageRating = 5.0; // Mặc định là 5 sao nếu chưa có đánh giá nào
         if (reviews != null && !reviews.isEmpty()) {
             double totalStars = 0;
             for (ProductReview r : reviews) {
@@ -112,11 +110,13 @@ public class ProductDetailServlet extends HttpServlet {
         }
         int reviewsCount = (reviews != null) ? reviews.size() : 0;
 
+        // Xác định nhãn hiển thị cho sản phẩm (Badge) dựa trên mục đích sử dụng hoặc loại danh mục
         String productBadge = product.getPurpose();
         if (productBadge == null || productBadge.trim().isEmpty()) {
             productBadge = productDAO.getProductBadge(product.getProductId(), product.getCategoryId());
         }
 
+        // Truyền các thuộc tính dữ liệu cần thiết sang giao diện JSP hiển thị chi tiết sản phẩm
         request.setAttribute("productBadge", productBadge);
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
@@ -139,11 +139,13 @@ public class ProductDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Thiết lập bảng mã UTF-8 để hỗ trợ gửi bình luận tiếng Việt có dấu
         request.setCharacterEncoding("UTF-8");
         String productIdParam = request.getParameter("productId");
         String ratingParam = request.getParameter("rating");
         String comment = request.getParameter("comment");
         
+        // Kiểm tra các tham số đầu vào của form đánh giá
         if (productIdParam == null || ratingParam == null || comment == null || comment.trim().isEmpty()) {
             response.sendRedirect("HomeServlet");
             return;
@@ -159,6 +161,7 @@ public class ProductDetailServlet extends HttpServlet {
             return;
         }
 
+        // Kiểm tra phiên đăng nhập của người dùng trước khi đánh giá
         jakarta.servlet.http.HttpSession session = request.getSession();
         Object userObj = session.getAttribute("user");
         
@@ -167,7 +170,7 @@ public class ProductDetailServlet extends HttpServlet {
             return;
         }
 
-        // Trích xuất user_id động từ session "user" bằng reflection
+        // Sử dụng Reflection để trích xuất userId của người dùng linh hoạt từ session
         Integer userId = null;
         try {
             java.lang.reflect.Method getUserIdMethod = userObj.getClass().getMethod("getUserId");
@@ -182,17 +185,19 @@ public class ProductDetailServlet extends HttpServlet {
                     field.setAccessible(true);
                     userId = (Integer) field.get(userObj);
                 } catch (Exception e3) {
-                    // ignore
+                    // Bỏ qua lỗi nếu không tìm thấy
                 }
             }
         }
 
+        // Lưu thông tin đánh giá mới của khách hàng vào CSDL ở trạng thái chờ duyệt (pending)
         boolean success = false;
         if (userId != null) {
             ProductReviewDAO reviewDAO = new ProductReviewDAO();
             success = reviewDAO.insertReview(productId, userId, rating, comment.trim(), "pending");
         }
 
+        // Hỗ trợ xử lý phản hồi bất đồng bộ (AJAX)
         String isAjax = request.getParameter("ajax");
         if ("true".equals(isAjax)) {
             response.setContentType("text/plain");
@@ -205,6 +210,7 @@ public class ProductDetailServlet extends HttpServlet {
             return;
         }
 
+        // Chuyển hướng trở lại tab đánh giá tại trang chi tiết sản phẩm
         response.sendRedirect("ProductDetailServlet?id=" + productId + "#tab-reviews");
     }
 
