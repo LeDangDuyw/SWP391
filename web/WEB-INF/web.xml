@@ -28,9 +28,19 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>ProductListServlet</servlet-name>
+        <servlet-class>controller.ProductListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProductListServlet</servlet-name>
+        <url-pattern>/ProductListServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>AdminDashboard</servlet-name>
         <servlet-class>controller.AdminDashboardServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>AdminDashboard</servlet-name>
         <url-pattern>/admin/dashboard</url-pattern>
