@@ -2,7 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<c:if test="${empty categories}">
+    <%
+        try {
+            dal.CategoryDAO catDAO = new dal.CategoryDAO();
+            request.setAttribute("categories", catDAO.getAllCategories());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    %>
+</c:if>
+
 <!-- Header Component -->
+
 <header class="header">
     <div class="container header-container">
         <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>

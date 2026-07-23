@@ -4,7 +4,41 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <fmt:setLocale value="vi_VN"/>
 
+<c:if test="${empty categories || empty products}">
+    <%
+        try {
+            dal.ProductDAO pDAO = new dal.ProductDAO();
+            dal.CategoryDAO cDAO = new dal.CategoryDAO();
+            dal.PageContentDAO pgDAO = new dal.PageContentDAO();
+            dal.CampaignBannerDAO bDAO = new dal.CampaignBannerDAO();
+            dal.FlashSaleProductDAO flDAO = new dal.FlashSaleProductDAO();
+
+            if (request.getAttribute("categories") == null) {
+                request.setAttribute("categories", cDAO.getAllCategories());
+            }
+            if (request.getAttribute("products") == null) {
+                request.setAttribute("products", pDAO.getTopLapTop());
+            }
+            if (request.getAttribute("new_products") == null) {
+                request.setAttribute("new_products", pDAO.getNewLaptop());
+            }
+            if (request.getAttribute("banners") == null) {
+                request.setAttribute("banners", bDAO.getHomeBanners());
+            }
+            if (request.getAttribute("footerPages") == null) {
+                request.setAttribute("footerPages", pgDAO.getAllActivePages());
+            }
+            if (request.getAttribute("flashsale") == null) {
+                request.setAttribute("flashsale", flDAO.getAllFlashSaleProduct());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    %>
+</c:if>
+
 <!DOCTYPE html>
+
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
