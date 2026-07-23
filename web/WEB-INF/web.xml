@@ -28,15 +28,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>ProductListServlet</servlet-name>
-        <servlet-class>controller.ProductListServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ProductListServlet</servlet-name>
-        <url-pattern>/ProductListServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>AdminDashboard</servlet-name>
         <servlet-class>controller.AdminDashboardServlet</servlet-class>
     </servlet>
@@ -63,14 +54,6 @@
         <url-pattern>/profile</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>StaffDashboardController</servlet-name>
-        <servlet-class>controller.StaffDashboardController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>StaffDashboardController</servlet-name>
-        <url-pattern>/staff/dashboard</url-pattern>
-    </servlet-mapping>
-
 </web-app>
+
 
