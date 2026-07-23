@@ -22,232 +22,244 @@ public class ProductDAO extends DBContext {
     }
 
     private void connect() {
-
-        cnn = super.connection;
-
+        try {
+            if (cnn == null || cnn.isClosed()) {
+                cnn = getConnection();
+            }
+        } catch (Exception e) {
+            cnn = getConnection();
+        }
         if (cnn != null) {
             System.out.println("Connect success");
         } else {
             System.out.println("Connect fail");
         }
     }
-    //B├ín Chß║íy 
-   // Lß║Ñy top 10 laptop b├ín chß║íy nhß║Ñt 
+
+    //Bán Chạy 
+    // Lấy top 10 laptop bán chạy nhất 
     public ArrayList<Product> getTopLapTop() {
-    ArrayList<Product> data = new ArrayList<>();
-    try {
-        String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
-                         MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     LEFT JOIN (
-                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
-                         FROM FlashSaleItem fsi
-                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
-                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
-                         GROUP BY fsi.variant_id
-                     ) fs_active ON v.variant_id = fs_active.variant_id
-                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 1
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name
-                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
-                     """;
-                                                                             
-        ps = cnn.prepareStatement(sql);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            Product p = new Product();
-            p.setProductId(rs.getInt(1));
-            p.setProductName(rs.getString(2));
-            p.setThumbnail(rs.getString(3));
-            p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
-            p.setOriginalPrice(rs.getLong(7));
-            p.setDiscountPercent(rs.getInt(8));
-            data.add(p);
+        connect();
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String sql = """
+                         SELECT TOP 10
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name,
+                             SUM(od.quantity) AS sold_quantity,
+                             MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                             MIN(v.selling_price) AS original_price,
+                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         FROM Product p
+                         JOIN Brand b ON p.brand_id = b.brand_id
+                         JOIN ProductVariant v ON p.product_id = v.product_id
+                         LEFT JOIN (
+                             SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                             FROM FlashSaleItem fsi
+                             JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                             WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                             GROUP BY fsi.variant_id
+                         ) fs_active ON v.variant_id = fs_active.variant_id
+                         LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
+                         WHERE v.status = 'active'
+                         AND p.category_id = 1
+                         GROUP BY
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name
+                         ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
+                         """;
+                                                                                 
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt(1));
+                p.setProductName(rs.getString(2));
+                p.setThumbnail(rs.getString(3));
+                p.setBrandName(rs.getString(4));
+                p.setMinPrice(rs.getLong(6));
+                p.setOriginalPrice(rs.getLong(7));
+                p.setDiscountPercent(rs.getInt(8));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllProducts: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("getAllProducts: " + e.getMessage());
+        return data;
     }
-    return data;
-}
-// Lß║Ñy top 10 Chuß╗Öt b├ín chß║íy nhß║Ñt 
- public ArrayList<Product> getTopMouse() {
-    ArrayList<Product> data = new ArrayList<>();
-    try {
-        String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
-                         MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     LEFT JOIN (
-                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
-                         FROM FlashSaleItem fsi
-                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
-                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
-                         GROUP BY fsi.variant_id
-                     ) fs_active ON v.variant_id = fs_active.variant_id
-                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 4
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name
-                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
-                     """;
-                                                                             
-        ps = cnn.prepareStatement(sql);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            Product p = new Product();
-            p.setProductId(rs.getInt(1));
-            p.setProductName(rs.getString(2));
-            p.setThumbnail(rs.getString(3));
-            p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
-            p.setOriginalPrice(rs.getLong(7));
-            p.setDiscountPercent(rs.getInt(8));
-            data.add(p);
+
+    // Lấy top 10 Chuột bán chạy nhất 
+    public ArrayList<Product> getTopMouse() {
+        connect();
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String sql = """
+                         SELECT TOP 10
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name,
+                             SUM(od.quantity) AS sold_quantity,
+                             MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                             MIN(v.selling_price) AS original_price,
+                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         FROM Product p
+                         JOIN Brand b ON p.brand_id = b.brand_id
+                         JOIN ProductVariant v ON p.product_id = v.product_id
+                         LEFT JOIN (
+                             SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                             FROM FlashSaleItem fsi
+                             JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                             WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                             GROUP BY fsi.variant_id
+                         ) fs_active ON v.variant_id = fs_active.variant_id
+                         LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
+                         WHERE v.status = 'active'
+                         AND p.category_id = 4
+                         GROUP BY
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name
+                         ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
+                         """;
+                                                                                 
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt(1));
+                p.setProductName(rs.getString(2));
+                p.setThumbnail(rs.getString(3));
+                p.setBrandName(rs.getString(4));
+                p.setMinPrice(rs.getLong(6));
+                p.setOriginalPrice(rs.getLong(7));
+                p.setDiscountPercent(rs.getInt(8));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllProducts: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("getAllProducts: " + e.getMessage());
+        return data;
     }
-    return data;
-}
  
-// Lß║Ñy top 10 b├án ph├¡m b├ín chß║íy nhß║Ñt 
- public ArrayList<Product> getTopKeyboard() {
-    ArrayList<Product> data = new ArrayList<>();
-    try {
-        String sql = """
-                     SELECT TOP 10
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name,
-                         SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
-                         MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
-                     FROM Product p
-                     JOIN Brand b ON p.brand_id = b.brand_id
-                     JOIN ProductVariant v ON p.product_id = v.product_id
-                     LEFT JOIN (
-                         SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
-                         FROM FlashSaleItem fsi
-                         JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
-                         WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
-                         GROUP BY fsi.variant_id
-                     ) fs_active ON v.variant_id = fs_active.variant_id
-                     LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
-                     WHERE v.status = 'active'
-                     AND p.category_id = 3
-                     GROUP BY
-                         p.product_id,
-                         p.product_name,
-                         p.thumbnail,
-                         b.brand_name
-                     ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
-                     """;
-                                                                             
-        ps = cnn.prepareStatement(sql);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            Product p = new Product();
-            p.setProductId(rs.getInt(1));
-            p.setProductName(rs.getString(2));
-            p.setThumbnail(rs.getString(3));
-            p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(6));
-            p.setOriginalPrice(rs.getLong(7));
-            p.setDiscountPercent(rs.getInt(8));
-            data.add(p);
+    // Lấy top 10 bàn phím bán chạy nhất 
+    public ArrayList<Product> getTopKeyboard() {
+        connect();
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String sql = """
+                         SELECT TOP 10
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name,
+                             SUM(od.quantity) AS sold_quantity,
+                             MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                             MIN(v.selling_price) AS original_price,
+                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         FROM Product p
+                         JOIN Brand b ON p.brand_id = b.brand_id
+                         JOIN ProductVariant v ON p.product_id = v.product_id
+                         LEFT JOIN (
+                             SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                             FROM FlashSaleItem fsi
+                             JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                             WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                             GROUP BY fsi.variant_id
+                         ) fs_active ON v.variant_id = fs_active.variant_id
+                         LEFT JOIN OrderDetail od ON v.variant_id = od.variant_id
+                         WHERE v.status = 'active'
+                         AND p.category_id = 3
+                         GROUP BY
+                             p.product_id,
+                             p.product_name,
+                             p.thumbnail,
+                             b.brand_name
+                         ORDER BY SUM(ISNULL(od.quantity,0)) DESC;
+                         """;
+                                                                                 
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt(1));
+                p.setProductName(rs.getString(2));
+                p.setThumbnail(rs.getString(3));
+                p.setBrandName(rs.getString(4));
+                p.setMinPrice(rs.getLong(6));
+                p.setOriginalPrice(rs.getLong(7));
+                p.setDiscountPercent(rs.getInt(8));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllProducts: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("getAllProducts: " + e.getMessage());
+        return data;
     }
-    return data;
-}
  
- //Sß║ún phß║⌐m mß╗¢i 
- //sql lß║Ñy  10 Laptop mß╗¢i 
- public ArrayList<Product> getNewLaptop() {
-    ArrayList<Product> data = new ArrayList<>();
-    try {
-        String sql = """
-                    SELECT TOP 10
-                        p.product_id,
-                        p.product_name,
-                        p.thumbnail,
-                        b.brand_name,
-                        MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
-                        MIN(v.selling_price) AS original_price,
-                        CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
-                    FROM Product p
-                    JOIN Brand b ON p.brand_id = b.brand_id
-                    JOIN ProductVariant v ON p.product_id = v.product_id
-                    LEFT JOIN (
-                        SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
-                        FROM FlashSaleItem fsi
-                        JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
-                        WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
-                        GROUP BY fsi.variant_id
-                    ) fs_active ON v.variant_id = fs_active.variant_id
-                    WHERE v.status = 'active'
-                    AND p.category_id = 1
-                    GROUP BY
-                        p.product_id,
-                        p.product_name,
-                        p.thumbnail,
-                        b.brand_name
-                    ORDER BY p.product_id DESC;
-                     """;
-                                                                             
-        ps = cnn.prepareStatement(sql);
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            Product p = new Product();
-            p.setProductId(rs.getInt(1));
-            p.setProductName(rs.getString(2));
-            p.setThumbnail(rs.getString(3));
-            p.setBrandName(rs.getString(4));
-            p.setMinPrice(rs.getLong(5));
-            p.setOriginalPrice(rs.getLong(6));
-            p.setDiscountPercent(rs.getInt(7));
-            data.add(p);
+    //Sản phẩm mới 
+    //sql lấy 10 Laptop mới 
+    public ArrayList<Product> getNewLaptop() {
+        connect();
+        ArrayList<Product> data = new ArrayList<>();
+        try {
+            String sql = """
+                        SELECT TOP 10
+                            p.product_id,
+                            p.product_name,
+                            p.thumbnail,
+                            b.brand_name,
+                            MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                            MIN(v.selling_price) AS original_price,
+                            CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                        FROM Product p
+                        JOIN Brand b ON p.brand_id = b.brand_id
+                        JOIN ProductVariant v ON p.product_id = v.product_id
+                        LEFT JOIN (
+                            SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price
+                            FROM FlashSaleItem fsi
+                            JOIN FlashSale fs ON fsi.flashsale_id = fs.flashsale_id
+                            WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time
+                            GROUP BY fsi.variant_id
+                        ) fs_active ON v.variant_id = fs_active.variant_id
+                        WHERE v.status = 'active'
+                        AND p.category_id = 1
+                        GROUP BY
+                            p.product_id,
+                            p.product_name,
+                            p.thumbnail,
+                            b.brand_name
+                        ORDER BY p.product_id DESC;
+                         """;
+                                                                                 
+            ps = cnn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setProductId(rs.getInt(1));
+                p.setProductName(rs.getString(2));
+                p.setThumbnail(rs.getString(3));
+                p.setBrandName(rs.getString(4));
+                p.setMinPrice(rs.getLong(5));
+                p.setOriginalPrice(rs.getLong(6));
+                p.setDiscountPercent(rs.getInt(7));
+                data.add(p);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllProducts: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("getAllProducts: " + e.getMessage());
+        return data;
     }
-    return data;
-}
+
  
-// 10 sp chuß╗Öt mß╗¢i 
+// 10 sp chuột mới 
  public ArrayList<Product> getNewMouse() {
+    connect();
     ArrayList<Product> data = new ArrayList<>();
     try {
         String sql = """
@@ -297,9 +309,11 @@ public class ProductDAO extends DBContext {
     }
     return data;
 }
- // 10 sp b├án ph├¡m mß╗¢i
+ // 10 sp bàn phím mới
  public ArrayList<Product> getNewKeyborad() {
+    connect();
     ArrayList<Product> data = new ArrayList<>();
+
     try {
         String sql = """
                                         SELECT TOP 10
