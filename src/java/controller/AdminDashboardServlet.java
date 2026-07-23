@@ -1,18 +1,5 @@
 package controller;
 
-/**
- * Class: AdminDashboardServlet
- * Description: Controller tiếp nhận yêu cầu, kiểm tra quyền truy cập và tổng hợp
- *              dữ liệu số liệu kinh doanh (KPIs, biểu đồ doanh thu, danh sách vận hành,
- *              top sản phẩm/khách hàng và nhật ký hoạt động) cho trang Dashboard Admin.
- * 
- * Created: 2026-05-31
- * Updated: 2026-07-22
- * Version: v1.5
- *
- * @author DuyLD
- */
-
 import dal.AdminDashboardDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -22,12 +9,24 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import model.Users;
 
+/**
+ * Class: AdminDashboardServlet
+ * Description: Servlet điều hướng hiển thị và xử lý dữ liệu cho trang tổng quan quản trị (Admin Dashboard).
+ * Bao gồm thống kê doanh thu, đơn hàng, khách hàng mới, sản phẩm sắp hết hàng, biểu đồ và hoạt động gần đây.
+ * 
+ * Created: 2026-05-20
+ * Updated: 2026-07-23
+ * Version: v2.2
+ *
+ * @author DuyLD
+ */
 public class AdminDashboardServlet extends HttpServlet {
+
 
     private AdminDashboardDAO dashboardDAO;
 
     /**
-     * Khởi tạo Servlet và khởi tạo đối tượng DAO phục vụ truy vấn dữ liệu Bảng điều khiển.
+     * Khởi tạo Servlet và tạo đối tượng AdminDashboardDAO để truy vấn dữ liệu.
      */
     @Override
     public void init() {
@@ -35,33 +34,26 @@ public class AdminDashboardServlet extends HttpServlet {
     }
 
     /**
-     * Xử lý yêu cầu HTTP GET để tổng hợp các chỉ số thống kê và render trang Admin Dashboard.
-     *
-     * @param request  đối tượng HttpServletRequest chứa các tham số bộ lọc (from, to, groupBy, revenueYear, topProductsTime, ...)
-     * @param response đối tượng HttpServletResponse trả về giao diện HTML/JSP
-     * @throws ServletException nếu có lỗi xảy ra trong quá trình xử lý Servlet
-     * @throws IOException      nếu có lỗi IO khi chuyển hướng hoặc forward request
+     * Xử lý yêu cầu GET: Kiểm tra quyền Admin, xử lý bộ lọc khoảng thời gian, nhóm dữ liệu và nạp thống kê lên view.
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            // 1. Kiểm tra xác thực phiên đăng nhập của người dùng
+            // Kiểm tra xác thực người dùng trong session
             HttpSession session = request.getSession(false);
             Users user = null;
-
             if (session != null) {
                 user = (Users) session.getAttribute("user");
             }
 
-            // Chuyển hướng về trang đăng nhập nếu chưa xác thực
             if (user == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
 
-            // 2. Parse và validate khoảng thời gian lọc dữ liệu (from / to)
+            // Lấy khoảng thời gian lọc từ tham số request (from - to)
             String from = request.getParameter("from");
             String to = request.getParameter("to");
 
@@ -70,21 +62,21 @@ public class AdminDashboardServlet extends HttpServlet {
                     java.sql.Date fromDate = java.sql.Date.valueOf(from.trim());
                     java.sql.Date toDate = java.sql.Date.valueOf(to.trim());
 
-                    // BR-50.1.E1: Kiểm tra quy tắc ngày bắt đầu không được lớn hơn ngày kết thúc
+                    // Kiểm tra tính hợp lệ của khoảng ngày
                     if (fromDate.after(toDate)) {
                         request.setAttribute("dateError", "Ngày bắt đầu không được sau ngày kết thúc.");
                         from = null;
                         to = null;
                     }
                 } catch (Exception e) {
-                    // Nếu định dạng ngày không hợp lệ, reset tham số lọc về mặc định
+                    // Reset tham số nếu định dạng ngày bị lỗi
                     from = null;
                     to = null;
                 }
             }
             request.setAttribute("todayDate", java.time.LocalDate.now().toString());
 
-            // 3. Xử lý tham số nhóm dữ liệu biểu đồ (ngày, tuần, tháng, quý, năm)
+            // Lấy tham số nhóm dữ liệu biểu đồ (day, week, month)
             String groupBy = request.getParameter("groupBy");
             if (groupBy == null || groupBy.trim().isEmpty()) {
                 groupBy = "month"; // Mặc định nhóm theo Tháng
@@ -93,7 +85,7 @@ public class AdminDashboardServlet extends HttpServlet {
             boolean missingRange = (from == null || from.trim().isEmpty() || to == null || to.trim().isEmpty());
             boolean autoDefaultRange = "day".equals(groupBy) && missingRange;
 
-            // Tự động thiết lập 30 ngày gần nhất nếu người dùng chọn nhóm theo Ngày nhưng chưa chọn khoảng ngày
+            // Mặc định lấy dữ liệu 30 ngày gần nhất nếu nhóm theo ngày và chưa chọn khoảng thời gian
             if (autoDefaultRange) {
                 java.time.LocalDate today = java.time.LocalDate.now();
                 to = today.toString();
@@ -105,22 +97,24 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("from", from);
             request.setAttribute("to", to);
 
-            // 4. Parse năm lọc doanh thu
+            // Lấy tham số lọc năm doanh thu
             String revenueYearParam = request.getParameter("revenueYear");
             Integer revenueYear = null;
             if (revenueYearParam != null && !revenueYearParam.trim().isEmpty()) {
                 try {
                     revenueYear = Integer.parseInt(revenueYearParam.trim());
                 } catch (Exception ignored) {
-                    // Bỏ qua lỗi ép kiểu, sử dụng năm mặc định của hệ thống
+                    // Giữ null để dùng năm mặc định nếu lỗi chuyển đổi
                 }
             }
             if (revenueYear == null) {
-                revenueYear = 2026; // Năm hệ thống
+                revenueYear = 2026; // Năm mặc định của hệ thống
             }
             request.setAttribute("revenueYear", revenueYear);
 
-            // 5. Truy vấn các chỉ số tổng quan & danh sách báo cáo vận hành
+            // Truy vấn chỉ số tổng quan & sản phẩm sắp hết hàng
+            request.setAttribute("lowStockProducts", dashboardDAO.getLowStockProducts());
+            request.setAttribute("todayRevenue", dashboardDAO.getTotalRevenue(null, null));
             request.setAttribute("todayOrders", dashboardDAO.getTotalOrderCount());
             request.setAttribute("newCustomersToday", dashboardDAO.getNewCustomers());
             request.setAttribute("pendingAlerts", dashboardDAO.getPendingAlerts());
@@ -128,17 +122,17 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("allOrders", dashboardDAO.getAllOrdersForDashboard());
             request.setAttribute("pendingTicketsList", dashboardDAO.getPendingTicketsList());
 
-            // 6. Truy vấn chỉ số doanh thu & tỷ lệ tăng trưởng so với kỳ trước
+            // Nạp chỉ số tăng trưởng doanh thu so với kỳ trước
             java.util.Map<String, Object> revenueStats = dashboardDAO.getRevenueStats();
             for (java.util.Map.Entry<String, Object> entry : revenueStats.entrySet()) {
                 request.setAttribute(entry.getKey(), entry.getValue());
             }
 
-            // 7. Truy vấn dữ liệu biểu đồ doanh thu & phân bổ đơn hàng theo trạng thái
+            // Dữ liệu biểu đồ doanh thu và phân bổ đơn hàng theo trạng thái
             request.setAttribute("monthlyRevenue", dashboardDAO.getRevenueChart(from, to, revenueYear, groupBy));
             request.setAttribute("ordersByStatus", dashboardDAO.getOrdersByStatus());
 
-            // 8. Xử lý các bộ lọc thời gian và tiêu chí cho bảng xếp hạng Top Sản phẩm / Khách hàng
+            // Lọc danh sách Xếp hạng (Top sản phẩm, Top khách hàng)
             String topProductsCriteria = request.getParameter("topProductsCriteria");
             if (topProductsCriteria == null || topProductsCriteria.trim().isEmpty()) {
                 topProductsCriteria = "quantity";
@@ -163,8 +157,9 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("topCustomers", dashboardDAO.getTopCustomers(custRange[0], custRange[1]));
             request.setAttribute("recentActivities", dashboardDAO.getRecentActivities());
 
-            // 9. Chuyển hướng render dữ liệu sang giao diện JSP AdminDashboard
-            request.getRequestDispatcher("/admin/AdminDashboard.jsp").forward(request, response);
+            // Chuyển hướng sang giao diện JSP AdminDashboard
+            request.getRequestDispatcher("/admin/AdminDashboard.jsp")
+                    .forward(request, response);
 
         } catch (Exception e) {
             throw new ServletException("Lỗi tải trang Dashboard quản trị.", e);
@@ -172,11 +167,7 @@ public class AdminDashboardServlet extends HttpServlet {
     }
 
     /**
-     * Phương thức hỗ trợ chuyển đổi từ từ khóa mốc thời gian ("today", "week", "month", "all")
-     * sang mảng chuỗi [fromDate, toDate] định dạng YYYY-MM-DD.
-     *
-     * @param timeframe từ khóa mốc thời gian
-     * @return mảng 2 phần tử chứa chuỗi [ngày_bắt_đầu, ngày_kết_thúc]
+     * Tính toán khoảng ngày (fromDate, toDate) tương ứng với mốc thời gian lọc (today, week, month, all).
      */
     private String[] getDateRangeFromTimeframe(String timeframe) {
         if (timeframe == null) {
@@ -202,3 +193,4 @@ public class AdminDashboardServlet extends HttpServlet {
         return new String[]{fromDate.toString(), toDate.toString()};
     }
 }
+

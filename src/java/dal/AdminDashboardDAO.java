@@ -1,36 +1,34 @@
 package dal;
 
-/**
- * Class: AdminDashboardDAO
- * Description: Data Access Object truy xuất số liệu thống kê tổng quan, các chỉ số KPI,
- *              biểu đồ doanh thu, danh sách đơn hàng cần xử lý, top sản phẩm/khách hàng
- *              và nhật ký hoạt động trên Bảng điều khiển (Dashboard).
- * 
- * Created: 2026-05-31
- * Updated: 2026-07-22
- * Version: v1.5
- *
- * @author DuyLD
- */
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import model.DashboardSummary;
 import model.Product;
 
+/**
+ * Class: AdminDashboardDAO
+ * Description: Data Access Object (DAO) chuyên trách truy xuất dữ liệu thống kê tổng quan cho Admin & Staff Dashboard.
+ * Bao gồm thống kê doanh thu, số lượng đơn hàng, sản phẩm sắp hết hàng, hoạt động gần đây và xếp hạng bán chạy.
+ * 
+ * Created: 2026-05-20
+ * Updated: 2026-07-23
+ * Version: v2.3
+ *
+ * @author DuyLD
+ */
 public class AdminDashboardDAO extends DBContext {
 
+
     /**
-     * Lấy danh sách Top 10 sản phẩm có tổng số lượng tồn kho khả dụng <= 10 (Cảnh báo tồn kho thấp - BR-28).
-     * Phục vụ cho giao diện Bảng điều khiển Nhân viên (Staff Dashboard).
-     *
-     * @return danh sách các đối tượng Product chứa tên biến thể, tên danh mục và số lượng tồn kho
+     * Lấy danh sách tối đa 10 sản phẩm/biến thể có tổng tồn kho thấp (soLuong <= 10).
+     * 
+     * @return Danh sách đối tượng Product chứa tên sản phẩm/biến thể, tên danh mục và số lượng tồn kho (minPrice).
      */
     public List<Product> getLowStockProducts() {
         List<Product> list = new ArrayList<>();
@@ -45,12 +43,13 @@ public class AdminDashboardDAO extends DBContext {
                 + "HAVING SUM(ISNULL(i.available_quantity, 0)) <= 10 "
                 + "ORDER BY total_qty ASC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sql); 
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Product p = new Product();
                 p.setProductName(rs.getString(1));
                 p.setCategoryName(rs.getString(2));
-                p.setMinPrice(rs.getLong(3)); // Sử dụng tạm trường minPrice để chứa số lượng tồn kho
+                p.setMinPrice(rs.getLong(3)); // Sử dụng tạm thuộc tính minPrice để lưu số lượng tồn kho
                 list.add(p);
             }
         } catch (Exception e) {
@@ -60,17 +59,17 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê tổng số lượng đơn đặt hàng trong khoảng thời gian tùy chọn.
-     *
-     * @param from ngày bắt đầu (YYYY-MM-DD), hoặc null
-     * @param to   ngày kết thúc (YYYY-MM-DD), hoặc null
-     * @return tổng số đơn hàng
+     * Lấy tổng doanh thu ròng từ các đơn hàng không bị hủy trong khoảng thời gian chỉ định (hoặc toàn bộ).
+     * 
+     * @param from Ngày bắt đầu (yyyy-MM-dd), có thể null
+     * @param to   Ngày kết thúc (yyyy-MM-dd), có thể null
+     * @return Tổng số tiền doanh thu (VNĐ)
      */
-    public int getTotalOrderCount(String from, String to) {
+    public long getTotalRevenue(String from, String to) {
         boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sql = "SELECT COUNT(*) FROM [Order]";
+        String sql = "SELECT ISNULL(SUM(total_amount), 0) FROM [Order] WHERE order_status NOT IN ('cancelled', 'Cancelled')";
         if (hasFilter) {
-            sql += " WHERE CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ?";
+            sql += " AND CAST(completed_at AS DATE) >= ? AND CAST(completed_at AS DATE) <= ?";
         }
         try (Connection con = getConnection(); 
                 PreparedStatement ps = con.prepareStatement(sql)) {
@@ -80,8 +79,27 @@ public class AdminDashboardDAO extends DBContext {
             }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    return rs.getLong(1);
                 }
+            }
+        } catch (Exception e) {
+            System.out.println("AdminDashboardDAO.getTotalRevenue: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * Lấy tổng số lượng đơn đặt hàng đã tạo trên hệ thống.
+     * 
+     * @return Số lượng đơn hàng
+     */
+    public int getTotalOrderCount() {
+        String sql = "SELECT COUNT(*) FROM [Order]";
+        try (Connection con = getConnection(); 
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
         } catch (Exception e) {
             System.out.println("AdminDashboardDAO.getTotalOrderCount: " + e.getMessage());
@@ -90,39 +108,17 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê số đơn hàng tạo mới trong ngày hôm nay.
-     *
-     * @return số đơn hàng hôm nay
+     * Thống kê số lượng khách hàng mới đăng ký tài khoản trong ngày hôm nay (role_id = 3).
+     * 
+     * @return Số lượng khách hàng mới
      */
-    public int getTotalOrderCount() {
-        return getTotalOrderCount(null, null);
-    }
-
-    /**
-     * Thống kê số lượng khách hàng mới đăng ký tài khoản (role_id = 3).
-     *
-     * @param from ngày bắt đầu (YYYY-MM-DD), hoặc null
-     * @param to   ngày kết thúc (YYYY-MM-DD), hoặc null
-     * @return số lượng tài khoản khách hàng mới
-     */
-    public int getNewCustomers(String from, String to) {
-        boolean hasFilter = (from != null && !from.trim().isEmpty() && to != null && !to.trim().isEmpty());
-        String sql = "SELECT COUNT(*) FROM [User] WHERE role_id = 3";
-        if (hasFilter) {
-            sql += " AND CAST(created_at AS DATE) >= ? AND CAST(created_at AS DATE) <= ?";
-        } else {
-            sql += " AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
-        }
+    public int getNewCustomers() {
+        String sql = "SELECT COUNT(*) FROM [User] WHERE role_id = 3 AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql)) {
-            if (hasFilter) {
-                ps.setDate(1, java.sql.Date.valueOf(from.trim()));
-                ps.setDate(2, java.sql.Date.valueOf(to.trim()));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
         } catch (Exception e) {
             System.out.println("AdminDashboardDAO.getNewCustomers: " + e.getMessage());
@@ -131,52 +127,26 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê số lượng khách hàng mới đăng ký hôm nay.
-     *
-     * @return số lượng khách hàng mới trong ngày
-     */
-    public int getNewCustomers() {
-        return getNewCustomers(null, null);
-    }
-
-    /**
-     * Đếm tổng số lượng cảnh báo đang chờ xử lý (tồn kho thấp <=10, yêu cầu bảo hành PENDING, ticket chờ duyệt).
-     *
-     * @return tổng số cảnh báo kích hoạt
+     * Tổng hợp số lượng cảnh báo cần xử lý gấp (bảo hành PENDING + ticket nhập kho WAITING_FOR_ADMIN_REVIEW).
+     * 
+     * @return Tổng số cảnh báo đang chờ
      */
     public int getPendingAlerts() {
         int count = 0;
-        // 1. Cảnh báo sản phẩm tồn kho thấp
-        String sqlLowStock = "SELECT COUNT(*) FROM (SELECT p.product_id FROM Product p "
-                + "LEFT JOIN ProductVariant pv ON p.product_id = pv.product_id "
-                + "LEFT JOIN Inventory i ON pv.variant_id = i.variant_id "
-                + "WHERE pv.status = 'active' "
-                + "GROUP BY p.product_id "
-                + "HAVING SUM(ISNULL(i.available_quantity, 0)) <= 10) AS low";
-        try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sqlLowStock); ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                count += rs.getInt(1);
-            }
-        } catch (Exception e) {
-            System.out.println("AdminDashboardDAO.getPendingAlerts(lowStock): " + e.getMessage());
-        }
-
-        // 2. Cảnh báo yêu cầu bảo hành PENDING
         String sqlPending = "SELECT COUNT(*) FROM WarrantyClaims WHERE status = 'PENDING'";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sqlPending); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sqlPending); 
+                ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 count += rs.getInt(1);
             }
         } catch (Exception e) {
             System.out.println("AdminDashboardDAO.getPendingAlerts(warranty): " + e.getMessage());
         }
-
-        // 3. Cảnh báo Ticket hỗ trợ chờ Admin duyệt
         String sqlTickets = "SELECT COUNT(*) FROM Ticket WHERE status = 'WAITING_FOR_ADMIN_REVIEW'";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sqlTickets); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sqlTickets); 
+                ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 count += rs.getInt(1);
             }
@@ -187,9 +157,9 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Lấy danh sách các yêu cầu bảo hành đang ở trạng thái PENDING chờ phân công xử lý.
-     *
-     * @return danh sách các mảng chuỗi {claim_id, customer_name, created_at}
+     * Lấy danh sách các yêu cầu bảo hành đang ở trạng thái PENDING.
+     * 
+     * @return Danh sách mảng String {claimId, customerName, createdAt}
      */
     public List<String[]> getPendingClaimsList() {
         List<String[]> list = new ArrayList<>();
@@ -197,7 +167,8 @@ public class AdminDashboardDAO extends DBContext {
                 + "FROM WarrantyClaims c JOIN [User] u ON c.customer_id = u.user_id "
                 + "WHERE c.status = 'PENDING' ORDER BY c.created_at DESC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sql); 
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new String[]{
                     String.valueOf(rs.getInt(1)),
@@ -212,9 +183,9 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Lấy danh sách các Ticket tư vấn/hỗ trợ đang chờ Admin xem xét.
-     *
-     * @return danh sách các mảng chuỗi {ticket_id, title, creator_name}
+     * Lấy danh sách các Ticket nhập kho đang chờ Admin duyệt (WAITING_FOR_ADMIN_REVIEW).
+     * 
+     * @return Danh sách mảng String {ticketId, title, createdByName}
      */
     public List<String[]> getPendingTicketsList() {
         List<String[]> list = new ArrayList<>();
@@ -222,7 +193,8 @@ public class AdminDashboardDAO extends DBContext {
                 + "FROM Ticket t JOIN [User] u ON t.created_by = u.user_id "
                 + "WHERE t.status = 'WAITING_FOR_ADMIN_REVIEW' ORDER BY t.created_at DESC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sql); 
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new String[]{
                     String.valueOf(rs.getInt(1)),
@@ -237,13 +209,13 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Truy vấn dữ liệu biểu đồ doanh thu theo nhóm thời gian (ngày, tháng, quý, năm) và bộ lọc.
-     *
-     * @param from    ngày bắt đầu
-     * @param to      ngày kết thúc
-     * @param year    năm lọc doanh thu
-     * @param groupBy kiểu nhóm dữ liệu ("day", "month", "quarter", "year")
-     * @return Map lưu trữ cặp {nhãn_thời_gian -> doanh_thu_VND}
+     * Lấy dữ liệu doanh thu nhóm theo mốc thời gian (ngày, tháng, quý, năm) phục vụ vẽ biểu đồ.
+     * 
+     * @param from    Ngày bắt đầu lọc
+     * @param to      Ngày kết thúc lọc
+     * @param year    Năm chọn mặc định nếu không truyền từ/đến
+     * @param groupBy Nhóm theo (day, month, quarter, year)
+     * @return Map lưu trữ cặp nhãn nhãn thời gian và tổng doanh thu tương ứng
      */
     public Map<String, Long> getRevenueChart(String from, String to, Integer year, String groupBy) {
         Map<String, Long> map = new LinkedHashMap<>();
@@ -307,11 +279,7 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Chuẩn hóa chuỗi trạng thái đơn hàng (PENDING -> Pending, COMPLETED -> Completed, ...).
-     * Phương thức protected để cho phép AdvancedAnalyticsDAO kế thừa và tái sử dụng.
-     *
-     * @param status chuỗi trạng thái thô từ DB
-     * @return chuỗi trạng thái đã chuẩn hóa
+     * Chuẩn hóa chuỗi trạng thái đơn hàng về dạng định dạng hiển thị đẹp.
      */
     protected String normalizeStatus(String status) {
         if (status == null) return "Unknown";
@@ -332,11 +300,11 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê phân bổ số lượng đơn hàng theo từng trạng thái (Pending, Processing, Shipped, Delivered, Cancelled).
-     *
-     * @param from ngày bắt đầu
-     * @param to   ngày kết thúc
-     * @return Map lưu trữ {trạng_thái -> số_lượng_đơn} sắp xếp giảm dần theo số lượng
+     * Thống kê số lượng đơn hàng phân theo từng trạng thái (Pending, Completed, Shipped, Cancelled...).
+     * 
+     * @param from Ngày bắt đầu
+     * @param to   Ngày kết thúc
+     * @return Map lưu trạng thái và số lượng đơn hàng tương ứng
      */
     public Map<String, Integer> getOrdersByStatus(String from, String to) {
         Map<String, Integer> map = new LinkedHashMap<>();
@@ -375,21 +343,19 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê phân bổ đơn hàng theo trạng thái (toàn bộ lịch sử).
-     *
-     * @return Map lưu trữ {trạng_thái -> số_lượng_đơn}
+     * Thống kê số lượng đơn hàng phân theo từng trạng thái (không lọc thời gian).
      */
     public Map<String, Integer> getOrdersByStatus() {
         return getOrdersByStatus(null, null);
     }
 
     /**
-     * Thống kê Top 10 sản phẩm bán chạy nhất theo số lượng bán hoặc tổng doanh thu.
-     *
-     * @param from     ngày bắt đầu
-     * @param to       ngày kết thúc
-     * @param criteria tiêu chuẩn sắp xếp ("quantity" hoặc "revenue")
-     * @return Map lưu trữ {tên_sản_phẩm -> chỉ_số_doanh_thu/số_lượng}
+     * Lấy danh sách Top 10 sản phẩm bán chạy nhất theo tiêu chí (số lượng sản phẩm hoặc doanh thu mang lại).
+     * 
+     * @param from     Ngày bắt đầu
+     * @param to       Ngày kết thúc
+     * @param criteria Tiêu chí lọc: 'quantity' (số lượng) hoặc 'revenue' (doanh thu)
+     * @return Map lưu tên sản phẩm và giá trị chỉ số tương ứng
      */
     public Map<String, Long> getTopProducts(String from, String to, String criteria) {
         Map<String, Long> map = new LinkedHashMap<>();
@@ -430,11 +396,11 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Thống kê Top 10 khách hàng tiêu biểu có tổng chi tiêu cao nhất (không tính đơn đã hủy).
-     *
-     * @param from ngày bắt đầu
-     * @param to   ngày kết thúc
-     * @return Map lưu trữ {tên_khách_hàng -> tổng_chi_tiêu_VND}
+     * Lấy danh sách Top 10 khách hàng chi tiêu nhiều nhất (không tính các đơn hàng đã bị hủy).
+     * 
+     * @param from Ngày bắt đầu
+     * @param to   Ngày kết thúc
+     * @return Map lưu tên khách hàng và tổng số tiền đã chi tiêu
      */
     public Map<String, Long> getTopCustomers(String from, String to) {
         Map<String, Long> map = new LinkedHashMap<>();
@@ -468,9 +434,9 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Lấy toàn bộ danh sách đơn hàng đổ vào bảng Vận hành trên Dashboard.
-     *
-     * @return danh sách các mảng chuỗi đại diện cho từng dòng đơn hàng
+     * Lấy danh sách tất cả đơn hàng kèm thông tin tóm tắt để phục vụ việc tính toán thống kê linh hoạt trên phía Javascript Client.
+     * 
+     * @return Danh sách mảng String đại diện thông tin đơn hàng
      */
     public List<String[]> getAllOrdersForDashboard() {
         List<String[]> list = new ArrayList<>();
@@ -501,24 +467,15 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Lấy danh sách 10 hoạt động gần đây nhất tổng hợp từ Đơn hàng, Yêu cầu bảo hành và Khách hàng mới.
-     *
-     * @return danh sách mảng chuỗi {biểu_tượng, nội_dung_mô_tả, thời_gian_tương_đối}
+     * Tổng hợp dòng hoạt động gần nhất trên hệ thống (đơn hàng mới, yêu cầu bảo hành, tài khoản khách hàng mới đăng ký).
+     * 
+     * @return Danh sách mảng String {icon, noiDungHTML, timeAgo}
      */
     public List<String[]> getRecentActivities() {
         List<String[]> list = new ArrayList<>();
         String sql = "SELECT TOP 10 * FROM ("
                 + "SELECT N'🛒' AS icon, "
-                + "CONCAT(N'Đơn hàng <b>', o.order_code, N'</b> bởi Khách hàng <b>', u.full_name, N'</b> — ', "
-                + "CASE UPPER(o.order_status) "
-                + "    WHEN 'PENDING' THEN N'Chờ xác nhận' "
-                + "    WHEN 'PROCESSING' THEN N'Đang xử lý' "
-                + "    WHEN 'SHIPPED' THEN N'Đang giao hàng' "
-                + "    WHEN 'DELIVERED' THEN N'Đã giao hàng' "
-                + "    WHEN 'COMPLETED' THEN N'Đã hoàn thành' "
-                + "    WHEN 'CANCELLED' THEN N'Đã hủy' "
-                + "    ELSE o.order_status "
-                + "END) AS txt, "
+                + "CONCAT(N'Đơn hàng <b>', o.order_code, N'</b> từ Khách hàng <b>', u.full_name, N'</b> — ', o.order_status) AS txt, "
                 + "o.completed_at AS event_date "
                 + "FROM [Order] o "
                 + "JOIN [User] u ON o.user_id = u.user_id "
@@ -526,15 +483,8 @@ public class AdminDashboardDAO extends DBContext {
                 + "UNION ALL "
                 + "SELECT N'🔧' AS icon, "
                 + "CASE "
-                + "    WHEN c.status = 'PENDING' THEN CONCAT(N'Yêu cầu bảo hành <b>#', c.claim_id, N'</b> tạo bởi Khách hàng <b>', cust.full_name, N'</b>') "
-                + "    ELSE CONCAT(N'Yêu cầu bảo hành <b>#', c.claim_id, N'</b> chuyển sang <b>', "
-                + "        CASE UPPER(c.status) "
-                + "            WHEN 'PROCESSING' THEN N'ĐANG XỬ LÝ' "
-                + "            WHEN 'COMPLETED' THEN N'HOÀN THÀNH' "
-                + "            WHEN 'REJECTED' THEN N'TỪ CHỐI' "
-                + "            ELSE c.status "
-                + "        END, "
-                + "        N'</b> bởi Nhân viên <b>', COALESCE(st.full_name, N'Hệ thống'), N'</b>') "
+                + "    WHEN c.status = 'PENDING' THEN CONCAT(N'Yêu cầu bảo hành <b>#', c.claim_id, N'</b> được gửi bởi Khách hàng <b>', cust.full_name, N'</b>') "
+                + "    ELSE CONCAT(N'Yêu cầu bảo hành <b>#', c.claim_id, N'</b> được cập nhật thành ', c.status, N' bởi Nhân viên <b>', COALESCE(st.full_name, N'Hệ thống'), N'</b>') "
                 + "END AS txt, "
                 + "c.created_at AS event_date "
                 + "FROM WarrantyClaims c "
@@ -542,13 +492,14 @@ public class AdminDashboardDAO extends DBContext {
                 + "LEFT JOIN [User] st ON c.staff_id = st.user_id "
                 + "UNION ALL "
                 + "SELECT N'👤' AS icon, "
-                + "CONCAT(N'Khách hàng mới <b>', full_name, N'</b> đã đăng ký') AS txt, "
+                + "CONCAT(N'Khách hàng mới <b>', full_name, N'</b> đã đăng ký tài khoản') AS txt, "
                 + "created_at AS event_date "
                 + "FROM [User] "
                 + "WHERE role_id = 3 "
                 + ") AS combined ORDER BY event_date DESC";
         try (Connection con = getConnection(); 
-                PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = con.prepareStatement(sql); 
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String icon = rs.getString("icon");
                 String text = rs.getString("txt");
@@ -562,10 +513,7 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Chuyển đổi đối tượng mốc thời gian Timestamp thành dạng chuỗi hiển thị khoảng cách thời gian thân thiện ("vừa xong", "X phút trước", "X giờ trước", "X ngày trước").
-     *
-     * @param ts mốc thời gian sự kiện
-     * @return chuỗi biểu diễn thời gian tương đối
+     * Chuyển đổi thời điểm Timestamp sang định dạng khoảng thời gian tương đối dễ đọc ("vừa xong", "X phút trước", "X giờ trước"...).
      */
     private String timeAgo(Timestamp ts) {
         if (ts == null) return "";
@@ -580,12 +528,12 @@ public class AdminDashboardDAO extends DBContext {
     }
 
     /**
-     * Tính toán tổng doanh thu và tỷ lệ % tăng trưởng so với kỳ trước theo Tháng, Quý và Năm.
-     *
-     * @return Map chứa các cặp giá trị doanh thu và tỷ lệ tăng trưởng tương ứng
+     * Tính toán tổng doanh thu và tỷ lệ tăng trưởng (%) theo Tháng, Quý, Năm so với kỳ trước tương ứng.
+     * 
+     * @return Map chứa thông tin doanh thu và % tăng trưởng cho từng kỳ
      */
-    public Map<String, Object> getRevenueStats() {
-        Map<String, Object> stats = new HashMap<>();
+    public java.util.Map<String, Object> getRevenueStats() {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
         
         long curMonth = 0;
         long prevMonth = 0;
@@ -638,3 +586,4 @@ public class AdminDashboardDAO extends DBContext {
         return stats;
     }
 }
+

@@ -12,11 +12,11 @@
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin — Bảng điều khiển phân tích</title>
+        <title>UNILAP Admin — Bảng Điều Khiển & Thống Kê</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -791,7 +791,7 @@
                                         <span style="color:#ef4444; font-weight:600;">⚠️ ${dateError}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        Hiệu suất kinh doanh theo thời gian thực
+                                        Hiệu suất kinh doanh thời gian thực
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -863,7 +863,7 @@
                             </div>
                             <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket duyệt</div>
+                            <div class="kpi-sub">Yêu cầu bảo hành & ticket duyệt</div>
                         </div>
                     </div>
 
@@ -875,11 +875,11 @@
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Từ:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">Từ ngày:</label>
                                 <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">Đến:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">Đến ngày:</label>
                                 <input type="date" name="to" value="${to}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <select name="groupBy" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
@@ -928,21 +928,21 @@
                                 </thead>
                                 <tbody>
                                     <tr data-status="Pending">
-                                        <td style="font-weight:600; color:#d97706;">🟡 Chờ xác nhận</td>
+                                        <td style="font-weight:600; color:#d97706;">🟡 Chờ xác nhận (Pending)</td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-pending-today" onclick="viewOrdersInModal('Pending', 'today')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-pending-week" onclick="viewOrdersInModal('Pending', 'week')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-pending-month" onclick="viewOrdersInModal('Pending', 'month')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-pending-all" onclick="viewOrdersInModal('Pending', 'all')">0</span></td>
                                     </tr>
                                     <tr data-status="Processing">
-                                        <td style="font-weight:600; color:#2563eb;">🔵 Đang xử lý</td>
+                                        <td style="font-weight:600; color:#2563eb;">🔵 Đang xử lý (Processing)</td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-processing-today" onclick="viewOrdersInModal('Processing', 'today')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-processing-week" onclick="viewOrdersInModal('Processing', 'week')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-processing-month" onclick="viewOrdersInModal('Processing', 'month')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-processing-all" onclick="viewOrdersInModal('Processing', 'all')">0</span></td>
                                     </tr>
                                     <tr data-status="Shipped">
-                                        <td style="font-weight:600; color:#7c3aed;">🟣 Đang giao hàng</td>
+                                        <td style="font-weight:600; color:#7c3aed;">🟣 Đang giao hàng (Shipped)</td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-shipped-today" onclick="viewOrdersInModal('Shipped', 'today')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-shipped-week" onclick="viewOrdersInModal('Shipped', 'week')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-shipped-month" onclick="viewOrdersInModal('Shipped', 'month')">0</span></td>
@@ -956,7 +956,7 @@
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-delivered-all" onclick="viewOrdersInModal('Delivered', 'all')">0</span></td>
                                     </tr>
                                     <tr data-status="Cancelled">
-                                        <td style="font-weight:600; color:#dc2626;">🔴 Đã hủy</td>
+                                        <td style="font-weight:600; color:#dc2626;">🔴 Đã hủy (Cancelled)</td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-cancelled-today" onclick="viewOrdersInModal('Cancelled', 'today')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-cancelled-week" onclick="viewOrdersInModal('Cancelled', 'week')">0</span></td>
                                         <td style="text-align:center;"><span class="clickable-count zero" id="count-cancelled-month" onclick="viewOrdersInModal('Cancelled', 'month')">0</span></td>
@@ -1090,7 +1090,7 @@
                 data: {
                     labels: revenueLabels,
                     datasets: [{
-                            label: 'Doanh thu (triệu ₫)',
+                            label: 'Revenue (million ₫)',
                             data: revenueValues,
                             backgroundColor: 'rgba(59,130,246,.75)',
                             borderColor: '#2563eb',
@@ -1320,7 +1320,7 @@
                     data: {
                         labels: tcLabels,
                         datasets: [{
-                                label: 'Tổng chi tiêu (Triệu ₫)',
+                                label: 'Total Spent (M ₫)',
                                 data: tcValues,
                                 backgroundColor: 'rgba(139,92,246,.75)',
                                 borderColor: '#8b5cf6',
@@ -1514,7 +1514,7 @@
                 <div>
                     <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">
                         <span>Yêu cầu bảo hành chưa xử lý</span>
-                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${pendingClaimsList.size()} mục</span>
+                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${pendingClaimsList.size()} items</span>
                     </h4>
                     <c:choose>
                         <c:when test="${not empty pendingClaimsList}">
@@ -1547,7 +1547,7 @@
                 <div style="margin-top:20px;">
                     <h4 style="font-size:14px; font-weight:600; color:#475569; margin-top:0; margin-bottom:8px; display:flex; justify-content:space-between;">
                         <span>Yêu cầu duyệt Ticket chưa xử lý</span>
-                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${pendingTicketsList.size()} mục</span>
+                        <span style="background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; font-size:11px;">${pendingTicketsList.size()} items</span>
                     </h4>
                     <c:choose>
                         <c:when test="${not empty pendingTicketsList}">
