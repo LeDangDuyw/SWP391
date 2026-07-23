@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Admin - Review Inbound Tickets</title>
+    <title>UNILAP Admin - Duyệt yêu cầu nhập hàng</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -144,8 +144,8 @@
             <!-- Page Header -->
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Inbound Ticket Management (Admin)</h2>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Approve or reject inventory import requests from Staff.</p>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Quản lý yêu cầu nhập hàng (Admin)</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Phê duyệt hoặc từ chối các yêu cầu nhập hàng từ Nhân viên.</p>
                 </div>
             </div>
 
@@ -153,13 +153,13 @@
             <c:if test="${not empty param.success}">
                 <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-[#E6F4EA] border border-[#CEEAD6] rounded-xl text-[#137333] font-label-md text-label-md">
                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                    Operation successful!
+                    Thao tác thành công!
                 </div>
             </c:if>
             <c:if test="${not empty param.error}">
                 <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-error-container border border-error-container rounded-xl text-on-error-container font-label-md text-label-md">
                     <span class="material-symbols-outlined text-[20px]">error</span>
-                    An error occurred: ${param.error}
+                    Có lỗi xảy ra: ${param.error}
                 </div>
             </c:if>
 
@@ -173,10 +173,10 @@
                                     <input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
                                 </th>
                                 <th class="py-3 px-4 border-b border-outline-variant/20 w-20">ID</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20">Title</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-48">Status</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-44">Created At</th>
-                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-[420px]">Action & Review</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20">Tiêu đề</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 w-48">Trạng thái</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 w-44">Ngày tạo</th>
+                                <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-[420px]">Hành động &amp; Phê duyệt</th>
                             </tr>
                         </thead>
                         <tbody class="font-body-sm text-body-sm">
@@ -252,30 +252,30 @@
                                                       class="flex items-center justify-end gap-2 m-0">
                                                     <input type="hidden" name="ticketId" value="${t.ticketId}">
                                                     
-                                                    <input type="text" name="reason" placeholder="Reason for rejection..." 
+                                                    <input type="text" name="reason" placeholder="Lý do từ chối..." 
                                                            class="px-3 py-1.5 bg-white border border-outline-variant rounded-lg font-body-sm text-[12px] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder-on-surface-variant/50 w-44">
                                                     
                                                     <button type="submit" name="action" value="approve" 
                                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#137333] text-white font-bold rounded-lg hover:bg-[#0d5c28] transition-colors font-label-md text-[12px]">
                                                         <span class="material-symbols-outlined text-[16px]">check</span>
-                                                        Approve
+                                                        Phê duyệt
                                                     </button>
                                                     <button type="submit" name="action" value="reject" 
                                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-error text-white font-bold rounded-lg hover:bg-error/90 transition-colors font-label-md text-[12px]">
                                                         <span class="material-symbols-outlined text-[16px]">close</span>
-                                                        Reject
+                                                        Từ chối
                                                     </button>
-                                                    <a href="${pageContext.request.contextPath}/admin/ticket/detail?id=${t.ticketId}" class="inline-flex items-center justify-center w-8 h-8 bg-surface-container-low text-primary font-bold border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors" title="Details">
+                                                    <a href="${pageContext.request.contextPath}/admin/ticket/detail?id=${t.ticketId}" class="inline-flex items-center justify-center w-8 h-8 bg-surface-container-low text-primary font-bold border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors" title="Chi tiết">
                                                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                                                     </a>
                                                 </form>
                                             </c:when>
                                             <c:otherwise>
                                                 <div class="flex items-center justify-end gap-3">
-                                                    <span class="text-on-surface-variant italic text-[12px]">Processed</span>
+                                                    <span class="text-on-surface-variant italic text-[12px]">Đã xử lý</span>
                                                     <a href="${pageContext.request.contextPath}/admin/ticket/detail?id=${t.ticketId}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-container-low text-primary font-bold border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors font-label-md text-[12px]">
                                                         <span class="material-symbols-outlined text-[16px]">visibility</span>
-                                                        Details
+                                                        Chi tiết
                                                     </a>
                                                 </div>
                                             </c:otherwise>
@@ -289,7 +289,7 @@
                                     <td class="py-8 px-4 text-center text-on-surface-variant font-body-sm text-body-sm" colspan="6">
                                         <div class="flex flex-col items-center gap-2">
                                             <span class="material-symbols-outlined text-[40px] text-outline-variant">inbox</span>
-                                            No inbound tickets found for review.
+                                            Không tìm thấy yêu cầu nhập hàng nào cần duyệt.
                                         </div>
                                     </td>
                                 </tr>

@@ -168,7 +168,7 @@
             <span>🛠</span>Bảo hành
         </a>
         <a class="${param.activePage == 'ticket' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/ticket/list">
-            <span>🎫</span>Duyệt yêu cầu hỗ trợ
+            <span>🎫</span>Duyệt yêu cầu nhập hàng
         </a>
         <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
         <a class="${param.activePage == 'chatbot-feedback' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/chatbot-feedback">
