@@ -52,9 +52,9 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                          MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
@@ -105,9 +105,9 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                          MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
@@ -159,9 +159,9 @@ public class ProductDAO extends DBContext {
                          p.thumbnail,
                          b.brand_name,
                          SUM(od.quantity) AS sold_quantity,
-                         MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                         MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                          MIN(v.selling_price) AS original_price,
-                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                         CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                      FROM Product p
                      JOIN Brand b ON p.brand_id = b.brand_id
                      JOIN ProductVariant v ON p.product_id = v.product_id
@@ -213,9 +213,9 @@ public class ProductDAO extends DBContext {
                         p.product_name,
                         p.thumbnail,
                         b.brand_name,
-                        MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                        MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                         MIN(v.selling_price) AS original_price,
-                        CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                        CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                     FROM Product p
                     JOIN Brand b ON p.brand_id = b.brand_id
                     JOIN ProductVariant v ON p.product_id = v.product_id
@@ -265,9 +265,9 @@ public class ProductDAO extends DBContext {
                                              p.product_name,
                                              p.thumbnail,
                                              b.brand_name,
-                                             MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                                             MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                                              MIN(v.selling_price) AS original_price,
-                                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                                             CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                                          FROM Product p
                                          JOIN Brand b ON p.brand_id = b.brand_id
                                          JOIN ProductVariant v ON p.product_id = v.product_id
@@ -316,9 +316,9 @@ public class ProductDAO extends DBContext {
                                             p.product_name,
                                             p.thumbnail,
                                             b.brand_name,
-                                            MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                                            MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                                             MIN(v.selling_price) AS original_price,
-                                            CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                                            CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
                                         FROM Product p
                                         JOIN Brand b ON p.brand_id = b.brand_id
                                         JOIN ProductVariant v ON p.product_id = v.product_id
@@ -386,9 +386,9 @@ public class ProductDAO extends DBContext {
             SELECT
                 p.product_id, p.product_name, p.thumbnail,
                 b.brand_name, c.category_name, p.category_id,
-                MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price,
+                MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price,
                 MIN(v.selling_price) AS original_price,
-                CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
+                CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent
             FROM Product p
             JOIN Brand b ON p.brand_id = b.brand_id
             JOIN Category c ON p.category_id = c.category_id
@@ -465,26 +465,24 @@ public class ProductDAO extends DBContext {
                 orderClause = "ORDER BY min_price " + order;
             }
 
-            String statusFilter = "";
+            String havingClause = "";
             if ("hidden".equalsIgnoreCase(itemStatus)) {
-                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
-            } else if ("all".equalsIgnoreCase(itemStatus)) {
-                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
-            } else {
-                statusFilter = "v.status = 'active'";
+                havingClause = "HAVING SUM(CASE WHEN v.status = 'inactive' THEN 1 ELSE 0 END) > 0 AND SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) = 0";
+            } else if ("active".equalsIgnoreCase(itemStatus)) {
+                havingClause = "HAVING SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) > 0 OR COUNT(v.variant_id) = 0";
             }
 
             String sql = "SELECT " +
                          "    p.product_id, p.product_name, p.thumbnail, " +
-                         "    b.brand_name, c.category_name, p.category_id, " +
-                         "    MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
-                         "    MIN(v.selling_price) AS original_price, " +
-                         "    CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent, " +
-                         "    CASE WHEN SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) > 0 THEN 0 ELSE 1 END AS is_hidden " +
+                         "    ISNULL(b.brand_name, '') AS brand_name, ISNULL(c.category_name, '') AS category_name, p.category_id, " +
+                         "    ISNULL(MIN(COALESCE(fs_active.sale_price, v.selling_price)), 0) AS min_price, " +
+                         "    ISNULL(MIN(v.selling_price), 0) AS original_price, " +
+                         "    CASE WHEN ISNULL(MIN(v.selling_price), 0) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent, " +
+                         "    CASE WHEN SUM(CASE WHEN v.status = 'active' THEN 1 ELSE 0 END) > 0 OR COUNT(v.variant_id) = 0 THEN 0 ELSE 1 END AS is_hidden " +
                          "FROM Product p " +
-                         "JOIN Brand b ON p.brand_id = b.brand_id " +
-                         "JOIN Category c ON p.category_id = c.category_id " +
-                         "JOIN ProductVariant v ON p.product_id = v.product_id " +
+                         "LEFT JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "LEFT JOIN Category c ON p.category_id = c.category_id " +
+                         "LEFT JOIN ProductVariant v ON p.product_id = v.product_id " +
                          "LEFT JOIN ( " +
                          "    SELECT fsi.variant_id, MIN(fsi.sale_price) AS sale_price " +
                          "    FROM FlashSaleItem fsi " +
@@ -492,7 +490,7 @@ public class ProductDAO extends DBContext {
                          "    WHERE GETDATE() >= fs.start_time AND GETDATE() <= fs.end_time " +
                          "    GROUP BY fsi.variant_id " +
                          ") fs_active ON v.variant_id = fs_active.variant_id " +
-                         "WHERE " + statusFilter;
+                         "WHERE 1=1 ";
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -502,9 +500,11 @@ public class ProductDAO extends DBContext {
                 sql += " AND (p.product_name LIKE ? OR b.brand_name LIKE ?)";
             }
 
-            sql += " GROUP BY p.product_id, p.product_name, p.thumbnail, b.brand_name, c.category_name, p.category_id " +
-                   orderClause + " " +
-                   "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            sql += " GROUP BY p.product_id, p.product_name, p.thumbnail, b.brand_name, c.category_name, p.category_id ";
+            if (!havingClause.isEmpty()) {
+                sql += havingClause + " ";
+            }
+            sql += orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
             ps = cnn.prepareStatement(sql);
             int idx = 1;
@@ -543,21 +543,18 @@ public class ProductDAO extends DBContext {
 
     public int countSearchAllProducts(String keyword, String category, String itemStatus) {
         try {
-            String statusFilter = "";
-            if ("hidden".equalsIgnoreCase(itemStatus)) {
-                statusFilter = "v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')";
-            } else if ("all".equalsIgnoreCase(itemStatus)) {
-                statusFilter = "(v.status = 'active' OR (v.status = 'inactive' AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active')))";
-            } else {
-                statusFilter = "v.status = 'active'";
-            }
-
             String sql = "SELECT COUNT(DISTINCT p.product_id) " +
                          "FROM Product p " +
-                         "JOIN Brand b ON p.brand_id = b.brand_id " +
-                         "JOIN Category c ON p.category_id = c.category_id " +
-                         "JOIN ProductVariant v ON p.product_id = v.product_id " +
-                         "WHERE " + statusFilter;
+                         "LEFT JOIN Brand b ON p.brand_id = b.brand_id " +
+                         "LEFT JOIN Category c ON p.category_id = c.category_id " +
+                         "LEFT JOIN ProductVariant v ON p.product_id = v.product_id " +
+                         "WHERE 1=1 ";
+
+            if ("hidden".equalsIgnoreCase(itemStatus)) {
+                sql += " AND NOT EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active') AND EXISTS (SELECT 1 FROM ProductVariant pv3 WHERE pv3.product_id = p.product_id)";
+            } else if ("active".equalsIgnoreCase(itemStatus)) {
+                sql += " AND (EXISTS (SELECT 1 FROM ProductVariant pv2 WHERE pv2.product_id = p.product_id AND pv2.status = 'active') OR NOT EXISTS (SELECT 1 FROM ProductVariant pv3 WHERE pv3.product_id = p.product_id))";
+            }
 
             if (category != null && !category.trim().isEmpty() && !category.equals("all")) {
                 sql += " AND c.category_name = ?";
@@ -756,9 +753,9 @@ public String getProductBadge(int productId, int categoryId) {
                          "p.product_name, " +
                          "p.thumbnail, " +
                          "b.brand_name, " +
-                         "MIN(ISNULL(fs_active.sale_price, v.selling_price)) AS min_price, " +
+                         "MIN(COALESCE(fs_active.sale_price, v.selling_price)) AS min_price, " +
                          "MIN(v.selling_price) AS original_price, " +
-                         "CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(ISNULL(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
+                         "CASE WHEN MIN(v.selling_price) > 0 THEN CAST(ROUND((MIN(v.selling_price) - MIN(COALESCE(fs_active.sale_price, v.selling_price))) * 100.0 / MIN(v.selling_price), 0) AS INT) ELSE 0 END AS discount_percent " +
                          "FROM Product p " +
                          "JOIN Brand b ON p.brand_id = b.brand_id " +
                          "JOIN ProductVariant v ON p.product_id = v.product_id " +
@@ -1438,19 +1435,47 @@ public List<Product> GetAllProducts() {
      * Description: Cß║¡p nhß║¡t th├┤ng tin cß╗ºa mß╗Öt ProductVariant v├á tß╗ôn kho cß╗ºa n├│ dß╗▒a tr├¬n giao diß╗çn.
      */
     public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal price) {
+        updateProductVariant(variantId, sku, variantName, null, price, null);
+    }
+
+    public void updateProductVariant(int variantId, String sku, String variantName, java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, String thumbnail) {
         try {
-            // Update ProductVariant table
-            String sql = "UPDATE ProductVariant SET sku = ?, variant_name = ?, selling_price = ? WHERE variant_id = ?";
-            ps = cnn.prepareStatement(sql);
-            ps.setString(1, sku);
-            ps.setString(2, variantName);
-            ps.setBigDecimal(3, price);
-            ps.setInt(4, variantId);
+            StringBuilder sql = new StringBuilder("UPDATE ProductVariant SET sku = ?, variant_name = ?, selling_price = ?");
+            if (importPrice != null) {
+                sql.append(", import_price = ?");
+            }
+            if (thumbnail != null && !thumbnail.trim().isEmpty()) {
+                sql.append(", thumbnail = ?");
+            }
+            sql.append(" WHERE variant_id = ?");
+
+            ps = cnn.prepareStatement(sql.toString());
+            int idx = 1;
+            ps.setString(idx++, sku);
+            ps.setString(idx++, variantName);
+            ps.setBigDecimal(idx++, sellingPrice);
+            if (importPrice != null) {
+                ps.setBigDecimal(idx++, importPrice);
+            }
+            if (thumbnail != null && !thumbnail.trim().isEmpty()) {
+                ps.setString(idx++, thumbnail);
+            }
+            ps.setInt(idx++, variantId);
             ps.executeUpdate();
-            
-            // Removed direct update to Inventory.available_quantity to enforce Inbound flow.
         } catch (Exception e) {
             System.out.println("Update ProductVariant Error: " + e.getMessage());
+        }
+    }
+
+    public void updateProductThumbnail(int productId, String thumbnail) {
+        try {
+            String sql = "UPDATE Product SET thumbnail = ? WHERE product_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, thumbnail);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Update Product Thumbnail Error: " + e.getMessage());
         }
     }
     

@@ -205,7 +205,7 @@
 <!-- Left Column: General Information -->
 <div class="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
 <!-- General Information Card -->
-<form id="productForm" action="${pageContext.request.contextPath}/staff/inventory/edit" method="post">
+<form id="productForm" action="${pageContext.request.contextPath}/staff/inventory/edit" method="post" enctype="multipart/form-data">
     <input type="hidden" name="action" value="updateProduct"/>
     <input type="hidden" name="productId" value="<%= product != null ? product.getProductId() : "" %>"/>
     <input type="hidden" name="variantId" value="${selectedVariantId}"/>
@@ -222,7 +222,7 @@
             <div class="col-span-1">
                 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Danh mục</label>
                 <div class="relative">
-                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="categoryId">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="categoryId" onchange="filterSeriesAndCategory()">
                         <% for (Category c : categories) { %>
                             <option value="<%= c.getCategoryId() %>" <%= product != null && product.getCategoryId() == c.getCategoryId() ? "selected" : "" %>><%= c.getCategoryName() %></option>
                         <% } %>
@@ -238,7 +238,7 @@
                     </button>
                 </div>
                 <div class="relative">
-                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId" id="brandId">
+                    <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="brandId" id="brandId" onchange="filterSeriesAndCategory()">
                         <% for (Brand b : brands) { %>
                             <option value="<%= b.getBrandId() %>" <%= product != null && product.getBrandId() == b.getBrandId() ? "selected" : "" %>><%= b.getBrandName() %></option>
                         <% } %>
@@ -256,10 +256,11 @@
                     String currentPurpose = product != null ? product.getPurpose() : "";
                     boolean isCustomPurpose = false;
                     if (currentPurpose != null && !currentPurpose.trim().isEmpty()) {
-                        if (!"Văn phòng".equals(currentPurpose) && 
-                            !"Gaming".equals(currentPurpose) && 
-                            !"Đồ họa".equals(currentPurpose) && 
-                            !"Mỏng nhẹ".equals(currentPurpose)) {
+                        if (!"Học tập - Văn phòng".equals(currentPurpose) && 
+                            !"Đồ họa - Kỹ thuật".equals(currentPurpose) && 
+                            !"Gaming - Trải nghiệm".equals(currentPurpose) && 
+                            !"Cao cấp - Sang trọng".equals(currentPurpose) && 
+                            !"Tài chính - Kế toán".equals(currentPurpose)) {
                             isCustomPurpose = true;
                         }
                     }
@@ -268,10 +269,11 @@
                     <div class="relative">
                         <select class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none" name="purposeSelect" id="purposeSelect" onchange="toggleCustomPurpose(this, 'purposeCustom')">
                             <option value="">-- Chọn nhu cầu --</option>
-                            <option value="Văn phòng" <%= "Văn phòng".equals(currentPurpose) ? "selected" : "" %>>Học tập - Văn phòng</option>
-                            <option value="Gaming" <%= "Gaming".equals(currentPurpose) ? "selected" : "" %>>Gaming - Trải nghiệm</option>
-                            <option value="Đồ họa" <%= "Đồ họa".equals(currentPurpose) ? "selected" : "" %>>Đồ họa - Kỹ thuật</option>
-                            <option value="Mỏng nhẹ" <%= "Mỏng nhẹ".equals(currentPurpose) ? "selected" : "" %>>Mỏng nhẹ - Cao cấp</option>
+                            <option value="Học tập - Văn phòng" <%= "Học tập - Văn phòng".equals(currentPurpose) ? "selected" : "" %>>Học tập - Văn phòng</option>
+                            <option value="Đồ họa - Kỹ thuật" <%= "Đồ họa - Kỹ thuật".equals(currentPurpose) ? "selected" : "" %>>Đồ họa - Kỹ thuật</option>
+                            <option value="Gaming - Trải nghiệm" <%= "Gaming - Trải nghiệm".equals(currentPurpose) ? "selected" : "" %>>Gaming - Trải nghiệm</option>
+                            <option value="Cao cấp - Sang trọng" <%= "Cao cấp - Sang trọng".equals(currentPurpose) ? "selected" : "" %>>Cao cấp - Sang trọng</option>
+                            <option value="Tài chính - Kế toán" <%= "Tài chính - Kế toán".equals(currentPurpose) ? "selected" : "" %>>Tài chính - Kế toán</option>
                             <option value="Khác" <%= isCustomPurpose ? "selected" : "" %>>Khác...</option>
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
@@ -326,8 +328,9 @@
 <thead>
 <tr class="bg-inverse-surface text-white">
 <th class="px-4 py-3 font-label-md text-label-md">SKU</th>
+<th class="px-4 py-3 font-label-md text-label-md">Giá nhập (VNĐ)</th>
 <th class="px-4 py-3 font-label-md text-label-md">Giá bán (VNĐ)</th>
-<th class="px-4 py-3 font-label-md text-label-md">Thuộc tính</th>
+<th class="px-4 py-3 font-label-md text-label-md">Thuộc tính / Cấu hình</th>
 <th class="px-4 py-3 font-label-md text-label-md text-center">Tồn kho</th>
 <th class="px-4 py-3 font-label-md text-label-md text-right">Hành động</th>
 </tr>
@@ -335,7 +338,7 @@
 <tbody class="divide-y divide-outline-variant">
 <% if (variants.isEmpty()) { %>
 <tr>
-<td class="px-4 py-6 text-center text-on-surface-variant" colspan="5">Không tìm thấy biến thể nào cho sản phẩm này.</td>
+<td class="px-4 py-6 text-center text-on-surface-variant" colspan="6">Không tìm thấy biến thể nào cho sản phẩm này.</td>
 </tr>
 <% } else { %>
 <% for (int i = 0; i < variants.size(); i++) {
@@ -347,13 +350,20 @@
     String variantName = v.getVariantName() == null ? "" : v.getVariantName();
     String variantNameAttr = variantName.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
 %>
-<tr class="<%= rowClass %>" data-variant-id="<%= v.getVariantId() %>" data-variant-name="<%= variantNameAttr %>">
+<tr class="<%= rowClass %>" 
+    data-variant-id="<%= v.getVariantId() %>" 
+    data-sku="<%= v.getSku() %>"
+    data-import-price="<%= v.getImportPrice() == null ? "0" : v.getImportPrice().toPlainString() %>"
+    data-price="<%= v.getSellingPrice() == null ? "0" : v.getSellingPrice().toPlainString() %>"
+    data-stock="<%= v.getAvailableQuantity() %>"
+    data-variant-name="<%= variantNameAttr %>">
 <td class="px-4 py-4"><span class="font-code-sm text-code-sm"><%= v.getSku() %></span></td>
-<td class="px-4 py-4 font-bold" data-price="<%= v.getSellingPrice() == null ? "0" : v.getSellingPrice().toPlainString() %>"><%= moneyFormat.format(v.getSellingPrice() == null ? 0 : v.getSellingPrice()) %>₫</td>
+<td class="px-4 py-4 text-on-surface-variant font-medium"><%= moneyFormat.format(v.getImportPrice() == null ? 0 : v.getImportPrice()) %>₫</td>
+<td class="px-4 py-4 font-bold text-primary"><%= moneyFormat.format(v.getSellingPrice() == null ? 0 : v.getSellingPrice()) %>₫</td>
 <td class="px-4 py-4">
 <div class="flex flex-wrap gap-2">
 <% if (variantName.trim().isEmpty()) { %>
-<span class="text-on-surface-variant text-body-sm">Không có thuộc tính</span>
+<span class="text-on-surface-variant text-body-sm">Mặc định</span>
 <% } else {
     String[] attrs = variantName.split("\\s*/\\s*|\\s*,\\s*");
     for (String attr : attrs) {
@@ -370,8 +380,9 @@
 </td>
 <td class="px-4 py-4 text-right">
 <div class="flex justify-end gap-2">
-<button type="button" onclick="openEditVariantModal(this)" class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
-<button class="p-1 hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+<button type="button" onclick="openEditVariantModal(this)" class="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+    <span class="material-symbols-outlined text-[16px]">edit</span>Sửa
+</button>
 </div>
 </td>
 </tr>
@@ -382,102 +393,69 @@
 </div>
 </div>
 </div>
-<!-- Right Column: Thumbnail & Stats -->
-<div class="col-span-12 lg:col-span-4 flex flex-col gap-gutter">
-<!-- Thumbnail Card -->
-<div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
-<div class="flex items-center justify-between mb-6">
-<div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined" data-icon="image">image</span>
-<h2 class="font-headline-md text-headline-md">Ảnh đại diện</h2>
-</div>
-<button class="text-primary font-bold text-label-md hover:underline">Thay đổi ảnh</button>
-</div>
-<div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant group relative aspect-video flex items-center justify-center">
-<% if (hasThumbnail) { %>
-<img alt="<%= productName %> Thumbnail" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="${pageContext.request.contextPath}/images/<%= thumbnail %>"/>
-<% } else { %>
-<div class="text-center text-on-surface-variant">
-<span class="material-symbols-outlined text-5xl mb-2">image_not_supported</span>
-<p>Không có ảnh đại diện</p>
-</div>
-<% } %>
-<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-<span class="material-symbols-outlined text-white text-4xl">zoom_in</span>
-</div>
-</div>
-<p class="mt-4 text-center text-on-surface-variant text-body-sm">
-                            Định dạng hỗ trợ: JPG, PNG, WEBP. Dung lượng tối đa: 2MB.
-                        </p>
-</div>
-<!-- Meta Data / Quick Stats Card -->
-<div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-xl">
-<h2 class="font-headline-md text-headline-md text-primary mb-6">Tổng quan tồn kho</h2>
-<div class="space-y-4">
-<div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Tổng tồn kho</span>
-<span class="font-bold"><%= totalStock %> sản phẩm</span>
-</div>
-<div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Giá bán trung bình</span>
-<span class="font-bold"><%= moneyFormat.format(avgPrice) %>₫</span>
-</div>
-<div class="flex justify-between items-center py-2 border-b border-outline-variant">
-<span class="text-on-surface-variant text-body-sm">Tổng giá trị</span>
-<span class="font-bold text-primary"><%= moneyFormat.format(totalValue) %>₫</span>
-</div>
-<div class="flex justify-between items-center py-2">
-<span class="text-on-surface-variant text-body-sm">Trạng thái hiển thị</span>
-<div class="flex items-center gap-2">
-<span class="w-3 h-3 <%= published ? "bg-emerald-500" : "bg-amber-500" %> rounded-full"></span>
-<span class="font-bold <%= published ? "text-emerald-600" : "text-amber-600" %> uppercase text-[12px]"><%= published ? "Đang hiển thị" : "Đã ẩn" %></span>
-</div>
-</div>
-</div>
-</div>
-
-                        </div>
-                    </div>
-                </main>
-    </div>
-</div>
 
 <!-- Edit Variant Modal -->
-<div id="editVariantModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-md p-6">
-        <div class="flex items-center justify-between mb-6">
+<div id="editVariantModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-outline-variant">
             <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Chỉnh sửa biến thể</h3>
             <button type="button" onclick="closeEditVariantModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        <form action="${pageContext.request.contextPath}/staff/inventory/edit" method="post" class="flex flex-col gap-4">
+        <form action="${pageContext.request.contextPath}/staff/inventory/edit" method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
             <input type="hidden" name="action" value="updateVariant"/>
             <input type="hidden" name="variantId" id="editVariantId" value=""/>
-            
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">SKU</label>
-                <input type="text" name="sku" id="editSku" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
-            </div>
-            
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Thuộc tính biến thể</label>
-                <input type="text" name="variantName" id="editVariantName" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
-            </div>
+            <input type="hidden" name="productId" value="<%= product != null ? product.getProductId() : "" %>"/>
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Giá bán (VNĐ)</label>
-                    <input type="number" step="1" name="price" id="editPrice" class="w-full px-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Mã SKU</label>
+                    <input type="text" name="sku" id="editSku" class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
                 </div>
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tồn kho (Chỉ đọc)</label>
-                    <input type="number" name="stock" id="editStock" class="w-full px-4 py-3 bg-slate-100 text-on-surface-variant/70 border border-outline-variant rounded-lg cursor-not-allowed outline-none transition-all" readonly required/>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tên cấu hình / Thuộc tính</label>
+                    <input type="text" name="variantName" id="editVariantName" placeholder="VD: 8GB, 16GB..." class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
                 </div>
             </div>
             
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeEditVariantModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg">Hủy</button>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Giá nhập (VNĐ)</label>
+                    <input type="number" step="1" min="0" name="importPrice" id="editImportPrice" class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Giá bán (VNĐ)</label>
+                    <input type="number" step="1" min="0" name="price" id="editPrice" class="w-full px-4 py-2.5 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" required/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Tồn kho (Chỉ đọc)</label>
+                    <input type="number" name="stock" id="editStock" class="w-full px-4 py-2.5 bg-slate-100 text-on-surface-variant/70 border border-outline-variant rounded-lg cursor-not-allowed outline-none transition-all" readonly required/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-1">Ảnh đại diện biến thể (Tùy chọn)</label>
+                <input type="file" name="variantThumbnail" accept="image/*" class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-white outline-none">
+            </div>
+
+            <!-- Dynamic Category Specifications -->
+            <div class="border-t border-outline-variant pt-4 mt-2">
+                <h4 class="font-bold text-sm text-primary mb-3 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[18px]">tune</span>Thông số kỹ thuật chi tiết
+                </h4>
+                <div id="editVariantSpecsContainer" class="grid grid-cols-2 gap-3">
+                    <p class="text-xs text-slate-500 animate-pulse col-span-2">Đang tải thông số kỹ thuật...</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end gap-3 pt-3 border-t border-outline-variant">
+                <button type="button" onclick="closeEditVariantModal()" class="px-6 py-2 border border-outline-variant text-on-surface font-bold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 text-sm">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
                 <button type="submit" class="px-6 py-2 bg-primary text-white font-bold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20">Lưu thay đổi</button>
             </div>
         </form>
@@ -518,30 +496,76 @@
         });
     }
 
+    function previewMainThumb(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('mainProductPreview');
+                if (img) {
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     /**
      * Mở modal chỉnh sửa thông tin biến thể sản phẩm và điền thông tin hiện tại vào form.
      * @param {HTMLElement} btn Nút Chỉnh sửa trên dòng tương ứng
      */
     function openEditVariantModal(btn) {
         const tr = btn.closest('tr');
-        const sku = tr.querySelector('td:nth-child(1) span').innerText.trim();
-        const priceCell = tr.querySelector('td:nth-child(2)');
-        const priceText = priceCell.dataset.price || priceCell.innerText.replace(/[^\d.]/g, '').trim();
-        
-        const attrSpans = tr.querySelectorAll('td:nth-child(3) span');
-        let variantName = tr.dataset.variantName || Array.from(attrSpans).map(s => s.innerText.trim()).join(', ');
-        
-        const stock = tr.querySelector('td:nth-child(4) span').innerText.trim();
-        
-        const variantId = tr.dataset.variantId || 1;
+        const variantId = tr.dataset.variantId;
+        const sku = tr.dataset.sku || '';
+        const importPrice = tr.dataset.importPrice || '0';
+        const price = tr.dataset.price || '0';
+        const variantName = tr.dataset.variantName || '';
+        const stock = tr.dataset.stock || '0';
         
         document.getElementById('editVariantId').value = variantId;
         document.getElementById('editSku').value = sku;
         document.getElementById('editVariantName').value = variantName;
-        document.getElementById('editPrice').value = priceText;
+        document.getElementById('editImportPrice').value = Math.round(parseFloat(importPrice));
+        document.getElementById('editPrice').value = Math.round(parseFloat(price));
         document.getElementById('editStock').value = stock;
         
+        loadEditVariantSpecs(variantId);
+        
         document.getElementById('editVariantModal').classList.remove('hidden');
+    }
+
+    function loadEditVariantSpecs(variantId) {
+        const container = document.getElementById('editVariantSpecsContainer');
+        if (!container) return;
+        const categorySelect = document.querySelector('select[name="categoryId"]');
+        const categoryId = categorySelect ? categorySelect.value : '1';
+        container.innerHTML = '<p class="text-xs text-slate-500 animate-pulse col-span-2">Đang tải thông số kỹ thuật...</p>';
+
+        Promise.all([
+            fetch('${pageContext.request.contextPath}/staff/category?action=getSpecs&categoryId=' + categoryId).then(r => r.json()),
+            fetch('${pageContext.request.contextPath}/staff/category?action=getVariantSpecs&variantId=' + variantId).then(r => r.json()).catch(() => ({specs: {}}))
+        ]).then(([catData, varData]) => {
+            const catSpecs = catData.categorySpecs || [];
+            const currentSpecs = varData.specs || {};
+            container.innerHTML = '';
+            if (catSpecs.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2">Không có thông số kỹ thuật riêng cho danh mục này.</p>';
+                return;
+            }
+            catSpecs.forEach(spec => {
+                const val = currentSpecs[spec.specId] || '';
+                const div = document.createElement('div');
+                div.className = 'flex flex-col gap-1';
+                div.innerHTML = `
+                    <label class="text-[12px] font-semibold text-slate-700">\${spec.specName}</label>
+                    <input type="text" name="spec_\${spec.specId}" value="\${val.replace(/"/g, '&quot;')}" placeholder="\${spec.specName}..." class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                `;
+                container.appendChild(div);
+            });
+        }).catch(err => {
+            container.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2">Không thể tải thông số kỹ thuật.</p>';
+        });
     }
 
     /**

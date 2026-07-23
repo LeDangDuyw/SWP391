@@ -325,6 +325,7 @@
                         const importPrices = document.querySelectorAll('input[name="importPrice[]"]');
                         const prices = document.querySelectorAll('input[name="price[]"]');
                         const skus = document.querySelectorAll('input[name="sku[]"]');
+                        const variantNames = document.querySelectorAll('input[name="variantName[]"]');
                         
                         if (skus.length === 0) {
                             alert("Vui lòng thêm ít nhất một biến thể sản phẩm!");
@@ -333,12 +334,19 @@
 
                         for (let i = 0; i < skus.length; i++) {
                             const sku = skus[i].value.trim();
+                            const vName = variantNames[i] ? variantNames[i].value.trim() : "";
                             const ip = parseFloat(importPrices[i].value);
                             const sp = parseFloat(prices[i].value);
 
                             if (!sku) {
                                 alert("Mã SKU của biến thể thứ " + (i + 1) + " không được để trống!");
                                 skus[i].focus();
+                                return false;
+                            }
+
+                            if (!vName) {
+                                alert("Vui lòng nhập Tên cấu hình cho biến thể thứ " + (i + 1) + " (SKU: " + sku + ")!");
+                                if (variantNames[i]) variantNames[i].focus();
                                 return false;
                             }
 
@@ -471,10 +479,9 @@
                     </div>
                 </td>
                 <td class="px-6 py-5">
-                    <div class="flex flex-wrap items-center gap-2 attribute-container mb-2">
-                        <button type="button" onclick="addAttribute(this)" class="text-[#003ec7] hover:bg-blue-100 rounded-full flex items-center justify-center p-1" title="Thêm thuộc tính bổ sung"><span class="material-symbols-outlined text-[18px]">add</span></button>
+                    <div class="flex flex-col gap-1 attribute-container">
+                        <input type="text" name="variantName[]" placeholder="Tên cấu hình (VD: 8GB, 16GB...)" class="w-full px-3 py-2 border border-outline-variant/50 rounded bg-surface text-on-surface text-sm focus:outline-none focus:border-primary" required>
                     </div>
-                    <input type="hidden" name="variantName[]" value="" class="variant-name-hidden">
                 </td>
                 <td class="px-6 py-5">
                     <label class="flex items-center gap-2 cursor-pointer border border-dashed border-outline-variant/50 rounded-lg px-3 py-2 hover:bg-surface-container-low transition-colors">
@@ -490,32 +497,6 @@
             `;
                         variantsContainer.appendChild(tr);
                         renderVariantCategorySpecs(tr, variantIndex);
-                    }
-
-                    // Hàm thêm thuộc tính (màu sắc, RAM...) cho biến thể bằng cách bật hộp thoại prompt
-                    function addAttribute(btn) {
-                        const attrName = prompt("Nhập thuộc tính (ví dụ: 32GB RAM, Màu đen):");
-                        if (attrName && attrName.trim() !== "") {
-                            // Tạo thẻ span chứa tên thuộc tính (hiển thị dưới dạng nhãn/badge)
-                            const span = document.createElement('span');
-                            span.className = 'px-2 py-1 bg-[#d0e1fb] text-[#003ec7] text-xs font-semibold rounded cursor-pointer attribute-badge';
-                            span.textContent = attrName.trim();
-                            span.title = "Nhấp để xóa";
-                            span.onclick = function () { this.remove(); updateHiddenVariantName(btn.closest('td')); };
-
-                            // Chèn nhãn thuộc tính vào trước nút Add (+)
-                            const container = btn.parentElement;
-                            container.insertBefore(span, btn);
-                            updateHiddenVariantName(btn.closest('td')); // Cập nhật lại chuỗi tên gộp
-                        }
-                    }
-
-                    // Cập nhật giá trị vào input hidden để gửi lên Server dạng "Thuộc tính 1 / Thuộc tính 2"
-                    function updateHiddenVariantName(td) {
-                        const badges = td.querySelectorAll('.attribute-badge');
-                        const hiddenInput = td.querySelector('.variant-name-hidden');
-                        const values = Array.from(badges).map(b => b.textContent);
-                        hiddenInput.value = values.join(' / ');
                     }
 
                     // Xem trước ảnh thumbnail của biến thể

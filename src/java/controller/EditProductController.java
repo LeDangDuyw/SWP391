@@ -1,55 +1,42 @@
-/*
- * Name: EditProductController.java
- * @Author: HuyDQHE204239
- * Date: [22/7/2026]
- * Version: 1.0
- * Description: Controller xử lý việc chỉnh sửa thông tin sản phẩm và các biến thể sản phẩm.
- */
 package controller;
 
 import dal.BrandDao;
 import dal.CategoryDAO;
 import dal.ProductDAO;
 import dal.ProductSeriesDAO;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import model.Brand;
 import model.Category;
 import model.Product;
 import model.ProductVariant;
 
-/**
- *
- * @author huy
- */
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+    maxFileSize = 1024 * 1024 * 10,      // 10MB
+    maxRequestSize = 1024 * 1024 * 50    // 50MB
+)
 @WebServlet("/staff/inventory/edit")
 public class EditProductController extends HttpServlet {
    
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    /*
-     * Name: processRequest
-     * @Author: HUYDQHE204239
-     * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý chung các yêu cầu HTTP (GET và POST), trả về mã HTML hiển thị thông tin mặc định của servlet.
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
@@ -62,26 +49,9 @@ public class EditProductController extends HttpServlet {
         }
     } 
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    /*
-     * Name: doGet
-     * @Author: HUYDQHE204239
-     * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý yêu cầu GET để chuyển hướng người dùng sang trang giao diện sửa thông tin sản phẩm (EditProduct.jsp).
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Chuyển hướng người dùng sang trang giao diện sửa sản phẩm (EditProduct.jsp)
-        // Lưu ý: Cần bổ sung logic lấy thông tin sản phẩm từ CSDL trước khi forward
         ProductDAO productDAO = new ProductDAO();
         int variantId = parseInt(request.getParameter("variantId"), 1);
 
@@ -105,29 +75,20 @@ public class EditProductController extends HttpServlet {
         request.getRequestDispatcher("/staff/EditProduct.jsp").forward(request, response);
     } 
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    /*
-     * Name: doPost
-     * @Author: HUYDQHE204239
-     * Date: [04/06/2026]
-     * Version: 2.0
-     * Description: Xử lý yêu cầu POST bằng cách gọi hàm processRequest.
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
+        ProductDAO dao = new ProductDAO();
+
         if ("updateVariant".equals(action)) {
             try {
                 String variantIdStr = request.getParameter("variantId");
+                String productIdStr = request.getParameter("productId");
                 String sku = request.getParameter("sku");
                 String variantName = request.getParameter("variantName");
+                String importPriceStr = request.getParameter("importPrice");
                 String priceStr = request.getParameter("price");
                 
                 if (variantIdStr == null || sku == null || sku.trim().isEmpty() ||
@@ -138,14 +99,65 @@ public class EditProductController extends HttpServlet {
                 }
                 
                 int variantId = Integer.parseInt(variantIdStr);
-                java.math.BigDecimal price = new java.math.BigDecimal(priceStr.trim());
-                if (price.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                BigDecimal price = new BigDecimal(priceStr.trim());
+                BigDecimal importPrice = (importPriceStr != null && !importPriceStr.trim().isEmpty()) 
+                        ? new BigDecimal(importPriceStr.trim()) : null;
+
+                if (price.compareTo(BigDecimal.ZERO) <= 0) {
                     response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&error=InvalidPrice");
                     return;
                 }
+
+                // File upload for variant thumbnail
+                String savedVariantThumbName = null;
+                try {
+                    Part filePart = request.getPart("variantThumbnail");
+                    if (filePart != null && filePart.getSize() > 0) {
+                        String fileName = getSubmittedFileName(filePart);
+                        if (fileName != null && !fileName.trim().isEmpty()) {
+                            String ext = "";
+                            int lastDot = fileName.lastIndexOf('.');
+                            if (lastDot > 0) {
+                                ext = fileName.substring(lastDot);
+                            }
+                            savedVariantThumbName = UUID.randomUUID().toString() + ext;
+
+                            String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
+                            File uploadDir = new File(uploadPath);
+                            if (!uploadDir.exists()) uploadDir.mkdirs();
+                            filePart.write(uploadPath + File.separator + savedVariantThumbName);
+
+                            try {
+                                String buildPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web") + File.separator + "images";
+                                File buildDir = new File(buildPath);
+                                if (!buildDir.exists()) buildDir.mkdirs();
+                                filePart.write(buildPath + File.separator + savedVariantThumbName);
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                } catch (Exception ignored) {}
                 
-                dal.ProductDAO dao = new dal.ProductDAO();
-                dao.updateProductVariant(variantId, sku.trim(), variantName.trim(), price);
+                dao.updateProductVariant(variantId, sku.trim(), variantName.trim(), importPrice, price, savedVariantThumbName);
+
+                // Process specifications
+                Map<Integer, String> specValueMap = new HashMap<>();
+                Enumeration<String> paramNames = request.getParameterNames();
+                while (paramNames.hasMoreElements()) {
+                    String paramName = paramNames.nextElement();
+                    if (paramName.startsWith("spec_")) {
+                        try {
+                            int specId = Integer.parseInt(paramName.substring(5));
+                            String val = request.getParameter(paramName);
+                            if (val != null && !val.trim().isEmpty()) {
+                                specValueMap.put(specId, val.trim());
+                            }
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+                if (!specValueMap.isEmpty()) {
+                    dao.saveVariantSpecifications(variantId, specValueMap);
+                }
+
                 response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&success=Updated");
                 return;
             } catch (NumberFormatException e) {
@@ -157,6 +169,7 @@ public class EditProductController extends HttpServlet {
             }
             response.sendRedirect(request.getContextPath() + "/staff/inventory");
             return;
+
         } else if ("updateProduct".equals(action)) {
             try {
                 int productId = Integer.parseInt(request.getParameter("productId"));
@@ -181,10 +194,39 @@ public class EditProductController extends HttpServlet {
                 if (seriesIdStr != null && !seriesIdStr.trim().isEmpty()) {
                     seriesId = Integer.parseInt(seriesIdStr.trim());
                 }
+
+                // Handle main product thumbnail upload
+                try {
+                    Part filePart = request.getPart("thumbnail");
+                    if (filePart != null && filePart.getSize() > 0) {
+                        String fileName = getSubmittedFileName(filePart);
+                        if (fileName != null && !fileName.trim().isEmpty()) {
+                            String ext = "";
+                            int lastDot = fileName.lastIndexOf('.');
+                            if (lastDot > 0) {
+                                ext = fileName.substring(lastDot);
+                            }
+                            String savedFileName = UUID.randomUUID().toString() + ext;
+
+                            String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
+                            File uploadDir = new File(uploadPath);
+                            if (!uploadDir.exists()) uploadDir.mkdirs();
+                            filePart.write(uploadPath + File.separator + savedFileName);
+
+                            try {
+                                String buildPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web") + File.separator + "images";
+                                File buildDir = new File(buildPath);
+                                if (!buildDir.exists()) buildDir.mkdirs();
+                                filePart.write(buildPath + File.separator + savedFileName);
+                            } catch (Exception ignored) {}
+
+                            dao.updateProductThumbnail(productId, savedFileName);
+                        }
+                    }
+                } catch (Exception ignored) {}
                 
-                dal.ProductDAO dao = new dal.ProductDAO();
                 dao.updateProduct(productId, productName, categoryId, brandId, description, warrantyPeriod, purpose, seriesId);
-                response.sendRedirect(request.getContextPath() + "/staff/inventory");
+                response.sendRedirect(request.getContextPath() + "/staff/inventory/edit?variantId=" + variantId + "&success=ProductUpdated");
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -193,6 +235,16 @@ public class EditProductController extends HttpServlet {
             return;
         }
         processRequest(request, response);
+    }
+
+    private String getSubmittedFileName(Part part) {
+        for (String cd : part.getHeader("content-disposition").split(";")) {
+            if (cd.trim().startsWith("filename")) {
+                String fileName = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+                return fileName.substring(fileName.lastIndexOf('/') + 1).substring(fileName.lastIndexOf('\\') + 1);
+            }
+        }
+        return null;
     }
 
     private int parseInt(String value, int defaultValue) {

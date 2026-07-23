@@ -55,6 +55,23 @@ public class CategoryManagementController extends HttpServlet {
             json.append("]}");
             response.getWriter().write(json.toString());
             return;
+        } else if ("getVariantSpecs".equals(action)) {
+            response.setContentType("application/json;charset=UTF-8");
+            try {
+                int variantId = Integer.parseInt(request.getParameter("variantId"));
+                List<model.VariantSpecification> list = new dal.ProductDAO().getVariantSpecifications(variantId);
+                StringBuilder json = new StringBuilder("{\"specs\":{");
+                for (int i = 0; i < list.size(); i++) {
+                    model.VariantSpecification vs = list.get(i);
+                    json.append(String.format("\"%d\":\"%s\"", vs.getSpecificationId(), escapeJson(vs.getValue())));
+                    if (i < list.size() - 1) json.append(",");
+                }
+                json.append("}}");
+                response.getWriter().write(json.toString());
+            } catch (Exception e) {
+                response.getWriter().write("{\"specs\":{}}");
+            }
+            return;
         }
 
         String searchInput = request.getParameter("searchInput");
@@ -82,6 +99,7 @@ public class CategoryManagementController extends HttpServlet {
         request.setAttribute("categories", categories);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
+        request.setAttribute("searchInput", searchInput);
         
         request.getRequestDispatcher("/staff/CategoryManagement.jsp").forward(request, response);
     }

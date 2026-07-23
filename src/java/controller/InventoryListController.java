@@ -125,6 +125,13 @@ public class InventoryListController extends HttpServlet {
             request.setAttribute("pageSize", pageSize);
         }
         
+        request.setAttribute("searchInput", searchInput);
+        request.setAttribute("category", category);
+        request.setAttribute("sortBy", sortBy);
+        request.setAttribute("stockStatus", stockStatus);
+        request.setAttribute("itemStatus", itemStatus);
+        request.setAttribute("activeTab", activeTab);
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("/staff/InventoryManagement.jsp");
         dispatcher.forward(request, response);
     } 

@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@page import="java.util.*"%>
 <%@page import="model.Category"%>
 <!DOCTYPE html>
@@ -187,7 +188,6 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-on-surface text-on-primary font-label-md text-label-md">
-                                <th class="py-3 px-4 border-b border-outline-variant/20 w-12"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></th>
                                 <th class="py-3 px-4 border-b border-outline-variant/20 w-32">Mã danh mục</th>
                                 <th class="py-3 px-4 border-b border-outline-variant/20">Tên danh mục</th>
                                 <th class="py-3 px-4 border-b border-outline-variant/20 text-right w-32">Hành động</th>
@@ -198,7 +198,6 @@
                                for(Category c: categories) { 
                             %>
                             <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest" data-id="<%= c.getCategoryId() %>" data-name="<%= c.getCategoryName() %>">
-                                <td class="py-2 px-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></td>
                                 <td class="py-2 px-4 font-bold"><%= c.getCategoryId() %></td>
                                 <td class="py-2 px-4"><%= c.getCategoryName() %></td>
                                 <td class="py-2 px-4 text-right flex items-center justify-end gap-2">
@@ -215,67 +214,66 @@
                     </table>
                 </div>
                 
+                <!-- Pagination Footer -->
                 <div class="bg-surface px-4 py-3 border-t border-outline-variant/30 flex items-center justify-between">
-                <%
-                    Integer currentPage = (Integer) request.getAttribute("currentPage");
-                    Integer totalPages = (Integer) request.getAttribute("totalPages");
-                    if (currentPage == null) currentPage = 1;
-                    if (totalPages == null) totalPages = 1; 
+                    <c:set var="queryParams" value="" />
+                    <c:if test="${not empty searchInput}"><c:set var="queryParams" value="${queryParams}&searchInput=${searchInput}" /></c:if>
 
-                    String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
-                    String queryStr = searchInputAttr;
-                %>
-                    <a href="?page=<%= currentPage > 1 ? currentPage - 1 : 1 %><%= queryStr %>" 
-                       class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == 1 ? "pointer-events-none opacity-50" : "" %>">
-                       Trước
-                    </a>
+                    <c:choose>
+                        <c:when test="${currentPage > 1}">
+                            <a href="?page=${currentPage - 1}${queryParams}" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low">
+                                Trước
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="#" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md pointer-events-none opacity-50">
+                                Trước
+                            </a>
+                        </c:otherwise>
+                    </c:choose>
+
                     <div class="flex gap-1 items-center flex-wrap">
-                    <%
-                        if (totalPages <= 5) {
-                            for (int i = 1; i <= totalPages; i++) {
-                    %>
-                                <a href="?page=<%= i %><%= queryStr %>" 
-                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
-                                   <%= i %>
-                                </a>
-                    <%
-                            }
-                        } else {
-                            // 3 trang đầu
-                            for (int i = 1; i <= 3; i++) {
-                    %>
-                                <a href="?page=<%= i %><%= queryStr %>" 
-                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
-                                   <%= i %>
-                                </a>
-                    <%
-                            }
-                    %>
-                            <!-- Nút ... và ô nhập -->
-                            <div class="relative flex items-center justify-center w-8 h-8">
-                                <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer">...</button>
-                                <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
-                                    <input type="number" min="1" max="<%= totalPages %>" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
-                                    <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                        <c:choose>
+                            <c:when test="${totalPages <= 5}">
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <!-- 3 trang đầu tiên -->
+                                <c:forEach begin="1" end="3" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+
+                                <!-- Nút ... và ô nhập số trang -->
+                                <div class="relative flex items-center justify-center w-8 h-8">
+                                    <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer">...</button>
+                                    <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
+                                        <input type="number" min="1" max="${totalPages}" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
+                                        <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                                    </div>
                                 </div>
-                            </div>
-                    <%
-                            // 2 trang cuối
-                            for (int i = totalPages - 1; i <= totalPages; i++) {
-                    %>
-                                <a href="?page=<%= i %><%= queryStr %>" 
-                                   class="w-8 h-8 flex items-center justify-center rounded <%= currentPage == i ? "bg-primary text-on-primary" : "text-on-surface hover:bg-surface-container-low" %> font-label-md text-label-md">
-                                   <%= i %>
-                                </a>
-                    <%
-                            }
-                        }
-                    %>
+
+                                <!-- 2 trang cuối -->
+                                <c:forEach begin="${totalPages - 1}" end="${totalPages}" var="i">
+                                    <a href="?page=${i}${queryParams}" class="w-8 h-8 flex items-center justify-center rounded font-label-md text-label-md ${currentPage == i ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                    <a href="?page=<%= currentPage < totalPages ? currentPage + 1 : totalPages %><%= queryStr %>" 
-                       class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low <%= currentPage == totalPages || totalPages == 0 ? "pointer-events-none opacity-50" : "" %>">
-                       Sau
-                    </a>
+
+                    <c:choose>
+                        <c:when test="${currentPage < totalPages}">
+                            <a href="?page=${currentPage + 1}${queryParams}" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low">
+                                Sau
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="#" class="px-3 py-1 border border-outline-variant rounded text-on-surface-variant font-label-md text-label-md pointer-events-none opacity-50">
+                                Sau
+                            </a>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
             
