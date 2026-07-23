@@ -226,6 +226,9 @@
                                             <c:when test="${param.error == 'DuplicateSerial'}">
                                                 Lỗi: Mã Serial Number <strong>'${param.sn}'</strong> đã tồn tại trong hệ thống! Vui lòng kiểm tra và nhập mã Serial khác.
                                             </c:when>
+                                            <c:when test="${param.error == 'SerialTooShort'}">
+                                                Lỗi: Mỗi mã Serial / IMEI phải chứa từ 5 ký tự trở lên!
+                                            </c:when>
                                             <c:when test="${param.error == 'MismatchImeisQuantity'}">
                                                 Lỗi: Số lượng Serial Number nhập vào không khớp với yêu cầu! Yêu cầu:
                                                 ${param.expected} (Thực tế: ${param.actual}).
@@ -336,8 +339,8 @@
                                                                 <label
                                                                     class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
                                                                 <input type="text" name="serialNumbers" required
-                                                                    pattern="[A-Za-z0-9_\-]{3,30}"
-                                                                    title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch"
+                                                                    pattern="[A-Za-z0-9_\-]{5,30}"
+                                                                    title="Serial phải từ 5-30 ký tự, gồm chữ, số và dấu gạch"
                                                                     class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                                                     placeholder="Serial #${status.index}">
                                                             </div>
@@ -400,7 +403,7 @@
                         row.innerHTML = `
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
-                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{3,30}" title="Serial phải từ 3-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{5,30}" title="Serial phải từ 5-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
             </div>
         `;
                         container.appendChild(row);
@@ -419,6 +422,9 @@
                         const rows = document.querySelectorAll('#unitRowsContainer > div');
                         let filledRowsCount = 0;
 
+                        let isShortSerial = false;
+                        let shortSerialVal = "";
+
                         rows.forEach(row => {
                             const snInput = row.querySelector('input[name="serialNumbers"]');
 
@@ -427,9 +433,19 @@
                             const sn = snInput.value.trim();
 
                             if (sn) {
+                                if (sn.length < 5) {
+                                    isShortSerial = true;
+                                    shortSerialVal = sn;
+                                }
                                 filledRowsCount++;
                             }
                         });
+
+                        if (isShortSerial) {
+                            alert("Lỗi: Mã Serial / IMEI '" + shortSerialVal + "' phải chứa từ 5 ký tự trở lên!");
+                            event.preventDefault();
+                            return false;
+                        }
 
                         if (filledRowsCount === 0) {
                             alert("Vui lòng điền thông tin cho ít nhất 1 dòng sản phẩm.");

@@ -87,7 +87,7 @@ public class OutboundDAO extends DBContext {
      */
     public List<Order> getPendingOrders() {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC";
+        String sql = "SELECT * FROM [Order] WHERE LOWER(order_status) = 'processing' ORDER BY order_id ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -123,7 +123,7 @@ public class OutboundDAO extends DBContext {
      */
     public int getTotalPendingOrders() {
         int count = 0;
-        String sql = "SELECT COUNT(*) FROM [Order] WHERE order_status IN ('Pending', 'processing')";
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE LOWER(order_status) = 'processing'";
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             if (rs.next())
@@ -143,7 +143,7 @@ public class OutboundDAO extends DBContext {
      */
     public List<Order> getPendingOrders(int offset, int fetchSize) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM [Order] WHERE order_status IN ('Pending', 'processing') ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM [Order] WHERE LOWER(order_status) = 'processing' ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, offset);
             ps.setInt(2, fetchSize);

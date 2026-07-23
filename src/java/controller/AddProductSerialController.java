@@ -137,6 +137,13 @@ public class AddProductSerialController extends HttpServlet {
                 continue; // Skip empty rows
             }
 
+            if (sn.length() < 5) {
+                response.sendRedirect(request.getContextPath() + "/staff/imei/add?error=SerialTooShort" +
+                        (ticketIdStr != null ? "&ticketId=" + ticketIdStr : "") +
+                        (variantIdStr != null ? "&variantId=" + variantIdStr : ""));
+                return;
+            }
+
             validSerials.add(sn);
         }
 

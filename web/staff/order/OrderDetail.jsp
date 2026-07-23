@@ -175,24 +175,10 @@
 
                                 <!-- Status Processing: Fulfill, Cancel order -->
                                 <c:if test="${order.orderStatus == 'processing'}">
-                                    <c:choose>
-                                        <c:when test="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
-                                            <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" style="display: inline;">
-                                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                                <input type="hidden" name="status" value="delivered">
-                                                <input type="hidden" name="redirect" value="detail">
-                                                <button type="submit" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
-                                                    <span class="material-symbols-outlined text-[18px]">check_circle</span> Đã giao thành công (Khách nhận tại quầy)
-                                                </button>
-                                            </form>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
-                                               class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
-                                                <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
-                                            </a>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
+                                       class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                        <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
+                                    </a>
                                     
                                     <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');" style="display: inline;">
                                         <input type="hidden" name="orderId" value="${order.orderId}">

@@ -194,30 +194,54 @@
                                             <c:when test="${t.status == 'COMPLETED'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#E6F4EA] text-[#137333] text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                                    ${t.status}
+                                                    Đã hoàn thành
                                                 </span>
                                             </c:when>
-                                            <c:when test="${t.status == 'CANCELLED' || t.status == 'REJECTED'}">
+                                            <c:when test="${t.status == 'CANCELLED'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-error-container text-on-error-container text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">cancel</span>
-                                                    ${t.status}
+                                                    Đã hủy
                                                 </span>
                                             </c:when>
-                                            <c:when test="${t.status == 'WAITING_FOR_ADMIN_REVIEW'}">
+                                            <c:when test="${t.status == 'REJECTED'}">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FCE8E6] text-[#C5221F] text-[12px] font-bold gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">info</span>
+                                                    Bị từ chối
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${t.status == 'WAITING_FOR_ADMIN_REVIEW' || t.status == 'PENDING_APPROVAL' || t.status == 'PENDING'}">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FEF7E0] text-[#B06000] text-[12px] font-bold gap-1 animate-pulse">
                                                     <span class="material-symbols-outlined text-[14px]">pending</span>
-                                                    ${t.status}
+                                                    Chờ phê duyệt
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${t.status == 'APPROVED_EXECUTION' || t.status == 'APPROVED'}">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#E8F0FE] text-[#1A73E8] text-[12px] font-bold gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">thumb_up</span>
+                                                    Đã duyệt
+                                                </span>
+                                            </c:when>
+                                            <c:when test="${t.status == 'CARGO_RECEIVED'}">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#E8F0FE] text-[#1A73E8] text-[12px] font-bold gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">inventory_2</span>
+                                                    Đã nhận hàng
                                                 </span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[12px] font-bold gap-1">
                                                     <span class="material-symbols-outlined text-[14px]">info</span>
-                                                    ${t.status}
+                                                    ${t.status == 'APPROVED' ? 'Đã duyệt' : (t.status == 'REJECTED' ? 'Bị từ chối' : (t.status == 'CARGO_RECEIVED' ? 'Đã nhận hàng' : t.status))}
                                                 </span>
                                             </c:otherwise>
                                         </c:choose>
                                         <c:if test="${not empty t.reason}">
-                                            <div class="text-on-surface-variant text-[12px] mt-1">Reason: ${t.reason}</div>
+                                            <div class="text-on-surface-variant text-[12px] mt-1">Lý do: 
+                                                <c:choose>
+                                                    <c:when test="${t.reason == 'Stock received and all IMEIs registered'}">Đã nhận hàng và đăng ký toàn bộ số IMEI</c:when>
+                                                    <c:when test="${t.reason == 'Stock received and all serials registered'}">Đã nhận hàng và đăng ký toàn bộ số Serial</c:when>
+                                                    <c:otherwise>${t.reason}</c:otherwise>
+                                                </c:choose>
+                                            </div>
                                         </c:if>
                                     </td>
                                     <td class="py-2 px-4 text-on-surface-variant">${t.createdAt}</td>
