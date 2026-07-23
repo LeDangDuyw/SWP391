@@ -128,8 +128,8 @@ public class CampaignDetailController extends PromotionServlet {
         int voucherOrdersCount = detailDao.getVoucherOrdersCount(id);
         BigDecimal totalDiscountGiven = detailDao.getTotalDiscountGiven(id);
 
-        // 1. Doanh thu gia tăng (Incremental Sales) = Doanh thu đơn dùng voucher - Doanh thu đơn không dùng voucher
-        BigDecimal incrementalSales = voucherRevenue.subtract(nonVoucherRevenue);
+        // 1. Doanh thu gia tăng (Incremental Sales) = Doanh thu từ các đơn hàng sử dụng mã voucher này
+        BigDecimal incrementalSales = voucherRevenue;
 
         // 2. Giá trị đơn hàng trung bình (AOV) = Doanh thu đơn dùng voucher / Số lượng đơn hàng
         BigDecimal aov = voucherOrdersCount > 0

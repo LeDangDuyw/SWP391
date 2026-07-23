@@ -36,8 +36,8 @@ public class hashPasswordUtil {
         }
         try {
             return BCrypt.checkpw(plainPassword, hashedPassword);
-        } catch (IllegalArgumentException e) {
-            // Handle invalid salt format gracefully (e.g. empty or non-bcrypt password hashes)
+        } catch (Throwable e) {
+            System.out.println("[hashPasswordUtil] BCrypt check error: " + e.getMessage());
             return false;
         }
     }

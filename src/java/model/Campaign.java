@@ -24,6 +24,10 @@ public class Campaign {
     private LocalDateTime endDate;
     private String status;
     private int productCount;
+    private Integer pointsRequired = 0;
+
+    public Integer getPointsRequired() { return pointsRequired; }
+    public void setPointsRequired(Integer pointsRequired) { this.pointsRequired = pointsRequired; }
 
     /**
      * Khởi tạo đối tượng Campaign với các giá trị mặc định ban đầu.

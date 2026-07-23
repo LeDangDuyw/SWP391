@@ -6,7 +6,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>${editing ? 'Edit Campaign' : 'Create Campaign'}</title>
+    <title>${editing ? 'Chỉnh Sửa Chiến Dịch' : 'Tạo Chiến Dịch Mới'}</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
     <style>
         .selected-product-row {
@@ -84,16 +84,16 @@
     <main class="main form-page">
 
         <header class="topbar">
-            <h1>UNILAP Console</h1>
+            <h1>UNILAP Admin</h1>
             <div class="top-search">
-                <input placeholder="Search resources...">
+                <input placeholder="Tìm kiếm chiến dịch, mã voucher...">
             </div>
             <div class="avatar">AD</div>
         </header>
 
         <div class="crumb">
-            Campaigns <span>›</span>
-            <b>${editing ? "Edit Campaign" : "New Campaign"}</b>
+            Quản Lý Khuyến Mãi <span>›</span>
+            <b>${editing ? "Chỉnh Sửa Chiến Dịch" : "Tạo Chiến Dịch Mới"}</b>
         </div>
 
         <form method="post" action="${pageContext.request.contextPath}/admin/campaign-form" class="campaign-form" id="campaignForm">
@@ -103,12 +103,12 @@
 
             <section class="page-head no-margin">
                 <div>
-                    <h2>${editing ? "Edit Campaign" : "Create New Campaign"}</h2>
+                    <h2>${editing ? "Chỉnh Sửa Chiến Dịch Khuyến Mãi" : "Tạo Chiến Dịch Khuyến Mãi Mới"}</h2>
                 </div>
 
                 <div class="head-actions">
-                    <a class="btn ghost" href="${pageContext.request.contextPath}/admin/promotions">Cancel</a>
-                    <button class="btn primary" type="submit">▣ Save Campaign</button>
+                    <a class="btn ghost" href="${pageContext.request.contextPath}/admin/promotions">Hủy Bỏ</a>
+                    <button class="btn primary" type="submit">▣ Lưu Chiến Dịch</button>
                 </div>
             </section>
 
@@ -117,57 +117,60 @@
                 <div class="left-stack">
 
                     <section class="form-card">
-                        <h3>📣 Campaign Details</h3>
+                        <h3>📣 Thông Tin Chiến Dịch</h3>
 
-                        <label>Campaign Name</label>
+                        <label>Tên Chiến Dịch Khuyến Mãi</label>
                         <input name="campaignName"
                                id="campaignName"
                                required
                                value="<c:out value="${campaign.campaignName}"/>"
-                               placeholder="e.g. Summer Tech Extravaganza 2026">
+                               placeholder="Ví dụ: Siêu Khuyến Mãi Mùa Hè 2026">
                         <span class="validation-error" id="campaignNameError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
 
-                        <label>Campaign Description</label>
+                        <label>Mô Tả Chi Tiết Chiến Dịch</label>
                         <textarea name="campaignDescription"
                                   rows="4"
-                                  placeholder="Provide internal details or customer-facing teaser text..."><c:out value="${campaign.campaignDescription}"/></textarea>
+                                  placeholder="Nhập thông tin chi tiết nội bộ hoặc mô tả hiển thị cho khách hàng..."><c:out value="${campaign.campaignDescription}"/></textarea>
 
                         <div class="two-cols">
                             <div>
-                                <label>Campaign Type</label>
+                                <label>Loại Chiến Dịch Khuyến Mãi</label>
                                 <select name="campaignType" id="campaignType">
                                     <option value="percentage" ${campaign.campaignType == 'percentage' ? 'selected' : ''}>
-                                        Percentage Discount
+                                        Giảm Giá Theo Phần Trăm (%)
                                     </option>
                                     <option value="fixed" ${campaign.campaignType == 'fixed' ? 'selected' : ''}>
-                                        Fixed Amount Discount
+                                        Giảm Giá Số Tiền Cố Định (VNĐ)
+                                    </option>
+                                    <option value="reward_points" ${campaign.campaignType == 'reward_points' ? 'selected' : ''}>
+                                        Mã Voucher Đổi Điểm Thưởng
                                     </option>
                                     <option value="flash" ${campaign.campaignType == 'flash' ? 'selected' : ''}>
-                                        Flash Sale / Auto Apply
+                                        Flash Sale / Giảm Giá Giờ Vàng
                                     </option>
                                     <option value="bundle_discount" ${campaign.campaignType == 'bundle_discount' ? 'selected' : ''}>
-                                        Buy Together Discount
+                                        Giảm Giá Khi Mua Kèm
                                     </option>
                                     <option value="gift_with_purchase" ${campaign.campaignType == 'gift_with_purchase' ? 'selected' : ''}>
-                                        Gift With Purchase
+                                        Tặng Quà Khi Mua Hàng
                                     </option>
                                 </select>
                             </div>
 
                             <div>
-                                <label>Targeting Group</label>
+                                <label>Nhóm Khách Hàng Áp Dụng</label>
                                 <select name="targetGroup">
                                     <option value="All Customers" ${campaign.targetGroup == 'All Customers' ? 'selected' : ''}>
-                                        All Customers
+                                        Tất Cả Khách Hàng
                                     </option>
                                     <option value="New Customers" ${campaign.targetGroup == 'New Customers' ? 'selected' : ''}>
-                                        New Customers
+                                        Khách Hàng Mới
                                     </option>
                                     <option value="Students" ${campaign.targetGroup == 'Students' ? 'selected' : ''}>
-                                        Students
+                                        Sinh Viên Đã Xác Thực
                                     </option>
                                     <option value="B2B Customers" ${campaign.targetGroup == 'B2B Customers' ? 'selected' : ''}>
-                                        B2B Customers
+                                        Khách Hàng Doanh Nghiệp
                                     </option>
                                 </select>
                             </div>
@@ -175,19 +178,19 @@
                     </section>
 
                     <section class="form-card" id="voucherConfigCard">
-                        <h3>🎟 Voucher Configuration</h3>
+                        <h3>🎟 Cấu Hình Voucher & Giảm Giá</h3>
 
                         <div id="promoCodeGroup" style="margin-bottom: 15px;">
-                            <label>Promo Code</label>
+                            <label>Mã Giảm Giá (Promo Code)</label>
                             <div class="input-button">
                                 <input name="promoCode"
                                        id="promoCode"
                                        required
                                        value="<c:out value="${campaign.promoCode}"/>"
-                                       placeholder="SUMMER24">
+                                       placeholder="Ví dụ: SUMMER2026">
 
                                 <button type="button" class="btn ghost" id="generateBtn">
-                                    ↻ Generate
+                                    ↻ Tạo Tự Động
                                 </button>
                             </div>
                             <span class="validation-error" id="promoCodeError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
@@ -195,7 +198,7 @@
 
                         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                             <div id="discountValueGroup" style="flex: 1; min-width: 200px;">
-                                <label>Discount Value <span id="discountUnit"></span></label>
+                                <label>Mức Giảm Giá <span id="discountUnit"></span></label>
                                 <input name="discountValue"
                                        id="discountValue"
                                        type="number"
@@ -206,26 +209,38 @@
                                 <span class="validation-error" id="discountValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
 
+                            <div id="pointsRequiredGroup" style="flex: 1; min-width: 200px; display: none;">
+                                <label>Số Điểm Thưởng Cần Đổi (Điểm)</label>
+                                <input name="pointsRequired"
+                                       id="pointsRequired"
+                                       type="number"
+                                       min="1"
+                                       value="${not empty campaign.pointsRequired ? campaign.pointsRequired : 100}"
+                                       placeholder="Ví dụ: 100 điểm"
+                                       style="width: 100%; box-sizing: border-box;">
+                                <span class="validation-error" id="pointsRequiredError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
+                            </div>
+
                             <div id="usageLimitGroup" style="flex: 1; min-width: 200px;">
-                                <label>Usage Limit (Giới hạn toàn bộ)</label>
+                                <label>Giới Hạn Số Lượt Sử Dụng (Toàn Hệ Thống)</label>
                                 <input name="usageLimit"
                                        id="usageLimit"
                                        type="number"
                                        min="0"
                                        value="${campaign.usageLimit}"
-                                       placeholder="Tối đa lượt dùng"
+                                       placeholder="Ví dụ: 1000 lượt (Bỏ trống nếu không giới hạn)"
                                        style="width: 100%; box-sizing: border-box;">
                                 <span class="validation-error" id="usageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
 
                             <div id="userUsageLimitGroup" style="flex: 1; min-width: 200px; display: none;">
-                                <label>User Usage Limit (Giới hạn mỗi User)</label>
+                                <label>Giới Hạn Số Lượt Sử Dụng / Khách Hàng</label>
                                 <input name="userUsageLimit"
                                        id="userUsageLimit"
                                        type="number"
                                        min="0"
                                        value="${campaign.userUsageLimit}"
-                                       placeholder="Ví dụ: 1"
+                                       placeholder="Ví dụ: 1 lượt"
                                        style="width: 100%; box-sizing: border-box;">
                                 <span class="validation-error" id="userUsageLimitError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                             </div>
@@ -245,8 +260,8 @@
 
                     <section class="form-card product-picker">
                         <div class="inline-title">
-                            <h3>🔎 Applicable Products</h3>
-                            <small>Chọn trực tiếp sản phẩm/variant trong database.</small>
+                            <h3>🔎 Danh Sách Sản Phẩm Áp Dụng</h3>
+                            <small>Chọn trực tiếp sản phẩm/biến thể trong kho hàng.</small>
                         </div>
 
                         <div style="display: flex; gap: 10px; margin-bottom: 12px; margin-top: 10px;">
@@ -320,16 +335,16 @@
                 <aside class="right-stack">
 
                     <section class="form-card side-card">
-                        <h3>▣ Scheduling</h3>
+                        <h3>⏰ Thời Gian Hoạt Động</h3>
 
-                        <label>Start Date</label>
+                        <label>Thời Gian Bắt Đầu</label>
                         <input name="startDate"
                                id="startDate"
                                type="datetime-local"
                                required
                                value="${campaign.formattedStartDate}">
 
-                        <label>End Date</label>
+                        <label>Thời Gian Kết Thúc</label>
                         <input name="endDate"
                                id="endDate"
                                type="datetime-local"
@@ -337,48 +352,48 @@
                                value="${campaign.formattedEndDate}">
 
                         <div class="info-box">
-                            ⓘ This campaign will automatically activate at the specified start date and time.
+                            ⓘ Chiến dịch này sẽ tự động kích hoạt vào thời gian bắt đầu đã cài đặt.
                         </div>
                     </section>
 
                     <section class="form-card side-card">
-                        <h3>≋ Conditions</h3>
+                        <h3>⚙️ Điều Kiện Khuyến Mãi</h3>
 
                         <div id="minOrderValueGroup">
-                            <label>Minimum Order Value VND</label>
+                            <label>Giá Trị Đơn Hàng Tối Thiểu (VNĐ)</label>
                             <input name="minOrderValue"
                                    id="minOrderValue"
                                    type="number"
                                    step="1"
                                    min="0"
                                    value="${campaign.minOrderValue}"
-                                   placeholder="500000 Đ">
+                                   placeholder="Ví dụ: 500.000₫">
                             <span class="validation-error" id="minOrderValueError" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;"></span>
                         </div>
 
-                        <label>Status</label>
+                        <label>Trạng Thái Chiến Dịch</label>
                         <select name="status">
                             <option value="scheduled" ${campaign.status == 'scheduled' ? 'selected' : ''}>
-                                Scheduled
+                                Đã Lên Lịch (Scheduled)
                             </option>
                             <option value="active" ${campaign.status == 'active' ? 'selected' : ''}>
-                                Active
+                                Đang Hoạt Động (Active)
                             </option>
                             <option value="paused" ${campaign.status == 'paused' ? 'selected' : ''}>
-                                Paused
+                                Tạm Dừng (Paused)
                             </option>
                             <option value="pending_approval" ${campaign.status == 'pending_approval' ? 'selected' : ''}>
-                                Pending Approval
+                                Chờ Duyệt (Pending Approval)
                             </option>
                             <option value="stopped" ${campaign.status == 'stopped' ? 'selected' : ''}>
-                                Stopped
+                                Đã Kết Thúc (Stopped)
                             </option>
                         </select>
                     </section>
 
                     <section class="form-card side-card">
-                        <h3>🖼 Campaign Banner</h3>
-                        <label for="bannerUrl">Banner Image URL</label>
+                        <h3>🖼️ Banner Quảng Cáo</h3>
+                        <label for="bannerUrl">Đường Dẫn Ảnh Banner</label>
                         <input name="bannerUrl"
                                id="bannerUrl"
                                type="text"
@@ -391,8 +406,8 @@
 
                     <section class="preview-card">
                         <div>
-                            <b>Visual Asset Preview</b>
-                            <span>Summer Campaign Banner Auto-generated</span>
+                            <b>Xem Trước Hình Ảnh Banner</b>
+                            <span>Hình ảnh banner hiển thị trực quan trên giao diện</span>
                         </div>
                     </section>
 
@@ -1009,6 +1024,7 @@
         var voucherConfigCard = document.getElementById("voucherConfigCard");
         var promoCodeGroup = document.getElementById("promoCodeGroup");
         var discountValueGroup = document.getElementById("discountValueGroup");
+        var pointsRequiredGroup = document.getElementById("pointsRequiredGroup");
         var usageLimitGroup = document.getElementById("usageLimitGroup");
         var userUsageLimitGroup = document.getElementById("userUsageLimitGroup");
         var minOrderValueGroup = document.getElementById("minOrderValueGroup");
@@ -1023,10 +1039,10 @@
         if (discountValueInput) {
             if (val === "percentage" || val === "flash") {
                 discountValueInput.setAttribute("max", "99");
-                discountValueInput.setAttribute("placeholder", "e.g. 10 (%)");
+                discountValueInput.setAttribute("placeholder", "Ví dụ: 10 (%)");
             } else {
                 discountValueInput.setAttribute("max", "10000000");
-                discountValueInput.setAttribute("placeholder", "e.g. 500000 (VND)");
+                discountValueInput.setAttribute("placeholder", "Ví dụ: 200.000 (VNĐ)");
             }
         }
 
@@ -1039,8 +1055,12 @@
                 promoCodeInput.removeAttribute("maxlength");
             }
         }
+
+        if (pointsRequiredGroup) {
+            pointsRequiredGroup.style.display = (val === "reward_points") ? "block" : "none";
+        }
         
-        if (val === "percentage" || val === "fixed") {
+        if (val === "percentage" || val === "fixed" || val === "reward_points") {
             // Show Voucher Configuration and Minimum Order Value Condition
             if (voucherConfigCard) voucherConfigCard.style.display = "block";
             if (promoCodeGroup) promoCodeGroup.style.display = "block";
@@ -1056,7 +1076,11 @@
 
             if (promoCodeInput) {
                 promoCodeInput.setAttribute("required", "required");
-                // If it was auto-generated before, clear it so the user can enter a real one
+                if (val === "reward_points") {
+                    promoCodeInput.setAttribute("placeholder", "Ví dụ: RW200K_32_7516");
+                } else {
+                    promoCodeInput.setAttribute("placeholder", "Ví dụ: SUMMER2026");
+                }
                 if (promoCodeInput.value.startsWith("AUTO-")) {
                     promoCodeInput.value = "";
                 }

@@ -168,6 +168,7 @@ public class CampaignFormController extends PromotionServlet {
         campaign.setMinOrderValue(parseMoney(request.getParameter("minOrderValue")));
         campaign.setUsageLimit(parseNullableInt(request.getParameter("usageLimit")));
         campaign.setUserUsageLimit(parseNullableInt(request.getParameter("userUsageLimit")));
+        campaign.setPointsRequired(parseNullableInt(request.getParameter("pointsRequired")));
         campaign.setStatus(req(request, "status").isBlank() ? "scheduled" : req(request, "status"));
         campaign.setStartDate(parseDateStart(request.getParameter("startDate")));
         campaign.setEndDate(parseDateEnd(request.getParameter("endDate")));
