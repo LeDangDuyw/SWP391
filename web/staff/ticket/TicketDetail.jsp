@@ -362,13 +362,6 @@
                                                 <span class="material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0">info</span>
                                                 Vui lòng nhấp vào "Đăng ký Serial" bên cạnh mỗi biến thể sản phẩm trong bảng để đăng ký số Serial.
                                             </div>
-                                            <div class="border-t border-outline-variant/20 pt-3">
-                                                <button type="submit" name="action" value="request_edit" 
-                                                        class="w-full px-4 py-3 bg-[#FEF7E0] text-[#B06000] border border-[#FBBC04]/30 font-bold rounded-lg hover:bg-[#FEF7E0]/80 transition-all font-label-md text-label-md flex items-center justify-center gap-2">
-                                                    <span class="material-symbols-outlined text-[20px]">edit_note</span>
-                                                    Yêu cầu chỉnh sửa (Trả lại Admin)
-                                                </button>
-                                            </div>
                                         </div>
                                     </c:when>
                                     
