@@ -5,11 +5,12 @@ package controller;
  * Description: Controller tiếp nhận các yêu cầu bảo hành từ khách hàng và nhân viên.
  * 
  * Created: 2026-06-22
- * Updated: 2026-07-19
- * Version: v2.3
+ * Updated: 2026-07-23
+ * Version: v2.4
  *
  * @author DuyLD
  */
+
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -80,6 +81,10 @@ public class WarrantyController extends HttpServlet {
             switch (action) {
                 case "list":
                     handleList(request, response, user);
+                    break;
+                case "create":
+                case "center":
+                    handleCenter(request, response, user);
                     break;
                 case "detail":
                     handleDetail(request, response, user);
@@ -201,12 +206,33 @@ public class WarrantyController extends HttpServlet {
     private void handleList(HttpServletRequest request, HttpServletResponse response, Users user)
             throws Exception, ServletException, IOException {
 
-        // Kiểm tra điều kiện
         if (isCustomer(user)) {
-            loadCustomerClaims(request, user);
-            request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
+            String keyword = request.getParameter("keyword");
+            String statusFilter = request.getParameter("statusFilter");
+            int page = parsePage(request.getParameter("page"));
+            int pageSize = 10;
+
+            int totalClaims = warrantyService.countCustomerClaims(user.getUserId(), keyword, statusFilter);
+            int totalPages = (int) Math.ceil((double) totalClaims / pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+            if (page < 1) page = 1;
+
+            int offset = (page - 1) * pageSize;
+            List<WarrantyClaim> claims = warrantyService.searchCustomerClaims(user.getUserId(), keyword, statusFilter, offset, pageSize);
+
+            request.setAttribute("claims", claims);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalClaims", totalClaims);
+            request.setAttribute("keyword", keyword != null ? keyword.trim() : "");
+            request.setAttribute("statusFilter", statusFilter != null ? statusFilter.trim() : "");
+
+            List<Category> categories = new CategoryDAO().getAllCategories();
+            request.setAttribute("categories", categories);
+
+            request.getRequestDispatcher("/customer/warranty_list.jsp").forward(request, response);
         } else {
-            // selectedId: click một row trong console để xem detail panel
             String selectedIdParam
                     = request.getParameter("selectedId") != null
                     ? request.getParameter("selectedId")
@@ -214,6 +240,12 @@ public class WarrantyController extends HttpServlet {
             loadConsoleClaims(request, selectedIdParam);
             request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
         }
+    }
+
+    private void handleCenter(HttpServletRequest request, HttpServletResponse response, Users user)
+            throws Exception, ServletException, IOException {
+        loadCustomerClaims(request, user);
+        request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
     }
 
     /**

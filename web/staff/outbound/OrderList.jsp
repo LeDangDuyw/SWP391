@@ -162,6 +162,48 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Phân trang -->
+                <c:if test="${totalPages > 1}">
+                    <div class="px-6 py-4 border-t border-outline-variant/30 flex items-center justify-between bg-surface">
+                        <div class="text-body-sm text-on-surface-variant">
+                            Trang <strong>${currentPage}</strong> / <strong>${totalPages}</strong>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <c:choose>
+                                <c:when test="${currentPage > 1}">
+                                    <a href="?page=${currentPage - 1}" class="px-3 py-1.5 border border-outline-variant/50 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+                                        Trước
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-on-surface-variant/40 pointer-events-none font-label-md text-label-md">
+                                        Trước
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+
+                            <div class="flex gap-1 items-center">
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <a href="?page=${i}" class="w-8 h-8 flex items-center justify-center rounded-lg font-label-md text-label-md ${currentPage == i ? 'bg-[#003ec7] text-white font-bold' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                </c:forEach>
+                            </div>
+
+                            <c:choose>
+                                <c:when test="${currentPage < totalPages}">
+                                    <a href="?page=${currentPage + 1}" class="px-3 py-1.5 border border-outline-variant/50 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+                                        Sau
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-on-surface-variant/40 pointer-events-none font-label-md text-label-md">
+                                        Sau
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                </c:if>
             </div>
         </main>
     </div>

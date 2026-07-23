@@ -751,7 +751,6 @@
     </div>
 
     <!-- ── FOOTER ─────────────────────────────────────────────────────── -->
-    <footer class="footer">
-        <p>© 2026 UNILAP Precision Engineering. All rights reserved.</p>
-    </footer></body>
+    <%@include file="_footer.jspf" %>
+</body>
 </html>

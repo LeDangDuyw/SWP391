@@ -1188,19 +1188,7 @@
             ══════════════════════════════════ -->
             <div class="tab-panel" id="tab-warranty">
 
-                <!-- CTA Banner -->
-                <div class="warranty-cta">
-                    <div class="warranty-cta-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="warranty-cta-text">
-                        <h3>Trung Tâm Bảo Hành</h3>
-                        <p>Gửi yêu cầu bảo hành, kiểm tra tình trạng và theo dõi tiến trình xử lý.</p>
-                    </div>
-                    <a href="${pageContext.request.contextPath}/warranty?action=list" class="warranty-cta-btn" id="btn-go-warranty">
-                        <i class="fas fa-external-link-alt"></i> Đến Trang Bảo Hành
-                    </a>
-                </div>
+
 
                 <!-- Feature cards -->
                 <div class="card">

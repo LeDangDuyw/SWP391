@@ -12,11 +12,11 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="vi">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UNILAP Staff — Dashboard</title>
+    <title>UNILAP Staff — Bảng Điều Khiển</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -108,9 +108,8 @@
             color: #0b39d1;
         }
         .sidebar nav a.active {
-            background: #0b39d1;
-            color: #fff;
-            box-shadow: 0 8px 16px rgba(11, 57, 209, .22);
+            background: #d8e8ff;
+            color: #0b39d1;
         }
         .sidebar .profile {
             margin-top: auto;

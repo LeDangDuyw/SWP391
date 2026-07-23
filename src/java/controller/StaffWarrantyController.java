@@ -16,12 +16,17 @@ import java.util.List;
 import utils.ValidationException;
 
 /**
- * StaffWarrantyController handles all warranty-related HTTP requests for Staff.
+ * Class: StaffWarrantyController
+ * Description: Controller xử lý tất cả các yêu cầu quản lý và tiếp nhận/xử lý hồ sơ bảo hành dành cho Nhân viên (Staff) và Admin.
+ * Tuyến đường (URL Pattern): /staff/warranty
+ * - GET: Xem danh sách yêu cầu (action=list), xem chi tiết hồ sơ (action=detail)
+ * - POST: Cập nhật tiến độ / trạng thái xử lý bảo hành (action=process)
+ * 
+ * Created: 2026-06-25
+ * Updated: 2026-07-23
+ * Version: v2.1
  *
- * URL pattern : /staff/warranty
- *
- * GET actions : list, detail
- * POST actions : process
+ * @author DuyLD
  */
 @WebServlet("/staff/warranty")
 @MultipartConfig(
@@ -34,11 +39,17 @@ public class StaffWarrantyController extends HttpServlet {
     private static final int PAGE_SIZE = 10;
     private WarrantyService warrantyService;
 
+    /**
+     * Khởi tạo dịch vụ xử lý nghiệp vụ bảo hành (WarrantyService).
+     */
     @Override
     public void init() {
         warrantyService = new WarrantyService();
     }
 
+    /**
+     * Xử lý yêu cầu GET: Kiểm tra phân quyền Nhân viên/Admin và điều hướng hiển thị Console xử lý bảo hành.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,7 +60,7 @@ public class StaffWarrantyController extends HttpServlet {
             return;
         }
 
-        // Đảm bảo chỉ nhân viên (hoặc admin) truy cập
+        // Đảm bảo chỉ Nhân viên (Role ID = 2) hoặc Admin (Role ID = 1) được truy cập
         if (user.getRoleId() != 2 && user.getRoleId() != 1) {
             response.sendRedirect(request.getContextPath() + "/login?error=Access+Denied");
             return;
@@ -79,6 +90,9 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 
+    /**
+     * Xử lý yêu cầu POST: Tiếp nhận biểu mẫu cập nhật trạng thái bảo hành từ phía Nhân viên.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -125,6 +139,9 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 
+    /**
+     * Hiển thị giao diện danh sách các yêu cầu bảo hành dành cho Staff.
+     */
     private void handleList(HttpServletRequest request, HttpServletResponse response, Users user)
             throws Exception, ServletException, IOException {
         String selectedIdParam = request.getParameter("selectedId") != null
@@ -134,6 +151,9 @@ public class StaffWarrantyController extends HttpServlet {
         request.getRequestDispatcher("/staff/WarrantyProcess.jsp").forward(request, response);
     }
 
+    /**
+     * Hiển thị chi tiết một đơn bảo hành cụ thể được chọn.
+     */
     private void handleDetail(HttpServletRequest request, HttpServletResponse response, Users user)
             throws Exception, ServletException, IOException {
         int claimId = parseId(request.getParameter("id"));
@@ -141,6 +161,9 @@ public class StaffWarrantyController extends HttpServlet {
         request.getRequestDispatcher("/staff/WarrantyProcess.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý cập nhật tiến độ / trạng thái đơn bảo hành và ghi lịch sử xử lý.
+     */
     private void handleProcess(HttpServletRequest request, HttpServletResponse response, Users user)
             throws ValidationException, Exception, IOException {
         int claimId = parseId(request.getParameter("id"));
@@ -157,6 +180,9 @@ public class StaffWarrantyController extends HttpServlet {
                 + "/staff/warranty?action=list&selectedId=" + claimId + "&msg=updated");
     }
 
+    /**
+     * Tải dữ liệu các yêu cầu bảo hành (hỗ trợ phân trang, tìm kiếm theo từ khóa, lọc theo trạng thái) và nạp hồ sơ đang chọn.
+     */
     private void loadConsoleClaims(HttpServletRequest request, String selectedIdParam) throws Exception {
         String keyword = request.getParameter("keyword");
         String statusFilter = request.getParameter("statusFilter");
@@ -198,6 +224,9 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 
+    /**
+     * Chuyển hướng về trang danh sách mặc định khi có lỗi phát sinh.
+     */
     private void forwardToList(HttpServletRequest request, HttpServletResponse response, Users user)
             throws ServletException, IOException {
         try {
@@ -208,11 +237,17 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 
+    /**
+     * Lấy thông tin tài khoản người dùng đang đăng nhập từ Session.
+     */
     private Users getUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         return (session != null) ? (Users) session.getAttribute("user") : null;
     }
 
+    /**
+     * Chuyển đổi tham số trang từ chuỗi sang kiểu số nguyên an toàn (mặc định là trang 1).
+     */
     private int parsePage(String param) {
         try {
             int p = Integer.parseInt(param);
@@ -222,6 +257,9 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 
+    /**
+     * Parse giá trị ID bảo hành từ chuỗi request parameter.
+     */
     private int parseId(String param) throws ValidationException {
         try {
             return Integer.parseInt(param);
@@ -230,3 +268,4 @@ public class StaffWarrantyController extends HttpServlet {
         }
     }
 }
+

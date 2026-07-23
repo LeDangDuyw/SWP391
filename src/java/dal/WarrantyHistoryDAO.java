@@ -1,42 +1,34 @@
 package dal;
 
-/**
- * Class: WarrantyHistoryDAO
- * Description: Data Access Object ghi nhận lịch sử thay đổi trạng thái phiếu bảo hành.
- * 
- * Created: 2026-06-22
- * Updated: 2026-07-19
- * Version: v1.7
- *
- * @author DuyLD
- */
-
 import model.WarrantyHistory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Class: WarrantyHistoryDAO
+ * Description: Data Access Object (DAO) ghi nhận và truy xuất nhật ký/lịch sử chuyển trạng thái xử lý bảo hành (Warranty History).
+ * 
+ * Created: 2026-06-22
+ * Updated: 2026-07-23
+ * Version: v1.3
+ *
+ * @author DuyLD
+ */
 public class WarrantyHistoryDAO extends DBContext {
 
-    // ── INSERT ────────────────────────────────────────────────────────────────
 
     /**
-     * Inserts a new WarrantyHistory record for a status change event.
+     * Ghi thêm một bản ghi nhật ký tiến độ xử lý bảo hành mới.
      *
-     * Called every time a WarrantyClaim changes status.
-     *
-     * @param history the history record to persist
-     * @throws Exception on SQL error
+     * @param history Đối tượng WarrantyHistory chứa thông tin chuyển trạng thái và ghi chú
+     * @throws Exception Ngoại lệ SQL
      */
     public void insert(WarrantyHistory history) throws Exception {
-        // repair_date và created_at đều dùng GETDATE() từ DB để tránh drift
-        // giữa JVM clock và DB clock.
         String sql = "INSERT INTO WarrantyHistory "
                 + "(warranty_id, issue_description, repair_status, repair_date, repair_note, created_at) "
                 + "VALUES (?, ?, ?, GETDATE(), ?, GETDATE())";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, history.getWarrantyId());
@@ -47,16 +39,12 @@ public class WarrantyHistoryDAO extends DBContext {
         }
     }
 
-    // ── FIND BY WARRANTY ID ───────────────────────────────────────────────────
-
     /**
-     * Retrieves all history records for a warranty claim, newest first.
+     * Truy xuất toàn bộ lịch sử tiến độ xử lý của một đơn bảo hành (sắp xếp theo thời gian tăng dần).
      *
-     * Used to render the timeline on detail.jsp.
-     *
-     * @param warrantyId the claim's ID
-     * @return list of WarrantyHistory ordered by created_at DESC
-     * @throws Exception on SQL error
+     * @param warrantyId Mã ID đơn bảo hành
+     * @return Danh sách các bản ghi tiến độ WarrantyHistory
+     * @throws Exception Ngoại lệ SQL
      */
     public List<WarrantyHistory> findByWarrantyId(int warrantyId) throws Exception {
         String sql = "SELECT * FROM WarrantyHistory "
@@ -64,11 +52,9 @@ public class WarrantyHistoryDAO extends DBContext {
                 + "ORDER BY created_at ASC";
 
         List<WarrantyHistory> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, warrantyId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapHistory(rs));
@@ -78,19 +64,14 @@ public class WarrantyHistoryDAO extends DBContext {
         return list;
     }
 
-    // ── DELETE BY WARRANTY ID ─────────────────────────────────────────────────
-
     /**
-     * Deletes all history records for a given warranty claim.
+     * Xóa toàn bộ nhật ký lịch sử xử lý của một đơn bảo hành.
      *
-     * Useful for hard-deletion scenarios or data cleanup.
-     *
-     * @param warrantyId the claim's ID
-     * @throws Exception on SQL error
+     * @param warrantyId Mã ID đơn bảo hành
+     * @throws Exception Ngoại lệ SQL
      */
     public void deleteByWarrantyId(int warrantyId) throws Exception {
         String sql = "DELETE FROM WarrantyHistory WHERE warranty_id = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, warrantyId);
@@ -98,10 +79,8 @@ public class WarrantyHistoryDAO extends DBContext {
         }
     }
 
-    // ── PRIVATE MAPPING ───────────────────────────────────────────────────────
-
     /**
-     * Maps a ResultSet row to a WarrantyHistory object.
+     * Ánh xạ từ dòng ResultSet sang đối tượng WarrantyHistory.
      */
     private WarrantyHistory mapHistory(ResultSet rs) throws SQLException {
         return new WarrantyHistory(
@@ -115,3 +94,4 @@ public class WarrantyHistoryDAO extends DBContext {
         );
     }
 }
+

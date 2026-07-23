@@ -7,12 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 import model.WarrantyPolicy;
 
+/**
+ * Class: WarrantyPolicyDAO
+ * Description: Data Access Object (DAO) truy xuất thông tin các chính sách bảo hành (WarrantyPolicies).
+ * 
+ * Created: 2026-07-23
+ * Updated: 2026-07-23
+ * Version: v1.1
+ *
+ * @author DuyLD
+ */
 public class WarrantyPolicyDAO extends DBContext {
 
+
+    /**
+     * Lấy danh sách các chính sách bảo hành đang hoạt động (Status = 'LIVE').
+     *
+     * @return Danh sách các đối tượng WarrantyPolicy
+     */
     public List<WarrantyPolicy> getActivePolicies() {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies WHERE Status = 'LIVE' ORDER BY PolicyID ASC";
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 WarrantyPolicy p = new WarrantyPolicy();
                 p.setPolicyId(rs.getInt("PolicyID"));
@@ -34,3 +52,4 @@ public class WarrantyPolicyDAO extends DBContext {
         return list;
     }
 }
+

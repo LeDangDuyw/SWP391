@@ -10,16 +10,34 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.GeneralPolicy;
 
+/**
+ * Class: AdminGeneralPolicy
+ * Description: Controller quản trị CRUD cho các chính sách chung (Footer Policies) và bài viết Tin tức / Khuyến mãi (News & Articles).
+ * Hỗ trợ tạo mới bài viết, cập nhật tiêu đề/nội dung, cấu hình hiển thị Footer và xóa bài viết.
+ * 
+ * Created: 2026-06-01
+ * Updated: 2026-07-23
+ * Version: v2.1
+ *
+ * @author DuyLD
+ */
 @WebServlet(name = "AdminGeneralPolicy", urlPatterns = {"/admin/general-policy"})
 public class AdminGeneralPolicy extends HttpServlet {
 
+
     private GeneralPolicyDAO dao;
 
+    /**
+     * Khởi tạo đối tượng GeneralPolicyDAO để làm việc với DB.
+     */
     @Override
     public void init() throws ServletException {
         dao = new GeneralPolicyDAO();
     }
 
+    /**
+     * Xử lý yêu cầu GET: Nạp danh sách bài viết chính sách footer hoặc bài viết tin tức dựa theo tab (FOOTER / NEWS).
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -27,7 +45,7 @@ public class AdminGeneralPolicy extends HttpServlet {
             String tab = request.getParameter("tab");
             boolean isNewsTab = "news".equalsIgnoreCase(tab);
 
-            // Đọc keyword từ search box (UC36.1 Alternative Flow 36.1.1)
+            // Đọc từ khóa tìm kiếm từ thanh tìm kiếm
             String keyword = request.getParameter("keyword");
             boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
 
@@ -42,7 +60,7 @@ public class AdminGeneralPolicy extends HttpServlet {
             request.setAttribute("generalPolicies", generalPolicies);
             request.setAttribute("isFooterTab", true);
 
-            // Trả keyword về JSP để giữ giá trị trong search box sau khi submit
+            // Giữ lại từ khóa tìm kiếm trên giao diện JSP
             if (hasKeyword) {
                 request.setAttribute("keyword", keyword.trim());
             }
@@ -63,6 +81,9 @@ public class AdminGeneralPolicy extends HttpServlet {
         }
     }
 
+    /**
+     * Xử lý các thao tác POST: Tạo bài viết mới, cập nhật nội dung, cập nhật vị trí Footer hoặc xóa bài viết.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -164,3 +185,4 @@ public class AdminGeneralPolicy extends HttpServlet {
         }
     }
 }
+

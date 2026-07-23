@@ -1,31 +1,29 @@
 package dal;
 
-/**
- * Class: PolicyDAO Description: Data Access Object xử lý truy vấn chính sách
- * bảo hành trong CSDL.
- *
- * Created: 2026-05-31 
- * 
- * Updated: 2026-07-19
- * 
- * Version: v2.5
- *
- * @author DuyLD
- */
 import model.WarrantyPolicy;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class: PolicyDAO
+ * Description: Data Access Object (DAO) xử lý truy vấn và thao tác dữ liệu chính sách bảo hành (WarrantyPolicies).
+ * 
+ * Created: 2026-05-31
+ * Updated: 2026-07-23
+ * Version: v2.6
+ *
+ * @author DuyLD
+ */
 public class PolicyDAO extends DBContext {
 
-    /*
-     * Retrieves all warranty policies ordered by most recently created.
+
+    /**
+     * Lấy toàn bộ danh sách các chính sách bảo hành, sắp xếp mới nhất lên đầu.
      */
     public List<WarrantyPolicy> getAllPolicies() throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies ORDER BY PolicyID DESC";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapPolicy(rs));
@@ -34,17 +32,14 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
-    /*
-     * Retrieves a single warranty policy by its unique identifier.
+    /**
+     * Lấy thông tin một chính sách bảo hành theo ID.
      */
     public WarrantyPolicy getPolicyById(int id) throws Exception {
         String sql = "SELECT * FROM WarrantyPolicies WHERE PolicyID = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return mapPolicy(rs);
                 }
@@ -53,15 +48,14 @@ public class PolicyDAO extends DBContext {
         return null;
     }
 
-    /*
-     * Creates a new warranty policy record in the database.
+    /**
+     * Thêm mới một chính sách bảo hành vào DB và trả về ID tự tăng vừa được tạo.
      */
     public int insertPolicy(WarrantyPolicy p) throws Exception {
         String sql = "INSERT INTO WarrantyPolicies "
                 + "(PolicyName, Description, PolicyContent, ApplicableRegions, "
                 + " WarrantyMonths, Status, Version, EffectiveDate, CreatedAt, UpdatedAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.getPolicyName());
             ps.setString(2, p.getDescription());
@@ -75,9 +69,7 @@ public class PolicyDAO extends DBContext {
             ps.setTimestamp(10, p.getUpdatedAt());
             ps.executeUpdate();
 
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                // Nếu tồn tại bản ghi kết quả từ database
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
@@ -86,43 +78,34 @@ public class PolicyDAO extends DBContext {
         return -1;
     }
 
-    /*
-     * Check existed policy name in the policy list
-     *
+    /**
+     * Kiểm tra tên chính sách bảo hành đã tồn tại hay chưa (không phân biệt hoa/thường).
      */
     public boolean existsPolicyName(String policyName) throws Exception {
-        // Kiểm tra điều kiện
         if (policyName == null) {
             return false;
         }
         String sql = "SELECT 1 FROM WarrantyPolicies WHERE LOWER(PolicyName) = LOWER(?)";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, policyName.trim());
-
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
         }
     }
 
-    /*
-     * Searches for policies whose name or description matches the given
-     * keyword.
+    /**
+     * Tìm kiếm chính sách bảo hành theo tên.
      */
     public List<WarrantyPolicy> searchPolicies(String keyword) throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies "
                 + "WHERE PolicyName LIKE ? "
                 + "ORDER BY PolicyID DESC";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";
             ps.setString(1, k);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapPolicy(rs));
@@ -132,12 +115,10 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
-    /*
-     * Check for existed policy bane for update
-     *
+    /**
+     * Kiểm tra xem tên chính sách đã bị trùng với chính sách khác trong lúc cập nhật hay không.
      */
     public boolean existsPolicyNameForUpdate(String policyName, int policyId) {
-        // Kiểm tra điều kiện
         if (policyName == null) {
             return false;
         }
@@ -148,30 +129,26 @@ public class PolicyDAO extends DBContext {
         AND PolicyID <> ?
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, policyName.trim());
             ps.setInt(2, policyId);
 
             ResultSet rs = ps.executeQuery();
             return rs.next();
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    /*
-     * Retrieves all warranty policies matching the given status value.
+    /**
+     * Lấy danh sách chính sách bảo hành lọc theo trạng thái (LIVE, DRAFT, DISABLED...).
      */
     public List<WarrantyPolicy> getPoliciesByStatus(String status) throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicies WHERE Status = ? ORDER BY PolicyID DESC";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapPolicy(rs));
@@ -181,8 +158,8 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
-    /*
-     * Updates an existing warranty policy record with the provided values.
+    /**
+     * Cập nhật thông tin một chính sách bảo hành hiện có.
      */
     public void updatePolicy(WarrantyPolicy p) throws Exception {
         String sql = "UPDATE WarrantyPolicies "
@@ -190,7 +167,6 @@ public class PolicyDAO extends DBContext {
                 + "    ApplicableRegions = ?, WarrantyMonths = ?, Status = ?, "
                 + "    Version = ?, EffectiveDate = ?, UpdatedAt = ? "
                 + "WHERE PolicyID = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, p.getPolicyName());
             ps.setString(2, p.getDescription());
@@ -207,28 +183,23 @@ public class PolicyDAO extends DBContext {
     }
 
     /**
-     * Phuong thuc deletePolicy
+     * Xóa hoàn toàn một chính sách bảo hành cùng toàn bộ lịch sử thay đổi phiên bản (Transaction atomic).
      */
     public void deletePolicy(int id) throws Exception {
         String deleteHistorySql = "DELETE FROM WarrantyPolicyHistory WHERE PolicyID = ?";
         String deletePolicySql = "DELETE FROM WarrantyPolicies WHERE PolicyID = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try (PreparedStatement psHist = con.prepareStatement(deleteHistorySql)) {
                     psHist.setInt(1, id);
                     psHist.executeUpdate();
                 }
-                // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
                 try (PreparedStatement psPol = con.prepareStatement(deletePolicySql)) {
                     psPol.setInt(1, id);
                     psPol.executeUpdate();
                 }
                 con.commit();
-                // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception e) {
                 con.rollback();
                 throw e;
@@ -238,12 +209,11 @@ public class PolicyDAO extends DBContext {
         }
     }
 
-    /*
-     * Updates the status of a warranty policy to the specified value.
+    /**
+     * Cập nhật trạng thái của chính sách bảo hành.
      */
     private void updateStatus(int id, String status) throws Exception {
         String sql = "UPDATE WarrantyPolicies SET Status = ?, UpdatedAt = ? WHERE PolicyID = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
@@ -252,16 +222,12 @@ public class PolicyDAO extends DBContext {
         }
     }
 
-    /*
-     * Count total policies.
+    /**
+     * Đếm tổng số lượng chính sách bảo hành.
      */
     public int countPolicies() throws Exception {
         String sql = "SELECT COUNT(*) FROM WarrantyPolicies";
-
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            // Nếu tồn tại bản ghi kết quả từ database
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -269,8 +235,8 @@ public class PolicyDAO extends DBContext {
         return 0;
     }
 
-    /*
-     * Count total search by name policies
+    /**
+     * Đếm số lượng chính sách tìm kiếm theo từ khóa.
      */
     public int countSearchPolicies(String keyword) throws Exception {
         String sql = """
@@ -279,24 +245,18 @@ public class PolicyDAO extends DBContext {
         WHERE PolicyName LIKE ?
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, "%" + keyword + "%");
-
             ResultSet rs = ps.executeQuery();
-
-            // Nếu tồn tại bản ghi kết quả từ database
             if (rs.next()) {
                 return rs.getInt(1);
             }
         }
-
         return 0;
     }
 
-    /*
-     * Norma; paging
+    /**
+     * Phân trang danh sách chính sách bảo hành mặc định.
      */
     public List<WarrantyPolicy> getPoliciesPaging(
             int offset,
@@ -312,14 +272,10 @@ public class PolicyDAO extends DBContext {
         FETCH NEXT ? ROWS ONLY
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, offset);
             ps.setInt(2, pageSize);
-
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 list.add(mapPolicy(rs));
             }
@@ -328,8 +284,8 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
-    /*
-     * Paging by search 
+    /**
+     * Phân trang danh sách chính sách bảo hành theo từ khóa tìm kiếm.
      */
     public List<WarrantyPolicy> searchPoliciesPaging(
             String keyword,
@@ -347,15 +303,11 @@ public class PolicyDAO extends DBContext {
         FETCH NEXT ? ROWS ONLY
         """;
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, "%" + keyword + "%");
             ps.setInt(2, offset);
             ps.setInt(3, pageSize);
-
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 list.add(mapPolicy(rs));
             }
@@ -364,33 +316,29 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
-    /*
-     * Publishes a warranty policy by setting its status to LIVE.
+    /**
+     * Phát hành chính sách bảo hành (chuyển trạng thái sang LIVE).
      */
     public void publishPolicy(int id) throws Exception {
         updateStatus(id, "LIVE");
     }
 
-    /*
-     * Saves a warranty policy as a draft by setting its status to DRAFT.
+    /**
+     * Lưu chính sách bảo hành dưới dạng bản nháp (chuyển trạng thái sang DRAFT).
      */
     public void saveDraft(int id) throws Exception {
         updateStatus(id, "DRAFT");
     }
 
-    /*
-     * BR-25: Disabling a Warranty Policy does not retroactively invalidate
-     * active customer warranties; existing warranties remain valid until
-     * their individually computed expiry dates. Only the policy Status is
-     * flipped — no InventoryItem.warranty_expired_date is touched.
-     * Disables a warranty policy by setting its status to DISABLED.
+    /**
+     * Vô hiệu hóa chính sách bảo hành (BR-25: chuyển trạng thái sang DISABLED mà không ảnh hưởng tới sản phẩm đã mua trước đó).
      */
     public void disablePolicy(int id) throws Exception {
         updateStatus(id, "DISABLED");
     }
 
-    /*
-     * Maps a ResultSet row to a WarrantyPolicy model object.
+    /**
+     * Ánh xạ dữ liệu từ ResultSet sang đối tượng WarrantyPolicy.
      */
     private WarrantyPolicy mapPolicy(ResultSet rs) throws Exception {
         WarrantyPolicy p = new WarrantyPolicy();
@@ -409,12 +357,11 @@ public class PolicyDAO extends DBContext {
     }
 
     /**
-     * Phuong thuc insertHistory
+     * Lưu vết lịch sử thay đổi thông tin/phiên bản của một chính sách bảo hành vào bảng WarrantyPolicyHistory.
      */
     public void insertHistory(int policyId, String policyName, String version, String description, String content, String status, String actionType) throws Exception {
         String sql = "INSERT INTO WarrantyPolicyHistory (PolicyID, PolicyName, Version, Description, PolicyContent, Status, ActionType, ChangedAt) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, policyId);
             ps.setString(2, policyName);
@@ -429,15 +376,13 @@ public class PolicyDAO extends DBContext {
     }
 
     /**
-     * Phuong thuc getHistoryByPolicyId
+     * Truy xuất toàn bộ lịch sử thay đổi các phiên bản của một chính sách bảo hành theo PolicyID.
      */
     public List<model.PolicyHistory> getHistoryByPolicyId(int policyId) throws Exception {
         List<model.PolicyHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM WarrantyPolicyHistory WHERE PolicyID = ? ORDER BY ChangedAt DESC";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, policyId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     model.PolicyHistory h = new model.PolicyHistory();
@@ -457,6 +402,9 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Đếm tổng số lượng chính sách bảo hành hỗ trợ lọc theo từ khóa và trạng thái.
+     */
     public int countPolicies(String keyword, String status) throws Exception {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM WarrantyPolicies WHERE 1=1");
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -482,6 +430,9 @@ public class PolicyDAO extends DBContext {
         return 0;
     }
 
+    /**
+     * Lấy danh sách chính sách bảo hành phân trang nâng cao (hỗ trợ lọc từ khóa và trạng thái).
+     */
     public List<WarrantyPolicy> getPoliciesPaging(String keyword, String status, int offset, int pageSize) throws Exception {
         List<WarrantyPolicy> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM WarrantyPolicies WHERE 1=1");
@@ -513,3 +464,4 @@ public class PolicyDAO extends DBContext {
         return list;
     }
 }
+

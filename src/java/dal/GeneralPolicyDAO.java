@@ -8,8 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 import model.GeneralPolicy;
 
+/**
+ * Class: GeneralPolicyDAO
+ * Description: Data Access Object (DAO) chuyên trách quản lý các chính sách chung (General Policy - Privacy, Terms, Shopping Guide, About) và các bài viết Tin tức / Khuyến mãi (News & Articles).
+ * 
+ * Created: 2026-06-01
+ * Updated: 2026-07-23
+ * Version: v1.8
+ *
+ * @author DuyLD
+ */
 public class GeneralPolicyDAO extends DBContext {
+
     
+    /**
+     * Lấy thông tin bài viết chính sách chung đang hoạt động theo loại (PRIVACY, TERMS, SHOPPING_GUIDE, ABOUT...).
+     *
+     * @param type Loại chính sách cần lấy
+     * @return Đối tượng GeneralPolicy hoặc null nếu không tìm thấy
+     */
     public GeneralPolicy getPolicyByType(String type) {
         String sql = "SELECT policy_id, title, policy_type, content, status, created_at, updated_at, show_in_footer, footer_order "
                    + "FROM Policy WHERE policy_type = ? AND status = 1";
@@ -36,10 +53,19 @@ public class GeneralPolicyDAO extends DBContext {
         return null;
     }
 
+    /**
+     * Lấy danh sách toàn bộ các bài viết chính sách footer.
+     */
     public List<GeneralPolicy> getFooterDocPolicies() {
         return getFooterDocPolicies(null);
     }
 
+    /**
+     * Lấy danh sách các bài viết chính sách footer có hỗ trợ lọc theo từ khóa tìm kiếm.
+     *
+     * @param keyword Từ khóa tìm kiếm theo tiêu đề (có thể null)
+     * @return Danh sách các bài viết chính sách footer
+     */
     public List<GeneralPolicy> getFooterDocPolicies(String keyword) {
         List<GeneralPolicy> list = new ArrayList<>();
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
@@ -72,10 +98,19 @@ public class GeneralPolicyDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Lấy toàn bộ danh sách các bài viết Tin tức / Khuyến mãi.
+     */
     public List<GeneralPolicy> getNewsArticles() {
         return getNewsArticles(null);
     }
 
+    /**
+     * Lấy danh sách các bài viết Tin tức / Khuyến mãi có hỗ trợ lọc theo từ khóa tiêu đề.
+     *
+     * @param keyword Từ khóa tìm kiếm (có thể null)
+     * @return Danh sách bài viết tin tức
+     */
     public List<GeneralPolicy> getNewsArticles(String keyword) {
         List<GeneralPolicy> list = new ArrayList<>();
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
@@ -108,6 +143,12 @@ public class GeneralPolicyDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Truy xuất thông tin một bài viết chính sách chung theo ID.
+     *
+     * @param id Mã ID của chính sách
+     * @return Đối tượng GeneralPolicy
+     */
     public GeneralPolicy getPolicyById(int id) {
         String sql = "SELECT policy_id, title, policy_type, content, status, created_at, updated_at, show_in_footer, footer_order "
                    + "FROM Policy WHERE policy_id = ?";
@@ -134,6 +175,9 @@ public class GeneralPolicyDAO extends DBContext {
         return null;
     }
 
+    /**
+     * Lấy danh sách các liên kết chính sách hiển thị ở Footer của trang web.
+     */
     public List<GeneralPolicy> getFooterPolicies() {
         List<GeneralPolicy> list = new ArrayList<>();
         String sql = "SELECT policy_id, title, policy_type, content, status, created_at, updated_at, show_in_footer, footer_order "
@@ -158,6 +202,9 @@ public class GeneralPolicyDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Cập nhật tiêu đề và nội dung HTML của một bài viết chính sách.
+     */
     public boolean updateContent(int id, String title, String content) {
         String sql = "UPDATE Policy SET title = ?, content = ?, updated_at = CURRENT_TIMESTAMP WHERE policy_id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -171,6 +218,9 @@ public class GeneralPolicyDAO extends DBContext {
         return false;
     }
 
+    /**
+     * Cập nhật tùy chọn hiển thị và thứ tự sắp xếp trên Footer.
+     */
     public boolean updateFooterSettings(int id, boolean showInFooter, int footerOrder) {
         String sql = "UPDATE Policy SET show_in_footer = ?, footer_order = ? WHERE policy_id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -184,6 +234,9 @@ public class GeneralPolicyDAO extends DBContext {
         return false;
     }
 
+    /**
+     * Thêm mới bài viết chính sách chung / tin tức vào DB và trả về ID tự tăng vừa tạo.
+     */
     public int insertPolicy(String title, String policyType, String content, boolean showInFooter) {
         String sql = "INSERT INTO Policy (title, policy_type, content, status, show_in_footer, footer_order, created_at, updated_at) "
                    + "VALUES (?, ?, ?, 1, ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
@@ -204,6 +257,9 @@ public class GeneralPolicyDAO extends DBContext {
         return -1;
     }
 
+    /**
+     * Xóa một bài viết chính sách / tin tức theo ID.
+     */
     public boolean deletePolicy(int id) {
         String sql = "DELETE FROM Policy WHERE policy_id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -215,6 +271,9 @@ public class GeneralPolicyDAO extends DBContext {
         return false;
     }
 
+    /**
+     * Lấy danh sách các bài viết thuộc nhiều loại khác nhau (VD: PROMOTION, NEW_PRODUCT, NEWS...).
+     */
     public List<GeneralPolicy> getPoliciesByTypes(List<String> types) {
         List<GeneralPolicy> list = new ArrayList<>();
         if (types == null || types.isEmpty()) {
@@ -250,3 +309,4 @@ public class GeneralPolicyDAO extends DBContext {
         return list;
     }
 }
+

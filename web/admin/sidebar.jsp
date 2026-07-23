@@ -1,10 +1,135 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%-- 
-    Component: Admin Sidebar (Navbar bên trái)
-    Nhận param activePage để highlight mục tương ứng
---%>
+<!-- ════ MASTER SIDEBAR STYLES (Enforced across all Admin pages) ════ -->
+<style>
+    aside.sidebar {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        background: #eef2f7 !important;
+        border-right: 1px solid #e1e6ef !important;
+        padding: 28px 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: sticky !important;
+        top: 0 !important;
+        height: 100vh !important;
+        box-sizing: border-box !important;
+        z-index: 100 !important;
+        overflow-y: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    aside.sidebar .brand {
+        margin: 6px 10px 44px !important;
+        display: grid !important;
+        gap: 6px !important;
+    }
+
+    aside.sidebar .brand span {
+        color: #0b39d1 !important;
+        font-size: 24px !important;
+        font-weight: 800 !important;
+        letter-spacing: .05em !important;
+        display: block !important;
+        line-height: 1.2 !important;
+    }
+
+    aside.sidebar .brand small {
+        color: #343a46 !important;
+        font-size: 14px !important;
+        display: block !important;
+        font-weight: 500 !important;
+    }
+
+    aside.sidebar nav {
+        display: grid !important;
+        gap: 10px !important;
+    }
+
+    aside.sidebar nav a {
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
+        padding: 14px 14px !important;
+        border-radius: 10px !important;
+        color: #242a38 !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        font-size: 14px !important;
+        transition: background 0.2s ease, color 0.2s ease !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    aside.sidebar nav a span {
+        min-width: 20px !important;
+        color: #1f2937 !important;
+        font-size: 16px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    aside.sidebar nav a:hover {
+        background: #f3f4f6 !important;
+        color: #0b39d1 !important;
+    }
+
+    aside.sidebar nav a.active {
+        background: #d8e8ff !important;
+        color: #0b39d1 !important;
+    }
+
+    .sidebar-dropdown {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .sidebar-dropdown-container {
+        flex-direction: column !important;
+        gap: 4px !important;
+        margin-top: 4px !important;
+    }
+
+    aside.sidebar nav .sidebar-dropdown-container a {
+        padding: 10px 14px 10px 36px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }
+
+    aside.sidebar .profile {
+        margin-top: auto !important;
+        border-top: 1px solid #d4dae6 !important;
+        padding: 18px 10px 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        font-weight: 700 !important;
+    }
+
+    aside.sidebar .logout-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        color: #ef4444 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        background: #fef2f2 !important;
+        border: 1px solid #fecaca !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    aside.sidebar .logout-btn:hover {
+        background: #fee2e2 !important;
+    }
+</style>
+
+<%-- Component: Admin Sidebar --%>
 <aside class="sidebar">
     <div class="brand">
         <span>UNILAP Admin</span>
@@ -23,7 +148,7 @@
                 <span style="display: flex; align-items: center; gap: 14px;"><span>📊</span>Thống kê</span>
                 <span class="dropdown-arrow" style="font-size: 10px; transition: transform 0.2s; transform: rotate(${param.activePage == 'promotions' || param.activePage == 'analytics' ? '180deg' : '0deg'});">▼</span>
             </a>
-            <div class="sidebar-dropdown-container" style="display: ${param.activePage == 'promotions' || param.activePage == 'analytics' ? 'flex' : 'none'}; flex-direction: column; gap: 4px; margin-top: 4px;">
+            <div class="sidebar-dropdown-container" style="display: ${param.activePage == 'promotions' || param.activePage == 'analytics' ? 'flex' : 'none'};">
                 <a class="${param.activePage == 'promotions' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/promotions">
                     <span>▥</span>Mã giảm giá & Khuyến mãi
                 </a>

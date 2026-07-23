@@ -123,6 +123,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <% 
+    model.Users u = (model.Users) session.getAttribute("user");
     // Lấy danh sách sản phẩm từ Controller truyền qua (attribute 'products')
     List<ProductInventory> products = (List<ProductInventory>) request.getAttribute("products");
     if (products == null) {

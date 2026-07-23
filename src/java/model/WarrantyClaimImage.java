@@ -1,18 +1,17 @@
 package model;
 
+import java.sql.Timestamp;
+
 /**
  * Class: WarrantyClaimImage
- * Description: Model ảnh đính kèm phiếu bảo hành.
+ * Description: Model lưu trữ thông tin tệp ảnh đính kèm phiếu bảo hành.
  * 
  * Created: 2026-06-26
- * Updated: 2026-06-26
- * Version: v1.2
+ * Updated: 2026-07-23
+ * Version: v1.3
  *
  * @author DuyLD
  */
-
-import java.sql.Timestamp;
-
 public class WarrantyClaimImage {
 
     private int imageId;
@@ -21,13 +20,13 @@ public class WarrantyClaimImage {
     private Timestamp uploadedAt;
 
     /**
-     * Default constructor.
+     * Khởi tạo mặc định.
      */
     public WarrantyClaimImage() {
     }
 
     /**
-     * Constructor dùng khi insert (chưa có imageId, uploadedAt do DB tự gán).
+     * Khởi tạo dùng khi tạo mới ảnh đính kèm (chưa có ID và thời gian tạo).
      */
     public WarrantyClaimImage(int claimId, String imageUrl) {
         this.claimId = claimId;
@@ -35,7 +34,7 @@ public class WarrantyClaimImage {
     }
 
     /**
-     * Full constructor cho việc map từ ResultSet.
+     * Khởi tạo đầy đủ thuộc tính từ bản ghi trong CSDL.
      */
     public WarrantyClaimImage(int imageId, int claimId, String imageUrl, Timestamp uploadedAt) {
         this.imageId = imageId;
@@ -44,38 +43,15 @@ public class WarrantyClaimImage {
         this.uploadedAt = uploadedAt;
     }
 
-    // ── Getters & Setters ────────────────────────────────────────────────────
-
     public int getImageId() { return imageId; }
-    /**
-     * Phuong thuc setImageId
-     */
     public void setImageId(int imageId) { this.imageId = imageId; }
 
-    /**
-     * Phuong thuc getClaimId
-     */
     public int getClaimId() { return claimId; }
-    /**
-     * Phuong thuc setClaimId
-     */
     public void setClaimId(int claimId) { this.claimId = claimId; }
 
-    /**
-     * Phuong thuc getImageUrl
-     */
     public String getImageUrl() { return imageUrl; }
-    /**
-     * Phuong thuc setImageUrl
-     */
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    /**
-     * Phuong thuc getUploadedAt
-     */
     public Timestamp getUploadedAt() { return uploadedAt; }
-    /**
-     * Phuong thuc setUploadedAt
-     */
     public void setUploadedAt(Timestamp uploadedAt) { this.uploadedAt = uploadedAt; }
-}
+}

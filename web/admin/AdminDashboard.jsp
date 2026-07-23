@@ -12,11 +12,11 @@
 <%@taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UNILAP Admin — Analytics Dashboard</title>
+        <title>UNILAP Admin — Bảng Điều Khiển & Thống Kê</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -771,27 +771,27 @@
                 <!-- Topbar -->
                 <div class="topbar">
                     <div class="topbar-left">
-                        <span class="topbar-title">Analytics Dashboard</span>
+                        <span class="topbar-title">Bảng điều khiển phân tích</span>
                         <span class="topbar-date" id="currentDate"></span>
                     </div>
                     <div class="topbar-right">
-                        <span class="status-pill"><span class="status-dot"></span>System Online</span>
-                        <button class="icon-btn" title="Notifications">🔔</button>
-                        <button class="icon-btn" title="Refresh" onclick="location.reload()">↻</button>
+                        <span class="status-pill"><span class="status-dot"></span>Hệ thống hoạt động</span>
+                        <button class="icon-btn" title="Thông báo">🔔</button>
+                        <button class="icon-btn" title="Làm mới" onclick="location.reload()">↻</button>
                     </div>
                 </div>
 
                 <div class="content">
                     <div class="page-header">
                         <div>
-                            <div class="page-title">Overview &amp; Analytics</div>
+                            <div class="page-title">Tổng quan &amp; Phân tích</div>
                             <div class="page-sub">
                                 <c:choose>
                                     <c:when test="${not empty dateError}">
                                         <span style="color:#ef4444; font-weight:600;">⚠️ ${dateError}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        Real-time business performance
+                                        Hiệu suất kinh doanh thời gian thực
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -863,7 +863,7 @@
                             </div>
                             <div class="kpi-label">Cảnh báo kích hoạt</div>
                             <div class="kpi-value">${pendingAlerts}</div>
-                            <div class="kpi-sub">Hàng tồn kho thấp, yêu cầu bảo hành & ticket duyệt</div>
+                            <div class="kpi-sub">Yêu cầu bảo hành & ticket duyệt</div>
                         </div>
                     </div>
 
@@ -875,11 +875,11 @@
                         <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" style="display:flex; align-items:center; gap:8px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin:0;">
                             <input type="hidden" name="revenueYear" value="${revenueYear}">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">From:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">Từ ngày:</label>
                                 <input type="date" name="from" value="${from}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <label style="font-size:12px; font-weight:600; color:#475569;">To:</label>
+                                <label style="font-size:12px; font-weight:600; color:#475569;">Đến ngày:</label>
                                 <input type="date" name="to" value="${to}" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; outline:none; color:#1e293b;">
                             </div>
                             <select name="groupBy" onchange="this.form.submit()" style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
@@ -888,9 +888,9 @@
                                 <option value="quarter" ${groupBy == 'quarter' ? 'selected' : ''}>Theo quý</option>
                                 <option value="year" ${groupBy == 'year' ? 'selected' : ''}>Theo năm</option>
                             </select>
-                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Filter</button>
+                            <button type="submit" style="background:#2563eb; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.2s;">Lọc</button>
                             <c:if test="${not empty from || not empty to}">
-                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Reset</a>
+                                <a href="${pageContext.request.contextPath}/admin/dashboard?revenueYear=${revenueYear}" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; text-decoration:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:inline-block;">Đặt lại</a>
                             </c:if>
                         </form>
                         <c:if test="${autoDefaultRange}">
@@ -905,7 +905,7 @@
                     </div>
 
                     <!-- ══ ROW 3: Orders Status ══ -->
-                    <div class="section-hd"><span class="dot"></span>Operations</div>
+                    <div class="section-hd"><span class="dot"></span>Vận hành</div>
                     <div style="margin-bottom:20px;">
 
                         <!-- Orders Needing Attention -->
@@ -1035,7 +1035,7 @@
                         <!-- Recent Activities — REAL -->
                         <div class="chart-card">
                             <div class="chart-card-title">
-                                🕐 Recent Activities
+                                🕐 Hoạt động gần đây
                             </div>
                             <div class="activity-feed">
                                 <c:forEach items="${recentActivities}" var="act">
@@ -1059,7 +1059,7 @@
         <script>
         // ── Topbar date ──────────────────────────────────────
             document.getElementById('currentDate').textContent =
-                    new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
+                    new Date().toLocaleDateString('vi-VN', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
 
         // ── Helpers ─────────────────────────────────────────
             function toggleSidebarDropdown(btn) {

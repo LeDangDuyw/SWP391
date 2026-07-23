@@ -793,112 +793,47 @@
             .footer-col ul li a:hover {
                 color: #1a56db;
             }
-            .footer-bottom {
-                text-align: center;
-                padding-top: 20px;
-                border-top: 1px solid #e2e8f0;
+            /* ── Tab Navigation ── */
+            .warranty-tabs {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                margin-top: 24px;
+                margin-bottom: 24px;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 12px;
+            }
+            .tab-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 14.5px;
+                font-weight: 600;
+                text-decoration: none;
                 color: #64748b;
-                font-size: 13px;
+                background: #ffffff;
+                border: 1px solid #cbd5e1;
+                transition: all 0.2s ease;
+            }
+            .tab-btn:hover {
+                color: #1d4ed8;
+                border-color: #93c5fd;
+                background: #eff6ff;
+            }
+            .tab-btn.active {
+                color: #ffffff;
+                background: #2563eb;
+                border-color: #2563eb;
+                box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
             }
         </style>
     </head>
     <body>
 
-        <!-- ════ HEADER (synced with home.jsp) ════ -->
-        <header class="header">
-            <div class="container header-container">
-                <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">UniLap</a>
-                <nav class="main-nav">
-                    <a href="${pageContext.request.contextPath}/HomeServlet">Trang chủ</a>
-                    <c:forEach items="${categories}" var="cat">
-                        <c:if test="${cat.categoryId == 1 || cat.categoryId == 3 || cat.categoryId == 4}">
-                            <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
-                        </c:if>
-                    </c:forEach>
-                    <div class="nav-dropdown">
-                        <span class="dropdown-btn">Phụ kiện khác <i class="fas fa-chevron-down" style="font-size: 11px;"></i></span>
-                        <div class="dropdown-content">
-                            <c:forEach items="${categories}" var="cat">
-                                <c:if test="${cat.categoryId == 2 || cat.categoryId == 5 || cat.categoryId == 6 || cat.categoryId == 7}">
-                                    <a href="ProductListServlet?category=${cat.categoryId}">${cat.categoryName}</a>
-                                </c:if>
-                            </c:forEach>
-                        </div>
-                    </div>
-                    <a href="#">Khuyến mãi</a>
-                </nav>
-                <div class="header-icons" style="display:flex; align-items:center; gap:15px;">
-                    <form action="ProductListServlet" method="GET" class="search-form" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
-                        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
-                        <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
-                    </form>
-                    <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
-                        <i class="fas fa-shopping-cart"></i>
-                        <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
-                            <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
-                        </c:if>
-                    </a>
-                    <a href="#"><i class="fas fa-bell"></i></a>
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.user}">
-                            <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
-                                 <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
-                                    <c:choose>
-                                        <c:when test="${not empty sessionScope.user.avatarUrl}">
-                                            <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}"
-                                                 alt="avatar"
-                                                 style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0;">
-                                        </c:when>
-                                        <c:otherwise>
-                                            <i class="fas fa-user"></i>
-                                        </c:otherwise>
-                                    </c:choose>
-                                     <span style="font-size: 13px; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sessionScope.user.userName}</span>
-                                 </a>
-                                <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 150px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
-                                    <c:choose>
-                                        <c:when test="${sessionScope.user.roleId == 1}">
-                                            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
-                                        </c:when>
-                                        <c:when test="${sessionScope.user.roleId == 2}">
-                                            <a href="${pageContext.request.contextPath}/staff/inventory" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
-                                        </c:otherwise>
-                                    </c:choose>
-                                    <div style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></div>
-                                    <a href="${pageContext.request.contextPath}/logout" style="color: #ef4444; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500;">Đăng xuất</a>
-                                </div>
-                            </div>
-                            <script>
-                                (function () {
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        var triggers = document.querySelectorAll('.user-menu-trigger');
-                                        triggers.forEach(function (trigger) {
-                                            trigger.addEventListener('click', function (e) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                var dropdown = this.nextElementSibling;
-                                                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                                            });
-                                        });
-                                        document.addEventListener('click', function () {
-                                            document.querySelectorAll('.user-menu-dropdown-content').forEach(function (dropdown) {
-                                                dropdown.style.display = 'none';
-                                            });
-                                        });
-                                    });
-                                })();
-                            </script>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/login"><i class="fas fa-user"></i></a>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
-        </header>
+        <!-- ════ HEADER ════ -->
+        <%@include file="_header.jspf" %>
 
         <!-- ════ FLASH MESSAGES ════ -->
     <c:if test="${not empty param.msg}">
@@ -922,6 +857,18 @@
             <div class="alert-error">⚠️ <c:out value="${errorMessage}"/></div>
         </div>
     </c:if>
+
+    <div class="container" style="max-width:1200px;margin:0 auto;padding:0 20px;">
+        <!-- ── Top Tab Bar ── -->
+        <div class="warranty-tabs">
+            <a href="${pageContext.request.contextPath}/warranty?action=center" class="tab-btn active">
+                <i class="fas fa-plus-circle"></i> Gửi Yêu Cầu Bảo Hành Mới
+            </a>
+            <a href="${pageContext.request.contextPath}/warranty?action=list" class="tab-btn">
+                <i class="fas fa-list-alt"></i> Danh Sách & Theo Dõi Bảo Hành
+            </a>
+        </div>
+    </div>
 
     <!-- ════ HERO ════ -->
     <section class="page-hero">
@@ -1191,95 +1138,6 @@
             </c:choose>
         </div>
     </div>
-
-    <!-- ════ TRACK EXISTING CLAIM (below the wizard) ════ -->
-    <div class="track-claim-section">
-        <div class="card track-claim-card">
-            <div class="card-icon-wrap">🚚</div>
-            <h3>Theo Dõi Yêu Cầu Bảo Hành</h3>
-            <p>Theo dõi tiến trình xử lý các yêu cầu bảo hành hoặc trả phần cứng đang hoạt động.</p>
-            <form method="get" action="${pageContext.request.contextPath}/warranty">
-                <input type="hidden" name="action" value="detail">
-                <div class="field-group">
-                    <label>Mã yêu cầu bảo hành</label>
-                    <input type="text" name="id" placeholder="Nhập mã yêu cầu (ví dụ: 42)">
-                </div>
-                <button class="btn-outline-primary" type="submit">Theo dõi</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ════ RECENT WARRANTY ACTIVITY ════ -->
-    <section class="recent-section" id="recent-activity">
-        <h3>Hoạt Động Bảo Hành Gần Đây</h3>
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Mã yêu cầu / Ngày tạo</th>
-                    <th>Sản phẩm</th>
-                    <th>Tiêu đề lỗi</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-            <c:choose>
-                <c:when test="${empty claims}">
-                    <tr>
-                        <td colspan="5" class="no-claims">
-                            Bạn chưa có yêu cầu bảo hành nào.
-                        </td>
-                    </tr>
-                </c:when>
-                <c:otherwise>
-                    <c:forEach var="claim" items="${claims}">
-                        <tr>
-                            <td>
-                                <div class="claim-ref">#${claim.claimId}</div>
-                                <div class="claim-date">
-                                    <fmt:formatDate value="${claim.createdAt}" pattern="dd/MM/yyyy"/>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-size:13px;font-weight:500;"><c:out value="${claim.productName}"/></div>
-                                <div style="font-size:11.5px;color:#9ca3af;">SN: <c:out value="${claim.serialNumber}"/></div>
-                            </td>
-                            <td style="font-size:13px;"><c:out value="${claim.title}"/></td>
-                            <td>
-                                <span class="badge badge-${claim.status}">
-                                    <c:choose>
-                                        <c:when test="${claim.status == 'PENDING'}">Chờ xử lý</c:when>
-                                        <c:when test="${claim.status == 'APPROVED'}">Đã duyệt</c:when>
-                                        <c:when test="${claim.status == 'REJECTED'}">Từ chối</c:when>
-                                        <c:when test="${claim.status == 'COMPLETED'}">Hoàn thành</c:when>
-                                        <c:otherwise>${claim.status}</c:otherwise>
-                                    </c:choose>
-                                </span>
-                            </td>
-                            <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                <a class="btn-detail-sm"
-                                   href="${pageContext.request.contextPath}/warranty?action=detail&id=${claim.claimId}">
-                                    Xem chi tiết
-                                </a>
-                                <%-- Cancel chỉ hiện khi PENDING --%>
-                        <c:if test="${claim.status == 'PENDING'}">
-                            <form class="cancel-form"
-                                  action="${pageContext.request.contextPath}/warranty"
-                                  method="post"
-                                  onsubmit="return confirm('Huỷ yêu cầu #${claim.claimId}?')">
-                                <input type="hidden" name="action" value="cancel">
-                                <input type="hidden" name="id"     value="${claim.claimId}">
-                                <button type="submit" class="btn-cancel-sm">Hủy</button>
-                            </form>
-                        </c:if>
-                        </td>
-                        </tr>
-                    </c:forEach>
-                </c:otherwise>
-            </c:choose>
-            </tbody>
-        </table>
-    </section>
 
     <!-- ════ FOOTER (synced with home.jsp) ════ -->
     <%@include file="_footer.jspf" %>

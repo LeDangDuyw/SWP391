@@ -4,6 +4,7 @@
 <%-- 
     Component: Staff Sidebar (Navbar bên trái dành cho Nhân viên)
     Nhận param activePage để highlight mục tương ứng:
+    - dashboard
     - inventory
     - category
     - imei
@@ -20,6 +21,9 @@
         <small>Quản trị hệ thống</small>
     </div>
     <nav>
+        <a class="${param.activePage == 'dashboard' ? 'active' : ''}" href="${pageContext.request.contextPath}/staff/dashboard">
+            <span class="nav-icon">▦</span>Bảng điều khiển
+        </a>
         <a class="${param.activePage == 'inventory' ? 'active' : ''}" href="${pageContext.request.contextPath}/staff/inventory">
             <span class="nav-icon">▤</span>Kho hàng
         </a>

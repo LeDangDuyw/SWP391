@@ -1,37 +1,34 @@
 package dal;
 
-/**
- * Class: WarrantyClaimImageDAO
- * Description: Data Access Object xử lý hình ảnh minh chứng đính kèm phiếu bảo hành.
- * 
- * Created: 2026-06-26
- * Updated: 2026-06-26
- * Version: v1.2
- *
- * @author DuyLD
- */
-
 import model.WarrantyClaimImage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class: WarrantyClaimImageDAO
+ * Description: Data Access Object (DAO) xử lý lưu trữ và truy vấn thông tin hình ảnh đính kèm minh chứng cho phiếu bảo hành.
+ * 
+ * Created: 2026-06-26
+ * Updated: 2026-07-23
+ * Version: v1.3
+ *
+ * @author DuyLD
+ */
 public class WarrantyClaimImageDAO extends DBContext {
 
-    // ── INSERT ────────────────────────────────────────────────────────────────
 
     /**
-     * Inserts a single image record cho một claim.
+     * Thêm mới một bản ghi hình ảnh đính kèm cho phiếu bảo hành.
      *
-     * @param claimId  ID của claim sở hữu ảnh
-     * @param imageUrl đường dẫn/URL ảnh đã lưu (đã được tạo sau khi ghi file vào disk)
-     * @throws Exception on SQL error
+     * @param claimId  Mã ID phiếu bảo hành
+     * @param imageUrl Đường dẫn URL lưu tệp ảnh
+     * @throws Exception Ngoại lệ SQL
      */
     public void insert(int claimId, String imageUrl) throws Exception {
         String sql = "INSERT INTO WarrantyClaimImages (claim_id, image_url, uploaded_at) "
                 + "VALUES (?, ?, GETDATE())";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
@@ -41,14 +38,13 @@ public class WarrantyClaimImageDAO extends DBContext {
     }
 
     /**
-     * Insert nhiều ảnh cho một claim trong một lần gọi (dùng batch để giảm round-trip).
+     * Thêm danh sách nhiều tệp ảnh đính kèm theo lô (batch execution) cho phiếu bảo hành.
      *
-     * @param claimId   ID của claim
-     * @param imageUrls danh sách URL ảnh đã lưu trên disk
-     * @throws Exception on SQL error
+     * @param claimId   Mã ID phiếu bảo hành
+     * @param imageUrls Danh sách đường dẫn ảnh
+     * @throws Exception Ngoại lệ SQL
      */
     public void insertBatch(int claimId, List<String> imageUrls) throws Exception {
-        // Kiểm tra điều kiện
         if (imageUrls == null || imageUrls.isEmpty()) {
             return;
         }
@@ -56,7 +52,6 @@ public class WarrantyClaimImageDAO extends DBContext {
         String sql = "INSERT INTO WarrantyClaimImages (claim_id, image_url, uploaded_at) "
                 + "VALUES (?, ?, GETDATE())";
 
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             for (String url : imageUrls) {
@@ -68,14 +63,12 @@ public class WarrantyClaimImageDAO extends DBContext {
         }
     }
 
-    // ── FIND BY CLAIM ID ──────────────────────────────────────────────────────
-
     /**
-     * Lấy toàn bộ ảnh của một claim, mới nhất trước (dùng cho gallery trên detail.jsp).
+     * Lấy toàn bộ danh sách tệp ảnh đính kèm thuộc về một phiếu bảo hành.
      *
-     * @param claimId ID của claim
-     * @return danh sách WarrantyClaimImage
-     * @throws Exception on SQL error
+     * @param claimId Mã ID phiếu bảo hành
+     * @return Danh sách các đối tượng WarrantyClaimImage
+     * @throws Exception Ngoại lệ SQL
      */
     public List<WarrantyClaimImage> findByClaimId(int claimId) throws Exception {
         String sql = "SELECT * FROM WarrantyClaimImages "
@@ -83,11 +76,9 @@ public class WarrantyClaimImageDAO extends DBContext {
                 + "ORDER BY uploaded_at ASC";
 
         List<WarrantyClaimImage> list = new ArrayList<>();
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapImage(rs));
@@ -98,39 +89,31 @@ public class WarrantyClaimImageDAO extends DBContext {
     }
 
     /**
-     * Đếm số ảnh hiện có của một claim — dùng để chặn việc thêm ảnh vượt quá
-     * giới hạn 5 ảnh/claim nếu sau này cho phép upload bổ sung.
+     * Đếm số lượng ảnh minh chứng hiện có của một phiếu bảo hành.
      *
-     * @param claimId ID của claim
-     * @return số ảnh hiện có
-     * @throws Exception on SQL error
+     * @param claimId Mã ID phiếu bảo hành
+     * @return Số lượng ảnh
+     * @throws Exception Ngoại lệ SQL
      */
     public int countByClaimId(int claimId) throws Exception {
         String sql = "SELECT COUNT(*) FROM WarrantyClaimImages WHERE claim_id = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
         }
     }
 
-    // ── DELETE ────────────────────────────────────────────────────────────────
-
     /**
-     * Xoá một ảnh cụ thể theo image_id.
-     * Lưu ý: chỉ xoá record trong DB, việc xoá file vật lý trên disk
-     * (nếu cần) phải gọi riêng ở Service layer.
+     * Xóa một bản ghi tệp ảnh theo ID ảnh.
      *
-     * @param imageId ID của ảnh cần xoá
-     * @throws Exception on SQL error
+     * @param imageId Mã ID ảnh cần xóa
+     * @throws Exception Ngoại lệ SQL
      */
     public void deleteById(int imageId) throws Exception {
         String sql = "DELETE FROM WarrantyClaimImages WHERE image_id = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, imageId);
@@ -139,14 +122,13 @@ public class WarrantyClaimImageDAO extends DBContext {
     }
 
     /**
-     * Xoá toàn bộ ảnh của một claim (dùng khi xoá hẳn claim, nếu hệ thống hỗ trợ).
+     * Xóa toàn bộ ảnh đính kèm của một phiếu bảo hành.
      *
-     * @param claimId ID của claim
-     * @throws Exception on SQL error
+     * @param claimId Mã ID phiếu bảo hành
+     * @throws Exception Ngoại lệ SQL
      */
     public void deleteByClaimId(int claimId) throws Exception {
         String sql = "DELETE FROM WarrantyClaimImages WHERE claim_id = ?";
-        // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, claimId);
@@ -154,8 +136,9 @@ public class WarrantyClaimImageDAO extends DBContext {
         }
     }
 
-    // ── PRIVATE MAPPING ───────────────────────────────────────────────────────
-
+    /**
+     * Ánh xạ từ dòng dữ liệu ResultSet sang đối tượng WarrantyClaimImage.
+     */
     private WarrantyClaimImage mapImage(ResultSet rs) throws SQLException {
         return new WarrantyClaimImage(
                 rs.getInt("image_id"),
@@ -164,4 +147,4 @@ public class WarrantyClaimImageDAO extends DBContext {
                 rs.getTimestamp("uploaded_at")
         );
     }
-}
+}

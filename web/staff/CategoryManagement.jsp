@@ -115,6 +115,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <% 
+    model.Users u = (model.Users) session.getAttribute("user");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     if (categories == null) {
         categories = new ArrayList<Category>(); 
