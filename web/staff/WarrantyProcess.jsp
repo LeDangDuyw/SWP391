@@ -644,6 +644,10 @@
     <body>
     <div class="layout">
 
+<<<<<<< HEAD
+=======
+        <!-- ════ SIDEBAR (synced with other staff pages) ════ -->
+>>>>>>> 18085d588b9f1f555f43faa0fb044cfe92cfc890
         <jsp:include page="/staff/sidebar.jsp">
             <jsp:param name="activePage" value="warranty"/>
         </jsp:include>
@@ -687,8 +691,8 @@
                 <div class="claims-panel">
                     <div class="panel-header">
                         <div class="panel-header-left">
-                            <h2>Active Claims</h2>
-                            <p>Total: ${total} warranty requests</p>
+                            <h2>Yêu cầu bảo hành đang hoạt động</h2>
+                            <p>Tổng số: ${total} yêu cầu bảo hành</p>
                         </div>
                         <div class="panel-header-actions">
                             <%-- Filter dropdown --%>
@@ -699,19 +703,29 @@
                                 <select name="statusFilter" onchange="this.form.submit()"
                                         style="border:1px solid #d1d5db;border-radius:7px;
                                         padding:6px 10px;font-size:12.5px;color:#374151;">
-                                    <option value="">All Statuses</option>
+                                    <option value="">Tất cả trạng thái</option>
                                     <c:forEach var="s" items="${['PENDING','PROCESSING','APPROVED','REJECTED','COMPLETED','CANCELLED']}">
-                                        <option value="${s}" ${statusFilter == s ? 'selected' : ''}>${s}</option>
+                                        <option value="${s}" ${statusFilter == s ? 'selected' : ''}>
+                                            <c:choose>
+                                                <c:when test="${s == 'PENDING'}">Chờ xử lý</c:when>
+                                                <c:when test="${s == 'PROCESSING'}">Đang xử lý</c:when>
+                                                <c:when test="${s == 'APPROVED'}">Đã duyệt</c:when>
+                                                <c:when test="${s == 'REJECTED'}">Đã từ chối</c:when>
+                                                <c:when test="${s == 'COMPLETED'}">Đã hoàn thành</c:when>
+                                                <c:when test="${s == 'CANCELLED'}">Đã hủy</c:when>
+                                                <c:otherwise>${s}</c:otherwise>
+                                            </c:choose>
+                                        </option>
                                     </c:forEach>
                                 </select>
                                 <c:if test="${not empty selectedClaim}">
                                     <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list&selectedId=${selectedClaim.claimId}"
-                                       class="filter-reset">Reset</a>
+                                       class="filter-reset">Đặt lại</a>
                                 </c:if>
 
                                 <c:if test="${empty selectedClaim}">
                                     <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list"
-                                       class="filter-reset">Reset</a>
+                                       class="filter-reset">Đặt lại</a>
                                 </c:if>
                             </form>
                         </div>
@@ -720,18 +734,18 @@
                     <table class="claims-table">
                         <thead>
                             <tr>
-                                <th>Claim ID</th>
-                                <th>Customer</th>
-                                <th>Product</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Detail</th>
+                                <th>Mã yêu cầu</th>
+                                <th>Khách hàng</th>
+                                <th>Sản phẩm</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày gửi</th>
+                                <th>Chi tiết</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:choose>
                                 <c:when test="${empty claims}">
-                                    <tr><td colspan="6" class="no-data">No warranty claims found.</td></tr>
+                                    <tr><td colspan="6" class="no-data">Không tìm thấy yêu cầu bảo hành nào.</td></tr>
                                 </c:when>
                                 <c:otherwise>
                                     <c:forEach var="claim" items="${claims}">
@@ -749,22 +763,32 @@
                                                 <div class="product-name"><c:out value="${claim.productName}"/></div>
                                                 <div class="product-sn">SN: <c:out value="${claim.serialNumber}"/></div>
                                             </td>
-                                            <td><span class="badge badge-${claim.status}"><c:out value="${claim.status}"/></span></td>
-                                            <td class="date-cell">
-                                                <fmt:formatDate value="${claim.createdAt}" pattern="MMM dd,"/>
-                                                <br>
-                                                <fmt:formatDate value="${claim.createdAt}" pattern="yyyy"/>
-                                            </td>
                                             <td>
-                                                <a class="claim-id-link"
-                                                   href="${pageContext.request.contextPath}/staff/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
-                                                    Open →
-                                                </a>
+                                                <span class="badge badge-${claim.status}">
+                                                    <c:choose>
+                                                        <c:when test="${claim.status == 'PENDING'}">Chờ xử lý</c:when>
+                                                        <c:when test="${claim.status == 'PROCESSING'}">Đang xử lý</c:when>
+                                                        <c:when test="${claim.status == 'APPROVED'}">Đã duyệt</c:when>
+                                                        <c:when test="${claim.status == 'REJECTED'}">Đã từ chối</c:when>
+                                                        <c:when test="${claim.status == 'COMPLETED'}">Đã hoàn thành</c:when>
+                                                        <c:when test="${claim.status == 'CANCELLED'}">Đã hủy</c:when>
+                                                        <c:otherwise><c:out value="${claim.status}"/></c:otherwise>
+                                                    </c:choose>
+                                                </span>
                                             </td>
-                                        </tr>
-                                    </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
+                                             <td class="date-cell">
+                                                 <fmt:formatDate value="${claim.createdAt}" pattern="dd/MM/yyyy"/>
+                                             </td>
+                                            <td>
+                                                 <a class="claim-id-link"
+                                                    href="${pageContext.request.contextPath}/staff/warranty?action=detail&id=${claim.claimId}&statusFilter=${statusFilter}&keyword=${keyword}&page=${page}">
+                                                     Xem →
+                                                 </a>
+                                             </td>
+                                         </tr>
+                                     </c:forEach>
+                                 </c:otherwise>
+                             </c:choose>
                         </tbody>
                     </table>
 
@@ -773,12 +797,8 @@
                         <div class="pagination">
 
                             <c:if test="${page > 1}">
-                                <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
-                                   &page=${page-1}
-                                   &statusFilter=${statusFilter}
-                                   &keyword=${keyword}
-                                   &selectedId=${selectedClaim.claimId}">
-                                    ‹ Prev
+                                <a href="${pageContext.request.contextPath}/staff/warranty?action=list&page=${page-1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
+                                    ‹ Trước
                                 </a>
                             </c:if>
 
@@ -788,11 +808,7 @@
                                         <span class="pg-active">${p}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
-                                           &page=${p}
-                                           &statusFilter=${statusFilter}
-                                           &keyword=${keyword}
-                                           &selectedId=${selectedClaim.claimId}">
+                                        <a href="${pageContext.request.contextPath}/staff/warranty?action=list&page=${p}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
                                             ${p}
                                         </a>
                                     </c:otherwise>
@@ -800,12 +816,8 @@
                             </c:forEach>
 
                             <c:if test="${page < totalPages}">
-                                <a href="${pageContext.request.contextPath}/staff/staff/warranty?action=list
-                                   &page=${page+1}
-                                   &statusFilter=${statusFilter}
-                                   &keyword=${keyword}
-                                   &selectedId=${selectedClaim.claimId}">
-                                    Next ›
+                                <a href="${pageContext.request.contextPath}/staff/warranty?action=list&page=${page+1}&statusFilter=${statusFilter}&keyword=${keyword}&selectedId=${selectedClaim.claimId}">
+                                    Sau ›
                                 </a>
                             </c:if>
 
@@ -819,10 +831,10 @@
                     <c:choose>
                         <%-- No claim selected yet --%>
                         <c:when test="${empty selectedClaim}">
-                            <div class="detail-empty">
-                                <span style="font-size:28px;">👈</span>
-                                <span>Select a claim from the table to view details and take action.</span>
-                            </div>
+                             <div class="detail-empty">
+                                 <span style="font-size:28px;">👈</span>
+                                 <span>Chọn một yêu cầu từ bảng để xem chi tiết và thực hiện xử lý.</span>
+                             </div>
                         </c:when>
 
                         <%-- Claim selected --%>
@@ -831,45 +843,55 @@
 
                             <%-- Header --%>
                             <div class="detail-claim-header">
-                                <div class="claim-tag">CLAIM #${sc.claimId}</div>
+                                <div class="claim-tag">YÊU CẦU #${sc.claimId}</div>
                                 <div class="claim-status-row">
                                     <div class="claim-title"><c:out value="${sc.title}"/></div>
-                                    <span class="status-pill status-pill-${sc.status}">${sc.status}</span>
+                                    <span class="status-pill status-pill-${sc.status}">
+                                        <c:choose>
+                                            <c:when test="${sc.status == 'PENDING'}">Chờ xử lý</c:when>
+                                            <c:when test="${sc.status == 'PROCESSING'}">Đang xử lý</c:when>
+                                            <c:when test="${sc.status == 'APPROVED'}">Đã duyệt</c:when>
+                                            <c:when test="${sc.status == 'REJECTED'}">Đã từ chối</c:when>
+                                            <c:when test="${sc.status == 'COMPLETED'}">Đã hoàn thành</c:when>
+                                            <c:when test="${sc.status == 'CANCELLED'}">Đã hủy</c:when>
+                                            <c:otherwise>${sc.status}</c:otherwise>
+                                        </c:choose>
+                                    </span>
                                 </div>
                             </div>
 
                             <%-- Meta --%>
                             <div class="detail-meta">
                                 <div class="meta-group">
-                                    <label>Customer</label>
+                                    <label>Khách hàng</label>
                                     <span><c:out value="${sc.customerName}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Product</label>
+                                    <label>Sản phẩm</label>
                                     <span><c:out value="${sc.productName}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Serial</label>
+                                    <label>Số sê-ri</label>
                                     <span><c:out value="${sc.serialNumber}"/></span>
                                 </div>
                                 <div class="meta-group">
-                                    <label>Created</label>
+                                    <label>Ngày tạo</label>
                                     <span><fmt:formatDate value="${sc.createdAt}" pattern="dd/MM/yyyy"/></span>
                                 </div>
                             </div>
 
                             <%-- Description --%>
                             <div class="detail-section">
-                                <div class="section-title">📝 Issue Description</div>
+                                <div class="section-title">📝 Mô Tả Lỗi</div>
                                 <div class="customer-quote"><c:out value="${sc.description}"/></div>
                             </div>
 
                             <%-- Images --%>
                             <div class="detail-section">
-                                <div class="section-title">📷 Evidence Images</div>
+                                <div class="section-title">📷 Hình Ảnh Bằng Chứng</div>
                                 <c:choose>
                                     <c:when test="${empty selectedImages}">
-                                        <div style="color:#9ca3af;font-size:12px;">No images uploaded.</div>
+                                        <div style="color:#9ca3af;font-size:12px;">Không có hình ảnh đính kèm.</div>
                                     </c:when>
                                     <c:otherwise>
                                         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
@@ -885,17 +907,27 @@
 
                             <%-- History Timeline --%>
                             <div class="detail-section">
-                                <div class="section-title">🕒 History</div>
+                                <div class="section-title">🕒 Lịch Sử Xử Lý</div>
                                 <c:choose>
                                     <c:when test="${empty selectedHistory}">
-                                        <div style="color:#9ca3af;font-size:12px;">No history yet.</div>
+                                        <div style="color:#9ca3af;font-size:12px;">Chưa có lịch sử.</div>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="timeline">
                                             <c:forEach var="h" items="${selectedHistory}">
                                                 <div class="tl-item">
                                                     <div class="tl-dot"></div>
-                                                    <div class="tl-status"><c:out value="${h.repairStatus}"/></div>
+                                                    <div class="tl-status">
+                                                        <c:choose>
+                                                            <c:when test="${h.repairStatus == 'PENDING'}">Chờ xử lý</c:when>
+                                                            <c:when test="${h.repairStatus == 'PROCESSING'}">Đang xử lý</c:when>
+                                                            <c:when test="${h.repairStatus == 'APPROVED'}">Đã duyệt</c:when>
+                                                            <c:when test="${h.repairStatus == 'REJECTED'}">Đã từ chối</c:when>
+                                                            <c:when test="${h.repairStatus == 'COMPLETED'}">Đã hoàn thành</c:when>
+                                                            <c:when test="${h.repairStatus == 'CANCELLED'}">Đã hủy</c:when>
+                                                            <c:otherwise><c:out value="${h.repairStatus}"/></c:otherwise>
+                                                        </c:choose>
+                                                    </div>
                                                     <div class="tl-date">
                                                         <fmt:formatDate value="${h.repairDate}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </div>
@@ -912,9 +944,19 @@
                             <%-- Process Form (only if claim is still actionable) --%>
                             <c:choose>
                                 <c:when test="${sc.status == 'COMPLETED' || sc.status == 'CANCELLED' || sc.status == 'REJECTED'}">
-                                    <div class="terminal-closed">
-                                        ✔ This claim is closed (<c:out value="${sc.status}"/>). No further actions available.
-                                    </div>
+                                     <div class="terminal-closed">
+                                        ✔ Yêu cầu bảo hành này đã đóng (
+                                        <c:choose>
+                                            <c:when test="${sc.status == 'PENDING'}">Chờ xử lý</c:when>
+                                            <c:when test="${sc.status == 'PROCESSING'}">Đang xử lý</c:when>
+                                            <c:when test="${sc.status == 'APPROVED'}">Đã duyệt</c:when>
+                                            <c:when test="${sc.status == 'REJECTED'}">Đã từ chối</c:when>
+                                            <c:when test="${sc.status == 'COMPLETED'}">Đã hoàn thành</c:when>
+                                            <c:when test="${sc.status == 'CANCELLED'}">Đã hủy</c:when>
+                                            <c:otherwise><c:out value="${sc.status}"/></c:otherwise>
+                                        </c:choose>
+                                        ). Không thể thao tác thêm.
+                                     </div>
                                 </c:when>
                                 <c:otherwise>
                                     <c:choose>
@@ -922,8 +964,8 @@
                                         <%-- ── PENDING: Accept hoặc Cancel ── --%>
                                         <c:when test="${sc.status == 'PENDING'}">
                                             <div class="process-form">
-                                                <label>Staff Note</label>
-                                                <textarea id="note-pending" placeholder="Enter note or reason..."></textarea>
+                                                <label>Ghi chú nhân viên</label>
+                                                <textarea id="note-pending" placeholder="Nhập ghi chú hoặc lý do..."></textarea>
                                             </div>
                                             <div class="detail-actions">
                                                 <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
@@ -935,8 +977,8 @@
                                                     <input type="hidden" name="newStatus"  value="CANCELLED">
                                                     <input type="hidden" name="note"       id="note-cancel">
                                                     <button type="submit" class="btn-reject"
-                                                            onclick="return confirm('Huỷ claim #${sc.claimId}?')">
-                                                        Cancel Claim
+                                                            onclick="return confirm('Huỷ yêu cầu #${sc.claimId}?')">
+                                                        Hủy yêu cầu
                                                     </button>
                                                 </form>
                                                 <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
@@ -948,7 +990,7 @@
                                                     <input type="hidden" name="newStatus"  value="PROCESSING">
                                                     <input type="hidden" name="note"       id="note-process">
                                                     <button type="submit" class="btn-approve">
-                                                        Accept ✓
+                                                        Tiếp nhận ✓
                                                     </button>
                                                 </form>
                                             </div>
@@ -957,8 +999,8 @@
                                         <%-- ── PROCESSING: Approve hoặc Reject ── --%>
                                         <c:when test="${sc.status == 'PROCESSING'}">
                                             <div class="process-form">
-                                                <label>Staff Note</label>
-                                                <textarea id="note-processing" placeholder="Enter note or reason..."></textarea>
+                                                <label>Ghi chú nhân viên</label>
+                                                <textarea id="note-processing" placeholder="Nhập ghi chú hoặc lý do..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
                                             </div>
                                             <div class="detail-actions">
                                                 <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
@@ -969,7 +1011,7 @@
                                                     <input type="hidden" name="redirectTo" value="console">
                                                     <input type="hidden" name="newStatus"  value="REJECTED">
                                                     <input type="hidden" name="note"       id="note-reject">
-                                                    <button type="submit" class="btn-reject">Reject</button>
+                                                    <button type="submit" class="btn-reject">Từ chối</button>
                                                 </form>
                                                 <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
                                                       style="display:contents"
@@ -979,7 +1021,7 @@
                                                     <input type="hidden" name="redirectTo" value="console">
                                                     <input type="hidden" name="newStatus"  value="APPROVED">
                                                     <input type="hidden" name="note"       id="note-approve">
-                                                    <button type="submit" class="btn-approve">Approve ✓</button>
+                                                    <button type="submit" class="btn-approve">Duyệt ✓</button>
                                                 </form>
                                             </div>
                                         </c:when>
@@ -992,10 +1034,10 @@
                                                 <input type="hidden" name="id"         value="${sc.claimId}">
                                                 <input type="hidden" name="redirectTo" value="console">
                                                 <input type="hidden" name="newStatus"  value="COMPLETED">
-                                                <label>Staff Note</label>
-                                                <textarea name="note" placeholder="Enter completion note..."></textarea>
+                                                <label>Ghi chú nhân viên</label>
+                                                <textarea name="note" placeholder="Nhập ghi chú hoàn thành..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
                                                 <div style="padding:0 0 14px;">
-                                                    <button type="submit" class="btn-full">Mark as Completed</button>
+                                                    <button type="submit" class="btn-full">Đánh dấu hoàn thành</button>
                                                 </div>
                                             </form>
                                         </c:when>

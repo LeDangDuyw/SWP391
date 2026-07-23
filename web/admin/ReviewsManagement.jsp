@@ -38,60 +38,7 @@
                 display:flex;
                 min-height:100vh;
             }
-            /* Sidebar */
-            .sidebar {
-                width: 280px;
-                background: #eef2f7;
-                border-right: 1px solid #e1e6ef;
-                padding: 28px 16px;
-                display: flex;
-                flex-direction: column;
-                position: sticky;
-                top: 0;
-                height: 100vh;
-            }
-            .sidebar .brand { margin: 6px 10px 44px; display: grid; gap: 6px; }
-            .sidebar .brand span { color: #0b39d1; font-size: 24px; font-weight: 800; letter-spacing: .05em; display: block; }
-            .sidebar .brand small { color: #343a46; font-size: 14px; display: block; }
-            .sidebar nav { display: grid; gap: 10px; }
-            .sidebar nav a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 14px;
-                border-radius: 10px;
-                color: #242a38;
-                font-weight: 600;
-                text-decoration: none;
-                font-size: 14px;
-            }
-            .sidebar nav a span { min-width: 20px; color: #1f2937; font-size: 16px; }
-            .sidebar nav a:hover { background: #f3f4f6; }
-            .sidebar nav a.active { background: #d8e8ff; color: #0b39d1; }
-            .sidebar .profile {
-                margin-top: auto;
-                border-top: 1px solid #d4dae6;
-                padding: 18px 10px 0;
-                display: grid;
-                gap: 12px;
-                font-weight: 700;
-            }
-            .logout-btn {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #ef4444 !important;
-                font-size: 13px;
-                font-weight: 600;
-                padding: 8px 12px;
-                border-radius: 6px;
-                background: #fef2f2;
-                border: 1px solid #fecaca;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                width: fit-content;
-            }
-            .logout-btn:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626 !important; }
+            /* Sidebar CSS: provided by sidebar.jsp Master CSS */
             /* Main Layout */
             .main {
                 flex:1;
@@ -263,24 +210,7 @@
             }
         </style>
     
-<style>
-            /* Sidebar dropdown style */
-            .sidebar-dropdown {
-                display: flex;
-                flex-direction: column;
-            }
-            .sidebar-dropdown-container {
-                display: none;
-                flex-direction: column;
-                gap: 4px;
-                margin-top: 4px;
-            }
-            .sidebar nav .sidebar-dropdown-container a {
-                padding: 8px 14px 8px 30px !important;
-                font-size: 13px !important;
-                font-weight: 500 !important;
-            }
-</style>
+<!-- Sidebar dropdown CSS: provided by sidebar.jsp Master CSS -->
 <style>
     /* Tab Styling */
     .tabs-nav {
