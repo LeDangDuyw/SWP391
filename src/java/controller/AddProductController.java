@@ -318,11 +318,35 @@ public class AddProductController extends HttpServlet {
                         }
                     }
                     
-                    // Thêm biến thể của sản phẩm vào database (kèm thumbnail nếu có)
+                    // Thêm biến thể của sản phẩm vào database (kèm thumbnail nếu có) và lưu VariantSpecification
+                    int variantId = -1;
                     if (variantThumbName != null) {
-                        productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock, variantThumbName);
+                        variantId = productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock, variantThumbName);
                     } else {
-                        productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock);
+                        variantId = productDAO.insertProductVariant(productId, sku, variantName, importPrice, price, stock);
+                    }
+
+                    if (variantId != -1) {
+                        java.util.Map<Integer, String> specMap = new java.util.HashMap<>();
+                        java.util.Enumeration<String> paramNames = request.getParameterNames();
+                        String prefix = "specVal_" + j + "_";
+                        while (paramNames.hasMoreElements()) {
+                            String pName = paramNames.nextElement();
+                            if (pName.startsWith(prefix)) {
+                                try {
+                                    int specId = Integer.parseInt(pName.substring(prefix.length()));
+                                    String val = request.getParameter(pName);
+                                    if (val != null && !val.trim().isEmpty()) {
+                                        specMap.put(specId, val.trim());
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                        if (!specMap.isEmpty()) {
+                            productDAO.saveVariantSpecifications(variantId, specMap);
+                        }
                     }
                 }
             }

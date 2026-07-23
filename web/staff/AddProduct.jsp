@@ -77,35 +77,9 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
-        <nav>
-            <a class="active" href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
-        </nav>
-        <div class="profile">
-            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <%
-                    model.Users u = (model.Users) session.getAttribute("user");
-                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
-                <span>Hồ sơ nhân viên</span>
-            </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
-        </div>
-    </aside>
+    <jsp:include page="/staff/sidebar.jsp">
+        <jsp:param name="activePage" value="inventory"/>
+    </jsp:include>
 
     <!-- Main Content -->
     <div class="main">
@@ -158,9 +132,9 @@
                                                 <label
                                                     class="block text-sm font-medium text-on-surface-variant mb-2">Danh mục</label>
                                                 <div class="relative">
-                                                    <select name="categoryId"
-                                                        class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                                                        required>
+                                                     <select name="categoryId" id="categorySelectEl" onchange="onCategoryChange(this)"
+                                                         class="w-full appearance-none px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                                         required>
                                                         <option value="" disabled selected>Chọn danh mục</option>
                                                         <c:forEach var="c" items="${categories}">
                                                             <option value="${c.categoryId}">${c.categoryName}</option>
@@ -427,9 +401,57 @@
                     const variantsContainer = document.getElementById('variants-container');
                     let variantCount = 0; // Đếm số lượng variant để tạo placeholder tên SKU tự động
 
+                    let currentCategorySpecs = [];
+
+                    function onCategoryChange(selectEl) {
+                        const categoryId = selectEl.value;
+                        if (!categoryId) return;
+                        fetch('${pageContext.request.contextPath}/staff/category?action=getSpecs&categoryId=' + categoryId)
+                            .then(res => res.json())
+                            .then(data => {
+                                currentCategorySpecs = data.categorySpecs || [];
+                                updateAllVariantSpecInputs();
+                            });
+                    }
+
+                    function updateAllVariantSpecInputs() {
+                        const rows = variantsContainer.querySelectorAll('tr');
+                        rows.forEach((tr, index) => {
+                            renderVariantCategorySpecs(tr, index);
+                        });
+                    }
+
+                    function renderVariantCategorySpecs(tr, variantIndex) {
+                        let container = tr.querySelector('.category-specs-inputs');
+                        if (!container) {
+                            const attrTd = tr.children[3];
+                            container = document.createElement('div');
+                            container.className = 'category-specs-inputs mt-3 pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-xs';
+                            attrTd.appendChild(container);
+                        }
+                        container.innerHTML = '';
+
+                        if (currentCategorySpecs.length === 0) {
+                            container.style.display = 'none';
+                            return;
+                        }
+                        container.style.display = 'grid';
+
+                        currentCategorySpecs.forEach(spec => {
+                            const div = document.createElement('div');
+                            div.className = 'flex flex-col gap-1';
+                            div.innerHTML = `
+                                <label class="text-[11px] font-semibold text-slate-600">\${spec.specName}</label>
+                                <input type="text" name="specVal_\${variantIndex}_\${spec.specId}" placeholder="\${spec.specName}..." class="px-2 py-1 text-xs border border-slate-300 rounded bg-white text-slate-800 outline-none focus:border-blue-500">
+                            `;
+                            container.appendChild(div);
+                        });
+                    }
+
                     // Hàm thêm một dòng (hàng) nhập biến thể mới vào bảng
                     function addVariantRow() {
                         variantCount++;
+                        const variantIndex = variantsContainer.children.length;
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-surface-container-lowest/50';
                         tr.innerHTML = `
@@ -449,8 +471,8 @@
                     </div>
                 </td>
                 <td class="px-6 py-5">
-                    <div class="flex flex-wrap items-center gap-2 attribute-container">
-                        <button type="button" onclick="addAttribute(this)" class="text-[#003ec7] hover:bg-blue-100 rounded-full flex items-center justify-center p-1"><span class="material-symbols-outlined text-[18px]">add</span></button>
+                    <div class="flex flex-wrap items-center gap-2 attribute-container mb-2">
+                        <button type="button" onclick="addAttribute(this)" class="text-[#003ec7] hover:bg-blue-100 rounded-full flex items-center justify-center p-1" title="Thêm thuộc tính bổ sung"><span class="material-symbols-outlined text-[18px]">add</span></button>
                     </div>
                     <input type="hidden" name="variantName[]" value="" class="variant-name-hidden">
                 </td>
@@ -463,10 +485,11 @@
                     <img class="variant-thumb-preview mt-1 w-10 h-10 object-cover rounded hidden" alt="Preview">
                 </td>
                 <td class="px-6 py-5 text-right">
-                    <button type="button" onclick="this.closest('tr').remove()" class="text-on-surface-variant hover:text-error transition-colors p-2"><span class="material-symbols-outlined">delete</span></button>
+                    <button type="button" onclick="this.closest('tr').remove(); updateAllVariantSpecInputs();" class="text-on-surface-variant hover:text-error transition-colors p-2"><span class="material-symbols-outlined">delete</span></button>
                 </td>
             `;
                         variantsContainer.appendChild(tr);
+                        renderVariantCategorySpecs(tr, variantIndex);
                     }
 
                     // Hàm thêm thuộc tính (màu sắc, RAM...) cho biến thể bằng cách bật hộp thoại prompt

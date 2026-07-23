@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProductDAO extends DBContext {
     Connection cnn;
@@ -1328,8 +1329,9 @@ public List<Product> GetAllProducts() {
      * Version: 2.0
      * Description: Th├¬m mß╗¢i mß╗Öt biß║┐n thß╗â cß╗ºa sß║ún phß║⌐m (ProductVariant) v├á khß╗ƒi tß║ío bß║ún ghi tß╗ôn kho (Inventory) t╞░╞íng ß╗⌐ng.
      */
-    public void insertProductVariant(int productId, String sku, String variantName,
+    public int insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock) {
+        int variantId = -1;
         try {
             String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -1344,7 +1346,6 @@ public List<Product> GetAllProducts() {
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
-            int variantId = -1;
             if (rs.next()) {
                 variantId = rs.getInt(1);
             }
@@ -1358,17 +1359,19 @@ public List<Product> GetAllProducts() {
         } catch (Exception e) {
             System.out.println("Insert ProductVariant Error: " + e.getMessage());
         }
+        return variantId;
     }
 
-    public void insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
-        insertProductVariant(productId, sku, variantName, price, price, stock);
+    public int insertProductVariant(int productId, String sku, String variantName, java.math.BigDecimal price, int stock) {
+        return insertProductVariant(productId, sku, variantName, price, price, stock);
     }
 
     /**
      * Thêm biến thể kèm thumbnail riêng.
      */
-    public void insertProductVariant(int productId, String sku, String variantName,
+    public int insertProductVariant(int productId, String sku, String variantName,
                                      java.math.BigDecimal importPrice, java.math.BigDecimal sellingPrice, int stock, String thumbnail) {
+        int variantId = -1;
         try {
             String sql = "INSERT INTO ProductVariant (product_id, sku, variant_name, import_price, selling_price, status, thumbnail) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -1587,6 +1590,63 @@ public List<Product> GetAllProducts() {
             }
         } catch (Exception e) {
             System.out.println("isSkuExist with excludeVariantId: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public List<model.VariantSpecification> getVariantSpecifications(int variantId) {
+        List<model.VariantSpecification> list = new ArrayList<>();
+        try {
+            String sql = "SELECT vs.variant_specification_id, vs.variant_id, vs.specification_id, s.specification_name, vs.value " +
+                         "FROM VariantSpecification vs " +
+                         "JOIN Specification s ON vs.specification_id = s.specification_id " +
+                         "WHERE vs.variant_id = ? ORDER BY s.specification_name ASC";
+            PreparedStatement psSpec = cnn.prepareStatement(sql);
+            psSpec.setInt(1, variantId);
+            ResultSet rsSpec = psSpec.executeQuery();
+            while (rsSpec.next()) {
+                list.add(new model.VariantSpecification(
+                    rsSpec.getInt("variant_specification_id"),
+                    rsSpec.getInt("variant_id"),
+                    rsSpec.getInt("specification_id"),
+                    rsSpec.getString("specification_name"),
+                    rsSpec.getString("value")
+                ));
+            }
+            rsSpec.close();
+            psSpec.close();
+        } catch (Exception e) {
+            System.out.println("getVariantSpecifications: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public boolean saveVariantSpecifications(int variantId, Map<Integer, String> specValueMap) {
+        if (specValueMap == null || specValueMap.isEmpty()) return true;
+        try {
+            // Delete old values for this variant
+            String delSql = "DELETE FROM VariantSpecification WHERE variant_id = ?";
+            PreparedStatement psDel = cnn.prepareStatement(delSql);
+            psDel.setInt(1, variantId);
+            psDel.executeUpdate();
+            psDel.close();
+
+            // Insert new values
+            String insSql = "INSERT INTO VariantSpecification (variant_id, specification_id, value) VALUES (?, ?, ?)";
+            PreparedStatement psIns = cnn.prepareStatement(insSql);
+            for (Map.Entry<Integer, String> entry : specValueMap.entrySet()) {
+                if (entry.getValue() != null && !entry.getValue().trim().isEmpty()) {
+                    psIns.setInt(1, variantId);
+                    psIns.setInt(2, entry.getKey());
+                    psIns.setString(3, entry.getValue().trim());
+                    psIns.addBatch();
+                }
+            }
+            psIns.executeBatch();
+            psIns.close();
+            return true;
+        } catch (Exception e) {
+            System.out.println("saveVariantSpecifications: " + e.getMessage());
         }
         return false;
     }

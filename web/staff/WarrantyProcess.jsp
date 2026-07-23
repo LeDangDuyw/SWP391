@@ -35,97 +35,7 @@
 
             .layout { display: flex; min-height: 100vh; }
 
-            /* ── Sidebar ── */
-            .sidebar {
-                width: 280px;
-                background: #eef2f7;
-                border-right: 1px solid #e1e6ef;
-                padding: 28px 16px;
-                display: flex;
-                flex-direction: column;
-                position: sticky;
-                top: 0;
-                height: 100vh;
-            }
-            .sidebar .brand {
-                margin: 6px 10px 44px;
-                display: grid;
-                gap: 6px;
-            }
-            .sidebar .brand span {
-                color: #0b39d1;
-                font-size: 24px;
-                font-weight: 800;
-                letter-spacing: .05em;
-                display: block;
-            }
-            .sidebar .brand small {
-                color: #343a46;
-                font-size: 14px;
-                display: block;
-            }
-            .sidebar nav {
-                display: grid;
-                gap: 10px;
-            }
-            .sidebar nav a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 14px;
-                border-radius: 10px;
-                color: #242a38;
-                font-weight: 600;
-                text-decoration: none;
-                font-size: 14px;
-            }
-            .sidebar nav a .nav-icon {
-                min-width: 20px;
-                color: #1f2937;
-                font-size: 16px;
-            }
-            .sidebar nav a:hover {
-                background: #f3f4f6;
-            }
-            .sidebar nav a.active {
-                background: #d8e8ff;
-                color: #0b39d1;
-            }
-            .sidebar .profile {
-                margin-top: auto;
-                border-top: 1px solid #d4dae6;
-                padding: 18px 10px 0;
-                display: grid;
-                gap: 12px;
-                font-weight: 700;
-            }
-            .sidebar .profile-link {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 14px;
-                color: #242a38;
-            }
-            .sidebar .logout-link {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #ef4444 !important;
-                font-size: 13px;
-                font-weight: 600;
-                padding: 8px 12px;
-                border-radius: 6px;
-                background: #fef2f2;
-                border: 1px solid #fecaca;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                width: fit-content;
-            }
-            .sidebar .logout-link:hover {
-                background: #fee2e2;
-                border-color: #fca5a5;
-                color: #dc2626 !important;
-            }
+            /* Sidebar styled via sidebar.jsp */
 
             /* ── Main ── */
             .main {
@@ -734,50 +644,9 @@
     <body>
     <div class="layout">
 
-        <!-- ════ SIDEBAR (synced with other staff pages) ════ -->
-        <aside class="sidebar">
-            <div class="brand">
-                <span>UNILAP Staff</span>
-                <small>Hệ thống Quản trị</small>
-            </div>
-            <nav>
-                <a href="${pageContext.request.contextPath}/staff/inventory">
-                    <span class="nav-icon">▤</span>Danh mục sản phẩm
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/category">
-                    <span class="nav-icon">📁</span>Danh mục
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/imei">
-                    <span class="nav-icon">🏷</span>Quản lý Serial
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/ticket/list">
-                    <span class="nav-icon">🎫</span>Phiếu nhập kho
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/order/list">
-                    <span class="nav-icon">📋</span>Đơn hàng
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/outbound/list">
-                    <span class="nav-icon">📦</span>Xuất kho
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/reviews">
-                    <span class="nav-icon">★</span>Đánh giá sản phẩm
-                </a>
-                <a class="active" href="${pageContext.request.contextPath}/warranty?action=list">
-                    <span class="nav-icon">🛠</span>Bảo hành
-                </a>
-                <a href="${pageContext.request.contextPath}/staff/verifications">
-                    <span class="nav-icon">🎓</span>Xác thực sinh viên
-                </a>
-            </nav>
-            <div class="profile">
-                <a href="${pageContext.request.contextPath}/profile" class="profile-link">
-                    <span class="nav-icon">●</span>Staff Profile
-                </a>
-                <a href="${pageContext.request.contextPath}/logout" class="logout-link">
-                    Logout
-                </a>
-            </div>
-        </aside>
+        <jsp:include page="/staff/sidebar.jsp">
+            <jsp:param name="activePage" value="warranty"/>
+        </jsp:include>
 
         <!-- ════ MAIN ════ -->
         <div class="main">

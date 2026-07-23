@@ -36,9 +36,6 @@
         <a class="${param.activePage == 'policy' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/policy">
             <span>📜</span>Chính sách
         </a>
-        <a class="${param.activePage == 'reviews' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/reviews">
-            <span>★</span>Quản lý đánh giá
-        </a>
         <a class="${param.activePage == 'warranty' ? 'active' : ''}" href="${pageContext.request.contextPath}/warranty?action=list">
             <span>🛠</span>Bảo hành
         </a>

@@ -171,32 +171,9 @@
 <div class="layout">
 
     <!-- ════ SIDEBAR (đồng nhất với trang khác) ════ -->
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
-            <a href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/serial"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Quản lý Đánh giá</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-        </nav>
-        <div class="profile">
-            <div style="cursor:pointer;display:flex;align-items:center;gap:8px;"
-                 onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <% if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) { %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>"
-                         alt="Avatar" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--blue);">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
-                <span>Hồ sơ nhân viên</span>
-            </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
-        </div>
-    </aside>
+    <jsp:include page="/staff/sidebar.jsp">
+        <jsp:param name="activePage" value="order"/>
+    </jsp:include>
 
     <!-- ════ MAIN ════ -->
     <div class="main">

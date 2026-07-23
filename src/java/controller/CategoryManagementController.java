@@ -30,6 +30,33 @@ public class CategoryManagementController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String action = request.getParameter("action");
+        CategoryDAO categoryDAO = new CategoryDAO();
+
+        if ("getSpecs".equals(action)) {
+            response.setContentType("application/json;charset=UTF-8");
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            List<model.CategorySpecification> specs = categoryDAO.getSpecificationsByCategoryId(categoryId);
+            List<model.Specification> masterSpecs = categoryDAO.getAllMasterSpecifications();
+            
+            StringBuilder json = new StringBuilder("{");
+            json.append("\"categorySpecs\":[");
+            for (int i = 0; i < specs.size(); i++) {
+                model.CategorySpecification cs = specs.get(i);
+                json.append(String.format("{\"specId\":%d,\"specName\":\"%s\"}", cs.getSpecificationId(), escapeJson(cs.getSpecificationName())));
+                if (i < specs.size() - 1) json.append(",");
+            }
+            json.append("],\"masterSpecs\":[");
+            for (int i = 0; i < masterSpecs.size(); i++) {
+                model.Specification s = masterSpecs.get(i);
+                json.append(String.format("{\"specId\":%d,\"specName\":\"%s\"}", s.getSpecificationId(), escapeJson(s.getSpecificationName())));
+                if (i < masterSpecs.size() - 1) json.append(",");
+            }
+            json.append("]}");
+            response.getWriter().write(json.toString());
+            return;
+        }
+
         String searchInput = request.getParameter("searchInput");
         String pageStr = request.getParameter("page");
         int page = 1;
@@ -42,7 +69,6 @@ public class CategoryManagementController extends HttpServlet {
         }
         
         int pageSize = 10;
-        CategoryDAO categoryDAO = new CategoryDAO();
         int totalCategories = categoryDAO.getTotalCategoryCount(searchInput);
         int totalPages = (int) Math.ceil((double) totalCategories / pageSize);
         
@@ -58,6 +84,11 @@ public class CategoryManagementController extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         
         request.getRequestDispatcher("/staff/CategoryManagement.jsp").forward(request, response);
+    }
+
+    private String escapeJson(String input) {
+        if (input == null) return "";
+        return input.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 
     /*
@@ -93,7 +124,34 @@ public class CategoryManagementController extends HttpServlet {
                         doGet(request, response);
                         return;
                     }
+                    categoryDAO.updateCategory(categoryId, categoryName.trim());
                 }
+            } else if ("addCategorySpec".equals(action)) {
+                int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+                int specId = Integer.parseInt(request.getParameter("specId"));
+                categoryDAO.addSpecificationToCategory(categoryId, specId);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"success\":true}");
+                return;
+            } else if ("removeCategorySpec".equals(action)) {
+                int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+                int specId = Integer.parseInt(request.getParameter("specId"));
+                categoryDAO.removeSpecificationFromCategory(categoryId, specId);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"success\":true}");
+                return;
+            } else if ("addMasterSpec".equals(action)) {
+                int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+                String specName = request.getParameter("specName");
+                if (specName != null && !specName.trim().isEmpty()) {
+                    int newSpecId = categoryDAO.addMasterSpecification(specName.trim());
+                    if (newSpecId > 0) {
+                        categoryDAO.addSpecificationToCategory(categoryId, newSpecId);
+                    }
+                }
+                response.setContentType("application/json");
+                response.getWriter().write("{\"success\":true}");
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();

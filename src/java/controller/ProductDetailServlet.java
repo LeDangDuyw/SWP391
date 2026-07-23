@@ -116,10 +116,17 @@ public class ProductDetailServlet extends HttpServlet {
             productBadge = productDAO.getProductBadge(product.getProductId(), product.getCategoryId());
         }
 
+        // Lấy danh sách thông số kỹ thuật của biến thể từ VariantSpecification
+        List<model.VariantSpecification> defaultVariantSpecs = new ArrayList<>();
+        if (variants != null && !variants.isEmpty()) {
+            defaultVariantSpecs = productDAO.getVariantSpecifications(variants.get(0).getVariantId());
+        }
+
         // Truyền các thuộc tính dữ liệu cần thiết sang giao diện JSP hiển thị chi tiết sản phẩm
         request.setAttribute("productBadge", productBadge);
         request.setAttribute("product", product);
         request.setAttribute("variants", variants);
+        request.setAttribute("defaultVariantSpecs", defaultVariantSpecs);
         request.setAttribute("categories", categoryDAO.getAllCategories());
         request.setAttribute("similarProducts", similarProducts);
         request.setAttribute("reviews", reviews);

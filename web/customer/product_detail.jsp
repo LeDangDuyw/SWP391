@@ -419,23 +419,35 @@
 
                 <!-- Tab 2: Specifications -->
                 <div id="tab-specs" class="pd-tab-content">
-                    <table class="pd-spec-table">
+                    <table class="pd-spec-table" id="dynamicSpecTable">
                         <c:choose>
-                            <c:when test="${product.categoryId == 1}">
-                                <tr><td>CPU (Bộ vi xử lý)</td><td id="tblSpecCpu">${empty product.cpu ? 'N/A' : product.cpu}</td></tr>
-                                <tr><td>RAM (Bộ nhớ trong)</td><td id="tblSpecRam">${empty product.ram ? 'N/A' : product.ram}</td></tr>
-                                <tr><td>Ổ cứng (Lưu trữ)</td><td id="tblSpecSsd">${empty product.ssd ? 'N/A' : product.ssd}</td></tr>
-                                <tr><td>GPU (Đồ họa)</td><td id="tblSpecGpu">${empty product.gpu ? 'N/A' : product.gpu}</td></tr>
-                                <tr><td>Màn hình hiển thị</td><td id="tblSpecScreen">${empty product.screen ? 'N/A' : product.screen}</td></tr>
+                            <c:when test="${not empty defaultVariantSpecs}">
+                                <c:forEach var="sp" items="${defaultVariantSpecs}">
+                                    <tr>
+                                        <td>${sp.specificationName}</td>
+                                        <td>${sp.value}</td>
+                                    </tr>
+                                </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <tr><td>Kiểu kết nối</td><td id="tblSpecConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</td></tr>
-                                <c:if test="${product.categoryId == 3}">
-                                    <tr><td>Loại Switch</td><td id="tblSpecSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</td></tr>
-                                </c:if>
-                                <c:if test="${product.categoryId == 4}">
-                                    <tr><td>Độ phân giải DPI</td><td id="tblSpecDpi">${empty product.dpi ? 'N/A' : product.dpi}</td></tr>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${product.categoryId == 1}">
+                                        <tr><td>CPU (Bộ vi xử lý)</td><td id="tblSpecCpu">${empty product.cpu ? 'N/A' : product.cpu}</td></tr>
+                                        <tr><td>RAM (Bộ nhớ trong)</td><td id="tblSpecRam">${empty product.ram ? 'N/A' : product.ram}</td></tr>
+                                        <tr><td>Ổ cứng (Lưu trữ)</td><td id="tblSpecSsd">${empty product.ssd ? 'N/A' : product.ssd}</td></tr>
+                                        <tr><td>GPU (Đồ họa)</td><td id="tblSpecGpu">${empty product.gpu ? 'N/A' : product.gpu}</td></tr>
+                                        <tr><td>Màn hình hiển thị</td><td id="tblSpecScreen">${empty product.screen ? 'N/A' : product.screen}</td></tr>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <tr><td>Kiểu kết nối</td><td id="tblSpecConnectivity">${empty product.connectivity ? 'N/A' : product.connectivity}</td></tr>
+                                        <c:if test="${product.categoryId == 3}">
+                                            <tr><td>Loại Switch</td><td id="tblSpecSwitchType">${empty product.switchType ? 'N/A' : product.switchType}</td></tr>
+                                        </c:if>
+                                        <c:if test="${product.categoryId == 4}">
+                                            <tr><td>Độ phân giải DPI</td><td id="tblSpecDpi">${empty product.dpi ? 'N/A' : product.dpi}</td></tr>
+                                        </c:if>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:otherwise>
                         </c:choose>
                         <tr><td>Thương hiệu</td><td>${product.brandName}</td></tr>

@@ -115,6 +115,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/promotion.css">
 </head>
 <% 
+    model.Users u = (model.Users) session.getAttribute("user");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     if (categories == null) {
         categories = new ArrayList<Category>(); 
@@ -123,35 +124,9 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen">
 <div class="layout">
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="brand"><span>UNILAP Staff</span><small>Hệ thống Quản trị</small></div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/staff/inventory"><span>▤</span>Danh mục sản phẩm</a>
-            <a class="active" href="${pageContext.request.contextPath}/staff/category"><span>📁</span>Danh mục</a>
-            <a href="${pageContext.request.contextPath}/staff/imei"><span>🏷</span>Quản lý Serial</a>
-            <a href="${pageContext.request.contextPath}/staff/ticket/list"><span>🎫</span>Phiếu nhập kho</a>
-            <a href="${pageContext.request.contextPath}/staff/order/list"><span>📋</span>Đơn hàng</a>
-            <a href="${pageContext.request.contextPath}/staff/outbound/list"><span>📦</span>Xuất kho</a>
-            <a href="${pageContext.request.contextPath}/staff/reviews"><span>★</span>Đánh giá sản phẩm</a>
-            <a href="${pageContext.request.contextPath}/warranty?action=list"><span>🛠</span>Bảo hành</a>
-            <a href="${pageContext.request.contextPath}/staff/verifications"><span>🎓</span>Xác thực sinh viên</a>
-        </nav>
-        <div class="profile">
-            <div style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                <%
-                    model.Users u = (model.Users) session.getAttribute("user");
-                    if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                %>
-                    <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                         alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--blue);">
-                <% } else { %>
-                    <span>♙</span>
-                <% } %>
-                <span>Hồ sơ nhân viên</span>
-            </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Đăng xuất</a>
-        </div>
-    </aside>
+    <jsp:include page="/staff/sidebar.jsp">
+        <jsp:param name="activePage" value="category"/>
+    </jsp:include>
 
     <div class="main">
         
@@ -226,9 +201,13 @@
                                 <td class="py-2 px-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"></td>
                                 <td class="py-2 px-4 font-bold"><%= c.getCategoryId() %></td>
                                 <td class="py-2 px-4"><%= c.getCategoryName() %></td>
-                                <td class="py-2 px-4 text-right">
-                                    <button type="button" onclick="openEditModal(this)" class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+                                <td class="py-2 px-4 text-right flex items-center justify-end gap-2">
+                                    <button type="button" onclick="openSpecsModal(<%= c.getCategoryId() %>, '<%= c.getCategoryName().replace("'", "\\'") %>')" title="Quản lý thông số cấu hình" class="px-2.5 py-1 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg transition-colors flex items-center gap-1 font-semibold text-xs">
+                                        <span class="material-symbols-outlined text-[16px]">tune</span> Thông số
+                                    </button>
+                                    <button type="button" onclick="openEditModal(this)" title="Chỉnh sửa tên danh mục" class="p-1 text-on-surface-variant hover:text-primary transition-colors">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
                                 </td>
                             </tr>
                             <% } %> 
@@ -361,7 +340,47 @@
         </div>
     </div>
 
+    <!-- Specs Management Modal -->
+    <div id="specsModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-2xl w-full max-w-lg p-6 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800" id="specsModalTitle">Thông số cấu hình</h3>
+                    <p class="text-xs text-slate-500">Tích chọn các thuộc tính cấu hình hiển thị cho danh mục này.</p>
+                </div>
+                <button type="button" onclick="closeSpecsModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-full">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-700 mb-2">DANH SÁCH THUỘC TÍNH CẤU HÌNH CÓ SẴN:</label>
+                    <div id="specsListContainer" class="grid grid-cols-2 gap-2">
+                        <!-- Dynamic checkboxes loaded via JS -->
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">THÊM THUỘC TÍNH KỸ THUẬT MỚI:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="newSpecNameInput" placeholder="VD: Tần số quét, Tỷ lệ khung hình..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600">
+                        <button type="button" onclick="addCustomSpecMaster()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">add</span> Thêm mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 mt-4 flex justify-end">
+                <button type="button" onclick="closeSpecsModal()" class="px-5 py-2 bg-slate-800 text-white font-semibold text-xs rounded-lg hover:bg-slate-900 transition-colors">Xong</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentSpecCategoryId = null;
+
         function openAddModal() {
             document.getElementById('addModal').classList.remove('hidden');
         }
@@ -383,6 +402,91 @@
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function openSpecsModal(categoryId, categoryName) {
+            currentSpecCategoryId = categoryId;
+            document.getElementById('specsModalTitle').innerText = 'Thông số cấu hình: ' + categoryName;
+            document.getElementById('specsModal').classList.remove('hidden');
+            loadCategorySpecs(categoryId);
+        }
+
+        function closeSpecsModal() {
+            document.getElementById('specsModal').classList.add('hidden');
+            currentSpecCategoryId = null;
+        }
+
+        function loadCategorySpecs(categoryId) {
+            const container = document.getElementById('specsListContainer');
+            container.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-4 text-xs">Đang tải thuộc tính...</div>';
+
+            fetch('${pageContext.request.contextPath}/staff/category?action=getSpecs&categoryId=' + categoryId)
+                .then(res => res.json())
+                .then(data => {
+                    const activeSpecIds = new Set(data.categorySpecs.map(s => s.specId));
+                    container.innerHTML = '';
+
+                    if (!data.masterSpecs || data.masterSpecs.length === 0) {
+                        container.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-2 text-xs">Chưa có thuộc tính nào.</div>';
+                        return;
+                    }
+
+                    data.masterSpecs.forEach(s => {
+                        const checked = activeSpecIds.has(s.specId);
+                        const item = document.createElement('label');
+                        item.className = 'flex items-center gap-2 p-2 rounded-lg border ' + (checked ? 'border-blue-300 bg-blue-50/50 text-blue-900 font-semibold' : 'border-slate-200 hover:bg-slate-50 text-slate-700') + ' cursor-pointer text-xs transition-colors';
+                        item.innerHTML = '<input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="toggleCategorySpec(' + categoryId + ', ' + s.specId + ', this.checked)" class="rounded text-blue-600 focus:ring-blue-500"> <span>' + s.specName + '</span>';
+                        container.appendChild(item);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    container.innerHTML = '<div class="col-span-2 text-center text-red-500 py-2 text-xs">Lỗi tải dữ liệu.</div>';
+                });
+        }
+
+        function toggleCategorySpec(categoryId, specId, isChecked) {
+            const action = isChecked ? 'addCategorySpec' : 'removeCategorySpec';
+            const params = new URLSearchParams();
+            params.append('action', action);
+            params.append('categoryId', categoryId);
+            params.append('specId', specId);
+
+            fetch('${pageContext.request.contextPath}/staff/category', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadCategorySpecs(categoryId);
+                }
+            });
+        }
+
+        function addCustomSpecMaster() {
+            const input = document.getElementById('newSpecNameInput');
+            const name = input.value.trim();
+            if (!name || !currentSpecCategoryId) return;
+
+            const params = new URLSearchParams();
+            params.append('action', 'addMasterSpec');
+            params.append('categoryId', currentSpecCategoryId);
+            params.append('specName', name);
+
+            fetch('${pageContext.request.contextPath}/staff/category', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadCategorySpecs(currentSpecCategoryId);
+                }
+            });
         }
 
         function toggleJumpPageInput(button) {

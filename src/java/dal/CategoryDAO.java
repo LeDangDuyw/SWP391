@@ -217,4 +217,176 @@ Connection cnn;
         }
         return count;
     }
+
+    // =========================================================================
+    // SPECIFICATION MANAGEMENT FOR CATEGORIES
+    // =========================================================================
+
+    public List<model.CategorySpecification> getSpecificationsByCategoryId(int categoryId) {
+        List<model.CategorySpecification> list = new ArrayList<>();
+        try {
+            // Check if CategorySpecification table exists and has records
+            String checkTableSql = "SELECT COUNT(*) FROM sys.tables WHERE name = 'CategorySpecification'";
+            PreparedStatement checkPs = cnn.prepareStatement(checkTableSql);
+            ResultSet checkRs = checkPs.executeQuery();
+            boolean hasTable = checkRs.next() && checkRs.getInt(1) > 0;
+            checkRs.close();
+            checkPs.close();
+
+            if (hasTable) {
+                String sql = "SELECT cs.category_id, cs.specification_id, s.specification_name, cs.display_order " +
+                             "FROM CategorySpecification cs " +
+                             "JOIN Specification s ON cs.specification_id = s.specification_id " +
+                             "WHERE cs.category_id = ? ORDER BY cs.display_order ASC, s.specification_name ASC";
+                PreparedStatement psSpec = cnn.prepareStatement(sql);
+                psSpec.setInt(1, categoryId);
+                ResultSet rsSpec = psSpec.executeQuery();
+                while (rsSpec.next()) {
+                    list.add(new model.CategorySpecification(
+                        rsSpec.getInt("category_id"),
+                        rsSpec.getInt("specification_id"),
+                        rsSpec.getString("specification_name"),
+                        rsSpec.getInt("display_order")
+                    ));
+                }
+                rsSpec.close();
+                psSpec.close();
+            }
+
+            // Fallback if list is empty or table does not exist yet
+            if (list.isEmpty()) {
+                list = getDefaultSpecificationsForCategory(categoryId);
+            }
+        } catch (Exception e) {
+            System.out.println("getSpecificationsByCategoryId: " + e.getMessage());
+            list = getDefaultSpecificationsForCategory(categoryId);
+        }
+        return list;
+    }
+
+    private List<model.CategorySpecification> getDefaultSpecificationsForCategory(int categoryId) {
+        List<model.CategorySpecification> fallback = new ArrayList<>();
+        try {
+            // Fallback mapping based on Category ID or Name
+            List<String> defaultSpecNames = new ArrayList<>();
+            if (categoryId == 1) { // Laptop
+                defaultSpecNames = Arrays.asList("CPU", "RAM", "Màn hình", "Card đồ họa", "Ổ cứng", "Hệ điều hành", "Pin", "Trọng lượng");
+            } else if (categoryId == 2) { // Màn hình
+                defaultSpecNames = Arrays.asList("Màn hình", "Tần số quét", "Độ phân giải", "Thời gian phản hồi", "Kiểu kết nối");
+            } else if (categoryId == 3) { // Bàn phím
+                defaultSpecNames = Arrays.asList("Switch", "Layout", "Backlight", "Kiểu kết nối");
+            } else if (categoryId == 4) { // Chuột
+                defaultSpecNames = Arrays.asList("DPI", "Số nút", "Tần số quét", "Kiểu kết nối");
+            } else {
+                defaultSpecNames = Arrays.asList("CPU", "RAM", "Ổ cứng", "Kiểu kết nối", "Trọng lượng");
+            }
+
+            int order = 1;
+            for (String specName : defaultSpecNames) {
+                String sql = "SELECT specification_id, specification_name FROM Specification WHERE specification_name = ?";
+                PreparedStatement ps = cnn.prepareStatement(sql);
+                ps.setString(1, specName);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    fallback.add(new model.CategorySpecification(categoryId, rs.getInt("specification_id"), rs.getString("specification_name"), order++));
+                }
+                rs.close();
+                ps.close();
+            }
+        } catch (Exception e) {
+            System.out.println("getDefaultSpecificationsForCategory: " + e.getMessage());
+        }
+        return fallback;
+    }
+
+    public List<model.Specification> getAllMasterSpecifications() {
+        List<model.Specification> list = new ArrayList<>();
+        try {
+            String sql = "SELECT specification_id, specification_name FROM Specification ORDER BY specification_name ASC";
+            PreparedStatement ps = cnn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new model.Specification(rs.getInt(1), rs.getString(2)));
+            }
+            rs.close();
+            ps.close();
+        } catch (Exception e) {
+            System.out.println("getAllMasterSpecifications: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public int addMasterSpecification(String specName) {
+        try {
+            String checkSql = "SELECT specification_id FROM Specification WHERE specification_name = ?";
+            PreparedStatement psCheck = cnn.prepareStatement(checkSql);
+            psCheck.setString(1, specName.trim());
+            ResultSet rsCheck = psCheck.executeQuery();
+            if (rsCheck.next()) {
+                int id = rsCheck.getInt(1);
+                rsCheck.close();
+                psCheck.close();
+                return id;
+            }
+            rsCheck.close();
+            psCheck.close();
+
+            String insertSql = "INSERT INTO Specification (specification_name) VALUES (?)";
+            PreparedStatement psIns = cnn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+            psIns.setString(1, specName.trim());
+            psIns.executeUpdate();
+            ResultSet rsKeys = psIns.getGeneratedKeys();
+            if (rsKeys.next()) {
+                int newId = rsKeys.getInt(1);
+                rsKeys.close();
+                psIns.close();
+                return newId;
+            }
+            rsKeys.close();
+            psIns.close();
+        } catch (Exception e) {
+            System.out.println("addMasterSpecification: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public boolean addSpecificationToCategory(int categoryId, int specificationId) {
+        try {
+            // Ensure CategorySpecification table exists
+            String createTableSql = "IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CategorySpecification') " +
+                                    "CREATE TABLE CategorySpecification (category_id INT NOT NULL, specification_id INT NOT NULL, display_order INT DEFAULT 0 PRIMARY KEY(category_id, specification_id))";
+            PreparedStatement psCreate = cnn.prepareStatement(createTableSql);
+            psCreate.executeUpdate();
+            psCreate.close();
+
+            String sql = "IF NOT EXISTS (SELECT 1 FROM CategorySpecification WHERE category_id = ? AND specification_id = ?) " +
+                         "INSERT INTO CategorySpecification (category_id, specification_id, display_order) VALUES (?, ?, 0)";
+            PreparedStatement ps = cnn.prepareStatement(sql);
+            ps.setInt(1, categoryId);
+            ps.setInt(2, specificationId);
+            ps.setInt(3, categoryId);
+            ps.setInt(4, specificationId);
+            int rows = ps.executeUpdate();
+            ps.close();
+            return rows > 0;
+        } catch (Exception e) {
+            System.out.println("addSpecificationToCategory: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean removeSpecificationFromCategory(int categoryId, int specificationId) {
+        try {
+            String sql = "DELETE FROM CategorySpecification WHERE category_id = ? AND specification_id = ?";
+            PreparedStatement ps = cnn.prepareStatement(sql);
+            ps.setInt(1, categoryId);
+            ps.setInt(2, specificationId);
+            int rows = ps.executeUpdate();
+            ps.close();
+            return rows > 0;
+        } catch (Exception e) {
+            System.out.println("removeSpecificationFromCategory: " + e.getMessage());
+        }
+        return false;
+    }
 }
