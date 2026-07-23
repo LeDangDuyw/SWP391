@@ -60,7 +60,7 @@
                             <small style="color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; font-weight: 700;">Discount Value</small>
                             <span style="font-weight: 700; color: #111827;">
                                 <c:choose>
-                                    <c:when test="${campaign.campaignType == 'percentage' || campaign.campaignType == 'flash' || campaign.campaignType == 'bundle_discount'}">
+                                    <c:when test="${campaign.campaignType == 'percentage' || campaign.campaignType == 'flash'}">
                                         <c:choose>
                                             <c:when test="${campaign.discountValue == 0}">0%</c:when>
                                             <c:otherwise>

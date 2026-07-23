@@ -26,6 +26,35 @@ public class OrderDAO extends DBContext {
             if (shippingMethod == null || shippingMethod.trim().isEmpty()) {
                 shippingMethod = "HOME_DELIVERY";
             }
+
+            // Rà soát voucherId có tồn tại trong bảng Voucher hay không để tránh vi phạm khóa ngoại FK_Order_Voucher
+            Integer validVoucherId = null;
+            if (voucherId != null) {
+                try (PreparedStatement vCheckPs = cnn.prepareStatement("SELECT voucher_id FROM [Voucher] WHERE voucher_id = ?")) {
+                    vCheckPs.setInt(1, voucherId);
+                    try (ResultSet vRs = vCheckPs.executeQuery()) {
+                        if (vRs.next()) {
+                            validVoucherId = voucherId;
+                        }
+                    }
+                } catch (Exception ex) {
+                    // Bỏ qua lỗi rà soát
+                }
+
+                if (validVoucherId == null) {
+                    try (PreparedStatement cCheckPs = cnn.prepareStatement("SELECT voucher_id FROM [Campaign] WHERE campaign_id = ? AND voucher_id IS NOT NULL")) {
+                        cCheckPs.setInt(1, voucherId);
+                        try (ResultSet cRs = cCheckPs.executeQuery()) {
+                            if (cRs.next()) {
+                                validVoucherId = cRs.getInt("voucher_id");
+                            }
+                        }
+                    } catch (Exception ex) {
+                        // Bỏ qua lỗi rà soát
+                    }
+                }
+            }
+
             String sql = "INSERT INTO [Order] (total_amount, shipping_fee, order_status, shipping_receiver, shipping_phone, shipping_address, user_id, voucher_id, shipping_method, completed_at) VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, ?, GETDATE())";
             ps = cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, totalAmount);
@@ -38,8 +67,8 @@ public class OrderDAO extends DBContext {
             } else {
                 ps.setNull(6, java.sql.Types.INTEGER);
             }
-            if (voucherId != null) {
-                ps.setInt(7, voucherId);
+            if (validVoucherId != null) {
+                ps.setInt(7, validVoucherId);
             } else {
                 ps.setNull(7, java.sql.Types.INTEGER);
             }
@@ -81,12 +110,13 @@ public class OrderDAO extends DBContext {
                     order.setShippingAddress(address);
                     order.setOrderCode(orderCode);
                     order.setUserId(userId);
-                    order.setVoucherId(voucherId);
+                    order.setVoucherId(validVoucherId != null ? validVoucherId : voucherId);
                     return order;
                 }
             }
         } catch (Exception e) {
             System.out.println("insertOrder error: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

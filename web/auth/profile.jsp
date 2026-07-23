@@ -1478,9 +1478,9 @@
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 24px; flex-wrap: wrap;">
                         <span style="font-size: 14px; font-weight: 700; color: var(--gray-700);">Lịch sử mua hàng</span>
                         <div style="display: flex; align-items: center; border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 6px 12px; background: #fff; gap: 10px;">
-                            <input type="date" id="order-start-date" value="2020-12-01" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
+                            <input type="date" id="order-start-date" value="" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
                             <span style="color: var(--gray-400); font-size: 13px;"><i class="fas fa-arrow-right"></i></span>
-                            <input type="date" id="order-end-date" value="2026-07-10" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
+                            <input type="date" id="order-end-date" value="" style="border: none; outline: none; font-size: 13px; color: var(--gray-700); font-family: inherit;">
                         </div>
                     </div>
 
@@ -1558,6 +1558,10 @@
                                     <c:set var="details" value="${ord.details}" />
                                     <c:set var="firstDetail" value="${details[0]}" />
                                     <c:set var="itemCount" value="${fn:length(details)}" />
+                                    <c:set var="allReviewed" value="true" />
+                                    <c:forEach items="${details}" var="d">
+                                        <c:if test="${!d.reviewed}"><c:set var="allReviewed" value="false" /></c:if>
+                                    </c:forEach>
                                     
                                     <div class="order-card" data-status="${ord.orderStatus}" data-date="${ord.completedAt != null ? ord.completedAt.toLocalDate() : '2026-07-10'}">
                                         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
@@ -1629,32 +1633,6 @@
                                                 <a href="${pageContext.request.contextPath}/order-detail?id=${ord.orderId}" class="btn btn-outline btn-sm" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; margin-bottom: 6px;">
                                                     Xem chi tiết <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px;"></i>
                                                 </a>
-                                                
-                                                <c:if test="${ord.orderStatus == 'delivered' || ord.orderStatus == 'Completed'}">
-                                                    <c:set var="allReviewed" value="true" />
-                                                    <c:forEach items="${ord.details}" var="item">
-                                                        <c:if test="${!item.reviewed}">
-                                                            <c:set var="allReviewed" value="false" />
-                                                        </c:if>
-                                                    </c:forEach>
-                                                    
-                                                    <div id="action-order-${ord.orderId}">
-                                                        <c:choose>
-                                                            <c:when test="${allReviewed}">
-                                                                <span class="review-success-badge" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px;">
-                                                                    <i class="fas fa-check-circle"></i> Đã đánh giá
-                                                                </span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <button type="button" class="btn btn-sm" onclick="openOrderReviewModal('${ord.orderId}')" style="background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; font-size: 11px; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);">
-                                                                    <i class="fas fa-star" style="font-size: 10px;"></i> Đánh giá
-                                                                </button>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </div>
-                                                    
-                                                    <div id="order-details-json-${ord.orderId}" style="display:none;">[<c:forEach items="${ord.details}" var="item" varStatus="loop">{"productId": ${item.productId},"productName": "${fn:escapeXml(item.productName)}","variantName": "${fn:escapeXml(item.variantName)}","thumbnail": "${item.thumbnail}","reviewed": ${item.reviewed}}${not loop.last ? ',' : ''}</c:forEach>]</div>
-                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
@@ -2099,29 +2077,42 @@
             let visibleCount = 0;
 
             orderCards.forEach(card => {
-                const cardStatus = card.getAttribute('data-status');
-                const cardDateStr = card.getAttribute('data-date');
-                const cardDate = new Date(cardDateStr);
+                const cardStatus = card.getAttribute('data-status') || '';
+                const cardDateStr = card.getAttribute('data-date') || '';
 
                 // Check status
                 let statusMatch = false;
-                if (selectedStatus === 'all') {
+                const statusLower = cardStatus.trim().toLowerCase();
+                const selLower = (selectedStatus || 'all').trim().toLowerCase();
+
+                if (selLower === 'all') {
                     statusMatch = true;
-                } else if (selectedStatus === 'delivered') {
-                    statusMatch = (cardStatus === 'delivered' || cardStatus === 'Completed');
-                } else if (selectedStatus === 'cancelled') {
-                    statusMatch = (cardStatus === 'cancelled' || cardStatus === 'Cancelled');
+                } else if (selLower === 'pending') {
+                    statusMatch = (statusLower === 'pending');
+                } else if (selLower === 'processing') {
+                    statusMatch = (statusLower === 'processing');
+                } else if (selLower === 'shipped') {
+                    statusMatch = (statusLower === 'shipped');
+                } else if (selLower === 'delivered') {
+                    statusMatch = (statusLower === 'delivered' || statusLower === 'completed');
+                } else if (selLower === 'cancelled') {
+                    statusMatch = (statusLower === 'cancelled');
                 } else {
-                    statusMatch = (cardStatus === selectedStatus);
+                    statusMatch = (statusLower === selLower);
                 }
 
                 // Check date
                 let dateMatch = true;
-                if (startDate && cardDate < startDate) {
-                    dateMatch = false;
-                }
-                if (endDate && cardDate > endDate) {
-                    dateMatch = false;
+                if (cardDateStr) {
+                    const cardDate = new Date(cardDateStr);
+                    if (!isNaN(cardDate.getTime())) {
+                        if (startDate && cardDate < startDate) {
+                            dateMatch = false;
+                        }
+                        if (endDate && cardDate > endDate) {
+                            dateMatch = false;
+                        }
+                    }
                 }
 
                 if (statusMatch && dateMatch) {

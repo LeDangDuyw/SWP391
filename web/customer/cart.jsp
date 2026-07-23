@@ -31,7 +31,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cart.css?v=8">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cart.css?v=10">
     <style>
     /* CSS Inline để chống cache trình duyệt cho tính năng Khuyến mãi và ưu đãi */
     .promotions-trigger-box {
@@ -189,6 +189,121 @@
     .btn-use-voucher-indicator:hover i {
         color: #ef4444 !important;
     }
+
+    /* ── VOUCHER CARD STYLES (inline to avoid cache) ── */
+    .vouchers-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        max-height: 340px !important;
+        overflow-y: auto !important;
+        padding-right: 4px !important;
+    }
+    .voucher-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        background: #ffffff !important;
+        padding: 14px 16px !important;
+        position: relative !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    }
+    .voucher-item:hover {
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+    .voucher-item.active {
+        border: 1.5px dashed #3b82f6 !important;
+        background: #eff6ff !important;
+        box-shadow: 0 2px 10px rgba(59,130,246,0.1) !important;
+    }
+    .voucher-item.unavailable,
+    .voucher-item.disabled,
+    .voucher-item.used {
+        background: #ffffff !important;
+        border: 1px solid #f1f5f9 !important;
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+        box-shadow: none !important;
+    }
+    .voucher-left {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        border-right: none !important;
+        padding-right: 10px !important;
+    }
+    .voucher-left .v-code {
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        color: #0f172a !important;
+        letter-spacing: 0.3px !important;
+    }
+    .voucher-item.active .voucher-left .v-code {
+        color: #1d4ed8 !important;
+    }
+    .voucher-item.unavailable .voucher-left .v-code,
+    .voucher-item.used .voucher-left .v-code {
+        color: #94a3b8 !important;
+    }
+    .voucher-left .v-discount {
+        font-size: 13px !important;
+        color: #16a34a !important;
+        font-weight: 700 !important;
+        margin-top: 3px !important;
+    }
+    .voucher-item.active .voucher-left .v-discount {
+        color: #2563eb !important;
+    }
+    .voucher-item.unavailable .voucher-left .v-discount,
+    .voucher-item.used .voucher-left .v-discount {
+        color: #94a3b8 !important;
+    }
+    .voucher-left .v-min {
+        font-size: 12px !important;
+        color: #64748b !important;
+        margin-top: 2px !important;
+    }
+    .voucher-item.unavailable .voucher-left .v-min,
+    .voucher-item.used .voucher-left .v-min {
+        color: #94a3b8 !important;
+    }
+    .voucher-left .v-desc {
+        font-size: 11px !important;
+        color: #64748b !important;
+        margin-top: 3px !important;
+        line-height: 1.4 !important;
+    }
+    .voucher-item.unavailable .voucher-left .v-desc,
+    .voucher-item.used .voucher-left .v-desc {
+        color: #94a3b8 !important;
+    }
+    .voucher-left .v-status-msg {
+        font-size: 11.5px !important;
+        margin-top: 5px !important;
+        font-weight: 600 !important;
+        color: #16a34a !important;
+    }
+    .voucher-item.unavailable .voucher-left .v-status-msg,
+    .voucher-item.used .voucher-left .v-status-msg {
+        color: #ef4444 !important;
+    }
+    .voucher-right {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-left: 10px !important;
+        min-width: 36px !important;
+        flex-shrink: 0 !important;
+    }
+
     .promo-modal-footer {
         padding: 16px 20px !important;
         border-top: 1px solid #f1f5f9 !important;
@@ -633,7 +748,11 @@
                     <input type="text" id="modal-coupon-input" placeholder="Nhập mã giảm giá của bạn tại đây nhé" value="${couponCode}">
                     <button type="button" class="promo-apply-btn" id="btn-modal-apply-coupon">Áp dụng</button>
                 </div>
-                <div id="modal-coupon-msg" class="coupon-message" style="font-size: 12.5px; margin-top: 8px; font-weight: 500; display: none;"></div>
+                <div id="modal-coupon-msg" class="coupon-message" style="font-size: 12.5px; margin-top: 10px; font-weight: 600; padding: 10px 14px; border-radius: 8px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: ${not empty couponCode ? 'block' : 'none'};">
+                    <c:choose>
+                        <c:when test="${not empty couponCode}">Đã tự động đổi sang mã giảm giá tốt nhất phù hợp!</c:when>
+                    </c:choose>
+                </div>
             </div>
 
             <!-- 2. Danh sách khuyến mãi -->
@@ -649,7 +768,9 @@
 
                 <div class="vouchers-list" id="vouchers-list">
                      <c:forEach items="${userVouchers}" var="v">
-                         <div class="voucher-item ${v.available ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${v.voucherCode == couponCode ? 'active' : ''}" 
+                         <c:set var="isAct" value="${v.voucherCode == couponCode}" />
+                         <c:set var="isAvail" value="${v.available}" />
+                         <div class="voucher-item ${isAvail ? 'available' : 'unavailable'} ${v.used ? 'used' : ''} ${isAct ? 'active' : ''}" 
                               data-code="${v.voucherCode}">
                              <div class="voucher-left">
                                  <div class="v-code">${v.voucherCode}</div>
@@ -658,23 +779,26 @@
                                  </div>
                                  <div class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,##0"/>₫</div>
                                  <c:if test="${not empty v.description}">
-                                     <div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">
+                                     <div class="v-desc">
                                          ${v.description}
                                      </div>
                                  </c:if>
-                                 <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${v.available ? '#10b981' : '#dc2626'}; font-weight: 500;">
-                                     ${v.statusMessage}
+                                 <div class="v-status-msg">
+                                     <c:choose>
+                                         <c:when test="${isAvail}">Đủ điều kiện áp dụng</c:when>
+                                         <c:otherwise>${not empty v.statusMessage ? v.statusMessage : 'Không đủ điều kiện áp dụng'}</c:otherwise>
+                                     </c:choose>
                                  </div>
                              </div>
                              <div class="voucher-right">
                                  <c:choose>
-                                     <c:when test="${v.voucherCode == couponCode}">
+                                     <c:when test="${isAct}">
                                          <div class="promo-select-indicator active">
-                                             <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                                             <i class="fas fa-check-circle" style="color: #ef4444; font-size: 22px;"></i>
                                          </div>
                                      </c:when>
-                                     <c:when test="${v.used || !v.available}">
-                                         <!-- Ẩn hoàn toàn nút + -->
+                                     <c:when test="${v.used || !isAvail}">
+                                         <!-- Không hiển thị nút + -->
                                      </c:when>
                                      <c:otherwise>
                                          <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">

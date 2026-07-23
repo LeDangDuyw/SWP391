@@ -668,6 +668,8 @@
 </head>
 <body>
 
+    <c:set var="u" value="${not empty profileUser ? profileUser : sessionScope.user}" />
+
     <!-- ── HEADER ─────────────────────────────────────────────────────── -->
     <header class="header">
         <a href="${pageContext.request.contextPath}/HomeServlet" class="logo">
@@ -677,15 +679,15 @@
             <div class="header-user">
                 <div class="header-avatar">
                     <c:choose>
-                        <c:when test="${not empty profileUser.avatarUrl}">
-                            <img src="${pageContext.request.contextPath}/images/${profileUser.avatarUrl}" alt="avatar">
+                        <c:when test="${not empty u.avatarUrl}">
+                            <img src="${pageContext.request.contextPath}/images/${u.avatarUrl}" alt="avatar">
                         </c:when>
                         <c:otherwise>
                             <i class="fas fa-user"></i>
                         </c:otherwise>
                     </c:choose>
                 </div>
-                <span>${profileUser.userName}</span>
+                <span>${u.userName}</span>
             </div>
         </div>
     </header>
@@ -698,24 +700,24 @@
             <div class="sidebar-profile">
                 <div class="sidebar-avatar">
                     <c:choose>
-                        <c:when test="${not empty profileUser.avatarUrl}">
-                            <img src="${pageContext.request.contextPath}/images/${profileUser.avatarUrl}" alt="Avatar">
+                        <c:when test="${not empty u.avatarUrl}">
+                            <img src="${pageContext.request.contextPath}/images/${u.avatarUrl}" alt="Avatar">
                         </c:when>
                         <c:otherwise>
                             <i class="fas fa-user"></i>
                         </c:otherwise>
                     </c:choose>
                 </div>
-                <div class="sidebar-name">${profileUser.userName}</div>
-                <div class="sidebar-email">${profileUser.email}</div>
+                <div class="sidebar-name">${u.userName}</div>
+                <div class="sidebar-email">${u.email}</div>
                 <c:choose>
-                    <c:when test="${profileUser.roleId == 1}">
+                    <c:when test="${u.roleId == 1}">
                         <span class="role-badge badge-admin"><i class="fas fa-crown"></i> Quản trị viên</span>
                     </c:when>
-                    <c:when test="${profileUser.roleId == 2}">
+                    <c:when test="${u.roleId == 2}">
                         <span class="role-badge badge-staff"><i class="fas fa-user-tie"></i> Nhân viên</span>
                     </c:when>
-                    <c:when test="${profileUser.roleId == 4}">
+                    <c:when test="${u.roleId == 4}">
                         <span class="role-badge badge-student"><i class="fas fa-graduation-cap"></i> Sinh viên</span>
                     </c:when>
                     <c:otherwise>
@@ -735,7 +737,7 @@
                     Đổi mật khẩu
                 </a>
 
-                <c:if test="${profileUser.roleId == 3 || profileUser.roleId == 4}">
+                <c:if test="${u.roleId == 3 || u.roleId == 4}">
                     <div class="nav-label">Dịch vụ</div>
                     <a href="${pageContext.request.contextPath}/profile#warranty" class="nav-item" id="nav-warranty">
                         <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
@@ -745,9 +747,13 @@
                         <div class="nav-icon"><i class="fas fa-shopping-bag"></i></div>
                         Đơn hàng của tôi
                     </a>
-                    <a href="${pageContext.request.contextPath}/profile#student-verify" class="nav-item" id="nav-student-verify">
-                        <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
-                        Xác minh sinh viên
+                    <a href="${pageContext.request.contextPath}/rewards" class="nav-item" style="text-decoration:none; color:inherit;">
+                        <div class="nav-icon" style="color:#f59e0b;"><i class="fas fa-star"></i></div>
+                        Kho điểm thưởng (⭐ ${u.rewardPoints})
+                    </a>
+                    <a href="${pageContext.request.contextPath}/wishlist" class="nav-item" style="text-decoration:none; color:inherit;">
+                        <div class="nav-icon" style="color:#e11d48;"><i class="fas fa-heart"></i></div>
+                        Sản phẩm yêu thích
                     </a>
                 </c:if>
 

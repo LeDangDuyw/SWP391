@@ -522,13 +522,18 @@ public class WarrantyService {
                     + "Trạng thái hiện tại: " + claim.getStatus());
         }
 
+        if (note == null || note.trim().isEmpty()) {
+            throw new ValidationException("Ghi chú lý do chuyển giao không được để trống.");
+        }
+
+        String trimmedNote = note.trim();
+        if (trimmedNote.matches("^[0-9\\s]+$")) {
+            throw new ValidationException("Ghi chú lý do chuyển giao phải là văn bản chữ mô tả lý do, không được chỉ chứa chữ số hoặc khoảng trắng.");
+        }
+
         warrantyDAO.reassignStaff(claimId, newStaffId);
 
-        String historyNote = (note != null && !note.trim().isEmpty())
-                ? note.trim()
-                : "Admin đã chuyển giao yêu cầu bảo hành cho nhân viên khác.";
-
-        insertHistory(claimId, claim.getDescription(), claim.getStatus(), historyNote);
+        insertHistory(claimId, claim.getDescription(), "REASSIGNED", trimmedNote);
     }
 
     /**

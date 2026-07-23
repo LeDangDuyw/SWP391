@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import utils.ValidationException;
 
-@WebServlet("/warranty")
+@WebServlet(name = "WarrantyController", urlPatterns = {"/warranty", "/warranty-list"})
 @MultipartConfig(
         maxFileSize = 5L * 1024 * 1024, // 5MB / file — khớp MAX_IMAGE_SIZE ở Service
         maxRequestSize = 30L * 1024 * 1024, // tổng request: 5 ảnh * 5MB + buffer cho field text khác
@@ -62,10 +62,15 @@ public class WarrantyController extends HttpServlet {
             return;
         }
 
+        String servletPath = request.getServletPath();
         String action = request.getParameter("action");
         // Kiểm tra điều kiện
         if (action == null) {
-            action = "list";
+            if ("/warranty-list".equals(servletPath)) {
+                action = "list";
+            } else {
+                action = "center";
+            }
         }
 
         // Kiểm tra điều kiện

@@ -96,7 +96,7 @@
             <b>${editing ? "Chỉnh Sửa Chiến Dịch" : "Tạo Chiến Dịch Mới"}</b>
         </div>
 
-        <form method="post" action="${pageContext.request.contextPath}/admin/campaign-form" class="campaign-form" id="campaignForm">
+        <form method="post" action="${pageContext.request.contextPath}/admin/campaign-form" class="campaign-form" id="campaignForm" novalidate>
 
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="id" value="${campaign.campaignId}">
@@ -148,12 +148,6 @@
                                     <option value="flash" ${campaign.campaignType == 'flash' ? 'selected' : ''}>
                                         Flash Sale / Giảm Giá Giờ Vàng
                                     </option>
-                                    <option value="bundle_discount" ${campaign.campaignType == 'bundle_discount' ? 'selected' : ''}>
-                                        Giảm Giá Khi Mua Kèm
-                                    </option>
-                                    <option value="gift_with_purchase" ${campaign.campaignType == 'gift_with_purchase' ? 'selected' : ''}>
-                                        Tặng Quà Khi Mua Hàng
-                                    </option>
                                 </select>
                             </div>
 
@@ -165,12 +159,6 @@
                                     </option>
                                     <option value="New Customers" ${campaign.targetGroup == 'New Customers' ? 'selected' : ''}>
                                         Khách Hàng Mới
-                                    </option>
-                                    <option value="Students" ${campaign.targetGroup == 'Students' ? 'selected' : ''}>
-                                        Sinh Viên Đã Xác Thực
-                                    </option>
-                                    <option value="B2B Customers" ${campaign.targetGroup == 'B2B Customers' ? 'selected' : ''}>
-                                        Khách Hàng Doanh Nghiệp
                                     </option>
                                 </select>
                             </div>
@@ -288,9 +276,12 @@
                                 <label>Đến ngày</label>
                                 <input type="date" id="salesEndDate">
                             </div>
-                            <div>
-                                <button type="button" class="btn primary" id="btnApplySalesFilter" style="height: 40px; min-height: unset; padding: 8px 20px; font-size: 13px; font-weight: bold; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="btn primary" id="btnApplySalesFilter" style="height: 40px; min-height: unset; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px;">
                                     Lọc
+                                </button>
+                                <button type="button" class="btn ghost" id="btnSelectAllProducts" style="height: 40px; min-height: unset; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; border: 1px solid var(--line); color: var(--blue); background: #ffffff;">
+                                    ☑ Chọn Tất Cả
                                 </button>
                             </div>
                         </div>
@@ -389,26 +380,6 @@
                                 Đã Kết Thúc (Stopped)
                             </option>
                         </select>
-                    </section>
-
-                    <section class="form-card side-card">
-                        <h3>🖼️ Banner Quảng Cáo</h3>
-                        <label for="bannerUrl">Đường Dẫn Ảnh Banner</label>
-                        <input name="bannerUrl"
-                               id="bannerUrl"
-                               type="text"
-                               value="${not empty bannerUrl ? bannerUrl : ''}"
-                               placeholder="/images/banner-gaming-sale.jpg">
-                        <span style="font-size: 11px; color: #64748b; display: block; margin-top: 4px; line-height: 1.4;">
-                            Nhập đường dẫn ảnh banner (ví dụ: /images/banner-gaming-sale.jpg) để hiển thị trên slider Trang chủ. Để trống nếu không muốn dùng banner cho chiến dịch này.
-                        </span>
-                    </section>
-
-                    <section class="preview-card">
-                        <div>
-                            <b>Xem Trước Hình Ảnh Banner</b>
-                            <span>Hình ảnh banner hiển thị trực quan trên giao diện</span>
-                        </div>
                     </section>
 
                 </aside>
@@ -517,10 +488,33 @@
             });
         }
 
+        function parseInputDate(valStr) {
+            if (!valStr) return null;
+            valStr = valStr.trim();
+            if (valStr.includes("/")) {
+                var parts = valStr.split(" ");
+                var dateParts = parts[0].split("/");
+                if (dateParts.length === 3) {
+                    var day = parseInt(dateParts[0], 10);
+                    var month = parseInt(dateParts[1], 10) - 1;
+                    var year = parseInt(dateParts[2], 10);
+                    var hours = 0, mins = 0;
+                    if (parts.length > 1 && parts[1].includes(":")) {
+                        var timeParts = parts[1].split(":");
+                        hours = parseInt(timeParts[0], 10) || 0;
+                        mins = parseInt(timeParts[1], 10) || 0;
+                    }
+                    return new Date(year, month, day, hours, mins);
+                }
+            }
+            return new Date(valStr);
+        }
+
         var form = document.getElementById("campaignForm");
-        if (form && startDateInput && endDateInput) {
+        if (form) {
             form.addEventListener("submit", function(e) {
                 var isValid = true;
+                var errorMsg = "";
 
                 // 1. Campaign Name validation
                 var name = campaignNameInput ? campaignNameInput.value.trim() : "";
@@ -529,10 +523,10 @@
                     campaignNameError.style.display = "block";
                     campaignNameInput.classList.add("input-error");
                     isValid = false;
-                } else if (!isNameValid) {
-                    campaignNameError.style.display = "block";
-                    campaignNameInput.classList.add("input-error");
+                    if (!errorMsg) errorMsg = "Vui lòng nhập Tên Chiến Dịch Khuyến Mãi!";
+                } else if (campaignNameError && campaignNameError.style.display === "block" && campaignNameError.textContent.includes("đã được sử dụng")) {
                     isValid = false;
+                    if (!errorMsg) errorMsg = campaignNameError.textContent;
                 }
 
                 // 2. Promo Code validation
@@ -551,11 +545,13 @@
                             promoCodeError.style.display = "block";
                             promoCodeInput.classList.add("input-error");
                             isValid = false;
-                        } else if (code.length !== 9) {
-                            promoCodeError.textContent = "Mã khuyến mãi phải nhập đủ 9 ký tự!";
+                            if (!errorMsg) errorMsg = "Vui lòng nhập Mã Giảm Giá (Promo Code)!";
+                        } else if (code.length < 3 || code.length > 20) {
+                            promoCodeError.textContent = "Mã khuyến mãi phải từ 3 đến 20 ký tự!";
                             promoCodeError.style.display = "block";
                             promoCodeInput.classList.add("input-error");
                             isValid = false;
+                            if (!errorMsg) errorMsg = "Mã khuyến mãi phải từ 3 đến 20 ký tự!";
                         }
                     }
                 }
@@ -568,22 +564,31 @@
                     discountValueInput.classList.remove("input-error");
 
                     var discVal = parseFloat(discountValueInput.value);
-                    if (!isNaN(discVal)) {
-                        if (discVal < 0) {
+                    if (type === "percentage" || type === "fixed" || type === "flash") {
+                        if (isNaN(discVal) || discountValueInput.value.trim() === "") {
+                            discountValueError.textContent = "Mức giảm giá không được để trống!";
+                            discountValueError.style.display = "block";
+                            discountValueInput.classList.add("input-error");
+                            isValid = false;
+                            if (!errorMsg) errorMsg = "Vui lòng nhập Mức Giảm Giá (ví dụ: 10% hoặc 50,000đ)!";
+                        } else if (discVal < 0) {
                             discountValueError.textContent = "Giá trị giảm giá không được nhập số âm!";
                             discountValueError.style.display = "block";
                             discountValueInput.classList.add("input-error");
                             isValid = false;
+                            if (!errorMsg) errorMsg = "Giá trị giảm giá không được nhập số âm!";
                         } else if ((type === "percentage" || type === "flash") && discVal > 99) {
                             discountValueError.textContent = "Đối với phần trăm (%), giá trị giảm giá chỉ được nhập tối đa là 99%!";
                             discountValueError.style.display = "block";
                             discountValueInput.classList.add("input-error");
                             isValid = false;
-                        } else if ((type === "fixed" || type === "bundle_discount") && discVal > 10000000) {
+                            if (!errorMsg) errorMsg = "Đối với phần trăm (%), giá trị giảm giá chỉ được nhập tối đa là 99%!";
+                        } else if (type === "fixed" && discVal > 10000000) {
                             discountValueError.textContent = "Đối với tiền mặt (VND), giá trị giảm giá chỉ được nhập tối đa là 10,000,000 VND!";
                             discountValueError.style.display = "block";
                             discountValueInput.classList.add("input-error");
                             isValid = false;
+                            if (!errorMsg) errorMsg = "Đối với tiền mặt (VND), giá trị giảm giá chỉ được nhập tối đa là 10,000,000 VND!";
                         }
                     }
                 }
@@ -601,6 +606,7 @@
                         minOrderError.style.display = "block";
                         minOrderInput.classList.add("input-error");
                         isValid = false;
+                        if (!errorMsg) errorMsg = "Giá trị đơn hàng tối thiểu không được nhập số âm!";
                     }
                 }
 
@@ -621,12 +627,13 @@
                         usageLimitError.style.display = "block";
                         usageLimitInput.classList.add("input-error");
                         isValid = false;
+                        if (!errorMsg) errorMsg = "Giới hạn sử dụng không được nhập số âm!";
                     }
                 }
 
                 if (userUsageLimitInput && userUsageLimitError) {
                     userUsageLimitError.style.display = "none";
-                    userUsageLimitInput.classList.remove("input-error");
+                    userUsageLimitError.classList.remove("input-error");
 
                     var userLimitVal = parseFloat(userUsageLimitInput.value);
                     if (!isNaN(userLimitVal) && userLimitVal < 0) {
@@ -634,6 +641,7 @@
                         userUsageLimitError.style.display = "block";
                         userUsageLimitInput.classList.add("input-error");
                         isValid = false;
+                        if (!errorMsg) errorMsg = "Giới hạn sử dụng mỗi user không được nhập số âm!";
                     }
                 }
 
@@ -649,27 +657,52 @@
                         userUsageLimitError.style.display = "block";
                         userUsageLimitInput.classList.add("input-error");
                         isValid = false;
+                        if (!errorMsg) errorMsg = "Chỉ được nhập 1 trong 2 ô: Giới hạn toàn bộ HOẶC Giới hạn mỗi User!";
                     }
                 }
 
                 // 6. Dates validation
-                var startVal = startDateInput.value;
-                var endVal = endDateInput.value;
-                var startDateOnly = startVal.substring(0, 10);
-                var endDateOnly = endVal.substring(0, 10);
-                if (startDateOnly < todayStr) {
-                    alert("Ngày bắt đầu chiến dịch phải từ ngày hôm nay trở đi!");
+                if (!startDateInput || !startDateInput.value) {
                     isValid = false;
-                } else if (endDateOnly > maxDateStr) {
-                    alert("Thời gian kết thúc không được vượt quá 6 tháng kể từ hôm nay!");
+                    if (!errorMsg) errorMsg = "Vui lòng chọn Thời Gian Bắt Đầu!";
+                } else if (!endDateInput || !endDateInput.value) {
                     isValid = false;
-                } else if (startVal > endVal) {
-                    alert("Thời gian kết thúc phải lớn hơn hoặc bằng thời gian bắt đầu!");
-                    isValid = false;
+                    if (!errorMsg) errorMsg = "Vui lòng chọn Thời Gian Kết Thúc!";
+                } else {
+                    var startDateObj = parseInputDate(startDateInput.value);
+                    var endDateObj = parseInputDate(endDateInput.value);
+
+                    var todayObj = new Date();
+                    todayObj.setMinutes(todayObj.getMinutes() - 10);
+
+                    var maxDateObj = new Date();
+                    maxDateObj.setMonth(maxDateObj.getMonth() + 6);
+
+                    if (startDateObj) {
+                        var startDateZero = new Date(startDateObj.getFullYear(), startDateObj.getMonth(), startDateObj.getDate());
+                        var todayZero = new Date(todayObj.getFullYear(), todayObj.getMonth(), todayObj.getDate());
+                        if (startDateZero < todayZero) {
+                            isValid = false;
+                            if (!errorMsg) errorMsg = "Ngày bắt đầu chiến dịch phải từ ngày hôm nay trở đi!";
+                        }
+                    }
+
+                    if (isValid && endDateObj && endDateObj.getTime() > maxDateObj.getTime()) {
+                        isValid = false;
+                        if (!errorMsg) errorMsg = "Thời gian kết thúc không được vượt quá 6 tháng kể từ hôm nay!";
+                    }
+
+                    if (isValid && startDateObj && endDateObj && startDateObj.getTime() > endDateObj.getTime()) {
+                        isValid = false;
+                        if (!errorMsg) errorMsg = "Thời gian kết thúc phải lớn hơn hoặc bằng thời gian bắt đầu!";
+                    }
                 }
 
                 if (!isValid) {
                     e.preventDefault();
+                    if (errorMsg) {
+                        alert(errorMsg);
+                    }
                     var firstError = document.querySelector(".input-error");
                     if (firstError) {
                         firstError.focus();
@@ -691,6 +724,8 @@
             .replace(/'/g, "&#039;");
     }
 
+    var isAllSelectedMode = false;
+
     // Function to render selected products rows & create hidden inputs for form submission
     function updateSelectedList() {
         var container = document.getElementById("selectedProductsList");
@@ -699,12 +734,53 @@
         container.innerHTML = "";
         
         var keys = Object.keys(selectedProductsMap);
-        countSpan.textContent = keys.length;
+        var totalAvailable = document.querySelectorAll('.picker-checkbox').length;
         
+        var isAllSelected = (totalAvailable > 0 && keys.length === totalAvailable) || isAllSelectedMode;
+
         if (keys.length === 0) {
+            countSpan.textContent = "0";
             container.innerHTML = '<div style="color: var(--muted); font-style: italic; padding: 10px 0;">Chưa có sản phẩm nào được chọn. Hãy chọn sản phẩm ở danh sách dưới.</div>';
             return;
         }
+        
+        if (isAllSelected) {
+            countSpan.textContent = "Tất cả (" + keys.length + ")";
+            
+            var hiddenInputsHtml = "";
+            keys.forEach(function(key) {
+                var p = selectedProductsMap[key];
+                hiddenInputsHtml += '<input type="hidden" name="variantIds" value="' + p.variantId + '">';
+            });
+            
+            container.innerHTML = 
+                '<div class="selected-product-row" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">' +
+                '    <div style="display: flex; align-items: center; gap: 10px;">' +
+                '        <span style="font-size: 18px;">✨</span>' +
+                '        <div>' +
+                '            <strong style="color: #1d4ed8; font-size: 14px;">Đã chọn tất cả sản phẩm</strong>' +
+                '            <span style="color: #64748b; font-size: 12.5px; margin-left: 8px;">(Áp dụng toàn bộ ' + keys.length + ' sản phẩm trong hệ thống)</span>' +
+                '        </div>' +
+                '    </div>' +
+                '    <button type="button" class="btn-remove" id="btnDeselectAll" style="color: #ef4444; font-size: 22px; border: none; background: none; cursor: pointer; line-height: 1;" title="Bỏ chọn tất cả">&times;</button>' +
+                '    ' + hiddenInputsHtml +
+                '</div>';
+                
+            var deselectBtn = document.getElementById("btnDeselectAll");
+            if (deselectBtn) {
+                deselectBtn.onclick = function() {
+                    selectedProductsMap = {};
+                    isAllSelectedMode = false;
+                    document.querySelectorAll('.picker-checkbox').forEach(function(cb) {
+                        cb.checked = false;
+                    });
+                    updateSelectedList();
+                };
+            }
+            return;
+        }
+        
+        countSpan.textContent = keys.length;
         
         keys.forEach(function(key) {
             var p = selectedProductsMap[key];
@@ -712,28 +788,13 @@
             var row = document.createElement("div");
             row.className = "selected-product-row";
             
-            // update gift with purchase
-            var giftCheckboxHtml = "";
-            var campType = document.getElementById("campaignType").value;
-            var isGiftChecked = p.isGift ? "checked" : "";
-            
-            if (campType === "gift_with_purchase") {
-                giftCheckboxHtml = 
-                    '<label style="display: inline-flex; align-items: center; gap: 6px; margin-left: 15px; font-weight: normal; cursor: pointer; color: var(--green-text); font-weight: 600;">' +
-                    '    <input type="checkbox" class="gift-checkbox" data-id="' + p.variantId + '" ' + isGiftChecked + '> ' +
-                    '    🎁 Quà tặng' +
-                    '</label>';
-            }
-            
             row.innerHTML = 
                 '<div>' +
                 '    <strong style="color: var(--blue);">' + escapeHtml(p.productName) + '</strong>' +
                 '    <span style="color: var(--muted); margin-left: 8px;">' +
                 '        ' + escapeHtml(p.variantName) + ' · ' + escapeHtml(p.sku) + ' · ' + escapeHtml(p.categoryName) +
                 '    </span>' +
-                '    ' + giftCheckboxHtml +
                 '    <input type="hidden" name="variantIds" value="' + p.variantId + '">' +
-                '    <input type="hidden" id="gift_input_' + p.variantId + '" name="giftVariantIds" value="' + (p.isGift ? p.variantId : "") + '" ' + (p.isGift ? "" : "disabled") + '>' +
                 '</div>' +
                 '<button type="button" class="btn-remove" data-id="' + p.variantId + '">' +
                 '    &times;' +
@@ -747,6 +808,7 @@
             btn.onclick = function() {
                 var id = btn.getAttribute('data-id');
                 delete selectedProductsMap[id];
+                isAllSelectedMode = false;
                 
                 // Uncheck corresponding checkbox in picker if visible
                 var cb = document.querySelector('.picker-checkbox[data-id="' + id + '"]');
@@ -757,21 +819,40 @@
                 updateSelectedList();
             };
         });
+    }
 
-        // Lắng nghe sự kiện click chọn làm Quà tặng
-        container.querySelectorAll('.gift-checkbox').forEach(function(gcb) {
-            gcb.onchange = function() {
-                var id = gcb.getAttribute('data-id');
-                var isGift = gcb.checked;
-                selectedProductsMap[id].isGift = isGift;
-                
-                var hiddenInput = document.getElementById("gift_input_" + id);
-                if (hiddenInput) {
-                    hiddenInput.value = isGift ? id : "";
-                    hiddenInput.disabled = !isGift; // Tắt input để không gửi về server nếu không phải quà tặng
+    // Bind event to "Chọn Tất Cả" button
+    var btnSelectAllProducts = document.getElementById("btnSelectAllProducts");
+    if (btnSelectAllProducts) {
+        btnSelectAllProducts.onclick = function() {
+            var checkboxes = document.querySelectorAll('.picker-checkbox');
+            var allChecked = true;
+            checkboxes.forEach(function(cb) {
+                if (!cb.checked) allChecked = false;
+            });
+            
+            var targetState = !allChecked;
+            isAllSelectedMode = targetState;
+            
+            checkboxes.forEach(function(cb) {
+                cb.checked = targetState;
+                var id = cb.getAttribute('data-id');
+                if (targetState) {
+                    selectedProductsMap[id] = {
+                        variantId: id,
+                        productName: cb.getAttribute('data-name'),
+                        variantName: cb.getAttribute('data-variant'),
+                        sku: cb.getAttribute('data-sku'),
+                        categoryName: cb.getAttribute('data-category'),
+                        price: cb.getAttribute('data-price'),
+                        stock: cb.getAttribute('data-stock')
+                    };
+                } else {
+                    delete selectedProductsMap[id];
                 }
-            };
-        });
+            });
+            updateSelectedList();
+        };
     }
 
     // Initial load sync
@@ -811,6 +892,7 @@
                     };
                 } else {
                     delete selectedProductsMap[id];
+                    isAllSelectedMode = false;
                 }
                 updateSelectedList();
             };
@@ -1085,7 +1167,7 @@
                     promoCodeInput.value = "";
                 }
             }
-        } else if (val === "flash" || val === "bundle_discount") {
+        } else if (val === "flash") {
             // Only show discount value, hide promo code and usage limit
             if (voucherConfigCard) voucherConfigCard.style.display = "block";
             if (promoCodeGroup) promoCodeGroup.style.display = "none";

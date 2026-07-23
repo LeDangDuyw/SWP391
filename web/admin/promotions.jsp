@@ -103,7 +103,7 @@
                                 <c:if test="${not empty c.discountValue}">
                                     <br>Val: <b>
                                         <c:choose>
-                                            <c:when test="${c.campaignType == 'percentage' || c.campaignType == 'flash' || c.campaignType == 'bundle_discount'}">
+                                            <c:when test="${c.campaignType == 'percentage' || c.campaignType == 'flash'}">
                                                 <c:choose>
                                                     <c:when test="${c.discountValue == 0}">0%</c:when>
                                                     <c:otherwise>

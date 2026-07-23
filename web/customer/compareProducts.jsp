@@ -146,10 +146,19 @@
                                     <button class="btn-remove"
                                         onclick="removeProductFromCompare(${p.productId})"
                                         title="Xóa sản phẩm này">×</button>
-                                    <img class="product-image"
-                                        src="${pageContext.request.contextPath}/images/${p.thumbnail}"
-                                        alt="${p.productName}">
-                                    <div class="product-name">${p.productName}</div>
+                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}">
+                                        <img class="product-image"
+                                            src="${pageContext.request.contextPath}/images/${p.thumbnail}"
+                                            alt="${p.productName}">
+                                    </a>
+                                    <div class="product-name">
+                                        <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${p.productId}" 
+                                           style="color: inherit; text-decoration: none; transition: color 0.2s;"
+                                           onmouseover="this.style.color='#2563eb'" 
+                                           onmouseout="this.style.color='inherit'">
+                                            ${p.productName}
+                                        </a>
+                                    </div>
                                     <div class="product-price">
                                         <fmt:formatNumber value="${p.minPrice}" type="currency"
                                             currencySymbol="đ" />
@@ -358,12 +367,18 @@
                     <div class="suggest-sidebar-list">
                         <c:forEach items="${suggestProducts}" var="sp">
                             <div class="suggest-sidebar-item">
-                                <img src="${pageContext.request.contextPath}/images/${sp.thumbnail}" alt="${sp.productName}">
+                                <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${sp.productId}">
+                                    <img src="${pageContext.request.contextPath}/images/${sp.thumbnail}" alt="${sp.productName}">
+                                </a>
                                 <div class="suggest-info">
                                     <div class="suggest-price">
                                         <fmt:formatNumber value="${sp.minPrice}" type="currency" currencySymbol="đ" />
                                     </div>
-                                    <h5 class="suggest-name" title="${sp.productName}">${sp.productName}</h5>
+                                    <h5 class="suggest-name" title="${sp.productName}">
+                                        <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${sp.productId}" style="color: inherit; text-decoration: none;">
+                                            ${sp.productName}
+                                        </a>
+                                    </h5>
                                     <a href="javascript:void(0)" onclick="addProductToCompare(${sp.productId})" class="suggest-add-link">
                                         <i class="fas fa-plus-circle"></i> Thêm vào so sánh
                                     </a>

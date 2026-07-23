@@ -26,12 +26,19 @@ public class OrderDetailController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Users sessionUser = (Users) session.getAttribute("user");
-
         if (sessionUser == null) {
             response.sendRedirect(request.getContextPath() + "/login?error=" +
                     URLEncoder.encode("Vui lòng đăng nhập để tiếp tục!", "UTF-8"));
             return;
         }
+
+        dal.UserDAO userDAO = new dal.UserDAO();
+        Users freshUser = userDAO.getUserById(sessionUser.getUserId());
+        if (freshUser == null) {
+            freshUser = sessionUser;
+        }
+        session.setAttribute("user", freshUser);
+        request.setAttribute("profileUser", freshUser);
 
         String orderIdStr = request.getParameter("id");
         if (orderIdStr == null || orderIdStr.trim().isEmpty()) {

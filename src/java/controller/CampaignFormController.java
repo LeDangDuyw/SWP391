@@ -220,7 +220,7 @@ public class CampaignFormController extends PromotionServlet {
             if (campaign.getDiscountValue().compareTo(new BigDecimal("99")) > 0) {
                 throw new IllegalArgumentException("Đối với phần trăm (%), giá trị giảm giá chỉ được nhập tối đa là 99%!");
             }
-        } else if ("fixed".equals(type) || "bundle_discount".equals(type)) {
+        } else if ("fixed".equals(type)) {
             if (campaign.getDiscountValue().compareTo(new BigDecimal("10000000")) > 0) {
                 throw new IllegalArgumentException("Đối với tiền mặt (VND), giá trị giảm giá chỉ được nhập tối đa là 10,000,000 VND!");
             }

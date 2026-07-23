@@ -30,6 +30,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css">
         <style>
             *, *::before, *::after {
                 box-sizing: border-box;
@@ -923,6 +924,18 @@
         </div>
     </c:if>
 
+    <!-- ════ TOP TOGGLE BUTTONS ════ -->
+    <div style="display:flex; justify-content:center; gap:12px; margin-top:28px; margin-bottom:8px;">
+        <a href="${pageContext.request.contextPath}/warranty?action=center"
+           style="display:inline-flex; align-items:center; gap:8px; padding:10px 22px; background:#2563eb; color:#ffffff; font-size:13.5px; font-weight:600; border-radius:10px; text-decoration:none; box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+            <i class="fas fa-plus-circle"></i> Gửi Yêu Cầu Bảo Hành Mới
+        </a>
+        <a href="${pageContext.request.contextPath}/warranty?action=list"
+           style="display:inline-flex; align-items:center; gap:8px; padding:10px 22px; background:#ffffff; color:#475569; border:1px solid #e2e8f0; font-size:13.5px; font-weight:500; border-radius:10px; text-decoration:none; transition:all 0.15s;">
+            <i class="fas fa-list-alt"></i> Danh Sách & Theo Dõi Bảo Hành
+        </a>
+    </div>
+
     <!-- ════ HERO ════ -->
     <section class="page-hero">
         <h1>Trung Tâm Bảo Hành</h1>
@@ -1192,96 +1205,7 @@
         </div>
     </div>
 
-    <!-- ════ TRACK EXISTING CLAIM (below the wizard) ════ -->
-    <div class="track-claim-section">
-        <div class="card track-claim-card">
-            <div class="card-icon-wrap">🚚</div>
-            <h3>Theo Dõi Yêu Cầu Bảo Hành</h3>
-            <p>Theo dõi tiến trình xử lý các yêu cầu bảo hành hoặc trả phần cứng đang hoạt động.</p>
-            <form method="get" action="${pageContext.request.contextPath}/warranty">
-                <input type="hidden" name="action" value="detail">
-                <div class="field-group">
-                    <label>Mã yêu cầu bảo hành</label>
-                    <input type="text" name="id" placeholder="Nhập mã yêu cầu (ví dụ: 42)">
-                </div>
-                <button class="btn-outline-primary" type="submit">Theo dõi</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ════ RECENT WARRANTY ACTIVITY ════ -->
-    <section class="recent-section" id="recent-activity">
-        <h3>Hoạt Động Bảo Hành Gần Đây</h3>
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Mã yêu cầu / Ngày tạo</th>
-                    <th>Sản phẩm</th>
-                    <th>Tiêu đề lỗi</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-            <c:choose>
-                <c:when test="${empty claims}">
-                    <tr>
-                        <td colspan="5" class="no-claims">
-                            Bạn chưa có yêu cầu bảo hành nào.
-                        </td>
-                    </tr>
-                </c:when>
-                <c:otherwise>
-                    <c:forEach var="claim" items="${claims}">
-                        <tr>
-                            <td>
-                                <div class="claim-ref">#${claim.claimId}</div>
-                                <div class="claim-date">
-                                    <fmt:formatDate value="${claim.createdAt}" pattern="dd/MM/yyyy"/>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-size:13px;font-weight:500;"><c:out value="${claim.productName}"/></div>
-                                <div style="font-size:11.5px;color:#9ca3af;">SN: <c:out value="${claim.serialNumber}"/></div>
-                            </td>
-                            <td style="font-size:13px;"><c:out value="${claim.title}"/></td>
-                            <td>
-                                <span class="badge badge-${claim.status}">
-                                    <c:choose>
-                                        <c:when test="${claim.status == 'PENDING'}">Chờ xử lý</c:when>
-                                        <c:when test="${claim.status == 'APPROVED'}">Đã duyệt</c:when>
-                                        <c:when test="${claim.status == 'REJECTED'}">Từ chối</c:when>
-                                        <c:when test="${claim.status == 'COMPLETED'}">Hoàn thành</c:when>
-                                        <c:otherwise>${claim.status}</c:otherwise>
-                                    </c:choose>
-                                </span>
-                            </td>
-                            <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                <a class="btn-detail-sm"
-                                   href="${pageContext.request.contextPath}/warranty?action=detail&id=${claim.claimId}">
-                                    Xem chi tiết
-                                </a>
-                                <%-- Cancel chỉ hiện khi PENDING --%>
-                        <c:if test="${claim.status == 'PENDING'}">
-                            <form class="cancel-form"
-                                  action="${pageContext.request.contextPath}/warranty"
-                                  method="post"
-                                  onsubmit="return confirm('Huỷ yêu cầu #${claim.claimId}?')">
-                                <input type="hidden" name="action" value="cancel">
-                                <input type="hidden" name="id"     value="${claim.claimId}">
-                                <button type="submit" class="btn-cancel-sm">Hủy</button>
-                            </form>
-                        </c:if>
-                        </td>
-                        </tr>
-                    </c:forEach>
-                </c:otherwise>
-            </c:choose>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- ════ FOOTER (synced with home.jsp) ════ -->
+    <!-- ════ FOOTER ════ -->
     <%@include file="_footer.jspf" %>
     <!-- ════ STEP 1 PRODUCT PICKER SCRIPT ════ -->
     <script>

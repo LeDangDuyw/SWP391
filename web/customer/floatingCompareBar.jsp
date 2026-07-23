@@ -32,11 +32,13 @@
                                         <div class="compare-bar-items">
                                             <c:forEach items="${headerCompareProducts}" var="cp">
                                                 <div class="compare-bar-item">
-                                                    <img src="images/${cp.thumbnail}" alt="${cp.productName}"
-                                                        class="compare-item-thumb"
-                                                        onerror="this.src='https://via.placeholder.com/40x40?text=Laptop'">
-                                                    <span class="compare-item-name"
-                                                        title="${cp.productName}">${cp.productName}</span>
+                                                    <a href="${pageContext.request.contextPath}/ProductDetailServlet?id=${cp.productId}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; flex: 1; overflow: hidden;">
+                                                        <img src="images/${cp.thumbnail}" alt="${cp.productName}"
+                                                            class="compare-item-thumb"
+                                                            onerror="this.src='https://via.placeholder.com/40x40?text=Laptop'">
+                                                        <span class="compare-item-name"
+                                                            title="${cp.productName}">${cp.productName}</span>
+                                                    </a>
                                                     <button type="button" class="compare-item-remove"
                                                         onclick="removeProductFromCompare(${cp.productId})"
                                                         title="Xóa khỏi so sánh">

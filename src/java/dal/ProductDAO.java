@@ -1386,7 +1386,6 @@ public List<Product> GetAllProducts() {
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
-            int variantId = -1;
             if (rs.next()) {
                 variantId = rs.getInt(1);
             }
@@ -1400,7 +1399,9 @@ public List<Product> GetAllProducts() {
         } catch (Exception e) {
             System.out.println("Insert ProductVariant with thumbnail Error: " + e.getMessage());
         }
+        return variantId;
     }
+
     
     /*
      * Name: updateProduct

@@ -794,77 +794,98 @@ a { text-decoration: none; color: inherit; }
 
 .voucher-item {
     display: flex;
-    border: 1px dashed #cbd5e1;
-    border-radius: 10px;
-    background: #ffffff;
-    padding: 12px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    padding: 14px 16px !important;
     position: relative;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+    margin-bottom: 14px !important;
+}
+.voucher-item:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
 }
 .voucher-item.active {
-    border-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    border: 1.5px dashed #2563eb !important;
+    background: #eff6ff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08) !important;
 }
-.voucher-item.unavailable {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    opacity: 0.75;
+.voucher-item.active .voucher-left .v-code {
+    color: #1d4ed8 !important;
 }
-.voucher-item.used {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    opacity: 0.6;
-    cursor: not-allowed;
+.voucher-item.active .voucher-left .v-discount {
+    color: #2563eb !important;
 }
+.voucher-item.unavailable, .voucher-item.disabled, .voucher-item.used {
+    background: #ffffff !important;
+    border: 1px solid #f1f5f9 !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+}
+.voucher-item.unavailable .voucher-left .v-code,
+.voucher-item.unavailable .voucher-left .v-discount,
+.voucher-item.unavailable .voucher-left .v-min,
+.voucher-item.unavailable .voucher-left .v-desc,
 .voucher-item.used .voucher-left .v-code,
 .voucher-item.used .voucher-left .v-discount,
 .voucher-item.used .voucher-left .v-min,
-.voucher-item.used .voucher-left .v-status-msg {
+.voucher-item.used .voucher-left .v-desc {
     color: #94a3b8 !important;
+}
+.voucher-item.unavailable .voucher-left .v-status-msg,
+.voucher-item.used .voucher-left .v-status-msg {
+    color: #ef4444 !important;
+    font-weight: 600 !important;
 }
 .voucher-left {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-right: 1px dashed #e2e8f0;
+    border-right: none !important;
     padding-right: 12px;
 }
 .voucher-left .v-code {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 14.5px;
     color: #0f172a;
     letter-spacing: 0.5px;
 }
 .voucher-item.unavailable .voucher-left .v-code {
-    color: #64748b;
+    color: #64748b !important;
 }
 .voucher-item.active .voucher-left .v-code {
-    color: #1e3a8a;
+    color: #1d4ed8 !important;
 }
 .voucher-left .v-discount {
-    font-size: 13px;
+    font-size: 13.5px;
     color: #2563eb;
     font-weight: 700;
     margin-top: 4px;
 }
 .voucher-item.unavailable .voucher-left .v-discount {
-    color: #94a3b8;
+    color: #94a3b8 !important;
 }
 .voucher-left .v-min {
-    font-size: 11px;
+    font-size: 12px;
     color: #64748b;
     margin-top: 3px;
 }
 .voucher-right {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding-left: 12px;
-    min-width: 85px;
+    min-width: 40px;
+    flex-shrink: 0;
 }
 .btn-use-voucher {
     background: #2563eb;

@@ -342,7 +342,9 @@ document.addEventListener('DOMContentLoaded', function () {
         let html = '';
         vouchers.forEach(v => {
             const isActive = v.voucherCode === activeCode;
-            const itemClass = `voucher-item ${v.isAvailable ? 'available' : 'unavailable'} ${v.isUsed ? 'used' : ''} ${isActive ? 'active' : ''}`;
+            const isAvail = v.isAvailable || v.available;
+            const isUsed = v.isUsed || v.used;
+            const itemClass = `voucher-item ${isAvail ? 'available' : 'unavailable'} ${isUsed ? 'used' : ''} ${isActive ? 'active' : ''}`;
             
             const discValFormatted = formatMoney(v.discountValue);
             const minValFormatted = formatMoney(v.minOrderValue);
@@ -351,11 +353,11 @@ document.addEventListener('DOMContentLoaded', function () {
              if (isActive) {
                  rightContent = `
                      <div class="promo-select-indicator active">
-                         <i class="fas fa-check-circle" style="color: #ef4444; font-size: 20px;"></i>
+                         <i class="fas fa-check-circle" style="color: #ef4444; font-size: 22px;"></i>
                      </div>
                  `;
-             } else if (v.isUsed || !v.isAvailable) {
-                 rightContent = ''; // Ẩn hoàn toàn nút +
+             } else if (isUsed || !isAvail) {
+                 rightContent = ''; // Không cho chọn
              } else {
                  rightContent = `
                      <button type="button" class="btn-use-voucher-indicator" data-code="${v.voucherCode}" style="background: none; border: none; cursor: pointer; padding: 0;">
@@ -363,9 +365,10 @@ document.addEventListener('DOMContentLoaded', function () {
                      </button>
                  `;
              }
- 
-             const statusColor = v.isAvailable ? '#10b981' : '#dc2626';
- 
+
+             const statusText = isAvail ? 'Đủ điều kiện áp dụng' : (v.statusMessage || 'Không đủ điều kiện áp dụng');
+             const statusColor = isAvail ? '#16a34a' : '#ef4444';
+
              html += `
                  <div class="${itemClass}" data-code="${v.voucherCode}">
                      <div class="voucher-left">
@@ -374,9 +377,9 @@ document.addEventListener('DOMContentLoaded', function () {
                               Giảm ${discValFormatted}${v.discountValue <= 100 ? '%' : '₫'}
                           </div>
                           <div class="v-min">Đơn tối thiểu: ${minValFormatted}₫</div>
-                          ${v.description ? `<div class="v-desc" style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">${v.description}</div>` : ''}
-                          <div class="v-status-msg" style="font-size: 11px; margin-top: 6px; color: ${statusColor}; font-weight: 500;">
-                              ${v.statusMessage || ''}
+                          ${v.description ? `<div class="v-desc">${v.description}</div>` : ''}
+                          <div class="v-status-msg">
+                              ${statusText}
                           </div>
                      </div>
                      <div class="voucher-right">

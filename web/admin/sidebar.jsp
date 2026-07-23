@@ -158,6 +158,9 @@
             </div>
         </div>
         
+        <a class="${param.activePage == 'reviews' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/reviews">
+            <span>⭐</span>Quản lý đánh giá
+        </a>
         <a class="${param.activePage == 'policy' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/policy">
             <span>📜</span>Chính sách
         </a>
@@ -173,9 +176,6 @@
         </a>
         <a class="${param.activePage == 'chatbot-security' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/chatbot-security">
             <span>🛡</span>Bảo mật Chatbot
-        </a>
-        <a class="${param.activePage == 'settings' ? 'active' : ''}" href="#">
-            <span>⚙</span>Cài đặt
         </a>
     </nav>
     <div class="profile">

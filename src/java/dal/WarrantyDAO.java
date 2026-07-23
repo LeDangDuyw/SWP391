@@ -506,7 +506,7 @@ public class WarrantyDAO extends DBContext {
                 + "p.product_name AS productName, "
                 + "o.completed_at AS purchaseDate, "
                 + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
-                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName, "
+                + "N'Bảo hành tiêu chuẩn (' + CAST(ISNULL(p.warranty_period, 12) AS NVARCHAR) + N' tháng)' AS coverageName, "
                 + "CASE WHEN ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) >= GETDATE() "
                 + "     THEN 1 ELSE 0 END AS underWarranty, "
                 + "CASE WHEN EXISTS (SELECT 1 FROM WarrantyClaims wc "
@@ -519,7 +519,6 @@ public class WarrantyDAO extends DBContext {
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE (o.user_id = ? OR o.customer_id = ?) AND o.order_status IN ('COMPLETED', 'Completed', 'completed', 'delivered', 'Delivered') "
                 + "ORDER BY o.completed_at DESC, ii.serial_number ASC";
 
@@ -550,14 +549,13 @@ public class WarrantyDAO extends DBContext {
     public model.WarrantyEligibilityInfo getEligibilityInfo(String serialNumber) throws Exception {
         String sql = "SELECT p.product_name AS productName, "
                 + "ISNULL(ii.warranty_expired_date, DATEADD(MONTH, p.warranty_period, o.completed_at)) AS warrantyExpiry, "
-                + "COALESCE(wp.PolicyName, N'Bảo hành tiêu chuẩn') AS coverageName "
+                + "N'Bảo hành tiêu chuẩn (' + CAST(ISNULL(p.warranty_period, 12) AS NVARCHAR) + N' tháng)' AS coverageName "
                 + "FROM InventoryItem ii "
                 + "JOIN OrderItemSerial ois ON ii.item_id = ois.item_id "
                 + "JOIN OrderDetail od ON ois.order_detail_id = od.order_detail_id "
                 + "JOIN [Order] o ON od.order_id = o.order_id "
                 + "JOIN ProductVariant pv ON od.variant_id = pv.variant_id "
                 + "JOIN Product p ON pv.product_id = p.product_id "
-                + "LEFT JOIN WarrantyPolicies wp ON p.warranty_policy_id = wp.PolicyID "
                 + "WHERE ii.serial_number = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, serialNumber);

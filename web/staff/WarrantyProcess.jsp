@@ -644,10 +644,7 @@
     <body>
     <div class="layout">
 
-<<<<<<< HEAD
-=======
         <!-- ════ SIDEBAR (synced with other staff pages) ════ -->
->>>>>>> 18085d588b9f1f555f43faa0fb044cfe92cfc890
         <jsp:include page="/staff/sidebar.jsp">
             <jsp:param name="activePage" value="warranty"/>
         </jsp:include>
@@ -922,6 +919,7 @@
                                                             <c:when test="${h.repairStatus == 'PENDING'}">Chờ xử lý</c:when>
                                                             <c:when test="${h.repairStatus == 'PROCESSING'}">Đang xử lý</c:when>
                                                             <c:when test="${h.repairStatus == 'APPROVED'}">Đã duyệt</c:when>
+                                                            <c:when test="${h.repairStatus == 'REASSIGNED' || h.repairStatus == 'REASSIGN'}">Đã chuyển giao</c:when>
                                                             <c:when test="${h.repairStatus == 'REJECTED'}">Đã từ chối</c:when>
                                                             <c:when test="${h.repairStatus == 'COMPLETED'}">Đã hoàn thành</c:when>
                                                             <c:when test="${h.repairStatus == 'CANCELLED'}">Đã hủy</c:when>
