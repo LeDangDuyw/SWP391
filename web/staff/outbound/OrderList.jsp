@@ -104,8 +104,31 @@
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-800 text-sm font-medium">${error}</div>
             </c:if>
 
+            <!-- Thanh tìm kiếm -->
+            <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 mb-6 shadow-sm">
+                <form action="${pageContext.request.contextPath}/staff/outbound/list" method="get" class="flex flex-wrap items-center gap-3">
+                    <div class="relative flex-1 min-w-[280px]">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+                        <input type="text" name="search" value="${search}" placeholder="Tìm kiếm theo mã đơn, tên người nhận, SĐT..." class="w-full pl-10 pr-10 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all outline-none">
+                        <c:if test="${not empty search}">
+                            <a href="${pageContext.request.contextPath}/staff/outbound/list" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-red-600 transition-colors flex items-center justify-center" title="Xóa tìm kiếm">
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+                            </a>
+                        </c:if>
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-[#002baf] text-on-primary font-label-md text-label-md rounded-lg flex items-center gap-1.5 transition-colors shadow-xs">
+                        <span class="material-symbols-outlined text-[18px]">search</span> Tìm kiếm
+                    </button>
+                    <c:if test="${not empty search}">
+                        <a href="${pageContext.request.contextPath}/staff/outbound/list" class="px-3 py-2 bg-surface border border-outline-variant/50 rounded-lg text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md transition-colors">
+                            Bỏ lọc
+                        </a>
+                    </c:if>
+                </form>
+            </div>
+
             <!-- Bảng danh sách đơn -->
-            <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden mb-6">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-surface-container-low border-b border-outline-variant/30">
@@ -155,16 +178,128 @@
                                 <tr>
                                     <td colspan="6" class="px-6 py-16 text-center text-on-surface-variant">
                                         <span class="material-symbols-outlined text-[48px]" style="color: #ccc;">inbox</span>
-                                        <p class="mt-2 font-body-sm text-body-sm">Hiện không có đơn hàng nào cần xuất kho.</p>
+                                        <p class="mt-2 font-body-sm text-body-sm">
+                                            <c:choose>
+                                                <c:when test="${not empty search}">
+                                                    Không tìm thấy đơn hàng nào phù hợp với từ khóa "<span class="font-semibold">${search}</span>".
+                                                </c:when>
+                                                <c:otherwise>
+                                                    Hiện không có đơn hàng nào cần xuất kho.
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </p>
                                     </td>
                                 </tr>
                             </c:if>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Footer -->
+                <c:if test="${totalPages > 0}">
+                    <div class="bg-surface px-6 py-4 border-t border-outline-variant/30 flex flex-wrap items-center justify-between gap-4">
+                        <div class="text-body-sm font-body-sm text-on-surface-variant">
+                            Hiển thị kết quả: <span class="font-semibold text-on-surface">${orders.size()}</span> / <span class="font-semibold text-on-surface">${totalRecords}</span> đơn hàng
+                            <c:if test="${not empty search}">
+                                (Từ khóa: "<span class="font-medium text-primary">${search}</span>")
+                            </c:if>
+                        </div>
+
+                        <c:set var="searchParam" value="" />
+                        <c:if test="${not empty search}">
+                            <c:set var="searchParam" value="&search=${search}" />
+                        </c:if>
+
+                        <div class="flex items-center gap-2">
+                            <!-- Prev Button -->
+                            <c:choose>
+                                <c:when test="${currentPage > 1}">
+                                    <a href="?page=${currentPage - 1}${searchParam}" class="px-3 py-1.5 border border-outline-variant/60 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px]">chevron_left</span> Trước
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-on-surface-variant/40 font-label-md text-label-md cursor-not-allowed flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px]">chevron_left</span> Trước
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+
+                            <!-- Page Numbers -->
+                            <div class="flex gap-1 items-center flex-wrap">
+                                <c:choose>
+                                    <c:when test="${totalPages <= 5}">
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <a href="?page=${i}${searchParam}" class="w-8 h-8 flex items-center justify-center rounded-lg font-label-md text-label-md transition-colors ${currentPage == i ? 'bg-primary text-on-primary shadow-xs font-bold' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <!-- 3 trang đầu -->
+                                        <c:forEach begin="1" end="3" var="i">
+                                            <a href="?page=${i}${searchParam}" class="w-8 h-8 flex items-center justify-center rounded-lg font-label-md text-label-md transition-colors ${currentPage == i ? 'bg-primary text-on-primary shadow-xs font-bold' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                        </c:forEach>
+
+                                        <!-- Jump Page Dropdown -->
+                                        <div class="relative flex items-center justify-center w-8 h-8">
+                                            <button type="button" onclick="toggleJumpPageInput(this)" class="w-full h-full text-on-surface-variant font-label-md hover:text-primary transition-colors cursor-pointer flex items-center justify-center">...</button>
+                                            <div class="jumpPageForm absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden bg-surface border border-outline-variant/50 p-2 rounded-lg shadow-lg z-10 flex gap-2">
+                                                <input type="number" min="1" max="${totalPages}" placeholder="Trang" class="jumpPageInput w-20 px-2 py-1 border border-outline-variant rounded text-body-sm focus:border-primary outline-none" onkeydown="if(event.key === 'Enter') jumpToPage(this)">
+                                                <button type="button" onclick="jumpToPage(this)" class="px-2 py-1 bg-primary text-on-primary rounded text-label-md whitespace-nowrap">Đi</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2 trang cuối -->
+                                        <c:forEach begin="${totalPages - 1}" end="${totalPages}" var="i">
+                                            <a href="?page=${i}${searchParam}" class="w-8 h-8 flex items-center justify-center rounded-lg font-label-md text-label-md transition-colors ${currentPage == i ? 'bg-primary text-on-primary shadow-xs font-bold' : 'text-on-surface hover:bg-surface-container-low'}">${i}</a>
+                                        </c:forEach>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+
+                            <!-- Next Button -->
+                            <c:choose>
+                                <c:when test="${currentPage < totalPages}">
+                                    <a href="?page=${currentPage + 1}${searchParam}" class="px-3 py-1.5 border border-outline-variant/60 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1">
+                                        Sau <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-on-surface-variant/40 font-label-md text-label-md cursor-not-allowed flex items-center gap-1">
+                                        Sau <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                </c:if>
             </div>
         </main>
     </div>
 </div>
+
+<script>
+    function toggleJumpPageInput(button) {
+        const container = button.nextElementSibling;
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+            container.querySelector('.jumpPageInput').focus();
+        }
+    }
+
+    function jumpToPage(element) {
+        const container = element.closest('.jumpPageForm');
+        const input = container.querySelector('.jumpPageInput');
+        let page = parseInt(input.value);
+        const maxPage = parseInt(input.getAttribute('max'));
+        
+        if (page && page >= 1 && page <= maxPage) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+            window.location.search = urlParams.toString();
+        } else {
+            alert('Vui lòng nhập trang từ 1 đến ' + maxPage);
+        }
+    }
+</script>
 </body>
 </html>

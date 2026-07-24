@@ -122,12 +122,34 @@ public class OutboundDAO extends DBContext {
      * @return Số lượng đơn hàng chờ xuất kho
      */
     public int getTotalPendingOrders() {
+        return getTotalPendingOrders(null);
+    }
+
+    /**
+     * Lấy tổng số lượng đơn hàng chờ xuất kho có kết hợp từ khóa tìm kiếm.
+     * 
+     * @param search Từ khóa tìm kiếm (mã đơn, người nhận, sdt, ID)
+     * @return Số lượng đơn hàng chờ xuất kho phù hợp
+     */
+    public int getTotalPendingOrders(String search) {
         int count = 0;
-        String sql = "SELECT COUNT(*) FROM [Order] WHERE LOWER(order_status) = 'processing'";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            if (rs.next())
-                count = rs.getInt(1);
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM [Order] WHERE LOWER(order_status) = 'processing'");
+        boolean hasSearch = (search != null && !search.trim().isEmpty());
+        if (hasSearch) {
+            sql.append(" AND (order_code LIKE ? OR shipping_receiver LIKE ? OR shipping_phone LIKE ? OR CAST(order_id AS VARCHAR) LIKE ?)");
+        }
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            if (hasSearch) {
+                String pattern = "%" + search.trim() + "%";
+                ps.setString(1, pattern);
+                ps.setString(2, pattern);
+                ps.setString(3, pattern);
+                ps.setString(4, pattern);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    count = rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -142,11 +164,38 @@ public class OutboundDAO extends DBContext {
      * @return Danh sách Order thuộc trang hiện tại
      */
     public List<Order> getPendingOrders(int offset, int fetchSize) {
+        return getPendingOrders(null, offset, fetchSize);
+    }
+
+    /**
+     * Lấy danh sách các đơn hàng chờ xuất kho có hỗ trợ phân trang và tìm kiếm.
+     * 
+     * @param search Từ khóa tìm kiếm
+     * @param offset Vị trí bắt đầu lấy bản ghi
+     * @param fetchSize Số lượng bản ghi cần lấy trên mỗi trang
+     * @return Danh sách Order thuộc trang hiện tại
+     */
+    public List<Order> getPendingOrders(String search, int offset, int fetchSize) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM [Order] WHERE LOWER(order_status) = 'processing' ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, offset);
-            ps.setInt(2, fetchSize);
+        StringBuilder sql = new StringBuilder("SELECT * FROM [Order] WHERE LOWER(order_status) = 'processing'");
+        boolean hasSearch = (search != null && !search.trim().isEmpty());
+        if (hasSearch) {
+            sql.append(" AND (order_code LIKE ? OR shipping_receiver LIKE ? OR shipping_phone LIKE ? OR CAST(order_id AS VARCHAR) LIKE ?)");
+        }
+        sql.append(" ORDER BY order_id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (hasSearch) {
+                String pattern = "%" + search.trim() + "%";
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+                ps.setString(paramIndex++, pattern);
+            }
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex, fetchSize);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Order order = new Order();
