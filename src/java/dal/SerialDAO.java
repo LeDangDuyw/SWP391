@@ -25,7 +25,31 @@ public class SerialDAO extends DBContext {
      * @param fetchSize Số lượng bản ghi cần lấy
      * @return Danh sách các đối tượng InventoryItem
      */
+    /**
+     * Truy vấn danh sách sản phẩm theo mã Serial/IMEI kèm phân trang, tìm kiếm và lọc theo trạng thái.
+     * 
+     * @param search Từ khóa tìm kiếm (theo mã serial, tên sản phẩm hoặc mã SKU)
+     * @param statusFilter Bộ lọc trạng thái (ví dụ: Available, Sold, Warranty...)
+     * @param offset Vị trí bắt đầu truy vấn
+     * @param fetchSize Số lượng bản ghi cần lấy
+     * @return Danh sách các đối tượng InventoryItem
+     */
     public List<InventoryItem> getInventoryItems(String search, String statusFilter, int offset, int fetchSize) {
+        return getInventoryItems(search, statusFilter, null, null, offset, fetchSize);
+    }
+
+    /**
+     * Truy vấn danh sách sản phẩm theo mã Serial/IMEI hỗ trợ lọc nâng cao (Danh mục & Hãng).
+     * 
+     * @param search Từ khóa tìm kiếm
+     * @param statusFilter Bộ lọc trạng thái
+     * @param categoryId ID Danh mục sản phẩm (nếu có)
+     * @param brandId ID Thương hiệu sản phẩm (nếu có)
+     * @param offset Vị trí bắt đầu truy vấn
+     * @param fetchSize Số lượng bản ghi cần lấy
+     * @return Danh sách các đối tượng InventoryItem
+     */
+    public List<InventoryItem> getInventoryItems(String search, String statusFilter, Integer categoryId, Integer brandId, int offset, int fetchSize) {
         List<InventoryItem> items = new ArrayList<>();
         try {
             String sql = "SELECT ii.*, pv.sku, pv.variant_name, p.product_name " +
@@ -39,6 +63,12 @@ public class SerialDAO extends DBContext {
             }
             if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                 sql += " AND (ii.status = ? OR LOWER(ii.status) = LOWER(?)) ";
+            }
+            if (categoryId != null && categoryId > 0) {
+                sql += " AND p.category_id = ? ";
+            }
+            if (brandId != null && brandId > 0) {
+                sql += " AND p.brand_id = ? ";
             }
 
             sql += " ORDER BY ii.import_date DESC ";
@@ -55,6 +85,12 @@ public class SerialDAO extends DBContext {
                 if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                     stm.setString(idx++, statusFilter.trim());
                     stm.setString(idx++, statusFilter.trim());
+                }
+                if (categoryId != null && categoryId > 0) {
+                    stm.setInt(idx++, categoryId);
+                }
+                if (brandId != null && brandId > 0) {
+                    stm.setInt(idx++, brandId);
                 }
                 stm.setInt(idx++, Math.max(0, offset));
                 stm.setInt(idx++, Math.max(1, fetchSize));
@@ -107,6 +143,19 @@ public class SerialDAO extends DBContext {
      * @return Tổng số lượng sản phẩm Serial thỏa mãn
      */
     public int getTotalInventoryItemsCount(String search, String statusFilter) {
+        return getTotalInventoryItemsCount(search, statusFilter, null, null);
+    }
+
+    /**
+     * Tính tổng số lượng bản ghi Serial/IMEI thỏa mãn điều kiện lọc danh mục & hãng.
+     * 
+     * @param search Từ khóa tìm kiếm
+     * @param statusFilter Bộ lọc trạng thái
+     * @param categoryId ID Danh mục sản phẩm
+     * @param brandId ID Thương hiệu sản phẩm
+     * @return Tổng số lượng bản ghi thỏa mãn
+     */
+    public int getTotalInventoryItemsCount(String search, String statusFilter, Integer categoryId, Integer brandId) {
         int count = 0;
         try {
             String sql = "SELECT COUNT(*) " +
@@ -121,6 +170,12 @@ public class SerialDAO extends DBContext {
             if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                 sql += " AND (ii.status = ? OR LOWER(ii.status) = LOWER(?)) ";
             }
+            if (categoryId != null && categoryId > 0) {
+                sql += " AND p.category_id = ? ";
+            }
+            if (brandId != null && brandId > 0) {
+                sql += " AND p.brand_id = ? ";
+            }
 
             try (PreparedStatement stm = connection.prepareStatement(sql)) {
                 int idx = 1;
@@ -133,6 +188,12 @@ public class SerialDAO extends DBContext {
                 if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equalsIgnoreCase("All")) {
                     stm.setString(idx++, statusFilter.trim());
                     stm.setString(idx++, statusFilter.trim());
+                }
+                if (categoryId != null && categoryId > 0) {
+                    stm.setInt(idx++, categoryId);
+                }
+                if (brandId != null && brandId > 0) {
+                    stm.setInt(idx++, brandId);
                 }
 
                 try (ResultSet rs = stm.executeQuery()) {

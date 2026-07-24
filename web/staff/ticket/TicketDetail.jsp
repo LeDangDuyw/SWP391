@@ -165,16 +165,34 @@
                                     Đã hủy
                                 </span>
                             </c:when>
-                            <c:when test="${ticket.status == 'PENDING_APPROVAL'}">
+                            <c:when test="${ticket.status == 'PENDING_APPROVAL' || ticket.status == 'WAITING_FOR_ADMIN_REVIEW' || ticket.status == 'PENDING'}">
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#FEF7E0] text-[#B06000] text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">schedule</span>
                                     Chờ phê duyệt
                                 </span>
                             </c:when>
+                            <c:when test="${ticket.status == 'APPROVED_EXECUTION' || ticket.status == 'APPROVED'}">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#E8F0FE] text-[#1A73E8] text-[13px] font-bold gap-1">
+                                    <span class="material-symbols-outlined text-[16px]">thumb_up</span>
+                                    Đã duyệt
+                                </span>
+                            </c:when>
+                            <c:when test="${ticket.status == 'CARGO_RECEIVED'}">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#E8F0FE] text-[#1A73E8] text-[13px] font-bold gap-1">
+                                    <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                    Đã nhận hàng
+                                </span>
+                            </c:when>
+                            <c:when test="${ticket.status == 'REJECTED'}">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#FCE8E6] text-[#C5221F] text-[13px] font-bold gap-1">
+                                    <span class="material-symbols-outlined text-[16px]">info</span>
+                                    Bị từ chối
+                                </span>
+                            </c:when>
                             <c:otherwise>
                                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[13px] font-bold gap-1">
                                     <span class="material-symbols-outlined text-[16px]">info</span>
-                                    ${ticket.status == 'APPROVED' ? 'Đã duyệt' : (ticket.status == 'REJECTED' ? 'Bị từ chối' : ticket.status)}
+                                    ${ticket.status}
                                 </span>
                             </c:otherwise>
                         </c:choose>
