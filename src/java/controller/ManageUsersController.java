@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /*
  * Name: ManageUsersController
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [22/06/2026]
  * Version: 1.0
  * Description: Servlet for Admin to view, search, paginate, lock/unlock accounts, 
@@ -28,7 +28,7 @@ public class ManageUsersController extends HttpServlet {
      * Name: doGet
      * Description: Xử lý hiển thị danh sách tài khoản kèm bộ lọc và phân trang.
      *              Hỗ trợ cả yêu cầu AJAX để đếm số lượng đơn hàng hoạt động của người dùng trước khi khóa.
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Created Date: 04/04/2026
      * Completed Date: 26/04/2026
      */

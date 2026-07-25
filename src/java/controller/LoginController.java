@@ -21,7 +21,7 @@ public class LoginController extends HttpServlet {
     }
 /*
  * Name: doPost
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [04/06/2026]
  * Version: 2.0
  * Date: [01/06/2026]

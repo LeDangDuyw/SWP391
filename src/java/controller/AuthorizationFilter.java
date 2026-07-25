@@ -10,7 +10,7 @@ import model.Users;
 
 /*
  * Name: AuthorizationFilter
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [05/06/2026]
  * Version: 2.0
  * Description: Bộ lọc phân quyền (Authorization Filter) bảo vệ các tài nguyên 

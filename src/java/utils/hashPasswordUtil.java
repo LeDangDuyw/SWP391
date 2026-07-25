@@ -6,7 +6,7 @@ public class hashPasswordUtil {
 
     /*
  * Name: hashPassword
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [01/06/2026]
  * Version: 1.0
  * Description: Hàm này sử dụng thuật toán mã hóa BCrypt 
@@ -18,7 +18,7 @@ public class hashPasswordUtil {
 
     /*
  * Name: checkPassword
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [01/06/2026]
  * Version: 1.0
  * Description: Hàm này sử dụng BCrypt để so sánh mật khẩu người dùng vừa nhập (chưa mã hóa) 
@@ -42,6 +42,13 @@ public class hashPasswordUtil {
         }
     }
 
+    /*
+     * Name: isValidPassword
+     * @Author: LUCTV
+     * Date: [25/07/2026]
+     * Version: 1.0
+     * Description: Kiểm tra mật khẩu mạnh (tối thiểu 8 ký tự, có đủ chữ hoa, chữ thường, số và ký tự đặc biệt).
+     */
     public static boolean isValidPassword(String password) {
         if (password == null || password.length() < 8) {
             return false;

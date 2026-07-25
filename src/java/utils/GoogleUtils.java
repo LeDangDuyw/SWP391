@@ -20,7 +20,7 @@ public class GoogleUtils {
 
     /*
      * Name: getToken
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này gửi yêu cầu POST đến endpoint của Google để trao đổi 
@@ -61,7 +61,7 @@ public class GoogleUtils {
 
     /*
      * Name: getUserInfo
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này gửi yêu cầu GET kèm theo Access Token đến Google UserInfo API 
@@ -89,7 +89,7 @@ public class GoogleUtils {
 
     /*
      * Name: getJsonField
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này sử dụng biểu thức chính quy (Regex) để trích xuất nhanh 

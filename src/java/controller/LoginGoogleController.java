@@ -13,7 +13,7 @@ public class LoginGoogleController extends HttpServlet {
 
     /*
      * Name: doGet
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này xử lý luồng Callback từ Google Đăng nhập: lấy mã code, 

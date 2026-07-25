@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /*
  * Name: ForgotPasswordController
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [21/06/2026]
  * Version: 1.0
  * Description: Servlet for requesting a password reset. Checks email presence, 
