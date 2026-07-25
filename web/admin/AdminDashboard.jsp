@@ -776,7 +776,6 @@
                     </div>
                     <div class="topbar-right">
                         <span class="status-pill"><span class="status-dot"></span>Hệ thống hoạt động</span>
-                        <button class="icon-btn" title="Thông báo">🔔</button>
                         <button class="icon-btn" title="Làm mới" onclick="location.reload()">↻</button>
                     </div>
                 </div>

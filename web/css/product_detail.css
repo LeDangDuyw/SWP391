@@ -752,7 +752,7 @@ a {
 }
 
 /* Actions in Similar Products */
-.actions { display: flex; gap: 10px; margin-top: 15px; width: 100%; align-items: stretch; }
+.actions { display: flex; gap: 10px; margin-top: auto; width: 100%; align-items: stretch; }
 .actions .btn-add-cart, .actions .btn-buy-now { margin: 0; height: 38px; box-sizing: border-box; border: none; padding: 0 5px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; transition: 0.3s; }
 .actions .btn-add-cart { background: #0b4bcc; color: #fff; text-decoration: none; }
 .actions .btn-add-cart:hover { background: #093da5; }

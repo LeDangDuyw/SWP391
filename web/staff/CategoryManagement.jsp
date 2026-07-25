@@ -143,10 +143,6 @@
                                             <div class="flex items-center gap-4">
                                                 <button
                                                     class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
-                                                    <span class="material-symbols-outlined">notifications</span>
-                                                </button>
-                                                <button
-                                                    class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
                                                     <span class="material-symbols-outlined">help_outline</span>
                                                 </button>
                                                 <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container"
