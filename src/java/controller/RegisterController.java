@@ -11,15 +11,36 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+/*
+ * Name: RegisterController.java
+ * @Author: LUCTV
+ * Date: [01/06/2026]
+ * Version: 1.0
+ * Description: Controller xử lý hiển thị giao diện và tiếp nhận yêu cầu đăng ký tài khoản khách hàng mới.
+ */
 @WebServlet("/register")
 public class RegisterController extends HttpServlet {
     
+    /*
+     * Name: doGet
+     * @Author: LUCTV
+     * Date: [01/06/2026]
+     * Version: 1.0
+     * Description: Hiển thị giao diện trang đăng ký tài khoản.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("auth/register.jsp").forward(request, response);
     }
 
+    /*
+     * Name: doPost
+     * @Author: LUCTV
+     * Date: [01/06/2026]
+     * Version: 1.0
+     * Description: Thực hiện tiếp nhận thông tin từ form đăng ký, kiểm tra tính hợp lệ dữ liệu và tạo tài khoản khách hàng mới.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

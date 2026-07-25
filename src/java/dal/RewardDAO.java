@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import model.RewardVoucher;
 
+/*
+ * Name: RewardDAO.java
+ * @Author: LUCTV
+ * Date: [24/07/2026]
+ * Version: 1.0
+ * Description: Data Access Object xử lý các giao dịch đổi điểm thưởng tích lũy lấy Voucher.
+ */
 public class RewardDAO extends DBContext {
     private Connection cnn;
 
@@ -21,6 +28,13 @@ public class RewardDAO extends DBContext {
         }
     }
 
+    /*
+     * Name: getAvailableRewardVouchers
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Lấy danh sách tất cả các Voucher thưởng đang kích hoạt hệ thống.
+     */
     public List<RewardVoucher> getAvailableRewardVouchers() {
         List<RewardVoucher> list = new ArrayList<>();
         String sql = "SELECT * FROM RewardVoucher WHERE status = 'active' ORDER BY points_required ASC";
@@ -47,6 +61,13 @@ public class RewardDAO extends DBContext {
         return list;
     }
 
+    /*
+     * Name: getRewardVoucherById
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Lấy thông tin chi tiết một Voucher thưởng theo ID.
+     */
     public RewardVoucher getRewardVoucherById(int rewardVoucherId) {
         String sql = "SELECT * FROM RewardVoucher WHERE reward_voucher_id = ? AND status = 'active'";
         try {
@@ -74,6 +95,13 @@ public class RewardDAO extends DBContext {
         return null;
     }
 
+    /*
+     * Name: redeemVoucher
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Thực hiện giao dịch đổi điểm thưởng lấy Voucher. Nếu trừ điểm thành công nhưng tạo voucher thất bại thì rollback lại điểm.
+     */
     public boolean redeemVoucher(int userId, int rewardVoucherId) {
         RewardVoucher rv = getRewardVoucherById(rewardVoucherId);
         if (rv == null) return false;

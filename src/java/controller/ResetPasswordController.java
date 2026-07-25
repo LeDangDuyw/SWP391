@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /*
  * Name: ResetPasswordController
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [21/06/2026]
  * Version: 1.0
  * Description: Servlet for resetting password. Validates recovery token, 

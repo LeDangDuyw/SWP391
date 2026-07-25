@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 /*
  * Name: PasswordResetTokenDAO
- * @Author: LucTV
+ * @Author: LUCTV
  * Date: [21/06/2026]
  * Version: 1.0
  * Description: Data Access Object for handling password reset tokens and resetting user password.

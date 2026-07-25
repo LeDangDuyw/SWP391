@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /*
  * Name: ProfileController
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [21/06/2026]
  * Version: 2.0
  * Complete:[26/06/2026]
@@ -206,7 +206,7 @@ public class ProfileController extends HttpServlet {
      * Name: handleUpdateProfile
      * Description: Xử lý cập nhật thông tin cá nhân bao gồm Họ tên, Số điện thoại và tải lên ảnh đại diện.
      *              Đồng bộ ảnh đại diện sang thư mục nguồn của NetBeans để lưu trữ lâu dài.
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Created Date: 04/04/2026
      * Completed Date: 26/04/2026
      */

@@ -6,7 +6,7 @@ package model;
 
 /**
  *
- * @author LUCTVHE201874
+ * @author LUCTV
  * @author AI One
  */
 public class Users {

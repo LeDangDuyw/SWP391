@@ -11,7 +11,7 @@ import jakarta.mail.internet.MimeMessage;
 
 /*
  * Name: EmailUtils
- * @Author: LUCTVHE201874
+ * @Author: LUCTV
  * Date: [21/06/2026]
  * Version: 1.0
  * Description: Utility class to send email notifications via Gmail SMTP. Logs fallback details in console for offline testing.

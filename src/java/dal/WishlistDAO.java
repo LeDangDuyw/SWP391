@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Wishlist;
 
+/*
+ * Name: WishlistDAO.java
+ * @Author: LUCTV
+ * Date: [24/07/2026]
+ * Version: 1.0
+ * Description: Data Access Object xử lý các truy vấn liên quan đến danh sách yêu thích của khách hàng.
+ */
 public class WishlistDAO extends DBContext {
     private Connection cnn;
 
@@ -21,6 +28,13 @@ public class WishlistDAO extends DBContext {
         }
     }
 
+    /*
+     * Name: addToWishlist
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Thêm một sản phẩm vào danh sách yêu thích của người dùng.
+     */
     public boolean addToWishlist(int userId, int productId) {
         String sql = "INSERT INTO Wishlist (user_id, product_id) VALUES (?, ?)";
         try {
@@ -37,6 +51,13 @@ public class WishlistDAO extends DBContext {
         }
     }
 
+    /*
+     * Name: removeFromWishlist
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Xóa một sản phẩm khỏi danh sách yêu thích của người dùng.
+     */
     public boolean removeFromWishlist(int userId, int productId) {
         String sql = "DELETE FROM Wishlist WHERE user_id = ? AND product_id = ?";
         try {
@@ -52,6 +73,13 @@ public class WishlistDAO extends DBContext {
         }
     }
 
+    /*
+     * Name: isWishlisted
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Kiểm tra xem sản phẩm đã nằm trong danh sách yêu thích của người dùng hay chưa.
+     */
     public boolean isWishlisted(int userId, int productId) {
         String sql = "SELECT 1 FROM Wishlist WHERE user_id = ? AND product_id = ?";
         try {
@@ -69,6 +97,13 @@ public class WishlistDAO extends DBContext {
         }
     }
 
+    /*
+     * Name: getWishlistCount
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Đếm số lượng sản phẩm trong danh sách yêu thích của người dùng.
+     */
     public int getWishlistCount(int userId) {
         String sql = "SELECT COUNT(*) FROM Wishlist WHERE user_id = ?";
         try {
@@ -87,6 +122,13 @@ public class WishlistDAO extends DBContext {
         return 0;
     }
 
+    /*
+     * Name: getWishlistByUserId
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Lấy danh sách sản phẩm yêu thích kèm thông tin chi tiết (thương hiệu, danh mục, giá thấp nhất, tổng tồn kho).
+     */
     public List<Wishlist> getWishlistByUserId(int userId) {
         List<Wishlist> list = new ArrayList<>();
         String sql = "SELECT w.wishlist_id, w.user_id, w.product_id, w.created_at, "

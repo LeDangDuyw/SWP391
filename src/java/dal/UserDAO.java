@@ -11,7 +11,7 @@ public class UserDAO extends DBContext {
     /*
      * Name: login
      * 
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [01/06/2026]
      * Version: 1.0
      * Description: Hàm này truy vấn vào cơ sở dữ liệu đẻ tìm người dùng theo email,
@@ -62,7 +62,7 @@ public class UserDAO extends DBContext {
     /*
      * Name: isEmailExist
      * 
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [01/06/2026]
      * Version: 1.0
      * Description: check trùng email
@@ -83,7 +83,7 @@ public class UserDAO extends DBContext {
     /*
      * Name: isPhoneExist
      * 
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: check trùng số điện thoại
@@ -104,7 +104,7 @@ public class UserDAO extends DBContext {
     /*
      * Name: register
      * 
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [01/06/2026]
      * Version: 1.0
      * Description: Hàm này nhận thông tin người dùng , mã hóa mật khảu và thêm bản
@@ -141,7 +141,7 @@ public class UserDAO extends DBContext {
 
     /*
      * Name: getUserByEmail
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này truy vấn cơ sở dữ liệu để tìm kiếm thông tin người dùng 
@@ -172,7 +172,7 @@ public class UserDAO extends DBContext {
 
     /*
      * Name: registerGoogleUser
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [04/06/2026]
      * Version: 1.0
      * Description: Hàm này đăng ký nhanh tài khoản người dùng đăng nhập bằng Google, 
@@ -193,7 +193,7 @@ public class UserDAO extends DBContext {
 
     /*
      * Name: updateProfile
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [21/06/2026]
      * Version: 1.0
      * Description: Cập nhật họ tên, số điện thoại và ảnh đại diện của người dùng.
@@ -215,7 +215,7 @@ public class UserDAO extends DBContext {
 
     /*
      * Name: getUserById
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [21/06/2026]
      * Date Completed: [26/06/2026]
      * Version: 1.0
@@ -282,7 +282,7 @@ public class UserDAO extends DBContext {
 
     /*
      * Name: changePassword
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Date: [21/06/2026]
      * Version: 1.0
      * Description: Cập nhật mật khẩu của người dùng sau khi đã xác minh mật khẩu cũ.
@@ -484,7 +484,7 @@ public class UserDAO extends DBContext {
     /*
      * Name: getActiveOrdersCount
      * Description: Đếm số đơn hàng chưa hoàn tất của người dùng (khác 'cancelled' và 'delivered').
-     * @Author: LUCTVHE201874
+     * @Author: LUCTV
      * Created Date: 04/04/2026
      * Completed Date: 26/04/2026
      */

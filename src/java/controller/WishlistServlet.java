@@ -14,9 +14,23 @@ import jakarta.servlet.http.HttpSession;
 import model.Users;
 import model.Wishlist;
 
+/*
+ * Name: WishlistServlet.java
+ * @Author: LUCTV
+ * Date: [24/07/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý danh sách yêu thích của người dùng (Thêm, xóa và xem danh sách).
+ */
 @WebServlet(name = "WishlistServlet", urlPatterns = {"/wishlist", "/WishlistServlet"})
 public class WishlistServlet extends HttpServlet {
 
+    /*
+     * Name: doGet
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Hiển thị danh sách các sản phẩm yêu thích của khách hàng.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -39,6 +53,13 @@ public class WishlistServlet extends HttpServlet {
         request.getRequestDispatcher("customer/wishlist.jsp").forward(request, response);
     }
 
+    /*
+     * Name: doPost
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Tiếp nhận yêu cầu AJAX thêm/xóa sản phẩm yêu thích (Toggle Heart hoặc Delete từ trang danh sách).
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
