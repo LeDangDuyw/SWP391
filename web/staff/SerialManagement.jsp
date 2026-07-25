@@ -134,9 +134,6 @@
             <div class="flex items-center gap-4 w-1/3"></div>
             <div class="flex items-center gap-4">
                 <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
                     <span class="material-symbols-outlined">help_outline</span>
                 </button>
                 <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container" style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
@@ -197,19 +194,42 @@
             <div class="flex flex-col gap-4 mb-6">
                 <form action="${pageContext.request.contextPath}/staff/imei" method="get" class="w-full">
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
-                        <div class="relative flex-1 min-w-[300px]">
+                        <div class="relative flex-1 min-w-[280px]">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Tìm kiếm theo mã Serial..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
+                            <input type="text" name="searchInput" value="${searchInput}" placeholder="Tìm kiếm theo mã Serial, tên sản phẩm..." class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder-on-surface-variant/60 transition-all">
                             <button type="submit" class="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-sm">search</span>
                             </button>
                         </div>
 
+                        <!-- Filter Status -->
                         <div class="relative">
                             <select name="status" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none cursor-pointer">
                                 <option value="All" ${statusFilter == 'All' ? 'selected' : ''}>Trạng thái: Tất cả</option>
                                 <option value="in_stock" ${statusFilter == 'in_stock' ? 'selected' : ''}>Trong kho</option>
                                 <option value="sold" ${statusFilter == 'sold' ? 'selected' : ''}>Đã bán</option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                        </div>
+
+                        <!-- Filter Category -->
+                        <div class="relative">
+                            <select name="categoryId" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none cursor-pointer">
+                                <option value="">Danh mục: Tất cả</option>
+                                <c:forEach var="cat" items="${categories}">
+                                    <option value="${cat.categoryId}" ${categoryId == cat.categoryId ? 'selected' : ''}>${cat.categoryName}</option>
+                                </c:forEach>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                        </div>
+
+                        <!-- Filter Brand -->
+                        <div class="relative">
+                            <select name="brandId" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-md text-label-md focus:ring-0 focus:border-primary outline-none cursor-pointer">
+                                <option value="">Hãng: Tất cả</option>
+                                <c:forEach var="brand" items="${brands}">
+                                    <option value="${brand.brandId}" ${brandId == brand.brandId ? 'selected' : ''}>${brand.brandName}</option>
+                                </c:forEach>
                             </select>
                             <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
                         </div>
@@ -269,6 +289,8 @@
                     <c:set var="queryParams" value="" />
                     <c:if test="${not empty searchInput}"><c:set var="queryParams" value="${queryParams}&searchInput=${searchInput}" /></c:if>
                     <c:if test="${not empty statusFilter}"><c:set var="queryParams" value="${queryParams}&status=${statusFilter}" /></c:if>
+                    <c:if test="${not empty categoryId}"><c:set var="queryParams" value="${queryParams}&categoryId=${categoryId}" /></c:if>
+                    <c:if test="${not empty brandId}"><c:set var="queryParams" value="${queryParams}&brandId=${brandId}" /></c:if>
 
                     <c:choose>
                         <c:when test="${currentPage > 1}">

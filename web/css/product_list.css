@@ -400,14 +400,20 @@ h1, h2, h3, h4 {
     display: flex;
     flex-direction: column;
     flex: 1;
+    justify-content: space-between;
 }
 
 .product-info h3 {
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 600;
     margin-bottom: 12px;
     line-height: 1.4;
+    height: 2.8em;
     color: var(--text-main);
-    flex-grow: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .product-price {
@@ -1182,7 +1188,7 @@ h1, h2, h3, h4 {
 .actions {
     display: flex;
     gap: 10px;
-    margin-top: 15px;
+    margin-top: auto;
     width: 100%;
     align-items: stretch;
 }

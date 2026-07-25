@@ -353,29 +353,6 @@
                         </div>
                     </c:if>
 
-                    <!-- Invoice Summary Card -->
-                    <c:if test="${not empty order.invoicePath}">
-                        <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
-                            <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
-                                <span class="material-symbols-outlined text-primary text-[20px]">receipt_long</span> Hóa đơn VAT (PDF)
-                            </h3>
-                            <div class="text-body-sm flex flex-col gap-3">
-                                <div>
-                                    <span class="text-on-surface-variant block text-[12px]">Hồ sơ hóa đơn</span>
-                                    <a href="${pageContext.request.contextPath}/${order.invoicePath}" target="_blank"
-                                       class="text-primary hover:underline font-semibold flex items-center gap-1 mt-1 text-[14px]">
-                                        <span class="material-symbols-outlined text-[18px]">download</span> Tải hóa đơn VAT
-                                    </a>
-                                </div>
-                                <div>
-                                    <span class="text-on-surface-variant block text-[12px]">Trạng thái gửi Email khách hàng</span>
-                                    <span class="inline-flex items-center gap-1 text-on-surface-variant font-semibold mt-1">
-                                        <span class="material-symbols-outlined text-[18px]">do_not_disturb_on</span> Đã tắt gửi Email hóa đơn
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </c:if>
 
                     <!-- Payment Summary -->
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">

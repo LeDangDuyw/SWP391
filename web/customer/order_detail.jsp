@@ -775,7 +775,6 @@
             <div class="card">
                 <div class="card-title-bar">
                     <span class="card-title">Tổng quan</span>
-                    <a href="#" style="font-size: 13px; color: var(--blue-600); text-decoration: none; font-weight: 600;"><i class="fas fa-file-invoice"></i> Xem hóa đơn VAT</a>
                 </div>
 
                 <div class="order-meta-info">

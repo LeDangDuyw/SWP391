@@ -17,25 +17,25 @@
     java.util.Map<String, String> fb = new java.util.HashMap<>();
     fb.put("cssClass", "social-icon-fb");
     fb.put("icon", "fab fa-facebook-f");
-    fb.put("url", "#");
+    fb.put("url", "https://facebook.com");
     socialLinks.add(fb);
 
     java.util.Map<String, String> yt = new java.util.HashMap<>();
     yt.put("cssClass", "social-icon-yt");
     yt.put("icon", "fab fa-youtube");
-    yt.put("url", "#");
+    yt.put("url", "https://youtube.com");
     socialLinks.add(yt);
 
     java.util.Map<String, String> ig = new java.util.HashMap<>();
     ig.put("cssClass", "social-icon-ig");
     ig.put("icon", "fab fa-instagram");
-    ig.put("url", "#");
+    ig.put("url", "https://instagram.com");
     socialLinks.add(ig);
 
     java.util.Map<String, String> tt = new java.util.HashMap<>();
     tt.put("cssClass", "social-icon-tt");
     tt.put("icon", "fab fa-tiktok");
-    tt.put("url", "#");
+    tt.put("url", "https://tiktok.com");
     socialLinks.add(tt);
 
     request.setAttribute("socialLinks", socialLinks);
@@ -53,7 +53,7 @@
             </div>
             <div class="social-icons">
                 <c:forEach var="social" items="${socialLinks}">
-                    <a href="${social.url}" class="${social.cssClass}"><i class="${social.icon}"></i></a>
+                    <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="${social.cssClass}"><i class="${social.icon}"></i></a>
                 </c:forEach>
             </div>
         </div>
@@ -92,7 +92,7 @@
     <div class="footer-bottom">
         <div class="container footer-bottom-container">
             <p>&copy; 2026 UniLap. Tất cả các quyền được bảo hộ.</p>
-            <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="#" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
+            <p style="font-size: 12px; color: #94a3b8;">Thiết kế bởi <a href="${pageContext.request.contextPath}/about" style="color: var(--primary); font-weight: 500;">UniLap Team</a></p>
         </div>
     </div>
     <script>

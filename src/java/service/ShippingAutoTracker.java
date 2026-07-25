@@ -31,12 +31,6 @@ public class ShippingAutoTracker implements ServletContextListener {
         // Poll every 30 seconds to automatically track shipped orders and complete/deliver them
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                String realPath = sce.getServletContext().getRealPath("/invoices");
-                if (realPath == null) {
-                    realPath = new File(sce.getServletContext().getRealPath("/"), "invoices").getAbsolutePath();
-                }
-                final String finalRealPath = realPath;
-
                 OutboundDAO dao = new OutboundDAO();
                 List<Order> history = dao.getOutboundHistory();
                 for (Order order : history) {
@@ -54,12 +48,6 @@ public class ShippingAutoTracker implements ServletContextListener {
                             
                             dao.addOrderLog(order.getOrderId(), oldStatus, newStatus, "System (Viettel Post Auto-Tracker)", 
                                            "Đơn hàng giao thành công. Hành trình Viettel Post xác nhận đã ký nhận.");
-                            
-                            String fileName = PdfInvoiceService.generateInvoice(updatedOrder, finalRealPath);
-                            String dbInvoicePath = "invoices/" + fileName;
-                            
-                            dao.updateInvoiceDetails(updatedOrder.getOrderId(), dbInvoicePath, 0);
-                            System.out.println("[AutoTracker] Completed Order: " + updatedOrder.getOrderCode() + ". Invoice generated at: " + dbInvoicePath);
                         }
                     }
                 }

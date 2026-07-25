@@ -45,16 +45,39 @@ public class OutboundListController extends HttpServlet {
                 page = 1;
             }
         }
-        int offset = (page - 1) * pageSize;
+
+        String search = request.getParameter("search");
+        if (search == null || search.trim().isEmpty()) {
+            search = request.getParameter("searchInput");
+        }
+        if (search != null) {
+            search = search.trim();
+        } else {
+            search = "";
+        }
 
         OutboundDAO dao = new OutboundDAO();
-        int totalRecords = dao.getTotalPendingOrders();
+        int totalRecords = dao.getTotalPendingOrders(search);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-        List<Order> orders = dao.getPendingOrders(offset, pageSize);
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
+        if (page > totalPages) {
+            page = totalPages;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        int offset = (page - 1) * pageSize;
+        List<Order> orders = dao.getPendingOrders(search, offset, pageSize);
         
         request.setAttribute("orders", orders);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("search", search);
+        request.setAttribute("searchInput", search);
         request.getRequestDispatcher("/staff/outbound/OrderList.jsp").forward(request, response);
     }
 }

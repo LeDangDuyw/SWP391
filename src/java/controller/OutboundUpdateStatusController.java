@@ -10,8 +10,6 @@ package controller;
 import dal.OutboundDAO;
 import model.Order;
 import model.OrderDetail;
-import service.EmailService;
-import service.PdfInvoiceService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -32,8 +30,7 @@ public class OutboundUpdateStatusController extends HttpServlet {
      * Quá trình xử lý:
      * 1. Nhận orderId và trạng thái mới (status).
      * 2. Gọi OutboundDAO để cập nhật vào cơ sở dữ liệu và ghi log (Audit Log).
-     * 3. (Tùy chọn) Gửi Email thông báo hóa đơn tự động bằng PdfInvoiceService nếu cấu hình bật.
-     * 4. Điều hướng về trang danh sách phù hợp (danh sách chờ hoặc lịch sử xuất).
+     * 3. Điều hướng về trang danh sách phù hợp (danh sách chờ hoặc lịch sử xuất).
      * 
      * @param request  đối tượng HttpServletRequest chứa tham số orderId, status, redirect
      * @param response đối tượng HttpServletResponse điều hướng về trang tương ứng
@@ -65,11 +62,6 @@ public class OutboundUpdateStatusController extends HttpServlet {
                         dao.addOrderLog(orderId, oldStatus, status, actionBy, msg);
                         
                         if ("delivered".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) {
-                            String realPath = getServletContext().getRealPath("/invoices");
-                            if (realPath == null) {
-                                realPath = new File(getServletContext().getRealPath("/"), "invoices").getAbsolutePath();
-                            }
-                            
                             Order updatedOrder = dao.getOrderById(orderId);
                             List<OrderDetail> details = dao.getOrderDetails(orderId);
                             updatedOrder.setDetails(details);
@@ -84,11 +76,6 @@ public class OutboundUpdateStatusController extends HttpServlet {
                                             "Tích lũy +" + earnedPoints + " điểm thưởng cho tài khoản ID: " + updatedOrder.getUserId());
                                 }
                             }
-                            
-                            String fileName = PdfInvoiceService.generateInvoice(updatedOrder, realPath);
-                            String dbInvoicePath = "invoices/" + fileName;
-                            
-                            dao.updateInvoiceDetails(orderId, dbInvoicePath, 0);
                         }
                     } else {
                         session.setAttribute("error", "Không thể cập nhật trạng thái đơn hàng. Vui lòng kiểm tra lại trạng thái hiện tại.");

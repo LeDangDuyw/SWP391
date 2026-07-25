@@ -597,7 +597,6 @@
                 <div class="topbar">
                     <span class="topbar-title">Account Administration</span>
                     <div class="topbar-right">
-                        <button class="icon-btn" title="Notifications">&#128276;</button>
                         <button class="icon-btn" title="Help">?</button>
                     </div>
                 </div>

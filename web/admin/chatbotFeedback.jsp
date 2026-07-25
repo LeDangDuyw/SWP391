@@ -41,7 +41,7 @@
     <main class="main">
         <header class="topbar">
             <h1>Quản Lý Chatbot</h1>
-            <div class="top-icons"><i class="fas fa-bell"></i> &nbsp; <i class="fas fa-user-shield"></i></div>
+            <div class="top-icons"><i class="fas fa-user-shield"></i></div>
         </header>
 
         <section class="page-head">

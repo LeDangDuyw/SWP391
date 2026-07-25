@@ -143,6 +143,25 @@ public class CampaignDetailController extends PromotionServlet {
 
         int redemptionsProgress = percent(campaign.getUsedCount(), campaign.getUsageLimit());
 
+        int maxUnits = 0;
+        if (salesVolume != null) {
+            for (CampaignSalesVolume point : salesVolume) {
+                if (point.getUnitsSold() > maxUnits) {
+                    maxUnits = point.getUnitsSold();
+                }
+            }
+        }
+        int yAxisStep = 5;
+        if (maxUnits > 20) {
+            yAxisStep = (int) Math.ceil((double) maxUnits / 4 / 5.0) * 5;
+            if (yAxisStep <= 0) yAxisStep = 5;
+        }
+        int yAxisMax = Math.max(20, (int) Math.ceil((double) Math.max(1, maxUnits) / yAxisStep) * yAxisStep);
+        List<Integer> yAxisTicks = new ArrayList<>();
+        for (int val = yAxisMax; val >= 0; val -= yAxisStep) {
+            yAxisTicks.add(val);
+        }
+
         request.setAttribute("campaign", campaign);
         request.setAttribute("products", products != null ? products : new ArrayList<>());
         request.setAttribute("incrementalSales", incrementalSales);
@@ -155,6 +174,8 @@ public class CampaignDetailController extends PromotionServlet {
         request.setAttribute("redemptionsProgress", redemptionsProgress);
         request.setAttribute("salesVolume", salesVolume != null ? salesVolume : new ArrayList<>());
         request.setAttribute("salesAxisLabels", buildSalesAxisLabels(salesVolume));
+        request.setAttribute("salesMaxUnits", yAxisMax);
+        request.setAttribute("yAxisTicks", yAxisTicks);
         request.setAttribute("salesRangeLabel", (salesVolume == null || salesVolume.isEmpty()) ? "No Sales Data" : "Last 30 Sale Days");
         request.setAttribute("msg", request.getParameter("msg"));
         request.getRequestDispatcher("/admin/campaignDetail.jsp").forward(request, response);

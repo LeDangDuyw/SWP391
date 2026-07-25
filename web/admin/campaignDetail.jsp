@@ -112,23 +112,46 @@
                     </section>
 
                     <div class="analytics-grid">
-                        <section class="chart-card">
-                            <div class="inline-title"><div><b>Sales Volume Over Time</b><small>Units sold by assignment date from real order serial data.</small></div><span class="pill"><c:out value="${salesRangeLabel}"/></span></div>
+                        <section class="chart-card" style="position: relative; padding: 24px; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb;">
+                            <div class="inline-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div>
+                                    <b style="font-size: 16px; font-weight: 700; color: #111827;">Sales Volume Over Time</b>
+                                    <small style="display: block; color: #6b7280; margin-top: 2px;">Units sold by assignment date from real order serial data.</small>
+                                </div>
+                                <span class="pill" style="background: #f3f4f6; color: #4b5563; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 600;"><c:out value="${salesRangeLabel}"/></span>
+                            </div>
                             <c:choose>
                                 <c:when test="${empty salesVolume}">
-                                    <div class="chart-empty">No sales volume data for this campaign.</div>
+                                    <div class="chart-empty" style="text-align: center; color: #9ca3af; padding: 40px;">No sales volume data for this campaign.</div>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="bar-chart">
-                                        <c:forEach var="point" items="${salesVolume}">
-                                            <span style="height:${point.heightPercent}%"
-                                                  title="<c:out value="${point.saleDate}"/>: ${point.unitsSold} units"></span>
-                                        </c:forEach>
-                                    </div>
-                                    <div class="axis">
-                                        <c:forEach var="label" items="${salesAxisLabels}">
-                                            <span><c:out value="${label}"/></span>
-                                        </c:forEach>
+                                    <div style="display: flex; height: 260px; gap: 16px;">
+                                        <!-- Y-AXIS (Left side: 0, 5, 10, 20...) -->
+                                        <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; width: 36px; padding-bottom: 24px; font-size: 12px; font-weight: 600; color: #6b7280; font-family: Inter, sans-serif;">
+                                            <c:forEach var="tick" items="${yAxisTicks}">
+                                                <span>${tick}</span>
+                                            </c:forEach>
+                                        </div>
+                                        
+                                        <!-- CHART BARS + GRID -->
+                                        <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
+                                            <div style="flex: 1; display: flex; align-items: flex-end; gap: 4px; border-bottom: 2px solid #e5e7eb; border-left: 2px solid #e5e7eb; padding-left: 8px; padding-right: 8px; position: relative; background: linear-gradient(to bottom, rgba(243,244,246,0.2) 0%, transparent 100%);">
+                                                <c:forEach var="point" items="${salesVolume}">
+                                                    <c:set var="calcH" value="${salesMaxUnits > 0 ? (point.unitsSold * 100.0 / salesMaxUnits) : 0}"/>
+                                                    <div style="flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;" class="bar-col">
+                                                        <span style="width: 80%; max-width: 28px; height: ${calcH}%; min-height: ${point.unitsSold > 0 ? '4px' : '0px'}; background: #3b82f6; border-radius: 4px 4px 0 0; transition: height 0.3s ease, background 0.2s;"
+                                                              title="<c:out value="${point.saleDate}"/>: ${point.unitsSold} units"></span>
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
+                                            
+                                            <!-- X-AXIS (Bottom side: Date, month, year) -->
+                                            <div style="display: flex; justify-content: space-between; padding-top: 8px; padding-left: 8px; padding-right: 8px; font-size: 12px; font-weight: 600; color: #6b7280; font-family: Inter, sans-serif;">
+                                                <c:forEach var="label" items="${salesAxisLabels}">
+                                                    <span><c:out value="${label}"/></span>
+                                                </c:forEach>
+                                            </div>
+                                        </div>
                                     </div>
                                 </c:otherwise>
                             </c:choose>

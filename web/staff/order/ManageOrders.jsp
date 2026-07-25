@@ -525,6 +525,17 @@
             row.style.display = (statusMatch && deliveryMatch && searchMatch && dateMatch) ? '' : 'none';
         });
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var statusParam = urlParams.get('status');
+        if (statusParam) {
+            var tab = document.querySelector(`.filter-tab[onclick*="${statusParam}"]`);
+            if (tab) {
+                filterStatus(statusParam, tab);
+            }
+        }
+    });
 </script>
 </body>
 </html>

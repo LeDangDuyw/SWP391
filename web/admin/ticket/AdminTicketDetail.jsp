@@ -71,9 +71,6 @@
                 </a>
             </div>
             <div class="flex items-center gap-4">
-                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
                 <div class="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-label-md ml-2 border border-primary/20">
                     <span class="material-symbols-outlined">person</span>
                 </div>

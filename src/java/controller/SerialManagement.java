@@ -7,6 +7,8 @@
  */
 package controller;
 
+import dal.BrandDao;
+import dal.CategoryDAO;
 import dal.SerialDAO;
 import java.io.IOException;
 import java.util.List;
@@ -15,6 +17,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Brand;
+import model.Category;
 import model.InventoryItem;
 
 @WebServlet("/staff/imei")
@@ -23,10 +27,10 @@ public class SerialManagement extends HttpServlet {
     /**
      * Xử lý yêu cầu HTTP GET: Lấy và hiển thị danh sách các mã Serial (Inventory Item) trong kho.
      * Hàm này hỗ trợ tính năng tìm kiếm (theo mã Serial hoặc tên sản phẩm), lọc theo trạng thái
-     * (in_stock, sold, defection, v.v.), và thực hiện phân trang (pagination).
+     * (in_stock, sold, defection, v.v.), lọc theo Danh mục & Thương hiệu, và thực hiện phân trang.
      * Đồng thời, lấy các con số thống kê (tổng số, số lượng tồn kho, số lượng đã bán) để hiển thị Dashboard.
      * 
-     * @param request  đối tượng HttpServletRequest chứa các tham số search, status, page
+     * @param request  đối tượng HttpServletRequest chứa các tham số search, status, categoryId, brandId, page
      * @param response đối tượng HttpServletResponse để điều hướng về trang JSP
      * @throws ServletException nếu xảy ra lỗi Servlet
      * @throws IOException nếu xảy ra lỗi I/O
@@ -37,8 +41,28 @@ public class SerialManagement extends HttpServlet {
         
         String searchInput = request.getParameter("searchInput");
         String statusFilter = request.getParameter("status");
+        String categoryIdStr = request.getParameter("categoryId");
+        String brandIdStr = request.getParameter("brandId");
         
         if (statusFilter == null) statusFilter = "All";
+        
+        Integer categoryId = null;
+        if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
+            try {
+                categoryId = Integer.parseInt(categoryIdStr.trim());
+            } catch (NumberFormatException e) {
+                categoryId = null;
+            }
+        }
+        
+        Integer brandId = null;
+        if (brandIdStr != null && !brandIdStr.trim().isEmpty()) {
+            try {
+                brandId = Integer.parseInt(brandIdStr.trim());
+            } catch (NumberFormatException e) {
+                brandId = null;
+            }
+        }
         
         int page = 1;
         int pageSize = 10;
@@ -54,11 +78,16 @@ public class SerialManagement extends HttpServlet {
         }
         
         SerialDAO dao = new SerialDAO();
+        CategoryDAO categoryDAO = new CategoryDAO();
+        BrandDao brandDAO = new BrandDao();
+        
+        List<Category> categories = categoryDAO.getAllCategories();
+        List<Brand> brands = brandDAO.getAllBrands();
         
         int offset = (page - 1) * pageSize;
         
-        List<InventoryItem> items = dao.getInventoryItems(searchInput, statusFilter, offset, pageSize);
-        int totalItems = dao.getTotalInventoryItemsCount(searchInput, statusFilter);
+        List<InventoryItem> items = dao.getInventoryItems(searchInput, statusFilter, categoryId, brandId, offset, pageSize);
+        int totalItems = dao.getTotalInventoryItemsCount(searchInput, statusFilter, categoryId, brandId);
         int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / pageSize) : 1;
         
         // Get Statistics
@@ -72,6 +101,10 @@ public class SerialManagement extends HttpServlet {
         request.setAttribute("totalItems", totalItems);
         request.setAttribute("searchInput", searchInput);
         request.setAttribute("statusFilter", statusFilter);
+        request.setAttribute("categoryId", categoryId);
+        request.setAttribute("brandId", brandId);
+        request.setAttribute("categories", categories);
+        request.setAttribute("brands", brands);
         
         request.setAttribute("totalUnits", totalUnits);
         request.setAttribute("inStockUnits", inStockUnits);
