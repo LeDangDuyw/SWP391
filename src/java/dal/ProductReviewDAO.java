@@ -12,17 +12,36 @@ import java.util.*;
  *
  * @author NC
  */
+/**
+ * Class ProductReviewDAO - Thao tác dữ liệu Đánh Giá Sản Phẩm trong SQL Server.
+ * 
+ * BẢNG DỮ LIỆU LIÊN QUAN:
+ * - [ProductReview]: Lưu các đánh giá (Rating, Comment, Status, ReplyContent...).
+ * - [Product]: Thông tin sản phẩm được đánh giá.
+ * - [User]: Thông tin người đánh giá (Khách hàng) và người phản hồi/duyệt (Admin/Staff).
+ * 
+ * LIÊN KẾT:
+ * - Controller: ManageReviewServlet (/admin/reviews, /staff/reviews), ProductDetailServlet (/ProductDetailServlet).
+ */
 public class ProductReviewDAO extends DBContext {
     
-     private Connection con ; 
-    private PreparedStatement ps ;   
+    private Connection con; 
+    private PreparedStatement ps;   
     private ResultSet rs;
     
-      public ProductReviewDAO() {
+    public ProductReviewDAO() {
         this.con = super.connection;
     }
       
-      // them review tu customers
+    /**
+     * CHỨC NĂNG: Thêm một đánh giá sản phẩm mới từ phía khách hàng.
+     * LIÊN KẾT:
+     * - Bảng DB: [ProductReview]
+     * - View Frontend: product_detail.jsp (Khách hàng gửi form đánh giá)
+     * 
+     * @param review Đối tượng ProductReview chứa thông tin đánh giá
+     * @return true nếu thêm thành công
+     */
     public boolean addReview(ProductReview review) {
         String sql = "INSERT INTO ProductReview (product_id, user_id, rating, comment, status, created_at) VALUES (?, ?, ?, ?, 'approved', GETDATE())";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -37,6 +56,16 @@ public class ProductReviewDAO extends DBContext {
         return false;
     }
 
+    /**
+     * CHỨC NĂNG: Truy vấn lấy thông tin đánh giá duy nhất của một User đối với một Sản phẩm cụ thể.
+     * LIÊN KẾT:
+     * - Bảng DB: [ProductReview], [User], [Product]
+     * - View Frontend: product_detail.jsp (Hiển thị đánh giá cũ của người dùng nếu có)
+     * 
+     * @param userId ID người dùng
+     * @param productId ID sản phẩm
+     * @return Đối tượng ProductReview hoặc null
+     */
     public ProductReview getReviewByUserAndProduct(int userId, int productId) {
         String sql = "SELECT pr.*, u.full_name AS reviewer_name, p.product_name, mu.full_name AS moderator_name, ru.full_name AS replier_name " +
                      "FROM ProductReview pr " +
@@ -316,6 +345,152 @@ public class ProductReviewDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public Map<String, Object> getRatingStatsWithInterval(String fromDateStr, String toDateStr, Integer productId) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        
+        java.time.LocalDate startDate = null;
+        java.time.LocalDate endDate = null;
+
+        if (fromDateStr != null && !fromDateStr.trim().isEmpty()) {
+            try {
+                startDate = java.time.LocalDate.parse(fromDateStr.trim());
+            } catch (Exception e) {}
+        }
+        if (toDateStr != null && !toDateStr.trim().isEmpty()) {
+            try {
+                endDate = java.time.LocalDate.parse(toDateStr.trim());
+            } catch (Exception e) {}
+        }
+
+        if (startDate == null || endDate == null) {
+            StringBuilder minMaxSql = new StringBuilder("SELECT MIN(CAST(created_at AS DATE)) AS min_d, MAX(CAST(created_at AS DATE)) AS max_d FROM ProductReview WHERE 1=1 ");
+            if (productId != null && productId > 0) {
+                minMaxSql.append("AND product_id = ").append(productId).append(" ");
+            }
+            try (PreparedStatement ps = getConnection().prepareStatement(minMaxSql.toString());
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    java.sql.Date dbMin = rs.getDate("min_d");
+                    java.sql.Date dbMax = rs.getDate("max_d");
+                    if (startDate == null && dbMin != null) {
+                        startDate = dbMin.toLocalDate();
+                    }
+                    if (endDate == null && dbMax != null) {
+                        endDate = dbMax.toLocalDate();
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (startDate == null) startDate = java.time.LocalDate.now().minusDays(7);
+        if (endDate == null) endDate = java.time.LocalDate.now();
+        if (startDate.isAfter(endDate)) {
+            java.time.LocalDate temp = startDate;
+            startDate = endDate;
+            endDate = temp;
+        }
+
+        Map<String, int[]> dailyMap = new LinkedHashMap<>();
+        StringBuilder sql = new StringBuilder("SELECT CONVERT(VARCHAR(10), created_at, 120) AS r_date, rating, COUNT(*) AS cnt FROM ProductReview WHERE created_at >= ? AND created_at <= ? ");
+        if (productId != null && productId > 0) {
+            sql.append("AND product_id = ? ");
+        }
+        sql.append("GROUP BY CONVERT(VARCHAR(10), created_at, 120), rating ORDER BY r_date ASC");
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
+            ps.setTimestamp(1, Timestamp.valueOf(startDate.toString() + " 00:00:00"));
+            ps.setTimestamp(2, Timestamp.valueOf(endDate.toString() + " 23:59:59"));
+            if (productId != null && productId > 0) {
+                ps.setInt(3, productId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String dateStr = rs.getString("r_date");
+                    int rating = rs.getInt("rating");
+                    int cnt = rs.getInt("cnt");
+
+                    if (!dailyMap.containsKey(dateStr)) {
+                        dailyMap.put(dateStr, new int[5]);
+                    }
+                    if (rating >= 1 && rating <= 5) {
+                        dailyMap.get(dateStr)[rating - 1] = cnt;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        java.time.LocalDate padEnd = endDate;
+        java.time.LocalDate padStart = (dailyMap.isEmpty()) ? padEnd.minusDays(6) : (dailyMap.size() < 7 ? padEnd.minusDays(6) : startDate);
+
+        Map<String, int[]> finalMap = new LinkedHashMap<>();
+        java.time.LocalDate curr = padStart;
+        while (!curr.isAfter(padEnd)) {
+            String dStr = curr.toString();
+            if (dailyMap.containsKey(dStr)) {
+                finalMap.put(dStr, dailyMap.get(dStr));
+            } else {
+                finalMap.put(dStr, new int[5]);
+            }
+            curr = curr.plusDays(1);
+        }
+
+        for (Map.Entry<String, int[]> entry : dailyMap.entrySet()) {
+            if (!finalMap.containsKey(entry.getKey())) {
+                finalMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        Map<String, int[]> sortedMap = new TreeMap<>(finalMap);
+
+        List<String> labels = new ArrayList<>(sortedMap.keySet());
+        List<Integer> star1 = new ArrayList<>();
+        List<Integer> star2 = new ArrayList<>();
+        List<Integer> star3 = new ArrayList<>();
+        List<Integer> star4 = new ArrayList<>();
+        List<Integer> star5 = new ArrayList<>();
+
+        for (int[] arr : sortedMap.values()) {
+            star1.add(arr[0]);
+            star2.add(arr[1]);
+            star3.add(arr[2]);
+            star4.add(arr[3]);
+            star5.add(arr[4]);
+        }
+
+        String productName = null;
+        if (productId != null && productId > 0) {
+            String pSql = "SELECT product_name FROM Product WHERE product_id = ?";
+            try (PreparedStatement psP = getConnection().prepareStatement(pSql)) {
+                psP.setInt(1, productId);
+                try (ResultSet rsP = psP.executeQuery()) {
+                    if (rsP.next()) {
+                        productName = rsP.getString("product_name");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        result.put("labels", labels);
+        result.put("star1", star1);
+        result.put("star2", star2);
+        result.put("star3", star3);
+        result.put("star4", star4);
+        result.put("star5", star5);
+        result.put("fromDate", startDate.toString());
+        result.put("toDate", endDate.toString());
+        result.put("productId", productId);
+        result.put("productName", productName);
+
+        return result;
     }
 
     public Map<String, int[]> getDailyRatingStats(String fromDate, String toDate) {

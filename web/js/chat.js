@@ -718,50 +718,59 @@
     /**
      * Call API to clear chat history on server and clear storage
      */
+    /**
+     * CHỨC NĂNG: Xóa lịch sử trò chuyện trong Session Storage và gửi tín hiệu làm sạch bộ nhớ lên Server.
+     * LIÊN KẾT:
+     * - Endpoint: POST /chat-ai (ChatServlet)
+     * - Storage: sessionStorage 'unilap_chat_history'
+     */
     function clearChatHistory() {
         sessionStorage.removeItem('unilap_chat_history');
 
-        // Optional: Call FastAPI to clear backend session memory
         fetch(baseContextPath + '/chat-ai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: "/clear", // Or call specific clear endpoint if backend ChatServlet handles it
+                message: "/clear",
                 session_id: sessionId
             })
         }).catch(err => console.log("Failed to notify backend clear session:", err));
 
-        // Reload to default state
         loadChatHistory();
     }
 
-    // hien thi len web cua cai productdetail 
+    /**
+     * CHỨC NĂNG: Gửi tin nhắn câu hỏi từ người dùng sang ChatServlet (/chat-ai) hoặc FastAPI trực tiếp.
+     * LIÊN KẾT:
+     * - Java Servlet: controller.ChatServlet (/chat-ai) -> FastAPI AI Server (http://127.0.0.1:8000/chat)
+     * - Redirect Link: controller.ProductDetailServlet (?id=redirect_product_id) khi AI giới thiệu sản phẩm.
+     * 
+     * @param {string} userInput Tin nhắn câu hỏi của người dùng
+     */
     function sendMessageToChatbot(userInput) {
         // 1. Hiển thị tin nhắn người dùng lên khung chat
         appendMessage("user", userInput);
-        // 2. Gửi request tới FastAPI server
-        fetch("http://127.0.0.1:8000/chat", {
+        // 2. Gửi request tới FastAPI server hoặc ChatServlet proxy
+        fetch(apiEndpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 message: userInput,
-                session_id: sessionId // Session ID của phiên chat hiện tại
+                session_id: sessionId
             })
         })
             .then(response => response.json())
             .then(data => {
                 // 3. Hiển thị câu trả lời của Chatbot lên khung chat
-                appendMessage("assistant", data.answer);
+                appendMessage("assistant", data.answer || data.response);
                 // 4. Nếu backend yêu cầu chuyển hướng sang sản phẩm chi tiết
                 if (data.redirect_product_id) {
-                    // Đợi 2 giây để khách kịp đọc tin nhắn trả lời, sau đó chuyển hướng
                     setTimeout(() => {
-                        // Chuyển hướng trình duyệt sang trang chi tiết sản phẩm của dự án Java Web
-                        window.location.href = "productDetail?id=" + data.redirect_product_id;
+                        window.location.href = baseContextPath + "/ProductDetailServlet?id=" + data.redirect_product_id;
                     }, 2000);
                 }
             })
@@ -771,28 +780,25 @@
     }
 
     /**
-     * Formats basic markdown elements like strong/bold and lists, and handles newline to br
+     * CHỨC NĂNG: Định dạng cú pháp Markdown đơn giản (in đậm, in nghiêng, thẻ danh sách ul/li, dòng mới br).
+     * LIÊN KẾT: Hiển thị nội dung tin nhắn AI trong ô tin nhắn chat (appendMessage).
+     * 
+     * @param {string} text Văn bản phản hồi thô từ AI
+     * @returns {string} Văn bản đã biên dịch sang HTML safe
      */
     function formatMarkdown(text) {
         if (!text) return '';
 
-        // Escape HTML
         let escaped = text
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // Bold formatting: **text** or __text__
         escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         escaped = escaped.replace(/__(.*?)__/g, '<strong>$1</strong>');
-
-        // Italic formatting: *text* or _text_
         escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-        // Code formatting: `code`
         escaped = escaped.replace(/`(.*?)`/g, '<code>$1</code>');
 
-        // Bullet points (lines starting with - or *)
         const lines = escaped.split('\n');
         let inList = false;
         let formatted = '';
