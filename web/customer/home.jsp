@@ -87,11 +87,11 @@
                             <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
                         </c:if>
                     </a>
-                    <a href="#"><i class="fas fa-bell"></i></a>
+                    <a href="${pageContext.request.contextPath}/profile" title="Thông báo &amp; Tài khoản"><i class="fas fa-bell"></i></a>
                         <c:choose>
                             <c:when test="${not empty sessionScope.user}">
                             <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
-                                 <a href="#" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                                 <a href="javascript:void(0);" class="user-menu-trigger" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
                                     <c:choose>
                                         <c:when test="${not empty sessionScope.user.avatarUrl}">
                                             <img src="${pageContext.request.contextPath}/images/${sessionScope.user.avatarUrl}"
@@ -107,10 +107,10 @@
                                 <div class="user-menu-dropdown-content" style="display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 160px; box-shadow: 0px 8px 16px rgba(0,0,0,0.15); z-index: 1000; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; padding: 6px 0;">
                                     <c:choose>
                                         <c:when test="${sessionScope.user.roleId == 1}">
-                                            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Admin</a>
+                                            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang quản trị Admin</a>
                                         </c:when>
                                         <c:when test="${sessionScope.user.roleId == 2}">
-                                            <a href="${pageContext.request.contextPath}/staff/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Dashboard Staff</a>
+                                            <a href="${pageContext.request.contextPath}/staff/dashboard" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang nhân viên</a>
                                         </c:when>
                                         <c:otherwise>
                                             <a href="${pageContext.request.contextPath}/profile" style="color: #1e293b; padding: 8px 16px; text-decoration: none; display: block; font-size: 13px;">Trang cá nhân</a>
@@ -156,15 +156,15 @@
                     <div class="hero-slides">
                         <c:forEach items="${banners}" var="b" varStatus="status">
                             <div class="hero-slide ${status.first ? 'active' : ''}">
-                                <a href="#">
-                                    <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner">
+                                <a href="${pageContext.request.contextPath}/ProductListServlet">
+                                    <img src="${b.imageUrl}" data-context="${pageContext.request.contextPath}" class="banner-img-auto" alt="Banner UniLap">
                                 </a>
                             </div>
                         </c:forEach>
                         <c:if test="${empty banners}">
                             <div class="hero-slide active">
-                                <a href="#">
-                                    <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Laptop AI">
+                                <a href="${pageContext.request.contextPath}/ProductListServlet">
+                                    <img src="https://images.unsplash.com/photo-1531297122539-5692f6e10821?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Hình ảnh Laptop AI UniLap">
                                 </a>
                             </div>
                         </c:if>
