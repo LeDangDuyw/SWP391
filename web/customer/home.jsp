@@ -3,6 +3,18 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <fmt:setLocale value="vi_VN"/>
+<%
+    if (session.getAttribute("user") != null) {
+        try {
+            model.Users currentUser = (model.Users) session.getAttribute("user");
+            dal.WishlistDAO wishlistDAO = new dal.WishlistDAO();
+            int wishlistCountVal = wishlistDAO.getWishlistCount(currentUser.getUserId());
+            request.setAttribute("wishlistCount", wishlistCountVal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+%>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -80,6 +92,7 @@
                     </form>
                     <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
                         <i class="fas fa-heart" style="font-size: 18px;"></i>
+                        <span id="wishlist-badge" class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #e11d48; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: ${wishlistCount > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; line-height: 1;">${wishlistCount}</span>
                     </a>
                     <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
                         <i class="fas fa-shopping-cart"></i>
@@ -446,6 +459,12 @@
                                 if (icon) icon.className = 'far fa-heart';
                             }
                         });
+                        // Update badge count
+                        var badge = document.getElementById('wishlist-badge');
+                        if (badge) {
+                            badge.innerText = d.count;
+                            badge.style.display = d.count > 0 ? 'flex' : 'none';
+                        }
                     } else {
                         alert(d.message || "Có lỗi xảy ra");
                     }

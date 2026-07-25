@@ -1099,10 +1099,13 @@
                     Đơn hàng của tôi
                 </div>
 
-                <a href="${pageContext.request.contextPath}/rewards" class="nav-item" style="text-decoration:none; color:inherit;">
-                    <div class="nav-icon" style="color:#f59e0b;"><i class="fas fa-star"></i></div>
-                    Kho điểm thưởng (⭐ ${profileUser.rewardPoints})
-                </a>
+                <div class="nav-item" id="nav-rewards" onclick="switchTab('rewards')" style="justify-content: space-between;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="nav-icon" style="color:#f59e0b;"><i class="fas fa-star"></i></div>
+                        Kho điểm thưởng
+                    </div>
+                    <span id="sidebar-user-points-badge" style="background:#fef3c7; color:#d97706; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; white-space:nowrap;">⭐ <span id="sidebar-user-points">${profileUser.rewardPoints}</span></span>
+                </div>
 
                 <a href="${pageContext.request.contextPath}/wishlist" class="nav-item" style="text-decoration:none; color:inherit;">
                     <div class="nav-icon" style="color:#e11d48;"><i class="fas fa-heart"></i></div>
@@ -1755,6 +1758,127 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ══════════════════════════════════
+                 TAB 5 – KHO ĐIỂM THƯỞNG
+            ══════════════════════════════════ -->
+            <div class="tab-panel" id="tab-rewards">
+                <div class="card" style="padding: 28px;">
+                    <div class="card-header" style="margin-bottom: 24px;">
+                        <div class="card-header-icon" style="background: #fef3c7; color: #d97706;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Kho Điểm Thưởng & Đổi Voucher</div>
+                            <div class="card-subtitle">Tích lũy điểm từ mua hàng và đổi lấy Voucher ưu đãi</div>
+                        </div>
+                    </div>
+
+                    <!-- VIP Points Card -->
+                    <div class="points-hero-card" style="background: linear-gradient(135deg, #d97706, #78350f); color: #fff; padding: 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.2);">
+                        <div class="points-hero-left">
+                            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: #fff;"><i class="fas fa-crown" style="color: #fef08a;"></i> Khách Hàng Thân Thiết UniLap</h3>
+                            <p style="font-size: 13px; opacity: 0.9; margin: 0; max-width: 450px;">Tích lũy điểm thưởng từ mỗi đơn hàng hoàn thành (10.000đ = 1 điểm). Dùng điểm để đổi lấy các Voucher giảm giá trực tiếp!</p>
+                        </div>
+                        <div class="points-hero-right" style="text-align: right;">
+                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 4px;">Điểm tích lũy hiện có</div>
+                            <div style="font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: flex-end; gap: 8px; color: #fef08a;">
+                                <i class="fas fa-star"></i> <span id="current-points-display">${profileUser.rewardPoints}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grid Layout -->
+                    <div class="rewards-layout-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px;">
+                        
+                        <!-- Left Column: Vouchers Wallet & Exchange Catalog -->
+                        <div>
+                            <!-- My Vouchers -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-wallet" style="color: #2563eb;"></i> Ví Voucher của tôi</h4>
+                                <div id="my-vouchers-list" style="display: flex; flex-direction: column; gap: 12px;">
+                                    <c:choose>
+                                        <c:when test="${not empty myVouchers}">
+                                            <c:forEach items="${myVouchers}" var="v">
+                                                <div class="voucher-ticket-card" style="display: flex; border: 1.5px dashed #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff;">
+                                                    <div style="background: #eff6ff; color: #1d4ed8; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 100px; border-right: 1.5px dashed #cbd5e1; font-weight: 800; font-size: 18px;">
+                                                        <c:choose>
+                                                            <c:when test="${v.discountValue < 100}">
+                                                                ${v.discountValue}%
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <fmt:formatNumber value="${v.discountValue}" type="number" pattern="###,###"/>đ
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                    <div style="padding: 12px 16px; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                                                        <div style="font-weight: 700; font-size: 14px; color: var(--gray-800);">${v.voucherCode}</div>
+                                                        <div style="font-size: 11px; color: var(--gray-500);">HSD: ${v.expiryDate}</div>
+                                                    </div>
+                                                    <div style="padding: 12px; display: flex; align-items: center; justify-content: center;">
+                                                        <button type="button" class="btn" style="padding: 6px 12px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: var(--gray-700); border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer;" onclick="navigator.clipboard.writeText('${v.voucherCode}'); showToast('Đã sao chép mã voucher!')">Copy</button>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div style="padding: 20px; text-align: center; color: var(--gray-400); border: 1.5px dashed #e2e8f0; border-radius: 8px; font-size: 13px;">
+                                                Bạn chưa có Voucher nào. Hãy đổi điểm thưởng bên dưới!
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+
+                            <!-- Exchange Catalog -->
+                            <div>
+                                <h4 style="font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-gift" style="color: #d97706;"></i> Đổi điểm lấy Voucher</h4>
+                                <div style="display: flex; flex-direction: column; gap: 16px;">
+                                    <c:forEach items="${rewardOptions}" var="option">
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; background: #fff; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'" onmouseout="this.style.boxShadow='none'">
+                                            <div style="flex: 1; padding-right: 16px;">
+                                                <div style="font-weight: 700; font-size: 14px; color: var(--gray-800); margin-bottom: 4px;">${option.title}</div>
+                                                <div style="font-size: 12px; color: var(--gray-500); line-height: 1.4;">${option.description}</div>
+                                                <div style="margin-top: 6px; font-size: 12px; font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 4px;">
+                                                    <i class="fas fa-star"></i> Yêu cầu: ${option.pointsRequired} điểm
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-redeem-ajax" 
+                                                        style="padding: 8px 16px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; transition: all 0.2s; background: ${profileUser.rewardPoints >= option.pointsRequired ? 'linear-gradient(135deg, #d97706, #b45309)' : '#e2e8f0'}; color: ${profileUser.rewardPoints >= option.pointsRequired ? '#fff' : '#94a3b8'};"
+                                                        data-points="${option.pointsRequired}"
+                                                        data-title="${option.title}"
+                                                        ${profileUser.rewardPoints < option.pointsRequired ? 'disabled' : ''}
+                                                        onclick="redeemVoucherOptionAjax(this, ${option.rewardVoucherId}, ${option.pointsRequired}, '${option.title}')">
+                                                    ${profileUser.rewardPoints >= option.pointsRequired ? 'Đổi quà' : 'Không đủ điểm'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Rules & Info -->
+                        <div>
+                            <h4 style="font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-history" style="color: var(--gray-600);"></i> Lịch sử điểm thưởng</h4>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;" id="points-history-list">
+                                    <div style="font-size: 12px; color: var(--gray-600); line-height: 1.5; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                                        <strong>Nguyên tắc tích điểm:</strong><br>
+                                        • Mỗi 10.000đ thanh toán đơn hàng thành công = <strong>1 điểm thưởng</strong>.<br>
+                                        • Điểm được cộng tự động sau khi trạng thái đơn hàng chuyển thành "Đã giao hàng".
+                                    </div>
+                                    <div style="text-align: center; padding: 20px; color: var(--gray-400); font-size: 12px;">
+                                        <i class="fas fa-info-circle" style="font-size: 16px; margin-bottom: 6px; display: block; color: var(--gray-300);"></i>
+                                        Lịch sử đổi điểm sẽ được ghi nhận tự động sau khi bạn đổi Voucher thành công.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </c:if>
 
         </main>
@@ -2373,6 +2497,50 @@
                     toast.remove();
                 }, 300);
             }, 3000);
+        }
+
+        function redeemVoucherOptionAjax(btn, rewardVoucherId, pointsRequired, title) {
+            if (!confirm('Bạn có chắc chắn muốn dùng ' + pointsRequired + ' điểm thưởng để đổi "' + title + '" không?')) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Đang đổi...';
+
+            fetch('${pageContext.request.contextPath}/rewards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body: 'action=redeem&rewardVoucherId=' + rewardVoucherId
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === 'success') {
+                    showToast(d.message);
+                    
+                    // Update points display
+                    const pointsDisp = document.getElementById('current-points-display');
+                    if (pointsDisp) pointsDisp.innerText = d.newPoints;
+                    
+                    const sidebarPointsDisp = document.getElementById('sidebar-user-points');
+                    if (sidebarPointsDisp) sidebarPointsDisp.innerText = d.newPoints;
+                    
+                    // Reload after 1.2s to fetch new lists and keep hash active
+                    setTimeout(function() {
+                        location.hash = 'rewards';
+                        location.reload();
+                    }, 1200);
+                } else {
+                    showToast(d.message || "Đổi Voucher thất bại!", "error");
+                    btn.disabled = false;
+                    btn.innerText = 'Đổi quà';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Đã xảy ra lỗi kết nối!', 'error');
+                btn.disabled = false;
+                btn.innerText = 'Đổi quà';
+            });
         }
 
         // Close modal when clicking outside

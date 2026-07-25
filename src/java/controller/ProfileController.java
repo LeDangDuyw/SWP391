@@ -87,6 +87,15 @@ public class ProfileController extends HttpServlet {
                 o.setDetails(details);
             }
             request.setAttribute("userOrders", userOrders);
+
+            // Tải thông tin đổi thưởng và voucher của người dùng để hiển thị trong Tab Điểm Thưởng
+            dal.RewardDAO rewardDAO = new dal.RewardDAO();
+            dal.VoucherDAO voucherDAO = new dal.VoucherDAO();
+            java.util.List<model.RewardVoucher> rewardOptions = rewardDAO.getAvailableRewardVouchers();
+            java.util.List<model.UserVoucherDTO> myVouchers = voucherDAO.getUserVouchers(freshUser.getUserId());
+            
+            request.setAttribute("rewardOptions", rewardOptions);
+            request.setAttribute("myVouchers", myVouchers);
         }
 
         // Hỗ trợ hiển thị thông báo thành công hoặc thất bại dạng Flash Message
