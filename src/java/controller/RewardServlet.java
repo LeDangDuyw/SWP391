@@ -17,9 +17,23 @@ import model.RewardVoucher;
 import model.UserVoucherDTO;
 import model.Users;
 
+/*
+ * Name: RewardServlet.java
+ * @Author: LUCTV
+ * Date: [24/07/2026]
+ * Version: 1.0
+ * Description: Servlet xử lý hệ thống đổi điểm thưởng tích lũy lấy Voucher giảm giá.
+ */
 @WebServlet(name = "RewardServlet", urlPatterns = {"/rewards", "/RewardServlet"})
 public class RewardServlet extends HttpServlet {
 
+    /*
+     * Name: doGet
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Hiển thị giao diện danh sách các Voucher có thể đổi và danh sách Voucher người dùng đang sở hữu.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -53,6 +67,13 @@ public class RewardServlet extends HttpServlet {
         request.getRequestDispatcher("customer/rewards.jsp").forward(request, response);
     }
 
+    /*
+     * Name: doPost
+     * @Author: LUCTV
+     * Date: [24/07/2026]
+     * Version: 1.0
+     * Description: Tiếp nhận yêu cầu AJAX để đổi điểm tích lũy lấy Voucher (trừ điểm khách hàng, tạo mã voucher với hạn dùng 30 ngày).
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
