@@ -352,22 +352,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><span class="badge badge-pending">🟡 Chờ xác nhận (Pending)</span></td>
+                        <tr style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/staff/order/list?status=pending'">
+                            <td><a href="${pageContext.request.contextPath}/staff/order/list?status=pending" style="text-decoration:none;"><span class="badge badge-pending">🟡 Chờ xác nhận (Pending)</span></a></td>
                             <td style="text-align: center; font-weight: 600;" id="count-pending-today">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-pending-week">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-pending-month">0</td>
                             <td style="text-align: center; font-weight: 700; color: #2563eb;" id="count-pending-all">0</td>
                         </tr>
-                        <tr>
-                            <td><span class="badge badge-processing">🔵 Đang xử lý (Processing)</span></td>
+                        <tr style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/staff/order/list?status=processing'">
+                            <td><a href="${pageContext.request.contextPath}/staff/order/list?status=processing" style="text-decoration:none;"><span class="badge badge-processing">🔵 Đang xử lý (Processing)</span></a></td>
                             <td style="text-align: center; font-weight: 600;" id="count-processing-today">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-processing-week">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-processing-month">0</td>
                             <td style="text-align: center; font-weight: 700; color: #2563eb;" id="count-processing-all">0</td>
                         </tr>
-                        <tr>
-                            <td><span class="badge badge-shipped">🟣 Đang giao hàng (Shipped)</span></td>
+                        <tr style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/staff/order/list?status=shipped'">
+                            <td><a href="${pageContext.request.contextPath}/staff/order/list?status=shipped" style="text-decoration:none;"><span class="badge badge-shipped">🟣 Đang giao hàng (Shipped)</span></a></td>
                             <td style="text-align: center; font-weight: 600;" id="count-shipped-today">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-shipped-week">0</td>
                             <td style="text-align: center; font-weight: 600;" id="count-shipped-month">0</td>
