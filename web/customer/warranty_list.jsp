@@ -208,7 +208,6 @@
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
                     <a href="${pageContext.request.contextPath}/CartServlet"><i class="fas fa-shopping-cart"></i></a>
-                    <a href="#"><i class="fas fa-bell"></i></a>
                     <c:choose>
                         <c:when test="${not empty sessionScope.user}">
                             <span style="font-size: 13.5px; font-weight: 600; color: #1e293b;"><i class="fas fa-user-circle"></i> ${sessionScope.user.userName}</span>

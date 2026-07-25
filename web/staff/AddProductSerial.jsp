@@ -167,11 +167,6 @@
                             <div class="flex items-center gap-4">
                                 <button
                                     class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
-                                    <span class="material-symbols-outlined"
-                                        data-icon="notifications">notifications</span>
-                                </button>
-                                <button
-                                    class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-transform active:scale-90">
                                     <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
                                 </button>
                             </div>

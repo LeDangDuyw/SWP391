@@ -51,7 +51,6 @@
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
                     <a href="#"><i class="fas fa-shopping-cart"></i></a>
-                    <a href="#"><i class="fas fa-bell"></i></a>
                     <c:choose>
                         <c:when test="${not empty sessionScope.user}">
                             <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">

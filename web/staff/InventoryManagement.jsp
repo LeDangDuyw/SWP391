@@ -140,52 +140,49 @@
     if (activeTab == null) activeTab = "variants";
     
     // Pagination variables
-    Integer currentPage = (Integer) request.getAttribute("currentPage");
-    Integer totalPages = (Integer) request.getAttribute("totalPages");
-    if (currentPage == null) currentPage = 1;
-    if (totalPages == null) totalPages = 1;
-    
-    String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
-    String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
-    String categoryAttr = request.getParameter("category") != null ? "&category=" + request.getParameter("category") : "";
-    String stockStatusAttr = request.getParameter("stockStatus") != null ? "&stockStatus=" + request.getParameter("stockStatus") : "";
-    String itemStatusAttr = request.getParameter("itemStatus") != null ? "&itemStatus=" + request.getParameter("itemStatus") : "";
-    String queryStr = "&tab=" + activeTab + searchInputAttr + sortByAttr + categoryAttr + stockStatusAttr + itemStatusAttr;
-    model.Users u = (model.Users) session.getAttribute("user");
-%>
-<body class="bg-background text-on-surface font-body-md min-h-screen">
-<div class="layout">
-    <!-- Sidebar Navigation -->
-    <jsp:include page="/staff/sidebar.jsp">
-        <jsp:param name="activePage" value="inventory"/>
-    </jsp:include>
-
-    <div class="main">
-        
-        <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
-            <div class="flex items-center gap-4 w-1/3"></div>
-            <div class="flex items-center gap-4">
-                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
-                    <span class="material-symbols-outlined">help_outline</span>
-                </button>
-                <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container" style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
-                    <%
-                        if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
-                    %>
-                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
-                             alt="Avatar" class="h-full w-full object-cover">
-                    <% } else { %>
-                        <span class="material-symbols-outlined text-on-primary-container">person</span>
-                    <% } %>
-                </div>
-            </div>
-        </header>
-
-        <main class="flex-1 p-gutter bg-surface-container-lowest">
-            
+    Integer currentPage = (Integer) request.getAttribute("currentPage");
+    Integer totalPages = (Integer) request.getAttribute("totalPages");
+    if (currentPage == null) currentPage = 1;
+    if (totalPages == null) totalPages = 1;
+    
+    String searchInputAttr = request.getParameter("searchInput") != null ? "&searchInput=" + request.getParameter("searchInput") : "";
+    String sortByAttr = request.getParameter("sortBy") != null ? "&sortBy=" + request.getParameter("sortBy") : "";
+    String categoryAttr = request.getParameter("category") != null ? "&category=" + request.getParameter("category") : "";
+    String stockStatusAttr = request.getParameter("stockStatus") != null ? "&stockStatus=" + request.getParameter("stockStatus") : "";
+    String itemStatusAttr = request.getParameter("itemStatus") != null ? "&itemStatus=" + request.getParameter("itemStatus") : "";
+    String queryStr = "&tab=" + activeTab + searchInputAttr + sortByAttr + categoryAttr + stockStatusAttr + itemStatusAttr;
+    model.Users u = (model.Users) session.getAttribute("user");
+%>
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<div class="layout">
+    <!-- Sidebar Navigation -->
+    <jsp:include page="/staff/sidebar.jsp">
+        <jsp:param name="activePage" value="inventory"/>
+    </jsp:include>
+
+    <div class="main">
+        
+        <header class="sticky top-0 z-30 bg-surface w-full border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
+            <div class="flex items-center gap-4 w-1/3"></div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200 ease-out">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+                <div class="h-8 w-8 rounded-full overflow-hidden ml-2 border border-outline-variant/50 flex items-center justify-center bg-primary-container" style="cursor: pointer;" onclick="window.location.href='${pageContext.request.contextPath}/profile'">
+                    <%
+                        if (u != null && u.getAvatarUrl() != null && !u.getAvatarUrl().trim().isEmpty()) {
+                    %>
+                        <img src="${pageContext.request.contextPath}/images/<%= u.getAvatarUrl() %>" 
+                             alt="Avatar" class="h-full w-full object-cover">
+                    <% } else { %>
+                        <span class="material-symbols-outlined text-on-primary-container">person</span>
+                    <% } %>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-gutter bg-surface-container-lowest">
+            
             <div class="flex justify-between items-end mb-4">
                 <div>
                     <h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Quản lý Danh mục Sản phẩm</h2>

@@ -727,7 +727,6 @@
                 <div class="topbar">
                     <span class="topbar-title"></span>
                     <div class="topbar-right">
-                        <button class="icon-btn">&#128276;</button>
                         <button class="icon-btn">?</button>
                     </div>
                 </div>

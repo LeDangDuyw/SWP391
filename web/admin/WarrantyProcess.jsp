@@ -782,7 +782,6 @@
                     <input type="text" name="keyword" value="${keyword}" placeholder="Tìm kiếm yêu cầu...">
                 </form>
                 <div class="topbar-right">
-                    <button class="icon-btn" title="Notifications">🔔</button>
                 </div>
             </div>
 

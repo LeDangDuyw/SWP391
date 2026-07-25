@@ -664,7 +664,6 @@
                     <input type="text" name="keyword" value="${keyword}" placeholder="Search claims...">
                 </form>
                 <div class="topbar-right">
-                    <button class="icon-btn" title="Notifications">🔔</button>
                 </div>
             </div>
 

@@ -70,7 +70,6 @@
                 <i class="fas fa-shopping-cart"></i>
                 <span class="cart-badge" id="header-cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; ${empty sessionScope.cart || fn:length(sessionScope.cart) == 0 ? 'display: none;' : 'display: flex;'} align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
             </a>
-            <a href="${pageContext.request.contextPath}/profile" title="Thông báo &amp; Tài khoản"><i class="fas fa-bell"></i></a>
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
                     <div class="user-menu-dropdown-container" style="position: relative; display: inline-block;">
