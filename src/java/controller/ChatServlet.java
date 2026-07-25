@@ -2,6 +2,7 @@ package controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,11 +16,45 @@ import jakarta.servlet.http.HttpSession;
 import dal.ChatbotDAO;
 import model.Users;
 
+/**
+ * Controller ChatServlet (/chat-ai)
+ * 
+ * CHỨC NĂNG:
+ * - Tiếp nhận tin nhắn trò chuyện AI từ giao diện khách hàng (web/js/chat.js).
+ * - Xử lý kiểm tra quyền sử dụng, kiểm tra trạng thái bị chặn (Block) của người dùng.
+ * - Kiểm tra chống Spam (Giới hạn tối đa 10 tin nhắn/phút).
+ * - Chuyển tiếp (Proxy) dữ liệu tin nhắn tới máy chủ FastAPI AI (http://127.0.0.1:8000/chat).
+ * - Kiểm tra phản hồi vi phạm an ninh (Prompt Injection, Harmful Content) từ FastAPI để ghi Log bảo mật.
+ * 
+ * LIÊN KẾT:
+ * - Frontend: web/js/chat.js (Gửi AJAX request POST /chat-ai).
+ * - DAO Layer: dal.ChatbotDAO (Gọi các hàm isChatbotBlocked, blockUser, insertSecurityLog).
+ * - External Service: FastAPI Server Python RAG (http://127.0.0.1:8000/chat).
+ * - Data Model: model.Users (Lấy thông tin userId từ Session).
+ */
 @WebServlet("/chat-ai")
 public class ChatServlet extends HttpServlet {
 
     private static final String FASTAPI_URL = "http://127.0.0.1:8000/chat";
 
+    /**
+     * Phương thức doPost: Tiếp nhận tin nhắn chat từ client, xử lý bảo mật và chuyển tới FastAPI AI Server.
+     * 
+     * CHỨC NĂNG:
+     * 1. Đọc Session lấy đối tượng Users đăng nhập.
+     * 2. Gọi ChatbotDAO.isChatbotBlocked(userId) kiểm tra xem user có bị khóa Chatbot hay không.
+     * 3. Đọc dữ liệu JSON từ body request (tin nhắn user, session_id).
+     * 4. Kiểm tra tần suất gửi tin nhắn (Spam Control): Nếu gửi > 10 tin nhắn/phút -> Tự động gọi ChatbotDAO.blockUser() và ChatbotDAO.insertSecurityLog().
+     * 5. Khởi tạo HttpURLConnection gửi dữ liệu JSON tới FastAPI Server (http://127.0.0.1:8000/chat).
+     * 6. Nhận kết quả từ FastAPI, kiểm tra cờ is_violation -> Nếu có vi phạm gọi ChatbotDAO.insertSecurityLog().
+     * 7. Trả kết quả JSON phản hồi về cho client (web/js/chat.js).
+     * 
+     * LIÊN KẾT:
+     * - Web Endpoint: POST /chat-ai
+     * - DAO methods: ChatbotDAO.isChatbotBlocked(), ChatbotDAO.blockUser(), ChatbotDAO.insertSecurityLog()
+     * - Frontend: JS function sendChatMessage() trong web/js/chat.js
+     * - Target Server: FastAPI /chat endpoint
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -193,6 +228,12 @@ public class ChatServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Phương thức doGet: Từ chối các yêu cầu GET vì API Chat AI yêu cầu body dữ liệu tin nhắn dạng POST.
+     * 
+     * CHỨC NĂNG: Trả về mã lỗi 405 Method Not Allowed.
+     * LIÊN KẾT: HTTP GET /chat-ai
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

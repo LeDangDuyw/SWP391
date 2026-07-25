@@ -1,11 +1,22 @@
-//minhbq
+/**
+ * UniLap Product Compare JavaScript
+ * Quản lý các thao tác AJAX tương tác trên bảng So Sánh Sản Phẩm.
+ * 
+ * LIÊN KẾT:
+ * - Java Controller: controller.CompareServlet (/compare)
+ * - View JSP: web/customer/compareProducts.jsp, web/customer/product_list.jsp, web/customer/product_detail.jsp
+ * - Session Attribute: "compareList"
+ */
 
-// Lấy contextPath của Web Application (được định nghĩa ở JSP)
 const contextPath = window.contextPath || '/SWP391';
 
 /**
- * Hàm thêm sản phẩm vào danh sách so sánh (sử dụng fetch)
- * @param {number} productId 
+ * CHỨC NĂNG: Gửi yêu cầu AJAX thêm 1 sản phẩm vào danh sách so sánh trong Session.
+ * LIÊN KẾT:
+ * - Endpoint: GET /compare?action=add&id={productId}&isFetch=true (CompareServlet)
+ * - Reload trang web/customer/compareProducts.jsp khi phản hồi trả về "success"
+ * 
+ * @param {number} productId ID của sản phẩm cần thêm vào danh sách so sánh
  */
 function addProductToCompare(productId) {
     const url = `${contextPath}/compare?action=add&id=${productId}&isFetch=true`;
@@ -33,8 +44,12 @@ function addProductToCompare(productId) {
 }
 
 /**
- * Hàm xóa sản phẩm khỏi danh sách so sánh (sử dụng fetch)
- * @param {number} productId 
+ * CHỨC NĂNG: Gửi yêu cầu AJAX loại bỏ 1 sản phẩm khỏi danh sách so sánh trong Session.
+ * LIÊN KẾT:
+ * - Endpoint: GET /compare?action=remove&id={productId}&isFetch=true (CompareServlet)
+ * - Reload lại bảng so sánh trên web/customer/compareProducts.jsp
+ * 
+ * @param {number} productId ID của sản phẩm cần xóa khỏi so sánh
  */
 function removeProductFromCompare(productId) {
     const url = `${contextPath}/compare?action=remove&id=${productId}&isFetch=true`;
@@ -46,7 +61,7 @@ function removeProductFromCompare(productId) {
         })
         .then(result => {
             if (result.trim() === "success") {
-                window.location.reload(); // Reload trang để danh sách cập nhật ngay
+                window.location.reload();
             } else {
                 alert("Lỗi khi xóa: " + result);
             }
@@ -57,11 +72,12 @@ function removeProductFromCompare(productId) {
 }
 
 /**
- * Hàm xóa sạch toàn bộ danh sách so sánh (sử dụng fetch)
+ * CHỨC NĂNG: Gửi yêu cầu AJAX xóa sạch toàn bộ sản phẩm khỏi danh sách so sánh trong Session.
+ * LIÊN KẾT:
+ * - Endpoint: GET /compare?action=clear&isFetch=true (CompareServlet)
+ * - Reload lại trang web/customer/compareProducts.jsp hiển thị trạng thái bảng trống
  */
 function clearCompareList() {
-
-
     const url = `${contextPath}/compare?action=clear&isFetch=true`;
 
     fetch(url)
@@ -71,7 +87,7 @@ function clearCompareList() {
         })
         .then(result => {
             if (result.trim() === "success") {
-                window.location.reload(); // Reload trang
+                window.location.reload();
             }
         })
         .catch(error => {

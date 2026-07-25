@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,20 +5,39 @@ import java.sql.ResultSet;
 import model.ProductCompareDTO;
 import java.util.*;
 
-
 /**
- *
- * @author minhbq
+ * Class ProductCompareDAO - Truy vấn và xử lý dữ liệu cho tính năng So Sánh Sản Phẩm.
+ * 
+ * BẢNG DỮ LIỆU LIÊN QUAN:
+ * - View [vw_ProductSpec]: Chứa toàn bộ thông số kỹ thuật chi tiết của laptop/linh kiện (CPU, RAM, SSD, GPU, Màn hình...).
+ * - [ProductVariant]: Biến thể cấu hình và giá bán niêm yết.
+ * - [Inventory]: Tổng số lượng tồn kho khả dụng.
+ * - [FlashSaleItem], [FlashSale], [CampaignProduct], [Campaign]: Khuyến mãi giảm giá đang diễn ra.
+ * 
+ * LIÊN KẾT:
+ * - Controller: controller.CompareServlet (/compare)
+ * - View JSP: web/customer/compareProducts.jsp
  */
 public class ProductCompareDAO extends DBContext {
-    private Connection con ; 
-    private PreparedStatement ps ;   
+    private Connection con; 
+    private PreparedStatement ps;   
     private ResultSet rs;
 
     public ProductCompareDAO() {
         this.con = super.connection;
     }
-    public ProductCompareDTO getProductCompareDatail(int productId){
+
+    /**
+     * CHỨC NĂNG: Truy vấn toàn bộ thông số kỹ thuật cấu hình, tồn kho và giá bán khuyến mãi nhỏ nhất của một sản phẩm.
+     * LIÊN KẾT:
+     * - View DB: vw_ProductSpec
+     * - Controller: CompareServlet.doGet() và CompareServlet.addProduct()
+     * - View JSP: web/customer/compareProducts.jsp (Vẽ cột dữ liệu thông số sản phẩm)
+     * 
+     * @param productId ID sản phẩm cần lấy thông số so sánh
+     * @return Đối tượng ProductCompareDTO đầy đủ thông tin hoặc null
+     */
+    public ProductCompareDTO getProductCompareDatail(int productId) {
     ProductCompareDTO p = null ; 
      try{
       String sql = """
@@ -122,7 +137,18 @@ public class ProductCompareDAO extends DBContext {
      return p ; 
     }
     
-    public List<ProductCompareDTO> getSuggestProductforCompare(List<Integer> compareList , int limit){
+    /**
+     * CHỨC NĂNG: Gợi ý các sản phẩm cùng danh mục nhưng chưa nằm trong bảng so sánh để người dùng chọn nhanh.
+     * LIÊN KẾT:
+     * - View DB: vw_ProductSpec
+     * - Controller: CompareServlet.doGet()
+     * - View JSP: web/customer/compareProducts.jsp (Phần gợi ý sản phẩm tương tự ở chân bảng so sánh)
+     * 
+     * @param compareList Danh sách các ID sản phẩm đang có trong bảng so sánh (để loại trừ không lấy trùng)
+     * @param limit Số lượng sản phẩm gợi ý tối đa
+     * @return Danh sách các sản phẩm gợi ý ProductCompareDTO
+     */
+    public List<ProductCompareDTO> getSuggestProductforCompare(List<Integer> compareList, int limit) {
      List<ProductCompareDTO> suggestList = new ArrayList<>();
      if(compareList == null || compareList.isEmpty()){
      return suggestList ; 

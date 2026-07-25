@@ -572,25 +572,22 @@
                     <div id="analystTabContent" style="display: none;">
                         <!-- Thống kê Bộ Lọc & Live Sync -->
                         <div class="filter-card">
-                            <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;">
+                            <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) auto; align-items: flex-end;">
                                 <div class="filter-group">
-                                    <label>Từ ngày:</label>
-                                    <input type="date" id="statFromDate" value="${fromDate}" max="${today}">
+                                    <label>Từ ngày (Ngày bắt đầu):</label>
+                                    <input type="date" id="statFromDate" value="${fromDate}">
                                 </div>
                                 <div class="filter-group">
-                                    <label>Đến ngày:</label>
-                                    <input type="date" id="statToDate" value="${toDate}" max="${today}">
-                                </div>
-                                <div class="filter-group">
-                                    <label>Chế độ thống kê:</label>
-                                    <select id="statChartMode" onchange="syncChartStats()">
-                                        <option value="day">Theo ngày (Từ ngày - Đến ngày)</option>
-                                        <option value="product">Theo sản phẩm</option>
-                                    </select>
+                                    <label>Đến ngày (Ngày kết thúc):</label>
+                                    <input type="date" id="statToDate" value="${toDate}">
                                 </div>
                                 <button type="button" class="btn-sync" id="syncStatsBtn" onclick="syncChartStats()" style="padding: 10px 24px; font-weight:600; margin-bottom: 0;">
-                                    <span style="font-size: 14px;">🔄</span> Live Sync (Stats)
+                                    <span style="font-size: 14px;">🔄</span> Lọc / Xem Thống Kê
                                 </button>
+                            </div>
+                            <div id="productFilterIndicator" style="display: none; margin-top: 14px; padding: 10px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 13px; font-weight: 600; align-items: center; justify-content: space-between;">
+                                <span id="productFilterText">📦 Đang xem biểu đồ sản phẩm</span>
+                                <button type="button" onclick="clearProductChartFilter()" style="background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">❌ Xem tất cả sản phẩm</button>
                             </div>
                         </div>
 
@@ -623,12 +620,15 @@
                         <div class="analytics-grid">
                             <!-- Left: Chart Card -->
                             <div class="analytic-card">
-                                <div class="analytic-card-title">
-                                    <span>📊 Biểu đồ phân tích lượt sao</span>
+                                <div style="display: flex; justify-content: center; margin-bottom: 18px;">
+                                    <div style="background: #388e3c; color: white; padding: 10px 36px; border-radius: 24px; font-weight: 800; font-size: 17px; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);">
+                                        Review Rating Trends (Thống Kê Đánh Giá)
+                                    </div>
                                 </div>
                                 <div style="position: relative; height: 320px; width: 100%;">
                                     <canvas id="ratingChart"></canvas>
                                 </div>
+                                <div id="customChartLegend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f3f4f6;"></div>
                             </div>
                             
                             <!-- Right: Product Search & Performance Card -->
@@ -637,7 +637,7 @@
                                     <span>🔍 Đánh giá trung bình theo sản phẩm</span>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="prodSearchInput" placeholder="Tìm theo tên sản phẩm..." style="flex:1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size:13px; outline:none;">
+                                    <input type="text" id="prodSearchInput" placeholder="Tìm theo tên sản phẩm..." onkeypress="if(event.key === 'Enter') searchProductStats()" style="flex:1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size:13px; outline:none;">
                                     <button type="button" class="filter-btn" onclick="searchProductStats()" style="padding: 8px 16px; border-radius: 8px; font-size:13px;">Tìm</button>
                                 </div>
                                 <div id="productSearchResults" style="overflow-y: auto; max-height: 280px; display: flex; flex-direction: column; gap: 8px;">
@@ -672,30 +672,50 @@
         </div>
         <script>
             // JavaScript Validation: Validate ngày trước khi gửi form
+            /**
+             * CHỨC NĂNG: Kiểm tra và tự động đảo mốc Từ Ngày - Đến Ngày nếu ngày bắt đầu lớn hơn ngày kết thúc.
+             * LIÊN KẾT: Form lọc danh sách đánh giá tại Tab 1 (listTabContent).
+             */
             function validateDates() {
                 const fromDate = document.getElementById('fromDate').value;
                 const toDate = document.getElementById('toDate').value;
-                const today = '${today}';
                 
                 if (fromDate && toDate && fromDate > toDate) {
-                    // Tự động đảo ngược giá trị 2 mốc ngày
                     document.getElementById('fromDate').value = toDate;
                     document.getElementById('toDate').value = fromDate;
                 }
                 return true;
             }
-            // JavaScript mở/đóng Modal Trả lời
+
+            /**
+             * CHỨC NĂNG: Hiển thị Hộp thoại Modal Phản Hồi nhận xét của khách hàng.
+             * LIÊN KẾT: Nút "Trả lời" / "Sửa phản hồi" trong bảng danh sách đánh giá.
+             * 
+             * @param {number} reviewId ID đánh giá
+             * @param {string} comment Nội dung bình luận khách đã viết
+             * @param {string} currentReply Phản hồi đã có của Admin/Staff (nếu có)
+             */
             function openReplyModal(reviewId, comment, currentReply) {
                 document.getElementById('replyReviewId').value = reviewId;
                 document.getElementById('customerCommentText').innerText = comment;
                 document.getElementById('replyContentText').value = currentReply || '';
                 document.getElementById('replyModal').style.display = 'flex';
             }
+
+            /**
+             * CHỨC NĂNG: Ẩn Hộp thoại Modal Phản Hồi.
+             * LIÊN KẾT: Nút "Hủy" hoặc nút đóng trong Modal #replyModal.
+             */
             function closeReplyModal() {
                 document.getElementById('replyModal').style.display = 'none';
             }
 
-            // --- QUẢN LÝ TABS & LIVE SYNC / ANALYTICS ---
+            /**
+             * CHỨC NĂNG: Chuyển đổi qua lại giữa Tab 1 (Danh sách đánh giá) và Tab 2 (Thống kê & Biểu đồ).
+             * LIÊN KẾT: 2 nút Tab header (#tabBtnList, #tabBtnAnalyst).
+             * 
+             * @param {string} tab Tên tab cần mở ('list' hoặc 'analyst')
+             */
             function switchTab(tab) {
                 const listTab = document.getElementById('listTabContent');
                 const analystTab = document.getElementById('analystTabContent');
@@ -713,31 +733,46 @@
                     btnList.classList.remove('active');
                     btnAnalyst.classList.add('active');
                     
-                    // Kích hoạt thống kê lần đầu nếu chưa vẽ biểu đồ
                     if (!myChart) {
-                        const fromInput = document.getElementById('statFromDate');
-                        const toInput = document.getElementById('statToDate');
-                        if (!fromInput.value) {
-                            const d = new Date();
-                            d.setDate(d.getDate() - 30);
-                            fromInput.value = d.toISOString().split('T')[0];
-                        }
-                        if (!toInput.value) {
-                            toInput.value = new Date().toISOString().split('T')[0];
-                        }
                         syncChartStats();
                     }
                 }
             }
 
             let myChart = null;
+            let currentSelectedProductId = null;
 
-            function syncChartStats() {
-                const fromDate = document.getElementById('statFromDate').value;
-                const toDate = document.getElementById('statToDate').value;
-                const chartMode = document.getElementById('statChartMode').value;
+            /**
+             * CHỨC NĂNG: Gửi yêu cầu AJAX lấy dữ liệu số sao theo thời gian và vẽ biểu đồ Line Chart + Cập nhật 3 thẻ tổng quan.
+             * LIÊN KẾT:
+             * - Endpoint: GET /admin/reviews?action=getChartData (ManageReviewServlet)
+             * - DAO: ProductReviewDAO.getRatingStatsWithInterval()
+             * - Chart Canvas: #ratingChart
+             * 
+             * @param {number} [productId] ID sản phẩm tùy chọn nếu muốn lọc riêng cho sản phẩm đó
+             */
+            function syncChartStats(productId) {
+                if (productId !== undefined) {
+                    currentSelectedProductId = productId;
+                }
                 
-                const url = '${pageContext.request.contextPath}/admin/reviews?action=getChartData&chartMode=' + chartMode + '&fromDate=' + fromDate + '&toDate=' + toDate;
+                let fromDate = document.getElementById('statFromDate').value;
+                let toDate = document.getElementById('statToDate').value;
+                
+                if (fromDate && toDate) {
+                    if (fromDate > toDate) {
+                        let tmp = fromDate;
+                        fromDate = toDate;
+                        toDate = tmp;
+                        document.getElementById('statFromDate').value = fromDate;
+                        document.getElementById('statToDate').value = toDate;
+                    }
+                }
+                
+                let url = '${pageContext.request.contextPath}/admin/reviews?action=getChartData';
+                if (fromDate) url += '&fromDate=' + encodeURIComponent(fromDate);
+                if (toDate) url += '&toDate=' + encodeURIComponent(toDate);
+                if (currentSelectedProductId) url += '&productId=' + currentSelectedProductId;
                 
                 const btn = document.getElementById('syncStatsBtn');
                 if (btn) btn.classList.add('spinning');
@@ -746,6 +781,26 @@
                     .then(res => res.json())
                     .then(data => {
                         if (btn) btn.classList.remove('spinning');
+                        
+                        if (data.fromDate) {
+                            document.getElementById('statFromDate').value = data.fromDate;
+                        }
+                        if (data.toDate) {
+                            document.getElementById('statToDate').value = data.toDate;
+                        }
+                        
+                        const indicator = document.getElementById('productFilterIndicator');
+                        const indicatorText = document.getElementById('productFilterText');
+                        if (data.productName) {
+                            if (indicator && indicatorText) {
+                                indicatorText.innerText = '📦 Đang lọc toàn bộ dữ liệu thống kê cho sản phẩm: "' + data.productName + '" (Từ ' + data.fromDate + ' đến ' + data.toDate + ')';
+                                indicator.style.display = 'flex';
+                            }
+                        } else {
+                            if (indicator) {
+                                indicator.style.display = 'none';
+                            }
+                        }
                         
                         let totalReviews = 0;
                         let sumRatingTimesCount = 0;
@@ -786,6 +841,26 @@
                     });
             }
 
+            /**
+             * CHỨC NĂNG: Hủy lọc sản phẩm hiện tại, quay về hiển thị thống kê tổng thể cho tất cả sản phẩm.
+             * LIÊN KẾT: Nút "❌ Xem tất cả sản phẩm" trên thanh thông báo #productFilterIndicator.
+             */
+            function clearProductChartFilter() {
+                currentSelectedProductId = null;
+                syncChartStats();
+            }
+
+            /**
+             * CHỨC NĂNG: Khởi tạo và vẽ đối tượng Chart.js Line Chart mượt mà (Option 1) với dải màu mờ bên dưới.
+             * LIÊN KẾT: Thẻ canvas #ratingChart, thư viện Chart.js CDN.
+             * 
+             * @param {Array<string>} labels Danh sách mốc ngày tháng X-axis
+             * @param {Array<number>} star1 Số lượng 1★
+             * @param {Array<number>} star2 Số lượng 2★
+             * @param {Array<number>} star3 Số lượng 3★
+             * @param {Array<number>} star4 Số lượng 4★
+             * @param {Array<number>} star5 Số lượng 5★
+             */
             function renderChart(labels, star1, star2, star3, star4, star5) {
                 const ctx = document.getElementById('ratingChart').getContext('2d');
                 
@@ -794,31 +869,189 @@
                 }
                 
                 myChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels: labels,
                         datasets: [
-                            { label: '5 ★', data: star5, backgroundColor: '#10b981' },
-                            { label: '4 ★', data: star4, backgroundColor: '#3b82f6' },
-                            { label: '3 ★', data: star3, backgroundColor: '#f59e0b' },
-                            { label: '2 ★', data: star2, backgroundColor: '#f97316' },
-                            { label: '1 ★', data: star1, backgroundColor: '#ef4444' }
+                            {
+                                label: '5 ★',
+                                data: star5,
+                                borderColor: '#388e3c',
+                                backgroundColor: 'rgba(56, 142, 60, 0.12)',
+                                borderWidth: 3,
+                                pointStyle: 'circle',
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#388e3c',
+                                pointBorderWidth: 2,
+                                tension: 0.4,
+                                fill: 'origin'
+                            },
+                            {
+                                label: '4 ★',
+                                data: star4,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                borderWidth: 3,
+                                pointStyle: 'circle',
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#2563eb',
+                                pointBorderWidth: 2,
+                                tension: 0.4,
+                                fill: 'origin'
+                            },
+                            {
+                                label: '3 ★',
+                                data: star3,
+                                borderColor: '#eab308',
+                                backgroundColor: 'rgba(234, 179, 8, 0.12)',
+                                borderWidth: 3,
+                                pointStyle: 'circle',
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#eab308',
+                                pointBorderWidth: 2,
+                                tension: 0.4,
+                                fill: 'origin'
+                            },
+                            {
+                                label: '2 ★',
+                                data: star2,
+                                borderColor: '#f97316',
+                                backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                                borderWidth: 3,
+                                pointStyle: 'circle',
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#f97316',
+                                pointBorderWidth: 2,
+                                tension: 0.4,
+                                fill: 'origin'
+                            },
+                            {
+                                label: '1 ★',
+                                data: star1,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                                borderWidth: 3,
+                                pointStyle: 'circle',
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#ef4444',
+                                pointBorderWidth: 2,
+                                tension: 0.4,
+                                fill: 'origin'
+                            }
                         ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
                         scales: {
-                            x: { stacked: true, grid: { display: false } },
-                            y: { stacked: true, ticks: { precision: 0 } }
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter', size: 13, weight: '600' }, color: '#4b5563' }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f3f4f6' },
+                                ticks: { precision: 0, font: { family: 'Inter', size: 13, weight: '600' }, color: '#4b5563' }
+                            }
                         },
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                padding: 12,
+                                cornerRadius: 8,
+                                bodyFont: { family: 'Inter', size: 13 },
+                                titleFont: { family: 'Inter', size: 13, weight: '700' }
+                            }
                         }
                     }
                 });
+
+                renderChartCustomLegend();
             }
 
+            /**
+             * CHỨC NĂNG: Khởi tạo và render các nút Legend tương tác tùy chỉnh bên dưới biểu đồ cho phép bật/tắt hiển thị từng loại sao.
+             * LIÊN KẾT: Thẻ container #customChartLegend.
+             */
+            function renderChartCustomLegend() {
+                const container = document.getElementById('customChartLegend');
+                if (!container || !myChart) return;
+                
+                container.innerHTML = '';
+                const legendItems = [
+                    { index: 0, label: '5 ★ (Xanh lá)', color: '#388e3c', bgLight: '#f0fdf4', border: '#bbf7d0' },
+                    { index: 1, label: '4 ★ (Xanh biển)', color: '#2563eb', bgLight: '#eff6ff', border: '#bfdbfe' },
+                    { index: 2, label: '3 ★ (Vàng)', color: '#eab308', bgLight: '#fefce8', border: '#fef08a' },
+                    { index: 3, label: '2 ★ (Cam)', color: '#f97316', bgLight: '#fff7ed', border: '#ffedd5' },
+                    { index: 4, label: '1 ★ (Đỏ)', color: '#ef4444', bgLight: '#fef2f2', border: '#fecdd3' }
+                ];
+
+                legendItems.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    const isVisible = myChart.isDatasetVisible(item.index);
+                    
+                    btn.style.padding = '6px 14px';
+                    btn.style.borderRadius = '20px';
+                    btn.style.fontSize = '12px';
+                    btn.style.fontWeight = '600';
+                    btn.style.cursor = 'pointer';
+                    btn.style.display = 'inline-flex';
+                    btn.style.alignItems = 'center';
+                    btn.style.gap = '6px';
+                    btn.style.transition = 'all 0.2s ease';
+                    
+                    if (isVisible) {
+                        btn.style.background = item.bgLight;
+                        btn.style.color = item.color;
+                        btn.style.border = '1.5px solid ' + item.border;
+                        btn.style.opacity = '1';
+                        btn.style.textDecoration = 'none';
+                    } else {
+                        btn.style.background = '#f3f4f6';
+                        btn.style.color = '#9ca3af';
+                        btn.style.border = '1.5px solid #e5e7eb';
+                        btn.style.opacity = '0.55';
+                        btn.style.textDecoration = 'line-through';
+                    }
+                    
+                    btn.innerHTML = '<span style="width:10px; height:10px; border-radius:3px; background:' + (isVisible ? item.color : '#9ca3af') + ';"></span> ' + item.label;
+                    
+                    btn.onclick = function() {
+                        const currentlyVisible = myChart.isDatasetVisible(item.index);
+                        myChart.setDatasetVisibility(item.index, !currentlyVisible);
+                        myChart.update();
+                        renderChartCustomLegend();
+                    };
+                    
+                    container.appendChild(btn);
+                });
+            }
+
+            /**
+             * CHỨC NĂNG: Gửi yêu cầu AJAX tìm kiếm sản phẩm theo tên và hiển thị thẻ tổng quan số sao trung bình + Tự động lọc biểu đồ cho sản phẩm đó.
+             * LIÊN KẾT:
+             * - Endpoint: GET /admin/reviews?action=searchProduct&query={query} (ManageReviewServlet)
+             * - DAO: ProductReviewDAO.searchProductAverageRating()
+             * - Container kết quả: #productSearchResults
+             */
             function searchProductStats() {
                 const query = document.getElementById('prodSearchInput').value.trim();
                 if (!query) {
@@ -837,6 +1070,11 @@
                         if (products.length === 0) {
                             resultsContainer.innerHTML = '<div style="text-align:center; color:#ef4444; padding: 20px;">Không tìm thấy sản phẩm phù hợp!</div>';
                             return;
+                        }
+                        
+                        // Auto-load first product onto chart if searched
+                        if (products.length > 0) {
+                            syncChartStats(products[0].productId);
                         }
                         
                         products.forEach(p => {
@@ -871,17 +1109,17 @@
                                     '<div style="flex:1; min-width:180px; display:flex; flex-direction:column; gap:4px;">' +
                                         '<div class="star-bar-row">' +
                                             '<span class="star-label-fixed">5 ★</span>' +
-                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star5Pct + '%; background:#10b981;"></div></div>' +
+                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star5Pct + '%; background:#388e3c;"></div></div>' +
                                             '<span class="star-count-fixed">' + p.star5 + ' (' + star5Pct + '%)</span>' +
                                         '</div>' +
                                         '<div class="star-bar-row">' +
                                             '<span class="star-label-fixed">4 ★</span>' +
-                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star4Pct + '%; background:#3b82f6;"></div></div>' +
+                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star4Pct + '%; background:#2563eb;"></div></div>' +
                                             '<span class="star-count-fixed">' + p.star4 + ' (' + star4Pct + '%)</span>' +
                                         '</div>' +
                                         '<div class="star-bar-row">' +
                                             '<span class="star-label-fixed">3 ★</span>' +
-                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star3Pct + '%; background:#f59e0b;"></div></div>' +
+                                            '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + star3Pct + '%; background:#eab308;"></div></div>' +
                                             '<span class="star-count-fixed">' + p.star3 + ' (' + star3Pct + '%)</span>' +
                                         '</div>' +
                                         '<div class="star-bar-row">' +
@@ -895,7 +1133,8 @@
                                             '<span class="star-count-fixed">' + p.star1 + ' (' + star1Pct + '%)</span>' +
                                         '</div>' +
                                     '</div>' +
-                                '</div>';
+                                '</div>' +
+                                '<button type="button" onclick="syncChartStats(' + p.productId + ')" style="width:100%; padding:8px 14px; background:#2563eb; color:white; border:none; border-radius:6px; font-weight:600; font-size:13px; cursor:pointer;">📊 Xem Biểu Đồ Chi Tiết Sản Phẩm Này</button>';
                             resultsContainer.appendChild(card);
                         });
                     })
@@ -905,6 +1144,13 @@
                     });
             }
 
+            /**
+             * CHỨC NĂNG: Gửi yêu cầu AJAX tải lại danh sách đánh giá mới nhất theo bộ lọc Live Sync mà không cần tải lại toàn bộ trang.
+             * LIÊN KẾT:
+             * - Endpoint: GET /admin/reviews?action=syncLatestReviews (ManageReviewServlet)
+             * - DAO: ProductReviewDAO.getReviewsWithFilters()
+             * - View Table: Bảng danh sách đánh giá tại Tab 1 (listTabContent)
+             */
             function syncReviews() {
                 const ratingFilter = document.querySelector('select[name="ratingFilter"]').value;
                 const status = document.querySelector('select[name="status"]').value;
