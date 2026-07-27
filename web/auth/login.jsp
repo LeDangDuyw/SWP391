@@ -40,7 +40,10 @@
                 <% } else if ("4".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.</div>
                 <% } %>
+                <% if ("wishlist".equals(request.getParameter("msg"))) { %>
+                <% } %>
                 <div class="error-message">${error}</div>
+
                 <form action="login" method="post">
                     <div class="form-group">
                         <label>Email</label>
