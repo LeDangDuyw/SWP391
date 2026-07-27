@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -111,18 +112,21 @@
                         <div class="flex flex-wrap items-center justify-between gap-4">
                             <div>
                                 <span class="text-body-sm text-on-surface-variant mr-2">Trạng thái hiện tại:</span>
+                                <c:set var="isPickupOrder" value="${order.shippingMethod == 'STORE_PICKUP' || (not empty order.shippingAddress && fn:contains(order.shippingAddress, 'Nhận tại cửa hàng'))}" />
                                 <c:choose>
                                     <c:when test="${order.orderStatus == 'Pending' || order.orderStatus == 'pending'}">
                                         <span class="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md font-semibold text-[13px]">Chờ xác nhận</span>
                                     </c:when>
                                     <c:when test="${order.orderStatus == 'processing'}">
-                                        <span class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-md font-semibold text-[13px]">Đang xử lý</span>
+                                        <span class="px-3 py-1.5 ${hasAssignedItems ? 'bg-indigo-100 text-indigo-800' : 'bg-blue-100 text-blue-800'} rounded-md font-semibold text-[13px]">
+                                            ${hasAssignedItems ? 'Đã xuất kho (Chờ nhận hàng)' : 'Đang xử lý'}
+                                        </span>
                                     </c:when>
                                     <c:when test="${order.orderStatus == 'shipped'}">
                                         <span class="px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-md font-semibold text-[13px]">Đang giao hàng</span>
                                     </c:when>
                                     <c:when test="${order.orderStatus == 'delivered' || order.orderStatus == 'Completed'}">
-                                        <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-md font-semibold text-[13px]">Đã giao hàng</span>
+                                        <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-md font-semibold text-[13px]">Đã giao hàng thành công</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="px-3 py-1.5 bg-red-100 text-red-800 rounded-md font-semibold text-[13px]">Đã huỷ đơn</span>
@@ -152,12 +156,41 @@
                                     </form>
                                 </c:if>
 
-                                <!-- Status Processing: Fulfill, Cancel order -->
+                                <!-- Status Processing: Fulfill or Deliver if exported -->
                                 <c:if test="${order.orderStatus == 'processing'}">
-                                    <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
-                                       class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
-                                        <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${hasAssignedItems}">
+                                            <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" style="display: inline;">
+                                                <input type="hidden" name="orderId" value="${order.orderId}">
+                                                <input type="hidden" name="status" value="delivered">
+                                                <input type="hidden" name="redirect" value="detail">
+                                                <button type="submit" class="bg-[#16a34a] hover:bg-[#15803d] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                                    <span class="material-symbols-outlined text-[18px]">check_circle</span> Giao hàng thành công
+                                                </button>
+                                            </form>
+                                            
+                                            <a href="${pageContext.request.contextPath}/staff/outbound/print?orderId=${order.orderId}" target="_blank"
+                                               class="bg-white border border-outline-variant text-on-surface hover:bg-surface-container-low px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200">
+                                                <span class="material-symbols-outlined text-[18px]">print</span> Xem & In phiếu xuất kho
+                                            </a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:choose>
+                                                <c:when test="${!isPickupOrder && empty order.trackingNumber}">
+                                                    <button type="button" onclick="createViettelPostWaybill(${order.orderId})"
+                                                            class="bg-[#6d28d9] hover:bg-[#5b21b6] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                                        <span class="material-symbols-outlined text-[18px]">local_shipping</span> Tạo mã vận đơn
+                                                    </button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
+                                                       class="bg-[#003ec7] hover:bg-[#002baf] text-white px-4 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200 shadow-sm">
+                                                        <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng & Xuất kho
+                                                    </a>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:otherwise>
+                                    </c:choose>
                                     
                                     <form action="${pageContext.request.contextPath}/staff/outbound/update-status" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');" style="display: inline;">
                                         <input type="hidden" name="orderId" value="${order.orderId}">
@@ -237,7 +270,7 @@
                     <!-- Order Logs (Nhật ký hoạt động) -->
                     <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm mt-6">
                         <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface">
-                            <span class="material-symbols-outlined text-primary text-[20px]">history</span> Nhật ký xử lý & Email
+                            <span class="material-symbols-outlined text-primary text-[20px]">history</span> Nhật ký xử lý
                         </h3>
                         <div class="flow-root">
                             <ul class="-mb-8">
@@ -312,7 +345,7 @@
                     </div>
 
                     <!-- Shipping & Waybill Info -->
-                    <c:if test="${order.shippingAddress != 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}">
+                    <c:if test="${order.shippingMethod != 'STORE_PICKUP' && !fn:contains(order.shippingAddress, 'Nhận tại cửa hàng')}">
                         <div class="bg-surface border border-outline-variant/30 rounded-xl p-6 shadow-sm">
                             <h3 class="text-label-md font-bold mb-4 flex items-center gap-2 text-on-surface border-b border-outline-variant/20 pb-3">
                                 <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span> Đối tác & Vận đơn
@@ -337,17 +370,11 @@
                                             </div>
                                         </div>
                                     </c:when>
-                                    <c:otherwise>
-                                        <div class="text-center py-2">
-                                            <p class="text-on-surface-variant text-[13px] mb-3">Đơn hàng này chưa được tạo mã vận đơn Viettel Post.</p>
-                                            <c:if test="${order.orderStatus == 'shipped' || order.orderStatus == 'delivered' || order.orderStatus == 'Completed' || order.orderStatus == 'Pending' || order.orderStatus == 'processing'}">
-                                                <button id="btn-create-waybill" onclick="createViettelPostWaybill(${order.orderId})"
-                                                        class="w-full bg-[#003ec7] hover:bg-[#002baf] text-white px-3 py-2 rounded-lg font-semibold text-[13px] inline-flex items-center justify-center gap-1.5 transition-colors duration-200">
-                                                    <span class="material-symbols-outlined text-[18px]">local_post_office</span> Tạo vận đơn Viettel Post
-                                                </button>
-                                            </c:if>
-                                        </div>
-                                    </c:otherwise>
+                                     <c:otherwise>
+                                         <div class="text-center py-2">
+                                             <p class="text-on-surface-variant text-[13px]">Mã vận đơn Viettel Post chưa được khởi tạo.</p>
+                                         </div>
+                                     </c:otherwise>
                                 </c:choose>
                             </div>
                         </div>

@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="vi">
 <head>
@@ -252,19 +253,19 @@
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
                 <div class="stat-card">
                     <div class="stat-icon blue"><span class="material-symbols-outlined">list_alt</span></div>
-                    <div><div class="stat-value">${cntAll}</div><div class="stat-label">Tổng đơn hàng</div></div>
+                    <div><div class="stat-value" id="stat-cnt-all">${cntAll}</div><div class="stat-label">Tổng đơn hàng</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon amber"><span class="material-symbols-outlined">hourglass_top</span></div>
-                    <div><div class="stat-value">${cntPending}</div><div class="stat-label">Chờ xác nhận</div></div>
+                    <div><div class="stat-value" id="stat-cnt-pending">${cntPending}</div><div class="stat-label">Chờ xác nhận</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon violet"><span class="material-symbols-outlined">local_shipping</span></div>
-                    <div><div class="stat-value">${cntShipped}</div><div class="stat-label">Đang vận chuyển</div></div>
+                    <div><div class="stat-value" id="stat-cnt-shipped">${cntShipped}</div><div class="stat-label">Đang vận chuyển</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
-                    <div><div class="stat-value">${cntDelivered}</div><div class="stat-label">Đã giao thành công</div></div>
+                    <div><div class="stat-value" id="stat-cnt-delivered">${cntDelivered}</div><div class="stat-label">Đã giao thành công</div></div>
                 </div>
             </div>
 
@@ -274,22 +275,22 @@
                     <!-- Filter tabs -->
                     <div class="filter-tabs">
                         <button class="filter-tab active" onclick="filterStatus('all',this)">
-                            Tất cả <span class="cnt">${cntAll}</span>
+                            Tất cả <span class="cnt" id="tab-cnt-all">${cntAll}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('pending',this)">
-                            Chờ xác nhận <span class="cnt">${cntPending}</span>
+                            Chờ xác nhận <span class="cnt" id="tab-cnt-pending">${cntPending}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('processing',this)">
-                            Đang xử lý <span class="cnt">${cntProcessing}</span>
+                            Đang xử lý <span class="cnt" id="tab-cnt-processing">${cntProcessing}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('shipped',this)">
-                            Vận chuyển <span class="cnt">${cntShipped}</span>
+                            Vận chuyển <span class="cnt" id="tab-cnt-shipped">${cntShipped}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('delivered',this)">
-                            Đã giao <span class="cnt">${cntDelivered}</span>
+                            Đã giao <span class="cnt" id="tab-cnt-delivered">${cntDelivered}</span>
                         </button>
                         <button class="filter-tab" onclick="filterStatus('cancelled',this)">
-                            Đã huỷ <span class="cnt">${cntCancelled}</span>
+                            Đã huỷ <span class="cnt" id="tab-cnt-cancelled">${cntCancelled}</span>
                         </button>
                     </div>
                     <!-- Date Range Filter & Search Box -->
@@ -327,7 +328,7 @@
                         </thead>
                         <tbody>
                             <c:forEach var="order" items="${orders}">
-                                <c:set var="isPickup" value="${order.shippingAddress == 'Nhận tại cửa hàng UniLap - Mỹ Đình, Hà Nội'}" />
+                                <c:set var="isPickup" value="${order.shippingMethod == 'STORE_PICKUP' || (not empty order.shippingAddress && fn:contains(order.shippingAddress, 'Nhận tại cửa hàng'))}" />
                                 <tr class="order-row"
                                     data-status="${order.orderStatus}"
                                     data-search="${order.orderCode} ${order.shippingReceiver} ${order.shippingPhone}"
@@ -366,7 +367,7 @@
                                                 <span class="badge shipped">Đang vận chuyển</span>
                                             </c:when>
                                             <c:when test="${order.orderStatus == 'delivered' || order.orderStatus == 'Completed'}">
-                                                <span class="badge delivered">Đã giao hàng</span>
+                                                <span class="badge delivered">${isPickup ? 'Đã giao hàng thành công' : 'Đã giao hàng'}</span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="badge cancelled">Đã huỷ</span>
@@ -421,6 +422,16 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- ── Pagination Bar ── -->
+                <div id="pagination-bar" class="flex flex-wrap items-center justify-between px-6 py-4 border-t border-outline-variant/30 bg-surface-container-lowest text-xs">
+                    <div class="text-on-surface-variant font-medium">
+                        Hiển thị <span id="pag-start" class="font-bold text-on-surface">0</span> - <span id="pag-end" class="font-bold text-on-surface">0</span> trong tổng số <span id="pag-total" class="font-bold text-on-surface">0</span> đơn hàng
+                    </div>
+                    <div class="flex items-center gap-1.5" id="pag-buttons">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
             </div><!-- /table-card -->
 
         </main>
@@ -430,9 +441,12 @@
 <script>
     var currentStatus = 'all';
     var currentDelivery = 'all';
+    var currentPage = 1;
+    var pageSize = 15; // 15 đơn hàng / trang
 
     function filterStatus(status, btn) {
         currentStatus = status;
+        currentPage = 1;
         document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
         if (btn) btn.classList.add('active');
         applyFilters();
@@ -440,6 +454,7 @@
 
     function filterDelivery(delivery) {
         currentDelivery = delivery;
+        currentPage = 1;
         
         // Update tab styles
         const tabs = ['all', 'home', 'store'];
@@ -454,7 +469,7 @@
             }
         });
 
-        // Dynamic column hiding: hide waybill column when in 'store' pickup view
+        // Dynamic column hiding for tracking number
         const trackingHeaders = document.querySelectorAll('th.tracking-col');
         const trackingCells = document.querySelectorAll('td.tracking-col');
         if (delivery === 'store') {
@@ -471,10 +486,20 @@
     function clearDates() {
         document.getElementById('filter-from-date').value = '';
         document.getElementById('filter-to-date').value = '';
+        currentPage = 1;
         applyFilters();
     }
 
-    function applyFilters() {
+    function goToPage(p) {
+        currentPage = p;
+        applyFilters(true);
+    }
+
+    function applyFilters(isPageChange) {
+        if (!isPageChange) {
+            // Keep current page if valid, or reset via filter handler
+        }
+
         var q = document.getElementById('search-input').value.toLowerCase().trim();
         var fromDateStr = document.getElementById('filter-from-date').value;
         var toDateStr = document.getElementById('filter-to-date').value;
@@ -482,13 +507,81 @@
         var fromDate = fromDateStr ? new Date(fromDateStr + 'T00:00:00') : null;
         var toDate = toDateStr ? new Date(toDateStr + 'T23:59:59') : null;
 
-        document.querySelectorAll('.order-row').forEach(row => {
+        var allRows = Array.from(document.querySelectorAll('.order-row'));
+
+        // 1. Recalculate stats dynamically for selected delivery method, search, and date
+        var methodPending = 0;
+        var methodProcessing = 0;
+        var methodShipped = 0;
+        var methodDelivered = 0;
+        var methodCancelled = 0;
+        var methodTotal = 0;
+
+        allRows.forEach(row => {
             var rowStatus = row.getAttribute('data-status').toLowerCase();
             var searchText = row.getAttribute('data-search').toLowerCase();
             var isPickup = row.getAttribute('data-pickup') === 'true';
             var rawDate = row.getAttribute('data-date');
 
-            // 1. Status Filter
+            var deliveryMatch = currentDelivery === 'all'
+                || (currentDelivery === 'store' && isPickup)
+                || (currentDelivery === 'home' && !isPickup);
+
+            var searchMatch = q === '' || searchText.includes(q);
+
+            var dateMatch = true;
+            if (rawDate && rawDate !== '') {
+                var orderDate = new Date(rawDate);
+                if (!isNaN(orderDate.getTime())) {
+                    if (fromDate && orderDate < fromDate) dateMatch = false;
+                    if (toDate && orderDate > toDate) dateMatch = false;
+                }
+            } else if (fromDate || toDate) {
+                dateMatch = false;
+            }
+
+            if (deliveryMatch && searchMatch && dateMatch) {
+                methodTotal++;
+                if (rowStatus === 'pending') methodPending++;
+                else if (rowStatus === 'processing') methodProcessing++;
+                else if (rowStatus === 'shipped') methodShipped++;
+                else if (rowStatus === 'delivered' || rowStatus === 'completed') methodDelivered++;
+                else if (rowStatus === 'cancelled') methodCancelled++;
+            }
+        });
+
+        // Update 4 Stat Cards
+        var elStatAll = document.getElementById('stat-cnt-all');
+        if (elStatAll) elStatAll.textContent = methodTotal;
+        var elStatPending = document.getElementById('stat-cnt-pending');
+        if (elStatPending) elStatPending.textContent = methodPending;
+        var elStatShipped = document.getElementById('stat-cnt-shipped');
+        if (elStatShipped) elStatShipped.textContent = methodShipped;
+        var elStatDelivered = document.getElementById('stat-cnt-delivered');
+        if (elStatDelivered) elStatDelivered.textContent = methodDelivered;
+
+        // Update Filter Tab Count Badges
+        var elTabAll = document.getElementById('tab-cnt-all');
+        if (elTabAll) elTabAll.textContent = methodTotal;
+        var elTabPending = document.getElementById('tab-cnt-pending');
+        if (elTabPending) elTabPending.textContent = methodPending;
+        var elTabProcessing = document.getElementById('tab-cnt-processing');
+        if (elTabProcessing) elTabProcessing.textContent = methodProcessing;
+        var elTabShipped = document.getElementById('tab-cnt-shipped');
+        if (elTabShipped) elTabShipped.textContent = methodShipped;
+        var elTabDelivered = document.getElementById('tab-cnt-delivered');
+        if (elTabDelivered) elTabDelivered.textContent = methodDelivered;
+        var elTabCancelled = document.getElementById('tab-cnt-cancelled');
+        if (elTabCancelled) elTabCancelled.textContent = methodCancelled;
+
+        // 2. Filter matching rows for selected status
+        var matchingRows = [];
+        allRows.forEach(row => {
+            var rowStatus = row.getAttribute('data-status').toLowerCase();
+            var searchText = row.getAttribute('data-search').toLowerCase();
+            var isPickup = row.getAttribute('data-pickup') === 'true';
+            var rawDate = row.getAttribute('data-date');
+
             var statusMatch = currentStatus === 'all'
                 || (currentStatus === 'pending'    && rowStatus === 'pending')
                 || (currentStatus === 'processing' && rowStatus === 'processing')
@@ -496,34 +589,89 @@
                 || (currentStatus === 'delivered'  && (rowStatus === 'delivered' || rowStatus === 'completed'))
                 || (currentStatus === 'cancelled'  && rowStatus === 'cancelled');
 
-            // 2. Delivery Method Filter
             var deliveryMatch = currentDelivery === 'all'
                 || (currentDelivery === 'store' && isPickup)
                 || (currentDelivery === 'home' && !isPickup);
 
-            // 3. Search text match
             var searchMatch = q === '' || searchText.includes(q);
 
-            // 4. Date range filter
             var dateMatch = true;
             if (rawDate && rawDate !== '') {
                 var orderDate = new Date(rawDate);
                 if (!isNaN(orderDate.getTime())) {
-                    if (fromDate && orderDate < fromDate) {
-                        dateMatch = false;
-                    }
-                    if (toDate && orderDate > toDate) {
-                        dateMatch = false;
-                    }
+                    if (fromDate && orderDate < fromDate) dateMatch = false;
+                    if (toDate && orderDate > toDate) dateMatch = false;
                 }
-            } else {
-                if (fromDate || toDate) {
-                    dateMatch = false;
-                }
+            } else if (fromDate || toDate) {
+                dateMatch = false;
             }
 
-            row.style.display = (statusMatch && deliveryMatch && searchMatch && dateMatch) ? '' : 'none';
+            if (statusMatch && deliveryMatch && searchMatch && dateMatch) {
+                matchingRows.push(row);
+            }
+            row.style.display = 'none'; // Hide all initially
         });
+
+        // 3. Paginate matchingRows (15 / page)
+        var totalRecords = matchingRows.length;
+        var totalPages = Math.ceil(totalRecords / pageSize);
+        if (totalPages < 1) totalPages = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        var startIndex = (currentPage - 1) * pageSize;
+        var endIndex = Math.min(startIndex + pageSize, totalRecords);
+
+        for (var i = startIndex; i < endIndex; i++) {
+            matchingRows[i].style.display = '';
+        }
+
+        // 4. Update Pagination Control UI
+        var pagStart = document.getElementById('pag-start');
+        var pagEnd = document.getElementById('pag-end');
+        var pagTotal = document.getElementById('pag-total');
+        var pagButtons = document.getElementById('pag-buttons');
+
+        if (pagStart) pagStart.textContent = totalRecords > 0 ? (startIndex + 1) : 0;
+        if (pagEnd) pagEnd.textContent = endIndex;
+        if (pagTotal) pagTotal.textContent = totalRecords;
+
+        if (pagButtons) {
+            pagButtons.innerHTML = '';
+
+            // Previous Button
+            var prevBtn = document.createElement('button');
+            prevBtn.className = 'px-3 py-1.5 rounded-lg border border-outline-variant/40 text-xs font-semibold hover:bg-surface-container-low transition-colors ' + (currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer');
+            prevBtn.innerHTML = '<span class="material-symbols-outlined text-[14px] align-middle">chevron_left</span> Trước';
+            if (currentPage > 1) {
+                prevBtn.onclick = function() { goToPage(currentPage - 1); };
+            }
+            pagButtons.appendChild(prevBtn);
+
+            // Page Number Buttons
+            for (var p = 1; p <= totalPages; p++) {
+                (function(pageNum) {
+                    var btn = document.createElement('button');
+                    if (pageNum === currentPage) {
+                        btn.className = 'px-3 py-1.5 rounded-lg bg-[#003ec7] text-white text-xs font-bold shadow-sm';
+                    } else {
+                        btn.className = 'px-3 py-1.5 rounded-lg border border-outline-variant/40 text-xs font-semibold hover:bg-surface-container-low transition-colors cursor-pointer';
+                    }
+                    btn.textContent = pageNum;
+                    btn.onclick = function() { goToPage(pageNum); };
+                    pagButtons.appendChild(btn);
+                })(p);
+            }
+
+            // Next Button
+            var nextBtn = document.createElement('button');
+            nextBtn.className = 'px-3 py-1.5 rounded-lg border border-outline-variant/40 text-xs font-semibold hover:bg-surface-container-low transition-colors ' + (currentPage === totalPages || totalRecords === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer');
+            nextBtn.innerHTML = 'Sau <span class="material-symbols-outlined text-[14px] align-middle">chevron_right</span>';
+            if (currentPage < totalPages && totalRecords > 0) {
+                nextBtn.onclick = function() { goToPage(currentPage + 1); };
+            }
+            pagButtons.appendChild(nextBtn);
+        }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -533,8 +681,10 @@
             var tab = document.querySelector(`.filter-tab[onclick*="${statusParam}"]`);
             if (tab) {
                 filterStatus(statusParam, tab);
+                return;
             }
         }
+        applyFilters();
     });
 </script>
 </body>

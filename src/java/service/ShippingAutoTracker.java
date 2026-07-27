@@ -19,49 +19,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@WebListener
+// Disabled ShippingAutoTracker: Staff will manually confirm delivery in UI
 public class ShippingAutoTracker implements ServletContextListener {
-
-    private ScheduledExecutorService scheduler;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        scheduler = Executors.newSingleThreadScheduledExecutor();
-        
-        // Poll every 30 seconds to automatically track shipped orders and complete/deliver them
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                OutboundDAO dao = new OutboundDAO();
-                List<Order> history = dao.getOutboundHistory();
-                for (Order order : history) {
-                    if ("shipped".equalsIgnoreCase(order.getOrderStatus()) && order.getTrackingNumber() != null) {
-                        System.out.println("[AutoTracker] Tracking waybill: " + order.getTrackingNumber() + " for Order: " + order.getOrderCode());
-                        
-                        String oldStatus = order.getOrderStatus();
-                        String newStatus = "delivered";
-                        
-                        boolean ok = dao.updateOrderStatus(order.getOrderId(), newStatus);
-                        if (ok) {
-                            Order updatedOrder = dao.getOrderById(order.getOrderId());
-                            List<OrderDetail> details = dao.getOrderDetails(order.getOrderId());
-                            updatedOrder.setDetails(details);
-                            
-                            dao.addOrderLog(order.getOrderId(), oldStatus, newStatus, "System (Viettel Post Auto-Tracker)", 
-                                           "Đơn hàng giao thành công. Hành trình Viettel Post xác nhận đã ký nhận.");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("[AutoTracker] Error: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }, 15, 30, TimeUnit.SECONDS);
+        // Auto-tracker background service disabled per business requirements.
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        if (scheduler != null) {
-            scheduler.shutdown();
-        }
     }
 }

@@ -55,6 +55,15 @@ public class OutboundFulfillController extends HttpServlet {
                 return;
             }
 
+            boolean isStorePickup = "STORE_PICKUP".equalsIgnoreCase(order.getShippingMethod())
+                    || (order.getShippingAddress() != null && order.getShippingAddress().contains("Nhận tại cửa hàng"));
+
+            if (!isStorePickup && (order.getTrackingNumber() == null || order.getTrackingNumber().trim().isEmpty())) {
+                request.getSession().setAttribute("error", "Đơn hàng giao tận nơi phải được Tạo mã vận đơn trước khi tiến hành Xuất kho!");
+                response.sendRedirect(request.getContextPath() + "/staff/order/detail?orderId=" + orderId);
+                return;
+            }
+
             List<OrderDetail> details = dao.getOrderDetails(orderId);
             
             // Lấy danh sách Serial có sẵn cho từng Variant
@@ -104,6 +113,19 @@ public class OutboundFulfillController extends HttpServlet {
             int orderId = Integer.parseInt(idStr);
             // ĐOẠN 2: Truy vấn danh sách dòng đơn hàng từ DAO [dal/OutboundDAO.java: getOrderDetails()]
             OutboundDAO dao = new OutboundDAO();
+            Order order = dao.getOrderById(orderId);
+
+            if (order != null) {
+                boolean isStorePickup = "STORE_PICKUP".equalsIgnoreCase(order.getShippingMethod())
+                        || (order.getShippingAddress() != null && order.getShippingAddress().contains("Nhận tại cửa hàng"));
+
+                if (!isStorePickup && (order.getTrackingNumber() == null || order.getTrackingNumber().trim().isEmpty())) {
+                    request.setAttribute("error", "Đơn hàng giao tận nơi phải có Mã vận đơn mới được phép Xuất kho!");
+                    doGet(request, response);
+                    return;
+                }
+            }
+
             List<OrderDetail> details = dao.getOrderDetails(orderId);
             
             Map<Integer, List<Integer>> orderDetailToItemIds = new HashMap<>();

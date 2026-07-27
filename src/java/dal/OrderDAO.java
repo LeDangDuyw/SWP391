@@ -228,7 +228,7 @@ public class OrderDAO extends DBContext {
     public List<model.OrderDetail> getOrderDetails(int orderId) {
         List<model.OrderDetail> list = new java.util.ArrayList<>();
         try {
-            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, pv.product_id " +
+            String sql = "SELECT od.*, p.product_name, pv.variant_name, pv.sku, p.thumbnail, pv.product_id, p.warranty_period " +
                          "FROM OrderDetail od " +
                          "JOIN ProductVariant pv ON od.variant_id = pv.variant_id " +
                          "JOIN Product p ON pv.product_id = p.product_id " +
@@ -249,6 +249,7 @@ public class OrderDAO extends DBContext {
                 detail.setSku(rs.getString("sku"));
                 detail.setThumbnail(rs.getString("thumbnail"));
                 detail.setProductId(rs.getInt("product_id"));
+                detail.setWarrantyPeriod(rs.getInt("warranty_period"));
                 
                 list.add(detail);
             }

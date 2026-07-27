@@ -65,24 +65,36 @@ public class ShippingTrackingServlet extends HttpServlet {
                 Order order = dao.getOrderById(orderId);
                 
                 if (order != null) {
-                    if ("STORE_PICKUP".equals(order.getShippingMethod())) {
-                        out.print("{\"success\": false, \"message\": \"Đơn hàng nhận tại cửa hàng không cần tạo vận đơn.\"}");
-                        return;
-                    }
-                    Random rnd = new Random();
-                    long number = 100000000L + (long)(rnd.nextDouble() * 900000000L);
-                    String trackingNumber = "VTP" + number;
+                    boolean isStorePickup = "STORE_PICKUP".equalsIgnoreCase(order.getShippingMethod())
+                            || (order.getShippingAddress() != null && order.getShippingAddress().contains("Nhận tại cửa hàng"));
                     
-                    boolean success = dao.updateShippingDetails(orderId, "Viettel Post", trackingNumber);
-                    if (success) {
-                        out.print("{\"success\": true, \"partner\": \"Viettel Post\", \"trackingNumber\": \"" + trackingNumber + "\"}");
+                    if (isStorePickup) {
+                        out.print("{\"success\": false, \"message\": \"Đơn hàng bán tại cửa hàng không tạo mã vận đơn.\"}");
                         return;
                     }
+                    
+                    // If order already has tracking number (auto generated on export), return it
+                    if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
+                        out.print("{\"success\": true, \"partner\": \"" + (order.getShippingPartner() != null ? order.getShippingPartner() : "Viettel Post") + "\", \"trackingNumber\": \"" + order.getTrackingNumber() + "\"}");
+                        return;
+                    }
+                    
+                Random rnd = new Random();
+                long number = 100000000L + (long)(rnd.nextDouble() * 900000000L);
+                String trackingNumber = "VTP" + number;
+                
+                boolean success = dao.updateShippingDetails(orderId, "Viettel Post", trackingNumber);
+                if (success) {
+                    String currentStatus = order.getOrderStatus();
+                    dao.addOrderLog(orderId, currentStatus, currentStatus, "Staff Member", "Khởi tạo mã vận đơn Viettel Post: " + trackingNumber);
+                    out.print("{\"success\": true, \"partner\": \"Viettel Post\", \"trackingNumber\": \"" + trackingNumber + "\"}");
+                    return;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        out.print("{\"success\": false}");
+    }
+    out.print("{\"success\": false, \"message\": \"Không thể khởi tạo mã vận đơn.\"}");
     }
 }
