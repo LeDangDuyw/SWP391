@@ -240,6 +240,18 @@ body {
     margin-bottom: 16px;
 }
 
+.info-message {
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fda4af;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
 /* Remember Password Styles */
 .form-group-remember {
     margin-bottom: 20px;
