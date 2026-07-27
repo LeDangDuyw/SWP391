@@ -525,11 +525,41 @@ public class OutboundDAO extends DBContext {
                 psDec.executeUpdate();
             }
 
-            // 4. Update Order status to 'shipped'
-            String updateOrderSql = "UPDATE [Order] SET order_status = 'shipped', completed_at = GETDATE() WHERE order_id = ?";
-            try (PreparedStatement psOrder = connection.prepareStatement(updateOrderSql)) {
-                psOrder.setInt(1, orderId);
-                psOrder.executeUpdate();
+            // 4. Update Order status & shipping tracking info based on shipping method
+            String checkOrderMethodSql = "SELECT shipping_method, shipping_address, user_id, total_amount FROM [Order] WHERE order_id = ?";
+            boolean isStorePickup = false;
+            int orderUserId = 0;
+            java.math.BigDecimal orderTotal = java.math.BigDecimal.ZERO;
+            try (PreparedStatement psCheck = connection.prepareStatement(checkOrderMethodSql)) {
+                psCheck.setInt(1, orderId);
+                try (ResultSet rsCheck = psCheck.executeQuery()) {
+                    if (rsCheck.next()) {
+                        String method = rsCheck.getString("shipping_method");
+                        String address = rsCheck.getString("shipping_address");
+                        if ("STORE_PICKUP".equalsIgnoreCase(method) || (address != null && address.contains("Nhận tại cửa hàng"))) {
+                            isStorePickup = true;
+                        }
+                        orderUserId = rsCheck.getInt("user_id");
+                        orderTotal = rsCheck.getBigDecimal("total_amount");
+                    }
+                }
+            }
+
+            if (isStorePickup) {
+                // Store Pickup orders: Exporting from warehouse prepares items and keeps status as 'processing' (Xác nhận đơn).
+                // No 'shipped' status and no tracking number. Staff will confirm 'delivered' (Nhận hàng thành công) upon customer collection.
+                String updateOrderSql = "UPDATE [Order] SET order_status = 'processing', shipping_partner = NULL, tracking_number = NULL, completed_at = GETDATE() WHERE order_id = ?";
+                try (PreparedStatement psOrder = connection.prepareStatement(updateOrderSql)) {
+                    psOrder.setInt(1, orderId);
+                    psOrder.executeUpdate();
+                }
+            } else {
+                // Home delivery order: Upon warehouse export (Xác nhận xuất kho), transition status to 'shipped' (Đang giao hàng)
+                String updateOrderSql = "UPDATE [Order] SET order_status = 'shipped', completed_at = GETDATE() WHERE order_id = ?";
+                try (PreparedStatement psOrder = connection.prepareStatement(updateOrderSql)) {
+                    psOrder.setInt(1, orderId);
+                    psOrder.executeUpdate();
+                }
             }
 
             connection.commit();

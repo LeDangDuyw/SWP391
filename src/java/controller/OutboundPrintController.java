@@ -50,16 +50,31 @@ public class OutboundPrintController extends HttpServlet {
             OutboundDAO dao = new OutboundDAO();
             Order order = dao.getOrderById(orderId);
             
-            if (order == null || (!"shipped".equals(order.getOrderStatus()) && !"delivered".equals(order.getOrderStatus()) && !"Completed".equals(order.getOrderStatus()))) {
-                request.setAttribute("error", "Đơn hàng không tồn tại hoặc chưa được xuất kho.");
+            if (order == null) {
+                request.setAttribute("error", "Đơn hàng không tồn tại.");
                 request.getRequestDispatcher("/staff/outbound/list").forward(request, response);
                 return;
             }
 
             List<OrderDetail> details = dao.getOrderDetails(orderId);
+            boolean hasAssignedItems = false;
             for (OrderDetail detail : details) {
                 List<InventoryItem> assignedItems = dao.getAssignedSerialsForOrderDetail(detail.getOrderDetailId());
                 detail.setAssignedItems(assignedItems);
+                if (assignedItems != null && !assignedItems.isEmpty()) {
+                    hasAssignedItems = true;
+                }
+            }
+
+            boolean isOutboundDone = "shipped".equalsIgnoreCase(order.getOrderStatus())
+                                  || "delivered".equalsIgnoreCase(order.getOrderStatus())
+                                  || "Completed".equalsIgnoreCase(order.getOrderStatus())
+                                  || hasAssignedItems;
+
+            if (!isOutboundDone) {
+                request.setAttribute("error", "Đơn hàng không tồn tại hoặc chưa được xuất kho.");
+                request.getRequestDispatcher("/staff/outbound/list").forward(request, response);
+                return;
             }
 
             request.setAttribute("order", order);

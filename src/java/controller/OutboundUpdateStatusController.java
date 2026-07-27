@@ -55,6 +55,23 @@ public class OutboundUpdateStatusController extends HttpServlet {
                 Order order = dao.getOrderById(orderId);
                 
                 if (order != null) {
+                    boolean isStorePickup = "STORE_PICKUP".equalsIgnoreCase(order.getShippingMethod())
+                            || (order.getShippingAddress() != null && order.getShippingAddress().contains("Nhận tại cửa hàng"));
+
+                    if (("delivered".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) && !isStorePickup) {
+                        if (order.getTrackingNumber() == null || order.getTrackingNumber().trim().isEmpty()) {
+                            session.setAttribute("error", "Đơn hàng giao tận nơi phải được tạo mã vận đơn (Xuất kho) trước khi xác nhận giao hàng thành công.");
+                            if ("detail".equals(redirect)) {
+                                response.sendRedirect(request.getContextPath() + "/staff/order/detail?orderId=" + orderIdStr);
+                            } else if ("order-list".equals(redirect)) {
+                                response.sendRedirect(request.getContextPath() + "/staff/order/list");
+                            } else {
+                                response.sendRedirect(request.getContextPath() + "/staff/outbound/list");
+                            }
+                            return;
+                        }
+                    }
+
                     String oldStatus = order.getOrderStatus();
                     boolean ok = dao.updateOrderStatus(orderId, status);
                     if (ok) {

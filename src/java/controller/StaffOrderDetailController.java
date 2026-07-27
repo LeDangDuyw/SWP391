@@ -8,6 +8,7 @@
 package controller;
 
 import dal.OutboundDAO;
+import model.InventoryItem;
 import model.Order;
 import model.OrderDetail;
 import jakarta.servlet.ServletException;
@@ -39,11 +40,22 @@ public class StaffOrderDetailController extends HttpServlet {
             }
 
             List<OrderDetail> details = dao.getOrderDetails(orderId);
+            boolean hasAssignedItems = false;
+            if (details != null) {
+                for (OrderDetail detail : details) {
+                    List<InventoryItem> assignedItems = dao.getAssignedSerialsForOrderDetail(detail.getOrderDetailId());
+                    detail.setAssignedItems(assignedItems);
+                    if (assignedItems != null && !assignedItems.isEmpty()) {
+                        hasAssignedItems = true;
+                    }
+                }
+            }
             order.setDetails(details);
 
             List<model.OrderLog> logs = dao.getOrderLogs(orderId);
             request.setAttribute("order", order);
             request.setAttribute("logs", logs);
+            request.setAttribute("hasAssignedItems", hasAssignedItems);
             request.getRequestDispatcher("/staff/order/OrderDetail.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/staff/order/list");

@@ -65,22 +65,23 @@ public class ProductListFilterDAO extends DBContext {
         };
     }
 
-    // Hàm sắp xếp sản phẩm 
+    // Hàm sắp xếp sản phẩm (Đưa hàng hết lên cuối trang)
     private String getSortClause(String sort) {
+        String stockOrder = "CASE WHEN (SELECT ISNULL(SUM(inv.available_quantity), 0) FROM ProductVariant pv JOIN Inventory inv ON pv.variant_id = inv.variant_id WHERE pv.product_id = vw_ProductSpec.product_id) > 0 THEN 0 ELSE 1 END ASC";
         if (sort == null) {
-            return " ORDER BY product_id DESC";
+            return " ORDER BY " + stockOrder + ", product_id DESC";
         }
         return switch (sort) {
             case "price_asc" ->
-                " ORDER BY min_price ASC";
+                " ORDER BY " + stockOrder + ", min_price ASC";
             case "price_desc" ->
-                " ORDER BY min_price DESC";
+                " ORDER BY " + stockOrder + ", min_price DESC";
             case "popular" ->
-                " ORDER BY sold_quantity DESC";
+                " ORDER BY " + stockOrder + ", sold_quantity DESC";
             case "new" ->
-                " ORDER BY product_id DESC";
+                " ORDER BY " + stockOrder + ", product_id DESC";
             default ->
-                " ORDER BY product_id DESC";
+                " ORDER BY " + stockOrder + ", product_id DESC";
         };
     }
 

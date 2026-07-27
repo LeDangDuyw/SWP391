@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -150,24 +151,35 @@
                                         <fmt:formatNumber value="${order.totalAmount}" pattern="#,###"/> đ
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-body-sm">
-                                        <c:choose>
-                                            <c:when test="${order.orderStatus == 'Pending' || order.orderStatus == 'pending'}">
-                                                <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-md font-semibold text-[12px]">Chờ xác nhận</span>
-                                            </c:when>
-                                            <c:when test="${order.orderStatus == 'processing' || order.orderStatus == 'processing'}">
-                                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-md font-semibold text-[12px]">Đang xử lý</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-md font-semibold text-[12px]">${order.orderStatus}</span>
-                                            </c:otherwise>
-                                        </c:choose>
+                                         <c:set var="isPickupOrder" value="${order.shippingMethod == 'STORE_PICKUP' || (not empty order.shippingAddress && fn:contains(order.shippingAddress, 'Nhận tại cửa hàng'))}" />
+                                         <c:choose>
+                                             <c:when test="${order.orderStatus == 'Pending' || order.orderStatus == 'pending'}">
+                                                 <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-md font-semibold text-[12px]">${isPickupOrder ? 'Xác nhận đơn' : 'Chờ xác nhận'}</span>
+                                             </c:when>
+                                             <c:when test="${order.orderStatus == 'processing'}">
+                                                 <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-md font-semibold text-[12px]">${isPickupOrder ? 'Xác nhận đơn' : 'Đang xử lý'}</span>
+                                             </c:when>
+                                             <c:otherwise>
+                                                 <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-md font-semibold text-[12px]">${order.orderStatus}</span>
+                                             </c:otherwise>
+                                         </c:choose>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-right">
-                                        <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
-                                           class="bg-[#003ec7] hover:bg-[#002baf] text-white px-3 py-1.5 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200">
-                                            <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng
-                                        </a>
-                                    </td>
+                                     <td class="whitespace-nowrap px-6 py-4 text-right">
+                                         <c:choose>
+                                             <c:when test="${!isPickupOrder && empty order.trackingNumber}">
+                                                 <button type="button" onclick="createViettelPostWaybill(${order.orderId})"
+                                                         class="bg-[#6d28d9] hover:bg-[#5b21b6] text-white px-3 py-1.5 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200">
+                                                     <span class="material-symbols-outlined text-[18px]">local_shipping</span> Tạo mã vận đơn
+                                                 </button>
+                                             </c:when>
+                                             <c:otherwise>
+                                                 <a href="${pageContext.request.contextPath}/staff/outbound/fulfill?orderId=${order.orderId}"
+                                                    class="bg-[#003ec7] hover:bg-[#002baf] text-white px-3 py-1.5 rounded-lg font-semibold text-[13px] inline-flex items-center gap-1.5 transition-colors duration-200">
+                                                     <span class="material-symbols-outlined text-[18px]">inventory_2</span> Chuẩn bị hàng
+                                                 </a>
+                                             </c:otherwise>
+                                         </c:choose>
+                                     </td>
                                 </tr>
                             </c:forEach>
 
@@ -296,6 +308,27 @@
         } else {
             alert('Vui lòng nhập trang từ 1 đến ' + maxPage);
         }
+    }
+
+    function createViettelPostWaybill(orderId) {
+        if (!confirm("Bạn muốn tạo yêu cầu bưu gửi/vận đơn trên hệ thống Viettel Post cho đơn hàng này?")) return;
+        
+        fetch("${pageContext.request.contextPath}/api/shipping-tracking?orderId=" + orderId, {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success) {
+                alert("Tạo vận đơn Viettel Post thành công! Mã vận đơn: " + data.trackingNumber);
+                location.reload();
+            } else {
+                alert(data.message || "Lỗi khi tạo vận đơn Viettel Post!");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Lỗi kết nối bưu cục!");
+        });
     }
 </script>
 </body>
