@@ -175,6 +175,9 @@
 
                                     <div class="border-t border-outline-variant/20 pt-4 space-y-3">
                                         <p class="text-body-sm font-medium text-on-surface-variant">Chọn mã IMEI/Serial cụ thể:</p>
+                                        <%-- ĐOẠN: Đọc danh sách các máy status = 'in_stock' từ Map truyền sang từ OutboundFulfillController --%>
+                                        <%-- Công dụng: Liệt kê các mã Serial trong kho để thủ kho tích chọn gán vào đơn hàng --%>
+                                        <%-- Tham chiếu Controller xử lý POST: [src/java/controller/OutboundFulfillController.java] --%>
                                         <c:set var="availItems" value="${not empty availableImeisMap[detail.variantId] ? availableImeisMap[detail.variantId] : availableSerialsMap[detail.variantId]}" />
                                         <c:choose>
                                             <c:when test="${empty availItems || fn:length(availItems) < detail.quantity}">
@@ -184,6 +187,7 @@
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
+                                                <%-- Loop sinh các ô select động detail_{orderDetailId} tương ứng với số lượng detail.quantity --%>
                                                 <c:forEach var="i" begin="1" end="${detail.quantity}">
                                                     <div class="flex items-center gap-3">
                                                         <span class="text-body-sm font-semibold text-on-surface-variant w-8">#${i}</span>

@@ -1,6 +1,6 @@
 <%-- 
     Document   : login
-    Created on : 30 May 2026, 15:02:32
+    Created on : 30 May 2026
     Author     : LUCTVHE201874
 --%>
 
@@ -41,6 +41,7 @@
                 <div class="success-message">Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.</div>
                 <% } %>
                 <div class="error-message">${error}</div>
+
                 <form action="login" method="post">
                     <div class="form-group">
                         <label>Email</label>
@@ -105,7 +106,7 @@
         </footer>
 
 
-
+<!--/// k hiểu code này để làm gì-->
         <script>
             document.getElementById('togglePassword').addEventListener('click', function() {
                 var pwField = document.getElementById('loginPassword');

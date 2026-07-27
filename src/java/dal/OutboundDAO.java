@@ -481,14 +481,20 @@ public class OutboundDAO extends DBContext {
             throws Exception {
         boolean success = false;
         try {
+            // ĐOẠN 1: Mở Database Transaction Xuất Kho Atomic 4 Bước
+            // Nhiệm vụ: Đảm bảo cả 4 thao tác (đổi status máy, gán vết đơn, trừ kho khả dụng, đổi order status) phải diễn ra đồng thời
             connection.setAutoCommit(false);
 
+            // ĐOẠN 2: SQL 1 - Đổi status máy thành 'sold', ghi nhận sold_date và TỰ ĐỘNG TÍNH HẠN BẢO HÀNH điện tử
+            // Nhiệm vụ: Dùng DATEADD(month, warranty_period, GETDATE()) để kích hoạt bảo hành. Bẫy WHERE status = 'in_stock' chống Race Condition
             String updateInventorySql = "UPDATE InventoryItem SET status = 'sold', sold_date = GETDATE(), " +
                     "warranty_expired_date = DATEADD(month, (SELECT p.warranty_period FROM Product p " +
                     "JOIN ProductVariant pv ON p.product_id = pv.product_id " +
                     "WHERE pv.variant_id = InventoryItem.variant_id), GETDATE()) " +
                     "WHERE item_id = ? AND status = 'in_stock'";
 
+            // ĐOẠN 3: SQL 2 - Chèn bản ghi lưu vết OrderItemSerial
+            // Nhiệm vụ: Ghi nhớ chiếc máy mang mã Serial/IMEI cụ thể nào đã bán cho dòng đơn hàng nào để phục vụ tra cứu bảo hành/đổi trả
             String insertSerialSql = "INSERT INTO OrderItemSerial (order_detail_id, item_id, assigned_at) VALUES (?, ?, GETDATE())";
 
             try (PreparedStatement psInv = connection.prepareStatement(updateInventorySql);
@@ -499,7 +505,8 @@ public class OutboundDAO extends DBContext {
                     List<Integer> itemIds = entry.getValue();
 
                     for (Integer itemId : itemIds) {
-                        // 1. Update InventoryItem (Race condition check)
+                        // 1. Thực thi UPDATE máy và Bẫy khóa Chống Race Condition
+                        // Nếu 2 thủ kho cùng chọn 1 máy tại 1 thời điểm -> Người sau bấm sẽ có affected == 0 -> Bật lỗi Rollback lập tức!
                         psInv.setInt(1, itemId);
                         int affected = psInv.executeUpdate();
                         if (affected == 0) {
@@ -507,7 +514,7 @@ public class OutboundDAO extends DBContext {
                                     + " không tồn tại hoặc đã bị xuất kho bởi người khác!");
                         }
 
-                        // 2. Insert OrderItemSerial
+                        // 2. Chèn vết giao chiếc máy cho dòng đơn hàng
                         psSerial.setInt(1, orderDetailId);
                         psSerial.setInt(2, itemId);
                         psSerial.executeUpdate();
@@ -515,7 +522,8 @@ public class OutboundDAO extends DBContext {
                 }
             }
 
-            // 3. Update Inventory (decrement available_quantity)
+            // ĐOẠN 4: SQL 3 - TRỪ số lượng tồn kho khả dụng (available_quantity) trong bảng Inventory
+            // Nhiệm vụ: Giảm chỉ số tồn kho có sẵn trên Website bán hàng tương ứng với số máy vừa đóng gói xuất kho
             String decrementInventorySql = "UPDATE [Inventory] SET available_quantity = available_quantity - od.quantity "
                     +
                     "FROM [Inventory] JOIN OrderDetail od ON [Inventory].variant_id = od.variant_id " +
@@ -562,6 +570,7 @@ public class OutboundDAO extends DBContext {
                 }
             }
 
+            // ĐOẠN 6: Commit Transaction thành công hoàn tất toàn bộ luồng xuất kho
             connection.commit();
             success = true;
         } catch (Exception e) {
@@ -570,7 +579,7 @@ public class OutboundDAO extends DBContext {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            throw e; // Rethrow to show message in UI
+            throw e; // Ném ngoại lệ để Controller [OutboundFulfillController.java] bắt và hiển thị thông báo lên UI
         } finally {
             try {
                 connection.setAutoCommit(true);

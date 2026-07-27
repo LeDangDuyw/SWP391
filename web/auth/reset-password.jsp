@@ -5,6 +5,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Đặt Lại Mật Khẩu - UNILAP</title>
         <link rel="stylesheet" href="css/auth.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
         <style>
             .back-to-login {
                 display: block;
@@ -84,13 +85,20 @@
 
                 <%-- Only show form if there is a valid token attribute --%>
                 <% if (request.getAttribute("token") != null) { %>
-                    <form action="reset-password" method="post" onsubmit="return validateForm()">
+                    <form action="reset-password" method="post" onsubmit="return validateForm()" autocomplete="off">
                         <input type="hidden" name="token" value="${token}">
                         
                         <div class="form-group">
                             <label>Mật Khẩu Mới</label>
-                            <input type="password" id="password" name="password" 
-                                   placeholder="••••••••" minlength="8" required>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" 
+                                       placeholder="••••••••" minlength="8" required 
+                                       autocomplete="new-password" style="padding-right: 42px;">
+                                <span id="togglePassword"
+                                      style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#9ca3af; font-size:16px; user-select:none;">
+                                    <i class="fas fa-eye-slash"></i>
+                                </span>
+                            </div>
                             <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
                                 Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
                             </small>
@@ -98,14 +106,59 @@
 
                         <div class="form-group">
                             <label>Xác Nhận Mật Khẩu</label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" 
-                                   placeholder="••••••••" minlength="8" required>
+                            <div style="position: relative;">
+                                <input type="password" id="confirmPassword" name="confirmPassword" 
+                                       placeholder="••••••••" minlength="8" required 
+                                       autocomplete="new-password" style="padding-right: 42px;">
+                                <span id="toggleConfirm"
+                                      style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#9ca3af; font-size:16px; user-select:none;">
+                                    <i class="fas fa-eye-slash"></i>
+                                </span>
+                            </div>
                         </div>
                         
                         <button type="submit" class="btn-submit">
                             Lưu Mật Khẩu Mới →
                         </button>
                     </form>
+
+                    <script>
+                        // ── Icon mắt: Mật Khẩu Mới ──
+                        var togglePw = document.getElementById('togglePassword');
+                        if (togglePw) {
+                            togglePw.addEventListener('click', function () {
+                                var pw   = document.getElementById('password');
+                                var icon = this.querySelector('i');
+                                if (pw.type === 'password') {
+                                    pw.type = 'text';
+                                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                                    this.style.color = '#2563eb';
+                                } else {
+                                    pw.type = 'password';
+                                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                                    this.style.color = '#9ca3af';
+                                }
+                            });
+                        }
+
+                        // ── Icon mắt: Xác Nhận Mật Khẩu ──
+                        var toggleCfm = document.getElementById('toggleConfirm');
+                        if (toggleCfm) {
+                            toggleCfm.addEventListener('click', function () {
+                                var pw   = document.getElementById('confirmPassword');
+                                var icon = this.querySelector('i');
+                                if (pw.type === 'password') {
+                                    pw.type = 'text';
+                                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                                    this.style.color = '#2563eb';
+                                } else {
+                                    pw.type = 'password';
+                                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                                    this.style.color = '#9ca3af';
+                                }
+                            });
+                        }
+                    </script>
                 <% } %>
 
                 <a href="login" class="back-to-login">← Quay Lại Đăng Nhập</a>

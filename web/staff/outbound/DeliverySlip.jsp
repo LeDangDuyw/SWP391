@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu Giao Hàng - ${order.orderCode}</title>
+    <title>Hóa Đơn - ${order.orderCode}</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -77,12 +77,12 @@
     </button>
 </div>
 
-<!-- Nội dung phiếu giao hàng -->
+<!-- Nội dung hóa đơn -->
 <div class="page">
     <div class="header">
         <div>
-            <h1>Phiếu Giao Hàng</h1>
-            <div class="subtitle">Delivery Slip</div>
+            <h1>Hóa Đơn</h1>
+            <div class="subtitle">Invoice</div>
         </div>
         <div>
             <div class="order-code">${order.orderCode}</div>
@@ -96,13 +96,32 @@
     </div>
 
     <div class="info-grid">
-        <div>
-            <h3>Đơn vị gửi hàng</h3>
-            <div class="name">UNILAP STORE</div>
-            <p>Khu Công Nghệ Cao Hòa Lạc</p>
-            <p>Thạch Thất, Hà Nội</p>
-            <p>Hotline: 1900 1234</p>
-        </div>
+        <%-- Nơi gửi hàng:
+             - STORE_PICKUP: Khách nhận tại cửa hàng -> hiển thị địa chỉ Showroom đó (trùng nơi nhận)
+             - HOME_DELIVERY: Giao tận nơi -> hiển thị Showroom UNILAP Mỹ Đình (điểm xuất hàng chính)
+             Logic nhận biết dựa vào order.shippingMethod (xem Order.java - getShippingMethod())
+        --%>
+        <c:choose>
+            <c:when test="${order.shippingMethod == 'STORE_PICKUP'}">
+                <%-- Đơn nhận tại Showroom: nơi gửi = nơi nhận (cùng địa chỉ Showroom) --%>
+                <div>
+                    <h3>Showroom xuất hàng</h3>
+                    <div class="name">${order.shippingReceiver}</div>
+                    <p style="line-height:1.6;">${order.shippingAddress}</p>
+                    <p>Hotline: 1900 1234</p>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <%-- Đơn giao tận nơi: nơi gửi là Showroom UNILAP Mỹ Đình --%>
+                <div>
+                    <h3>Đơn vị gửi hàng</h3>
+                    <div class="name">UNILAP STORE - Showroom Mỹ Đình</div>
+                    <p>Số 9 Phạm Hùng, Mỹ Đình</p>
+                    <p>Nam Từ Liêm, Hà Nội</p>
+                    <p>Hotline: 1900 1234</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
         <div>
             <h3>Thông tin người nhận</h3>
             <div class="name">${order.shippingReceiver}</div>

@@ -41,6 +41,13 @@
             color: #1e293b;
         }
 
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
         .wishlist-container {
             max-width: 1240px;
             margin: 30px auto 60px;
@@ -363,6 +370,7 @@
                         </c:forEach>
                     </div>
                 </div>
+                <a href="${pageContext.request.contextPath}/news">Tin tức & Khuyến mãi</a>
             </nav>
             <div class="header-icons" style="display:flex; align-items:center; gap:15px;">                   
                 <form action="${pageContext.request.contextPath}/ProductListServlet" method="GET" class="search-form" style="display:flex; align-items:center; background:#f1f3f9; padding:6px 12px; border-radius:20px;">
@@ -382,6 +390,8 @@
                         <span class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">${fn:length(sessionScope.cart)}</span>
                     </c:if>
                 </a>
+                
+                <a href="#"><i class="fas fa-bell"></i></a>
                 
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">

@@ -102,6 +102,7 @@ public class OutboundFulfillController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // ĐOẠN 1: Đọc orderId từ Form Xuất kho [/staff/outbound/fulfill]
         String idStr = request.getParameter("orderId");
         if (idStr == null || idStr.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/staff/outbound/list");
@@ -110,6 +111,7 @@ public class OutboundFulfillController extends HttpServlet {
 
         try {
             int orderId = Integer.parseInt(idStr);
+            // ĐOẠN 2: Truy vấn danh sách dòng đơn hàng từ DAO [dal/OutboundDAO.java: getOrderDetails()]
             OutboundDAO dao = new OutboundDAO();
             Order order = dao.getOrderById(orderId);
 
@@ -128,10 +130,13 @@ public class OutboundFulfillController extends HttpServlet {
             
             Map<Integer, List<Integer>> orderDetailToItemIds = new HashMap<>();
             
+            // ĐOẠN 3: Bóc tách danh sách Checkbox itemId thủ kho tích chọn cho từng dòng đơn
+            // Nhiệm vụ: Đọc parameter dạng detail_{orderDetailId} gửi từ giao diện [web/staff/outbound/OrderFulfillment.jsp]
             for (OrderDetail detail : details) {
                 String[] selectedItemIds = request.getParameterValues("detail_" + detail.getOrderDetailId());
+                
+                // Bắt lỗi nếu số lượng máy tích chọn không bằng đúng số lượng khách mua (detail.getQuantity())
                 if (selectedItemIds == null || selectedItemIds.length != detail.getQuantity()) {
-                    // Trở lại trang và báo lỗi
                     request.setAttribute("error", "Bạn chưa chọn đủ số lượng Serial cho sản phẩm: " + detail.getVariantName());
                     doGet(request, response);
                     return;
@@ -144,11 +149,12 @@ public class OutboundFulfillController extends HttpServlet {
                 orderDetailToItemIds.put(detail.getOrderDetailId(), itemIds);
             }
             
-            // Execute Transaction
+            // ĐOẠN 4: Thực thi Database Transaction Xuất Kho Atomic 4 Bước
+            // Tham chiếu: Gọi executeOutboundTransaction() tại [dal/OutboundDAO.java] để đổi status máy thành 'sold', kích hoạt bảo hành, trừ kho khả dụng và đổi order status thành 'shipped'
             try {
                 boolean success = dao.executeOutboundTransaction(orderId, orderDetailToItemIds);
                 if (success) {
-                    // Redirect sang trang in phiếu
+                    // Chuyển hướng sang Servlet in phiếu xuất kho [/staff/outbound/print] rendering [web/staff/outbound/DeliverySlip.jsp]
                     response.sendRedirect(request.getContextPath() + "/staff/outbound/print?orderId=" + orderId);
                 } else {
                     request.setAttribute("error", "Lỗi trong quá trình xuất kho.");

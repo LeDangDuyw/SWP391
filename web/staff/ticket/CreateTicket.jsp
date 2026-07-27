@@ -160,7 +160,9 @@
                 </div>
             </c:if>
 
-            <!-- Create Form Card -->
+            <%-- ĐOẠN 1: Form tạo phiếu nhập kho GỬI VỀ CreateTicketController.java (doPost) --%>
+            <%-- Công dụng: Thu thập tiêu đề và mảng danh sách các biến thể sản phẩm cần nhập kho --%>
+            <%-- Tham chiếu Controller xử lý: [src/java/controller/CreateTicketController.java] qua HTTP POST --%>
             <div class="bg-surface border border-outline-variant/30 rounded-xl shadow-sm max-w-5xl">
                 <div class="px-6 py-4 border-b border-outline-variant/20">
                     <h3 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
@@ -171,7 +173,7 @@
 
                 <form action="${pageContext.request.contextPath}/staff/ticket/create" method="post" id="ticketForm" class="p-6 flex flex-col gap-6">
                     
-                    <!-- Title -->
+                    <%-- Title input: Nhập tiêu đề cho đợt nhập kho --%>
                     <div>
                         <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Tiêu đề phiếu nhập</label>
                         <input type="text" name="title" required placeholder="VD: Nhập lô chuột Logitech tháng 7" value="${title}"

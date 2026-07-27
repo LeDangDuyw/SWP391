@@ -28,13 +28,18 @@ public class TicketDAO extends DBContext {
      * @return ID phiếu nhập kho vừa tạo nếu thành công, ngược lại trả về -1
      */
     public int createTicket(Ticket ticket, List<TicketDetail> details) {
+        // Câu lệnh SQL chèn phiếu Ticket chính (trạng thái WAITING_FOR_ADMIN_REVIEW)
         String insertTicketSQL = "INSERT INTO Ticket (title, status, reason, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, GETDATE(), GETDATE())";
+        // Câu lệnh SQL chèn các dòng chi tiết sản phẩm thuộc phiếu nhập kho
         String insertDetailSQL = "INSERT INTO TicketDetails (ticket_id, variant_id, quantity, expected_price) VALUES (?, ?, ?, ?)";
         int generatedTicketId = -1;
 
         try {
-            connection.setAutoCommit(false); // Start transaction
+            // ĐOẠN 1: Mở Database Transaction quản lý thủ công
+            // Nhiệm vụ: Đảm bảo Atomicity - Nếu chèn bảng Ticket thành công nhưng chèn TicketDetails lỗi thì Rollback toàn bộ
+            connection.setAutoCommit(false);
 
+            // ĐOẠN 2: Thực thi chèn bảng Ticket & Lấy khoá chính ticket_id tự tăng vừa sinh ra
             try (PreparedStatement ps = connection.prepareStatement(insertTicketSQL, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, ticket.getTitle());
                 ps.setString(2, ticket.getStatus());
@@ -42,6 +47,7 @@ public class TicketDAO extends DBContext {
                 ps.setInt(4, ticket.getCreatedBy());
                 ps.executeUpdate();
 
+                // Lấy ID ticket_id IDENTITY để gán làm khóa ngoại Foreign Key cho TicketDetails
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         generatedTicketId = rs.getInt(1);
@@ -49,6 +55,8 @@ public class TicketDAO extends DBContext {
                 }
             }
 
+            // ĐOẠN 3: Thực thi chèn mảng TicketDetails theo cơ chế JDBC Batching
+            // Nhiệm vụ: Gom tất cả các câu lệnh chèn chi tiết sản phẩm vào 1 Batch để tối ưu tốc độ kết nối CSDL
             if (generatedTicketId != -1 && details != null) {
                 try (PreparedStatement psDetail = connection.prepareStatement(insertDetailSQL)) {
                     for (TicketDetail detail : details) {
@@ -62,10 +70,12 @@ public class TicketDAO extends DBContext {
                 }
             }
 
-            connection.commit(); // Commit transaction
+            // ĐOẠN 4: Commit Transaction thành công ghi nhận cả Ticket và TicketDetails vào CSDL
+            connection.commit();
         } catch (SQLException e) {
             try {
-                connection.rollback(); // Rollback on error
+                // Thu hồi toàn bộ nếu phát sinh ngoại lệ SQL
+                connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -175,10 +185,11 @@ public class TicketDAO extends DBContext {
      */
     public List<TicketDetail> getTicketDetails(int ticketId) {
         List<TicketDetail> list = new ArrayList<>();
-        String sql = "SELECT td.*, pv.variant_name, pv.sku, " +
+        String sql = "SELECT td.*, pv.variant_name, pv.sku, p.product_name, " +
                      "  (SELECT COUNT(*) FROM InventoryItem ii WHERE ii.ticket_id = td.ticket_id AND ii.variant_id = td.variant_id) as imported_quantity " +
                      "FROM TicketDetails td " +
                      "LEFT JOIN ProductVariant pv ON td.variant_id = pv.variant_id " +
+                     "LEFT JOIN Product p ON pv.product_id = p.product_id " +
                      "WHERE td.ticket_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, ticketId);
@@ -191,6 +202,7 @@ public class TicketDAO extends DBContext {
                     td.setQuantity(rs.getInt("quantity"));
                     td.setExpectedPrice(rs.getBigDecimal("expected_price"));
                     td.setVariantName(rs.getString("variant_name"));
+                    td.setProductName(rs.getString("product_name"));
                     td.setSku(rs.getString("sku"));
                     td.setImportedQuantity(rs.getInt("imported_quantity"));
                     list.add(td);

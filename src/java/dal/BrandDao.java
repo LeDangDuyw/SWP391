@@ -140,4 +140,67 @@ public class BrandDao extends DBContext {
         }
         return -1;
     }
+
+    /**
+     * Cập nhật tên thương hiệu theo ID.
+     * 
+     * @param brandId Mã ID thương hiệu
+     * @param newBrandName Tên thương hiệu mới
+     * @return true nếu thành công, ngược lại false
+     */
+    public boolean updateBrand(int brandId, String newBrandName) {
+        if (newBrandName == null || newBrandName.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            String sql = "UPDATE Brand SET brand_name = ? WHERE brand_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, newBrandName.trim());
+            ps.setInt(2, brandId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("updateBrand Error: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Đếm số lượng sản phẩm thuộc thương hiệu chỉ định.
+     * 
+     * @param brandId Mã ID thương hiệu
+     * @return Số lượng sản phẩm liên kết
+     */
+    public int getProductCountByBrand(int brandId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM Product WHERE brand_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, brandId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("getProductCountByBrand Error: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * Xóa một thương hiệu khỏi CSDL theo ID.
+     * 
+     * @param brandId Mã ID thương hiệu cần xóa
+     * @return true nếu xóa thành công, ngược lại false
+     */
+    public boolean deleteBrand(int brandId) {
+        try {
+            String sql = "DELETE FROM Brand WHERE brand_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, brandId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("deleteBrand Error: " + e.getMessage());
+        }
+        return false;
+    }
 }
+

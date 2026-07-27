@@ -3,6 +3,18 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <fmt:setLocale value="vi_VN"/>
+<%
+    if (session.getAttribute("user") != null) {
+        try {
+            model.Users currentUser = (model.Users) session.getAttribute("user");
+            dal.WishlistDAO wishlistDAO = new dal.WishlistDAO();
+            int wishlistCountVal = wishlistDAO.getWishlistCount(currentUser.getUserId());
+            request.setAttribute("wishlistCount", wishlistCountVal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+%>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -78,9 +90,20 @@
                         <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." style="border:none; background:transparent; outline:none; font-size:14px; width:180px; font-family:'Inter', sans-serif;">
                         <button type="submit" style="border:none; background:transparent; cursor:pointer; color:#555;"><i class="fas fa-search"></i></button>
                     </form>
-                    <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
+                    <c:choose>
+                        <c:when test="${empty sessionScope.user}">
+                        <a href="javascript:void(0)" onclick="alert('Bạn cần đăng nhập để thêm sản phẩm yêu thích!'); window.location.href='${pageContext.request.contextPath}/login';" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
                         <i class="fas fa-heart" style="font-size: 18px;"></i>
-                    </a>
+                        <span id="wishlist-badge" class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #e11d48; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: ${wishlistCount > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; line-height: 1;">${wishlistCount}</span>
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${pageContext.request.contextPath}/wishlist" class="wishlist-icon-btn" style="position: relative; color: #e11d48;" title="Sản phẩm yêu thích">
+                                <i class="fas fa-heart" style="font-size: 18px;"></i>
+                                <span id="wishlist-badge" class="cart-badge" style="position: absolute; top: -8px; right: -8px; background: #e11d48; color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: ${wishlistCount > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; line-height: 1;">${wishlistCount}</span>
+                            </a>
+                        </c:otherwise>
+                    </c:choose>
                     <a href="${pageContext.request.contextPath}/CartServlet" class="cart-icon-btn" style="position: relative;">
                         <i class="fas fa-shopping-cart"></i>
                         <c:if test="${not empty sessionScope.cart && fn:length(sessionScope.cart) > 0}">
@@ -433,6 +456,7 @@
                 .then(r => r.json())
                 .then(d => {
                     if (d.status === 'unauthorized') {
+                        alert('Bạn cần đăng nhập để thêm sản phẩm yêu thích!');
                         window.location.href = '${pageContext.request.contextPath}/login';
                     } else if (d.status === 'success') {
                         var btns = document.querySelectorAll('.wishlist-card-heart-btn[data-product-id="' + productId + '"]');
@@ -446,6 +470,12 @@
                                 if (icon) icon.className = 'far fa-heart';
                             }
                         });
+                        // Update badge count
+                        var badge = document.getElementById('wishlist-badge');
+                        if (badge) {
+                            badge.innerText = d.count;
+                            badge.style.display = d.count > 0 ? 'flex' : 'none';
+                        }
                     } else {
                         alert(d.message || "Có lỗi xảy ra");
                     }

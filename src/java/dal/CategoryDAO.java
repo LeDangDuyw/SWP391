@@ -86,8 +86,10 @@ Connection cnn;
      * Date: [04/06/2026]
      * Version: 2.0
      * Description: Thêm mới một danh mục (Category) vào cơ sở dữ liệu.
+     * Tham chiếu gọi bởi: [controller/CategoryManagementController.java: doPost() action 'add']
      */
     public void insertCategory(String categoryName) throws Exception {
+        // Công dụng & Nhiệm vụ: Chèn bản ghi danh mục mới vào bảng Category với tên đã được validate không trùng
         String sql = "INSERT INTO Category (category_name) VALUES (?)";
         ps = cnn.prepareStatement(sql);
         ps.setString(1, categoryName);
@@ -100,8 +102,10 @@ Connection cnn;
      * Date: [04/06/2026]
      * Version: 2.0
      * Description: Cập nhật tên của một danh mục (Category) dựa trên ID.
+     * Tham chiếu gọi bởi: [controller/CategoryManagementController.java: doPost() action 'update']
      */
     public void updateCategory(int categoryId, String categoryName) throws Exception {
+        // Công dụng & Nhiệm vụ: Cập nhật tên danh mục theo category_id
         String sql = "UPDATE Category SET category_name = ? WHERE category_id = ?";
         ps = cnn.prepareStatement(sql);
         ps.setString(1, categoryName);
@@ -117,6 +121,7 @@ Connection cnn;
      * Description: Xóa cứng một danh mục (Category) khỏi cơ sở dữ liệu dựa trên ID.
      */
     public void deleteCategory(int categoryId) throws Exception {
+        // Công dụng & Nhiệm vụ: Xóa bản ghi trong bảng Category theo category_id
         String sql = "DELETE FROM Category WHERE category_id = ?";
         ps = cnn.prepareStatement(sql);
         ps.setInt(1, categoryId);
@@ -124,6 +129,7 @@ Connection cnn;
     }
 
     public int countProductsByCategory(int categoryId) {
+        // Công dụng & Nhiệm vụ: Đếm số lượng sản phẩm thuộc danh mục để ngăn chặn việc xóa danh mục đang có sản phẩm
         int count = 0;
         try {
             String sql = "SELECT COUNT(*) FROM Product WHERE category_id = ?";
@@ -140,6 +146,7 @@ Connection cnn;
     }
 
     public boolean isCategoryExist(String categoryName, int excludeId) {
+        // Công dụng & Nhiệm vụ: Kiểm tra trùng lặp tên danh mục (không phân biệt hoa thường LOWER) ngoại trừ id excludeId
         try {
             String sql = "SELECT COUNT(*) FROM Category WHERE LOWER(category_name) = LOWER(?) AND category_id != ?";
             ps = cnn.prepareStatement(sql);
