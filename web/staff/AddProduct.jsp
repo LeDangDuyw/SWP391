@@ -149,9 +149,19 @@
                                             <div class="flex-1">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <label class="block text-sm font-medium text-on-surface-variant">Thương hiệu</label>
-                                                    <button type="button" onclick="openAddBrandModal()" class="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
-                                                        <span class="material-symbols-outlined text-[14px]">add</span>Thêm thương hiệu
-                                                    </button>
+                                                    <div class="flex items-center gap-2">
+                                                        <button type="button" onclick="openAddBrandModal()" class="text-xs text-primary hover:underline flex items-center gap-0.5 font-semibold" title="Thêm thương hiệu mới">
+                                                            <span class="material-symbols-outlined text-[14px]">add</span>Thêm
+                                                        </button>
+                                                        <span class="text-gray-300">|</span>
+                                                        <button type="button" onclick="openEditBrandModal()" class="text-xs text-amber-600 hover:underline flex items-center gap-0.5 font-semibold" title="Sửa tên thương hiệu đang chọn">
+                                                            <span class="material-symbols-outlined text-[14px]">edit</span>Sửa
+                                                        </button>
+                                                        <span class="text-gray-300">|</span>
+                                                        <button type="button" onclick="openDeleteBrandModal()" class="text-xs text-red-600 hover:underline flex items-center gap-0.5 font-semibold" title="Xóa thương hiệu đang chọn">
+                                                            <span class="material-symbols-outlined text-[14px]">delete</span>Xóa
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div class="relative">
                                                     <select name="brandId"
@@ -203,9 +213,19 @@
                                             <div class="flex-1" id="series-container">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <label class="block text-sm font-medium text-on-surface-variant">Dòng sản phẩm</label>
-                                                    <button type="button" onclick="openAddSeriesModal()" class="text-xs text-primary hover:underline flex items-center gap-1 font-semibold">
-                                                        <span class="material-symbols-outlined text-[14px]">add</span>Thêm dòng sản phẩm
-                                                    </button>
+                                                    <div class="flex items-center gap-2">
+                                                        <button type="button" onclick="openAddSeriesModal()" class="text-xs text-primary hover:underline flex items-center gap-0.5 font-semibold" title="Thêm dòng sản phẩm mới">
+                                                            <span class="material-symbols-outlined text-[14px]">add</span>Thêm
+                                                        </button>
+                                                        <span class="text-gray-300">|</span>
+                                                        <button type="button" onclick="openEditSeriesModal()" class="text-xs text-amber-600 hover:underline flex items-center gap-0.5 font-semibold" title="Sửa tên dòng sản phẩm đang chọn">
+                                                            <span class="material-symbols-outlined text-[14px]">edit</span>Sửa
+                                                        </button>
+                                                        <span class="text-gray-300">|</span>
+                                                        <button type="button" onclick="openDeleteSeriesModal()" class="text-xs text-red-600 hover:underline flex items-center gap-0.5 font-semibold" title="Xóa dòng sản phẩm đang chọn">
+                                                            <span class="material-symbols-outlined text-[14px]">delete</span>Xóa
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div class="relative">
                                                     <select name="seriesId" id="seriesId"
@@ -661,6 +681,143 @@
                     }
 
                     /**
+                     * Mở Modal sửa tên Dòng sản phẩm đang chọn.
+                     */
+                    function openEditSeriesModal() {
+                        const seriesSelect = document.getElementById('seriesId');
+                        if (!seriesSelect || !seriesSelect.value) {
+                            alert("Vui lòng chọn một dòng sản phẩm để sửa tên!");
+                            return;
+                        }
+                        const selectedOption = seriesSelect.options[seriesSelect.selectedIndex];
+                        document.getElementById('editSeriesId').value = seriesSelect.value;
+                        document.getElementById('editSeriesName').value = selectedOption.textContent.trim();
+                        document.getElementById('editSeriesError').classList.add('hidden');
+                        document.getElementById('editSeriesModal').classList.remove('hidden');
+                    }
+
+                    /**
+                     * Đóng Modal sửa tên Dòng sản phẩm.
+                     */
+                    function closeEditSeriesModal() {
+                        document.getElementById('editSeriesModal').classList.add('hidden');
+                    }
+
+                    /**
+                     * Gửi yêu cầu AJAX cập nhật tên Dòng sản phẩm.
+                     */
+                    function submitEditSeries() {
+                        const seriesId = document.getElementById('editSeriesId').value;
+                        const seriesNameInput = document.getElementById('editSeriesName');
+                        const seriesName = seriesNameInput.value.trim();
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        const brandId = brandSelect ? brandSelect.value : "";
+                        const errorDiv = document.getElementById('editSeriesError');
+
+                        if (!seriesName) {
+                            errorDiv.textContent = "Tên dòng sản phẩm không được để trống!";
+                            errorDiv.classList.remove('hidden');
+                            return;
+                        }
+
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "${pageContext.request.contextPath}/staff/series/update", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            // Cập nhật trong mảng JavaScript allSeries
+                                            const item = allSeries.find(s => s.id == response.id);
+                                            if (item) {
+                                                item.name = response.name;
+                                            }
+                                            filterSeriesAndCategory();
+                                            document.getElementById('seriesId').value = response.id;
+                                            closeEditSeriesModal();
+                                        } else {
+                                            errorDiv.textContent = response.message;
+                                            errorDiv.classList.remove('hidden');
+                                        }
+                                    } catch (e) {
+                                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            }
+                        };
+                        xhr.send("seriesId=" + encodeURIComponent(seriesId) + "&seriesName=" + encodeURIComponent(seriesName) + "&brandId=" + encodeURIComponent(brandId));
+                    }
+
+                    /**
+                     * Mở Modal xác nhận xóa Dòng sản phẩm.
+                     */
+                    function openDeleteSeriesModal() {
+                        const seriesSelect = document.getElementById('seriesId');
+                        if (!seriesSelect || !seriesSelect.value) {
+                            alert("Vui lòng chọn một dòng sản phẩm để xóa!");
+                            return;
+                        }
+                        const selectedOption = seriesSelect.options[seriesSelect.selectedIndex];
+                        document.getElementById('deleteSeriesId').value = seriesSelect.value;
+                        document.getElementById('deleteSeriesNameTarget').textContent = selectedOption.textContent.trim();
+                        document.getElementById('deleteSeriesError').classList.add('hidden');
+                        document.getElementById('deleteSeriesModal').classList.remove('hidden');
+                    }
+
+                    /**
+                     * Đóng Modal xóa Dòng sản phẩm.
+                     */
+                    function closeDeleteSeriesModal() {
+                        document.getElementById('deleteSeriesModal').classList.add('hidden');
+                    }
+
+                    /**
+                     * Gửi yêu cầu AJAX xóa Dòng sản phẩm.
+                     */
+                    function submitDeleteSeries() {
+                        const seriesId = document.getElementById('deleteSeriesId').value;
+                        const errorDiv = document.getElementById('deleteSeriesError');
+
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "${pageContext.request.contextPath}/staff/series/delete", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            // Xóa phần tử khỏi mảng allSeries
+                                            const idx = allSeries.findIndex(s => s.id == response.id);
+                                            if (idx !== -1) {
+                                                allSeries.splice(idx, 1);
+                                            }
+                                            filterSeriesAndCategory();
+                                            closeDeleteSeriesModal();
+                                        } else {
+                                            errorDiv.textContent = response.message;
+                                            errorDiv.classList.remove('hidden');
+                                        }
+                                    } catch (e) {
+                                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            }
+                        };
+                        xhr.send("seriesId=" + encodeURIComponent(seriesId));
+                    }
+
+                    /**
                      * Mở Modal thêm nhanh Thương hiệu (Brand) mới.
                      */
                     function openAddBrandModal() {
@@ -726,6 +883,144 @@
                         xhr.send("brandName=" + encodeURIComponent(brandName));
                     }
 
+                    /**
+                     * Mở Modal sửa tên Thương hiệu đang chọn.
+                     */
+                    function openEditBrandModal() {
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        if (!brandSelect || !brandSelect.value) {
+                            alert("Vui lòng chọn một thương hiệu để sửa tên!");
+                            return;
+                        }
+                        const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+                        document.getElementById('editBrandId').value = brandSelect.value;
+                        document.getElementById('editBrandName').value = selectedOption.textContent.trim();
+                        document.getElementById('editBrandError').classList.add('hidden');
+                        document.getElementById('editBrandModal').classList.remove('hidden');
+                    }
+
+                    /**
+                     * Đóng Modal sửa tên Thương hiệu.
+                     */
+                    function closeEditBrandModal() {
+                        document.getElementById('editBrandModal').classList.add('hidden');
+                    }
+
+                    /**
+                     * Gửi yêu cầu AJAX cập nhật tên Thương hiệu.
+                     */
+                    function submitEditBrand() {
+                        const brandId = document.getElementById('editBrandId').value;
+                        const brandNameInput = document.getElementById('editBrandName');
+                        const brandName = brandNameInput.value.trim();
+                        const errorDiv = document.getElementById('editBrandError');
+
+                        if (!brandName) {
+                            errorDiv.textContent = "Tên thương hiệu không được để trống!";
+                            errorDiv.classList.remove('hidden');
+                            return;
+                        }
+
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "${pageContext.request.contextPath}/staff/brand/update", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            const brandSelect = document.querySelector('select[name="brandId"]');
+                                            for (let i = 0; i < brandSelect.options.length; i++) {
+                                                if (brandSelect.options[i].value == response.id) {
+                                                    brandSelect.options[i].textContent = response.name;
+                                                    break;
+                                                }
+                                            }
+                                            closeEditBrandModal();
+                                        } else {
+                                            errorDiv.textContent = response.message;
+                                            errorDiv.classList.remove('hidden');
+                                        }
+                                    } catch (e) {
+                                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            }
+                        };
+                        xhr.send("brandId=" + encodeURIComponent(brandId) + "&brandName=" + encodeURIComponent(brandName));
+                    }
+
+                    /**
+                     * Mở Modal xác nhận xóa Thương hiệu.
+                     */
+                    function openDeleteBrandModal() {
+                        const brandSelect = document.querySelector('select[name="brandId"]');
+                        if (!brandSelect || !brandSelect.value) {
+                            alert("Vui lòng chọn một thương hiệu để xóa!");
+                            return;
+                        }
+                        const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+                        document.getElementById('deleteBrandId').value = brandSelect.value;
+                        document.getElementById('deleteBrandNameTarget').textContent = selectedOption.textContent.trim();
+                        document.getElementById('deleteBrandError').classList.add('hidden');
+                        document.getElementById('deleteBrandModal').classList.remove('hidden');
+                    }
+
+                    /**
+                     * Đóng Modal xóa Thương hiệu.
+                     */
+                    function closeDeleteBrandModal() {
+                        document.getElementById('deleteBrandModal').classList.add('hidden');
+                    }
+
+                    /**
+                     * Gửi yêu cầu AJAX xóa Thương hiệu.
+                     */
+                    function submitDeleteBrand() {
+                        const brandId = document.getElementById('deleteBrandId').value;
+                        const errorDiv = document.getElementById('deleteBrandError');
+
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "${pageContext.request.contextPath}/staff/brand/delete", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            const brandSelect = document.querySelector('select[name="brandId"]');
+                                            for (let i = 0; i < brandSelect.options.length; i++) {
+                                                if (brandSelect.options[i].value == response.id) {
+                                                    brandSelect.remove(i);
+                                                    break;
+                                                }
+                                            }
+                                            brandSelect.value = "";
+                                            filterSeriesAndCategory();
+                                            closeDeleteBrandModal();
+                                        } else {
+                                            errorDiv.textContent = response.message;
+                                            errorDiv.classList.remove('hidden');
+                                        }
+                                    } catch (e) {
+                                        errorDiv.textContent = "Có lỗi xảy ra khi xử lý phản hồi từ server!";
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorDiv.textContent = "Có lỗi hệ thống: HTTP " + xhr.status;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            }
+                        };
+                        xhr.send("brandId=" + encodeURIComponent(brandId));
+                    }
+
                     document.addEventListener('DOMContentLoaded', () => {
                         const categorySelect = document.querySelector('select[name="categoryId"]');
                         const brandSelect = document.querySelector('select[name="brandId"]');
@@ -759,6 +1054,54 @@
                     </div>
                 </div>
 
+                <!-- Edit Brand Modal -->
+                <div id="editBrandModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-on-surface">Sửa tên thương hiệu</h3>
+                            <button type="button" onclick="closeEditBrandModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <input type="hidden" id="editBrandId" />
+                            <div>
+                                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tên thương hiệu mới</label>
+                                <input type="text" id="editBrandName" class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface" placeholder="Nhập tên thương hiệu mới..."/>
+                            </div>
+                            <div id="editBrandError" class="text-red-600 text-sm hidden"></div>
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button type="button" onclick="closeEditBrandModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                                <button type="button" onclick="submitEditBrand()" class="px-6 py-2 bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-all rounded-lg shadow-lg shadow-amber-600/20 text-sm">Cập nhật</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Brand Modal -->
+                <div id="deleteBrandModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-red-600 flex items-center gap-2">
+                                <span class="material-symbols-outlined">warning</span> Xác nhận xóa thương hiệu
+                            </h3>
+                            <button type="button" onclick="closeDeleteBrandModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <input type="hidden" id="deleteBrandId" />
+                            <p class="text-sm text-on-surface">Bạn có chắc chắn muốn xóa thương hiệu <strong id="deleteBrandNameTarget" class="text-primary"></strong> không?</p>
+                            <p class="text-xs text-on-surface-variant italic">* Thao tác này chỉ thực hiện được nếu thương hiệu chưa có bất kỳ sản phẩm nào liên kết.</p>
+                            <div id="deleteBrandError" class="text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200 hidden"></div>
+                            <div class="mt-4 flex justify-end gap-3">
+                                <button type="button" onclick="closeDeleteBrandModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                                <button type="button" onclick="submitDeleteBrand()" class="px-6 py-2 bg-red-600 text-white font-semibold hover:bg-red-700 transition-all rounded-lg shadow-lg shadow-red-600/20 text-sm">Xóa vĩnh viễn</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Add Series Modal -->
                 <div id="addSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
                     <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
@@ -777,6 +1120,54 @@
                             <div class="mt-6 flex justify-end gap-3">
                                 <button type="button" onclick="closeAddSeriesModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
                                 <button type="button" onclick="submitAddSeries()" class="px-6 py-2 bg-primary text-white font-semibold hover:bg-primary/90 transition-all rounded-lg shadow-lg shadow-primary/20 text-sm">Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Series Modal -->
+                <div id="editSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-on-surface">Sửa tên dòng sản phẩm</h3>
+                            <button type="button" onclick="closeEditSeriesModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <input type="hidden" id="editSeriesId" />
+                            <div>
+                                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tên dòng sản phẩm mới</label>
+                                <input type="text" id="editSeriesName" class="w-full px-4 py-2.5 bg-surface border border-outline-variant/50 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface" placeholder="Nhập tên dòng sản phẩm mới..."/>
+                            </div>
+                            <div id="editSeriesError" class="text-red-600 text-sm hidden"></div>
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button type="button" onclick="closeEditSeriesModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                                <button type="button" onclick="submitEditSeries()" class="px-6 py-2 bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-all rounded-lg shadow-lg shadow-amber-600/20 text-sm">Cập nhật</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Series Modal -->
+                <div id="deleteSeriesModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div class="bg-white border border-outline-variant/35 rounded-xl shadow-2xl w-full max-w-md p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-red-600 flex items-center gap-2">
+                                <span class="material-symbols-outlined">warning</span> Xác nhận xóa dòng sản phẩm
+                            </h3>
+                            <button type="button" onclick="closeDeleteSeriesModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors flex items-center justify-center">
+                                <span class="material-symbols-outlined flex items-center justify-center">close</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <input type="hidden" id="deleteSeriesId" />
+                            <p class="text-sm text-on-surface">Bạn có chắc chắn muốn xóa dòng sản phẩm <strong id="deleteSeriesNameTarget" class="text-primary"></strong> không?</p>
+                            <p class="text-xs text-on-surface-variant italic">* Thao tác này chỉ thực hiện được nếu dòng sản phẩm chưa có bất kỳ sản phẩm nào liên kết.</p>
+                            <div id="deleteSeriesError" class="text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200 hidden"></div>
+                            <div class="mt-4 flex justify-end gap-3">
+                                <button type="button" onclick="closeDeleteSeriesModal()" class="px-6 py-2 border border-outline-variant/50 text-on-surface font-semibold hover:bg-surface-container-high transition-all rounded-lg text-sm">Hủy</button>
+                                <button type="button" onclick="submitDeleteSeries()" class="px-6 py-2 bg-red-600 text-white font-semibold hover:bg-red-700 transition-all rounded-lg shadow-lg shadow-red-600/20 text-sm">Xóa vĩnh viễn</button>
                             </div>
                         </div>
                     </div>

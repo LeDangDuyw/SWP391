@@ -149,4 +149,67 @@ public class ProductSeriesDAO extends DBContext {
         }
         return -1;
     }
+
+    /**
+     * Cập nhật tên dòng sản phẩm theo ID.
+     * 
+     * @param seriesId Mã ID dòng sản phẩm
+     * @param newSeriesName Tên dòng sản phẩm mới
+     * @return true nếu thành công, ngược lại false
+     */
+    public boolean updateSeries(int seriesId, String newSeriesName) {
+        if (newSeriesName == null || newSeriesName.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            String sql = "UPDATE ProductSeries SET series_name = ? WHERE series_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setString(1, newSeriesName.trim());
+            ps.setInt(2, seriesId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("updateSeries Error: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Đếm số lượng sản phẩm thuộc dòng sản phẩm chỉ định.
+     * 
+     * @param seriesId Mã ID dòng sản phẩm
+     * @return Số lượng sản phẩm liên kết
+     */
+    public int getProductCountBySeries(int seriesId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM Product WHERE series_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, seriesId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("getProductCountBySeries Error: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * Xóa một dòng sản phẩm khỏi CSDL theo ID.
+     * 
+     * @param seriesId Mã ID dòng sản phẩm cần xóa
+     * @return true nếu xóa thành công, ngược lại false
+     */
+    public boolean deleteSeries(int seriesId) {
+        try {
+            String sql = "DELETE FROM ProductSeries WHERE series_id = ?";
+            ps = cnn.prepareStatement(sql);
+            ps.setInt(1, seriesId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("deleteSeries Error: " + e.getMessage());
+        }
+        return false;
+    }
 }
+
