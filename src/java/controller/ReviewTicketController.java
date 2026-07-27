@@ -38,6 +38,8 @@ public class ReviewTicketController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // ĐOẠN 1: Đọc thông tin hành động duyệt từ Admin
+        // Nhiệm vụ: Nhận ticketId, action ("approve"/"reject") và ghi chú lý do
         String ticketIdStr = request.getParameter("ticketId");
         String action = request.getParameter("action"); // "approve" or "reject"
         String reason = request.getParameter("reason");
@@ -50,24 +52,28 @@ public class ReviewTicketController extends HttpServlet {
         int ticketId = Integer.parseInt(ticketIdStr);
         if (reason == null) reason = "";
 
+        // ĐOẠN 2: Lấy thông tin phiếu từ DAO [dal/TicketDAO.java: getTicketById()]
+        // Nhiệm vụ: Kiểm tra sự tồn tại của phiếu nhập kho trong CSDL
         TicketDAO ticketDao = new TicketDAO();
-        
-        // Kiểm tra trạng thái hiện tại của Ticket (State Machine)
         Ticket ticket = ticketDao.getTicketById(ticketId);
         if (ticket == null) {
             response.sendRedirect(request.getContextPath() + "/admin/ticket/list?error=TicketNotFound");
             return;
         }
         
-        // Chỉ cho phép duyệt/từ chối nếu trạng thái hiện tại là WAITING_FOR_ADMIN_REVIEW
+        // ĐOẠN 3: Bẫy kiểm tra State Machine nghiêm ngặt
+        // Nhiệm vụ: Đảm bảo chỉ phiếu ở trạng thái 'WAITING_FOR_ADMIN_REVIEW' mới được duyệt, chống gian lận URL
         if (!"WAITING_FOR_ADMIN_REVIEW".equals(ticket.getStatus())) {
             response.sendRedirect(request.getContextPath() + "/admin/ticket/list?error=InvalidStatusTransition");
             return;
         }
         
+        // ĐOẠN 4: Chuyển đổi trạng thái State Machine & Cập nhật CSDL
+        // Tham chiếu: Gọi updateTicketStatus() tại [dal/TicketDAO.java] để đổi status sang 'APPROVED_EXECUTION' hoặc 'REJECTED'
         String status = action.equalsIgnoreCase("approve") ? "APPROVED_EXECUTION" : "REJECTED";
         boolean success = ticketDao.updateTicketStatus(ticketId, status, reason);
 
+        // ĐOẠN 5: Điều hướng về trang danh sách phiếu Admin [/admin/ticket/list]
         if (success) {
             response.sendRedirect(request.getContextPath() + "/admin/ticket/list?success=TicketReviewed");
         } else {

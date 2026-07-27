@@ -91,15 +91,20 @@ public class CreateTicketController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        
+        // ĐOẠN 1: Đọc tham số mảng từ Form [web/staff/ticket/CreateTicket.jsp]
+        // Nhiệm vụ: Nhận tiêu đề, danh sách mảng mã biến thể, số lượng dự kiến và đơn giá đề xuất
         String title = request.getParameter("title");
         String[] variantIds = request.getParameterValues("variantId");
         String[] quantities = request.getParameterValues("quantity");
         String[] expectedPrices = request.getParameterValues("expectedPrice");
         
-        // Lấy user ID từ session
+        // ĐOẠN 2: Lấy thông tin tài khoản người đang đăng nhập qua Session
+        // Nhiệm vụ: Gán người tạo phiếu (created_by) để phục vụ kiểm toán trách nhiệm về sau
         model.Users user = (model.Users) request.getSession().getAttribute("user");
         int createdBy = (user != null) ? user.getUserId() : 1;
 
+        // ĐOẠN 3: Validate dữ liệu bắt buộc (Tiêu đề & Có ít nhất 1 dòng sản phẩm)
         if (title == null || title.trim().isEmpty() || variantIds == null || variantIds.length == 0) {
             forwardWithError(request, response, "Vui lòng điền tiêu đề và chọn ít nhất một biến thể sản phẩm.", title, variantIds, quantities, expectedPrices);
             return;
@@ -108,6 +113,8 @@ public class CreateTicketController extends HttpServlet {
         List<TicketDetail> details = new ArrayList<>();
         java.util.Set<Integer> processedVariantIds = new java.util.HashSet<>();
         
+        // ĐOẠN 4: Vòng lặp bóc tách mảng dữ liệu nhiều dòng & Kiểm tra logic Server-side
+        // Nhiệm vụ: Chuyển đổi dữ liệu chuỗi sang số, kiểm tra quantity > 0, expectedPrice > 0, và dùng Set chống chọn trùng 1 máy 2 lần
         for (int i = 0; i < variantIds.length; i++) {
             try {
                 if (quantities == null || i >= quantities.length || quantities[i] == null || quantities[i].trim().isEmpty()) {
@@ -116,7 +123,7 @@ public class CreateTicketController extends HttpServlet {
                 int variantId = Integer.parseInt(variantIds[i]);
                 int quantity = Integer.parseInt(quantities[i]);
                 
-                // Bỏ qua các dòng variant có số lượng bằng 0 hoặc nhỏ hơn 0
+                // Bỏ qua các dòng sản phẩm có số lượng <= 0
                 if (quantity <= 0) {
                     continue;
                 }
@@ -126,25 +133,27 @@ public class CreateTicketController extends HttpServlet {
                     expectedPrice = new BigDecimal(expectedPrices[i].trim());
                 }
 
-                // Validate expected price is positive
+                // Kiểm tra đơn giá đề xuất phải lớn hơn 0
                 if (expectedPrice.compareTo(BigDecimal.ZERO) <= 0) {
                     forwardWithError(request, response, "Đơn giá đề xuất nhập kho của sản phẩm phải lớn hơn 0.", title, variantIds, quantities, expectedPrices);
                     return;
                 }
 
+                // Chống chọn trùng lặp cùng 1 biến thể sản phẩm 2 lần trên 1 phiếu
                 if (processedVariantIds.contains(variantId)) {
                     forwardWithError(request, response, "Không được chọn trùng lặp biến thể trong cùng một phiếu.", title, variantIds, quantities, expectedPrices);
                     return;
                 }
                 processedVariantIds.add(variantId);
 
+                // Khởi tạo đối tượng chi tiết phiếu (TicketDetail) và thêm vào danh sách
                 TicketDetail detail = new TicketDetail();
                 detail.setVariantId(variantId);
                 detail.setQuantity(quantity);
                 detail.setExpectedPrice(expectedPrice);
                 details.add(detail);
             } catch (NumberFormatException e) {
-                // bỏ qua dòng định dạng số không hợp lệ
+                // Bỏ qua các dòng định dạng số không hợp lệ
             }
         }
 
@@ -153,15 +162,30 @@ public class CreateTicketController extends HttpServlet {
             return;
         }
 
+        int totalQuantity = 0;
+        for (TicketDetail d : details) {
+            totalQuantity += d.getQuantity();
+        }
+        if (totalQuantity > 100) {
+            forwardWithError(request, response, "Không được nhập nhiều quá, giới hạn là 100 sản phẩm trong 1 phiếu.", title, variantIds, quantities, expectedPrices);
+            return;
+        }
+
+        // ĐOẠN 5: Tạo đối tượng Ticket với trạng thái ban đầu 'WAITING_FOR_ADMIN_REVIEW'
+        // Nhiệm vụ: Trạng thái này kích hoạt luồng duyệt (Approval Workflow), chưa làm thay đổi tồn kho thực tế
         Ticket ticket = new Ticket();
         ticket.setTitle(title);
         ticket.setStatus("WAITING_FOR_ADMIN_REVIEW");
         ticket.setReason("");
         ticket.setCreatedBy(createdBy);
 
+        // ĐOẠN 6: Gọi DAO để thực thi Database Transaction
+        // Tham chiếu: Gọi phương thức createTicket() tại [dal/TicketDAO.java] để chèn Ticket & TicketDetails theo Transaction
         TicketDAO ticketDao = new TicketDAO();
         ticketDao.createTicket(ticket, details);
 
+        // ĐOẠN 7: Điều hướng người dùng về trang danh sách phiếu nhập kho
+        // Tham chiếu: Chuyển hướng sang Servlet [TicketListController.java] (/staff/ticket/list)
         response.sendRedirect(request.getContextPath() + "/staff/ticket/list?success=TicketCreated");
     }
 

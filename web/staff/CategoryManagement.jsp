@@ -343,6 +343,9 @@
 
                                     <!-- Modals -->
                                     <!-- Add Modal -->
+                                    <%-- ĐOẠN: Modal và Form Thêm Danh Mục Mới GỬI VỀ CategoryManagementController.java --%>
+                                    <%-- Công dụng: Thu thập tên danh mục và chuyển tham số action='add' về Controller --%>
+                                    <%-- Tham chiếu Controller xử lý: [src/java/controller/CategoryManagementController.java: doPost()] --%>
                                     <div id="addModal"
                                         class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center">
                                         <div

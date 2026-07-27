@@ -257,7 +257,7 @@
                                     <c:forEach var="d" items="${ticket.details}">
                                         <tr class="border-b border-outline-variant/30 hover:bg-surface-container-lowest/50 transition-colors bg-surface-container-lowest">
                                             <td class="py-3 px-4 font-code-sm text-code-sm text-on-surface-variant">${d.sku}</td>
-                                            <td class="py-3 px-4 font-bold text-on-surface">${d.variantName}</td>
+                                            <td class="py-3 px-4 font-bold text-on-surface">${d.productName} - ${d.variantName}</td>
                                             <td class="py-3 px-4 text-center">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary-fixed text-on-primary-fixed text-[12px] font-bold">
                                                     ${d.importedQuantity} / ${d.quantity}

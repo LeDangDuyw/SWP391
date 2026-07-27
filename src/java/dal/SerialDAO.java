@@ -101,7 +101,12 @@ public class SerialDAO extends DBContext {
                         item.setItemId(rs.getInt("item_id"));
                         item.setSerialNumber(rs.getString("serial_number"));
                         item.setStatus(rs.getString("status"));
-                        item.setImportDate(rs.getString("import_date"));
+                        String rawDate = rs.getString("import_date");
+                        if (rawDate != null && rawDate.length() >= 10) {
+                            item.setImportDate(rawDate.substring(0, 10));
+                        } else {
+                            item.setImportDate(rawDate);
+                        }
 
                         java.sql.Date soldDateSql = rs.getDate("sold_date");
                         if (soldDateSql != null)
@@ -248,7 +253,8 @@ public class SerialDAO extends DBContext {
         if (items == null || items.isEmpty())
             return;
         try {
-            // Kiểm tra trùng lặp mã Serial trước khi thêm
+            // ĐOẠN 1: Kiểm tra chống trùng lặp mã Serial/IMEI trong CSDL
+            // Nhiệm vụ: Đảm bảo mỗi chiếc máy mang 1 mã Serial duy nhất toàn cầu. Nếu trùng -> Ném ngoại lệ ngắt ngay
             String checkSql = "SELECT COUNT(*) FROM InventoryItem WHERE serial_number = ?";
             try (PreparedStatement checkStm = connection.prepareStatement(checkSql)) {
                 for (InventoryItem item : items) {
@@ -261,16 +267,19 @@ public class SerialDAO extends DBContext {
                 }
             }
 
+            // ĐOẠN 2: Mở Database Transaction
+            // Nhiệm vụ: Đảm bảo chèn bảng InventoryItem và cập nhật bảng Inventory diễn ra đồng thời
             connection.setAutoCommit(false);
 
-            // 1. Chèn danh sách từng sản phẩm Serial
+            // ĐOẠN 3: Chèn danh sách máy mới vào bảng InventoryItem với status = 'in_stock'
+            // Nhiệm vụ: Tạo thông tin quản lý vị trí, ngày nhập và trạng thái sẵn sàng bán của từng chiếc máy
             String sql = "INSERT INTO InventoryItem (variant_id, serial_number, status, import_date, warranty_expired_date, note, ticket_id) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stm = connection.prepareStatement(sql)) {
                 for (InventoryItem item : items) {
                     stm.setInt(1, item.getVariantId());
                     stm.setString(2, item.getSerialNumber());
-                    stm.setString(3, item.getStatus());
+                    stm.setString(3, item.getStatus()); // 'in_stock'
 
                     if (item.getImportDate() != null && !item.getImportDate().isEmpty()) {
                         stm.setString(4, item.getImportDate());
@@ -297,7 +306,8 @@ public class SerialDAO extends DBContext {
                 stm.executeBatch();
             }
 
-            // 2. Cập nhật tăng số lượng tồn kho khả dụng trong bảng Inventory
+            // ĐOẠN 4: Gom số lượng theo variant_id và CẬP NHẬT TĂNG available_quantity trong bảng Inventory
+            // Nhiệm vụ: Tự động cộng số lượng máy có sẵn bán trên Website ngay khi nhập Serial vào kho thành công
             java.util.Map<Integer, Integer> countMap = new java.util.HashMap<>();
             for (InventoryItem item : items) {
                 countMap.put(item.getVariantId(), countMap.getOrDefault(item.getVariantId(), 0) + 1);
@@ -312,6 +322,7 @@ public class SerialDAO extends DBContext {
                 psInv.executeBatch();
             }
 
+            // ĐOẠN 5: Commit Transaction ghi nhận hoàn tất nhập kho
             connection.commit();
         } catch (SQLException e) {
             System.out.println("insertInventoryItems Error: " + e.getMessage());
