@@ -123,6 +123,8 @@ public class CategoryManagementController extends HttpServlet {
         CategoryDAO categoryDAO = new CategoryDAO();
         
         try {
+            // ĐOẠN 1: Thêm mới danh mục sản phẩm (Action "add")
+            // Nhiệm vụ: Check trùng tên bằng isCategoryExist() tại [dal/CategoryDAO.java] trước khi chèn vào bảng Category
             if ("add".equals(action)) {
                 String categoryName = request.getParameter("categoryName");
                 if (categoryName != null && !categoryName.trim().isEmpty()) {
@@ -133,6 +135,8 @@ public class CategoryManagementController extends HttpServlet {
                     }
                     categoryDAO.insertCategory(categoryName.trim());
                 }
+            // ĐOẠN 2: Cập nhật tên danh mục sản phẩm (Action "update")
+            // Nhiệm vụ: Check trùng tên với các danh mục khác (trừ chính nó) trước khi chạy lệnh UPDATE
             } else if ("update".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryId"));
                 String categoryName = request.getParameter("categoryName");
@@ -144,6 +148,8 @@ public class CategoryManagementController extends HttpServlet {
                     }
                     categoryDAO.updateCategory(categoryId, categoryName.trim());
                 }
+            // ĐOẠN 3: Gán thuộc tính thông số kỹ thuật cho danh mục (Action "addCategorySpec")
+            // Nhiệm vụ: Chèn bản ghi liên kết vào bảng CategorySpecification để quy định các thuộc tính cấu hình cho dòng máy này
             } else if ("addCategorySpec".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryId"));
                 int specId = Integer.parseInt(request.getParameter("specId"));
@@ -151,6 +157,8 @@ public class CategoryManagementController extends HttpServlet {
                 response.setContentType("application/json");
                 response.getWriter().write("{\"success\":true}");
                 return;
+            // ĐOẠN 4: Hủy thuộc tính thông số kỹ thuật khỏi danh mục (Action "removeCategorySpec")
+            // Nhiệm vụ: Xóa bản ghi trong bảng CategorySpecification
             } else if ("removeCategorySpec".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryId"));
                 int specId = Integer.parseInt(request.getParameter("specId"));
@@ -158,6 +166,8 @@ public class CategoryManagementController extends HttpServlet {
                 response.setContentType("application/json");
                 response.getWriter().write("{\"success\":true}");
                 return;
+            // ĐOẠN 5: Tạo mới thuộc tính Master Spec và gán cho Danh mục (Action "addMasterSpec")
+            // Nhiệm vụ: Thêm tên thông số vào bảng Specification và gán ngay cho Category
             } else if ("addMasterSpec".equals(action)) {
                 int categoryId = Integer.parseInt(request.getParameter("categoryId"));
                 String specName = request.getParameter("specName");
@@ -178,7 +188,7 @@ public class CategoryManagementController extends HttpServlet {
             return;
         }
         
-        // Preserve search input if present
+        // 🎯 ĐOẠN 6: Điều hướng về trang danh sách Quản lý danh mục [/staff/category] rendering [web/staff/CategoryManagement.jsp]
         String searchInput = request.getParameter("searchInput");
         String redirectUrl = request.getContextPath() + "/staff/category";
         if (searchInput != null && !searchInput.isEmpty()) {

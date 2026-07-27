@@ -195,8 +195,8 @@
                                             <c:when test="${param.error == 'DuplicateSerial'}">
                                                 Lỗi: Mã Serial Number <strong>'${param.sn}'</strong> đã tồn tại trong hệ thống! Vui lòng kiểm tra và nhập mã Serial khác.
                                             </c:when>
-                                            <c:when test="${param.error == 'SerialTooShort'}">
-                                                Lỗi: Mỗi mã Serial / IMEI phải chứa từ 5 ký tự trở lên!
+                                            <c:when test="${param.error == 'InvalidSerialFormat'}">
+                                                Lỗi: Mỗi mã Serial / IMEI phải chứa từ 5-30 ký tự (không được chứa các ký hiệu đặc biệt như @, #, $, ...).
                                             </c:when>
                                             <c:when test="${param.error == 'MismatchImeisQuantity'}">
                                                 Lỗi: Số lượng Serial Number nhập vào không khớp với yêu cầu! Yêu cầu:
@@ -207,6 +207,9 @@
                                             </c:when>
                                             <c:when test="${param.error == 'InvalidImportDate'}">
                                                 Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.
+                                            </c:when>
+                                            <c:when test="${param.error == 'InvalidImportDateBeforeCreation'}">
+                                                Lỗi: Ngày nhập kho không được trước ngày tạo phiếu.
                                             </c:when>
                                             <c:otherwise>
                                                 Đã xảy ra lỗi: ${param.error}
@@ -298,6 +301,9 @@
                                                     <label>Mã Serial / IMEI</label>
                                                 </div>
 
+                                                <%-- ĐOẠN: Thẻ JSTL sinh N ô input nhập Serial dựa trên expectedQuantity --%>
+                                                <%-- Công dụng: Tự động tạo đúng số lượng ô nhập mã vạch theo số máy Admin đã duyệt --%>
+                                                <%-- Tham chiếu Controller: [src/java/controller/AddProductSerialController.java] via POST --%>
                                                 <div id="unitRowsContainer" class="space-y-3">
                                                     <c:set var="rowCount"
                                                         value="${not empty expectedQuantity ? expectedQuantity : 1}" />
@@ -307,9 +313,10 @@
                                                             <div class="space-y-1">
                                                                 <label
                                                                     class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
+                                                                <%-- Pattern regex bắt buộc Serial từ 5 đến 30 ký tự, không ký tự đặc biệt --%>
                                                                 <input type="text" name="serialNumbers" required
-                                                                    pattern="[A-Za-z0-9_\-]{5,30}"
-                                                                    title="Serial phải từ 5-30 ký tự, gồm chữ, số và dấu gạch"
+                                                                    pattern="[^@#\$%\^&\*\(\)\+=\{\}\[\]\|\\:;&quot;'<>,?/]{5,30}"
+                                                                    title="Mã Serial phải từ 5-30 ký tự, không chứa ký tự đặc biệt (@, #, ...)"
                                                                     class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                                                     placeholder="Serial #${status.index}">
                                                             </div>
@@ -329,7 +336,11 @@
                                                     <div class="space-y-2">
                                                         <label
                                                             class="font-label-md text-label-md text-on-surface-variant">Ngày Nhập Kho</label>
-                                                        <input name="receivedDate" required
+                                                        <%-- min: Ngày phê duyệt phiếu (ticket.createdAt), max: hôm nay
+                                                             max được set động bằng JS bên dưới (id="receivedDateInput")
+                                                        --%>
+                                                        <input id="receivedDateInput" name="receivedDate" required
+                                                            <c:if test="${not empty ticket}">min="${ticket.createdAt.toLocalDate()}"</c:if>
                                                             class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                                             type="date" />
                                                     </div>
@@ -372,7 +383,7 @@
                         row.innerHTML = `
             <div class="space-y-1">
                 <label class="font-label-md text-label-md text-on-surface-variant md:hidden">Mã Serial / IMEI</label>
-                <input type="text" name="serialNumbers" required pattern="[A-Za-z0-9_\\-]{5,30}" title="Serial phải từ 5-30 ký tự, gồm chữ, số và dấu gạch" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
+                <input type="text" name="serialNumbers" required pattern="[^@#\\$%\\^&\\*\\(\\)\\+=\\{\\}\\[\\]\\|\\\\:;&quot;'<>,?/]{5,30}" title="Mã Serial phải từ 5-30 ký tự, không chứa ký tự đặc biệt (@, #, ...)" class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Serial #${rowCount}">
             </div>
         `;
                         container.appendChild(row);
@@ -387,31 +398,67 @@
                      * @param {Event} event Sự kiện submit form
                      * @returns {boolean} true nếu hợp lệ, false nếu vi phạm
                      */
+                    // Set max = hôm nay cho trường Ngày Nhập Kho để chặn chọn ngày tương lai
+                    // Đã có min = ngày phê duyệt phiếu (ticket.createdAt) trong HTML
+                    (function() {
+                        const dateInput = document.getElementById('receivedDateInput');
+                        if (dateInput) {
+                            const today = new Date();
+                            const yyyy = today.getFullYear();
+                            const mm   = String(today.getMonth() + 1).padStart(2, '0');
+                            const dd   = String(today.getDate()).padStart(2, '0');
+                            dateInput.max = yyyy + '-' + mm + '-' + dd;
+                        }
+                    })();
+
+                    /**
+                     * Kiểm tra dữ liệu Form nhập Serial trước khi bấm "Đăng ký":
+                     * 1. Phải điền mã Serial cho ít nhất 1 dòng.
+                     * 2. Không được trùng Serial trong cùng 1 phiếu (bôi đỏ 2 ô vi phạm).
+                     * 3. Không vượt quá số lượng yêu cầu trong phiếu nhập kho.
+                     * Lưu ý: Validate định dạng Serial (pattern) do HTML5 native tự xử lý bằng
+                     *         tooltip popup dưới ô input – không cần JS thêm.
+                     *
+                     * @param {Event} event Sự kiện submit form
+                     * @returns {boolean} true nếu hợp lệ, false nếu vi phạm
+                     */
                     function validateForm(event) {
                         const rows = document.querySelectorAll('#unitRowsContainer > div');
                         let filledRowsCount = 0;
-
-                        let isShortSerial = false;
-                        let shortSerialVal = "";
+                        let hasDuplicate = false;
+                        let serials = [];
 
                         rows.forEach(row => {
                             const snInput = row.querySelector('input[name="serialNumbers"]');
-
                             if (!snInput) return;
 
                             const sn = snInput.value.trim();
 
+                            // Reset màu viền về mặc định
+                            snInput.classList.remove('border-error', 'text-error', 'bg-error-container/10', '!border-error');
+
                             if (sn) {
-                                if (sn.length < 5) {
-                                    isShortSerial = true;
-                                    shortSerialVal = sn;
+                                if (serials.includes(sn)) {
+                                    // Đánh dấu đỏ ô vừa nhập trùng
+                                    hasDuplicate = true;
+                                    snInput.classList.add('!border-red-500', 'bg-red-50');
+
+                                    // Đánh dấu đỏ ô đã nhập trước đó có cùng giá trị
+                                    const allInputs = document.querySelectorAll('input[name="serialNumbers"]');
+                                    for (let i = 0; i < allInputs.length; i++) {
+                                        if (allInputs[i] !== snInput && allInputs[i].value.trim() === sn) {
+                                            allInputs[i].classList.add('!border-red-500', 'bg-red-50');
+                                            break;
+                                        }
+                                    }
                                 }
+                                serials.push(sn);
                                 filledRowsCount++;
                             }
                         });
 
-                        if (isShortSerial) {
-                            alert("Lỗi: Mã Serial / IMEI '" + shortSerialVal + "' phải chứa từ 5 ký tự trở lên!");
+                        if (hasDuplicate) {
+                            alert("Vui lòng không nhập trùng mã Serial trong cùng một phiếu!");
                             event.preventDefault();
                             return false;
                         }
@@ -426,25 +473,6 @@
                             alert("Số lượng sản phẩm nhập vào (" + filledRowsCount + ") vượt quá số lượng yêu cầu trong ticket (" + expectedQty + ").");
                             event.preventDefault();
                             return false;
-                        }
-
-                        const dateInput = document.querySelector('input[name="receivedDate"]');
-                        if (dateInput) {
-                            const selectedDateStr = dateInput.value;
-                            if (selectedDateStr) {
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-
-                                const [year, month, day] = selectedDateStr.split('-').map(Number);
-                                const selectedDate = new Date(year, month - 1, day);
-                                selectedDate.setHours(0, 0, 0, 0);
-
-                                if (selectedDate > today) {
-                                    alert("Lỗi: Ngày nhập sản phẩm (Import Date) không được là ngày tương lai.");
-                                    event.preventDefault();
-                                    return false;
-                                }
-                            }
                         }
 
                         return true;

@@ -10,6 +10,7 @@ public class TicketDetail {
     private BigDecimal expectedPrice;
     
     private String variantName;
+    private String productName;
     private String sku;
     private int importedQuantity;
 
@@ -70,6 +71,14 @@ public class TicketDetail {
 
     public void setVariantName(String variantName) {
         this.variantName = variantName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public String getSku() {
