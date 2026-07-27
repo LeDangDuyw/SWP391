@@ -1,6 +1,6 @@
 <%-- 
     Document   : login
-    Created on : 30 May 2026, 15:02:32
+    Created on : 30 May 2026
     Author     : LUCTVHE201874
 --%>
 
@@ -39,8 +39,6 @@
                 <div class="success-message">Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản của bạn.</div>
                 <% } else if ("4".equals(request.getParameter("success"))) { %>
                 <div class="success-message">Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.</div>
-                <% } %>
-                <% if ("wishlist".equals(request.getParameter("msg"))) { %>
                 <% } %>
                 <div class="error-message">${error}</div>
 
@@ -108,7 +106,7 @@
         </footer>
 
 
-
+<!--/// k hiểu code này để làm gì-->
         <script>
             document.getElementById('togglePassword').addEventListener('click', function() {
                 var pwField = document.getElementById('loginPassword');
