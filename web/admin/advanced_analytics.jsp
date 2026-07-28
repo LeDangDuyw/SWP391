@@ -904,8 +904,10 @@
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th>Qty Sold</th>
-                                                    <th>Revenue</th>
+                                                    <th style="width:60px;">Xếp hạng</th>
+                                                    <th>Sản phẩm / Biến thể</th>
+                                                    <th>SL bán</th>
+                                                    <th>Doanh thu</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -941,17 +943,31 @@
         <script>
             // Switch tabs dynamically (Vanilla JS)
             function switchTab(tabId) {
+                if (!tabId || tabId.trim() === '') {
+                    tabId = 'revenue';
+                }
                 // Clear active buttons
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
                 // Clear active panes
                 document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
                 
-                // Set current active
-                const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(tabId));
-                if (btn) btn.classList.add('active');
+                // Activate matching button by index mapping or keyword match
+                const btnMap = { 'revenue': 0, 'sales': 1, 'customer': 2, 'product': 3 };
+                const btns = document.querySelectorAll('.tab-btn');
+                if (btnMap[tabId] !== undefined && btns[btnMap[tabId]]) {
+                    btns[btnMap[tabId]].classList.add('active');
+                } else {
+                    const btn = Array.from(btns).find(b => b.innerText.toLowerCase().includes(tabId));
+                    if (btn) btn.classList.add('active');
+                }
                 
                 const pane = document.getElementById(tabId + '-pane');
-                if (pane) pane.classList.add('active');
+                if (pane) {
+                    pane.classList.add('active');
+                } else {
+                    const defaultPane = document.getElementById('revenue-pane');
+                    if (defaultPane) defaultPane.classList.add('active');
+                }
             }
 
             // Toggle sidebar dropdown
@@ -969,7 +985,10 @@
 
             // Restore active section tab from servlet response
             window.onload = function() {
-                const activeSec = "${activeSection}";
+                let activeSec = "${activeSection}";
+                if (!activeSec || activeSec.trim() === '') {
+                    activeSec = 'revenue';
+                }
                 switchTab(activeSec);
             };
 

@@ -74,14 +74,32 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
         }
 
         try {
-            // 2. Tiếp nhận các tham số lọc từ bộ lọc giao diện
+            // 2. Tiếp nhận tham số section và các tham số lọc từ bộ lọc giao diện
+            String section = request.getParameter("section");
+            if (section == null || section.trim().isEmpty()) {
+                section = "revenue";
+            }
+
             String fromDate = request.getParameter("fromDate");
+            if (fromDate == null || fromDate.trim().isEmpty()) fromDate = request.getParameter(section + "From");
+
             String toDate = request.getParameter("toDate");
+            if (toDate == null || toDate.trim().isEmpty()) toDate = request.getParameter(section + "To");
+
             String categoryIdParam = request.getParameter("categoryId");
+            if (categoryIdParam == null || categoryIdParam.trim().isEmpty()) categoryIdParam = request.getParameter(section + "CategoryId");
+
             String brandIdParam = request.getParameter("brandId");
+            if (brandIdParam == null || brandIdParam.trim().isEmpty()) brandIdParam = request.getParameter(section + "BrandId");
+
             String customerType = request.getParameter("customerType");
+            if (customerType == null || customerType.trim().isEmpty()) customerType = request.getParameter(section + "CustomerType");
+
             String paymentMethod = request.getParameter("paymentMethod");
+            if (paymentMethod == null || paymentMethod.trim().isEmpty()) paymentMethod = request.getParameter(section + "PaymentMethod");
+
             String groupBy = request.getParameter("groupBy");
+            if (groupBy == null || groupBy.trim().isEmpty()) groupBy = request.getParameter(section + "GroupBy");
 
             // Mặc định kiểu nhóm thời gian là theo Tháng nếu chưa được truyền
             if (groupBy == null || groupBy.trim().isEmpty()) {
@@ -140,12 +158,26 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             Map<String, Integer> customerGrowth = analyticsDAO.getCustomerGrowth(filter, groupBy);
             List<String[]> topSpendingCustomers = analyticsDAO.getTopSpendingCustomers(filter, 10);
 
-            // Bảng xếp hạng sản phẩm bán chạy (mặc định xếp theo doanh thu giảm dần)
-            String prodSortBy = request.getParameter("prodSortBy");
+            // Bảng xếp hạng sản phẩm bán chạy & bán chậm
+            String prodSortBy = request.getParameter("productSortBy");
             if (prodSortBy == null || prodSortBy.trim().isEmpty()) {
-                prodSortBy = "revenue";
+                prodSortBy = request.getParameter("prodSortBy");
             }
-            List<String[]> productRanking = analyticsDAO.getProductSalesRanking(filter, 10, prodSortBy, true);
+            if (prodSortBy == null || prodSortBy.trim().isEmpty()) {
+                prodSortBy = "quantity";
+            }
+
+            String productTopNStr = request.getParameter("productTopN");
+            int productTopN = 10;
+            if (productTopNStr != null && !productTopNStr.trim().isEmpty()) {
+                try {
+                    productTopN = Integer.parseInt(productTopNStr.trim());
+                } catch (Exception ignored) {
+                }
+            }
+
+            List<String[]> bestSellingProducts = analyticsDAO.getProductSalesRanking(filter, productTopN, prodSortBy, true);
+            List<String[]> slowSellingProducts = analyticsDAO.getProductSalesRanking(filter, productTopN, prodSortBy, false);
 
             // Chỉ số hiệu quả quản lý kho: Hệ số vòng quay tồn kho (Inventory Turnover Ratio)
             double[] turnover = analyticsDAO.getInventoryTurnover(filter);
@@ -155,8 +187,14 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             List<Brand> brands = brandDao.getAllBrands();
 
             // 5. Đẩy dữ liệu ra thuộc tính của request để render trên JSP
+            request.setAttribute("activeSection", section);
             request.setAttribute("filter", filter);
+            request.setAttribute("revFilter", filter);
+            request.setAttribute("salesFilter", filter);
+            request.setAttribute("customerFilter", filter);
+            request.setAttribute("prodFilter", filter);
             request.setAttribute("groupBy", groupBy);
+            request.setAttribute("revenueGroupBy", groupBy);
 
             request.setAttribute("revenueTrend", revenueTrend);
             request.setAttribute("revenueByCategory", revenueByCategory);
@@ -171,9 +209,15 @@ public class AdvancedAnalyticsServlet extends HttpServlet {
             request.setAttribute("customerGrowth", customerGrowth);
             request.setAttribute("topSpendingCustomers", topSpendingCustomers);
 
-            request.setAttribute("productRanking", productRanking);
+            request.setAttribute("bestSellingProducts", bestSellingProducts);
+            request.setAttribute("slowSellingProducts", slowSellingProducts);
+            request.setAttribute("worstSellingProducts", slowSellingProducts);
+            request.setAttribute("productRanking", bestSellingProducts);
+            request.setAttribute("productTopN", productTopN);
+            request.setAttribute("productSortBy", prodSortBy);
             request.setAttribute("prodSortBy", prodSortBy);
 
+            request.setAttribute("inventoryTurnover", turnover);
             request.setAttribute("costOfGoodsSold", turnover[0]);
             request.setAttribute("avgInventoryValue", turnover[1]);
             request.setAttribute("turnoverRatio", turnover[2]);

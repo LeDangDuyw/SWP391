@@ -562,13 +562,17 @@ public class WarrantyService {
      * Thêm một bản ghi nhật ký mới vào bảng lịch sử bảo hành.
      */
     private void insertHistory(int claimId, String issueDesc,
-                               String repairStatus, String note) throws Exception {
+                               String repairStatus, String note) {
 
         WarrantyHistory h = new WarrantyHistory();
         h.setWarrantyId(claimId);
         h.setIssueDescription(issueDesc);
         h.setRepairStatus(repairStatus);
         h.setRepairNote(note);
-        historyDAO.insert(h);
+        try {
+            historyDAO.insert(h);
+        } catch (Exception e) {
+            System.err.println("Warning: insertHistory error: " + e.getMessage());
+        }
     }
 }

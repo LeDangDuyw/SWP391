@@ -156,44 +156,59 @@ public class WarrantyController extends HttpServlet {
         // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (ValidationException e) {
             request.setAttribute("errorMessage", e.getMessage());
-            // Lấy selectedId từ request để giữ nguyên detail panel sau khi lỗi
+            String serialNumber = request.getParameter("serialNumber");
+            String title = request.getParameter("title");
+            String description = request.getParameter("description");
+            request.setAttribute("serialNumber", serialNumber);
+            request.setAttribute("title", title);
+            request.setAttribute("description", description);
+
             String selectedIdParam
                     = request.getParameter("selectedId") != null
                     ? request.getParameter("selectedId")
                     : request.getParameter("id");
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
             try {
-                // Kiểm tra điều kiện
                 if (isCustomer(user)) {
+                    if (serialNumber != null && !serialNumber.trim().isEmpty()) {
+                        try {
+                            model.WarrantyEligibilityInfo info = warrantyService.checkEligibility(serialNumber.trim(), user.getUserId());
+                            request.setAttribute("eligibilityInfo", info);
+                        } catch (Exception ignored) {
+                        }
+                    }
                     loadCustomerClaims(request, user);
                     request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
                 } else {
                     loadConsoleClaims(request, selectedIdParam);
                     request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
                 }
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception loadEx) {
-                // Nếu load data cũng fail thì throw ServletException thật sự,
-                // không nuốt lỗi khiến trang render trắng không rõ nguyên nhân
                 throw new ServletException("Lỗi tải dữ liệu sau khi xử lý validation error.", loadEx);
             }
-        // Bắt và xử lý ngoại lệ xảy ra trong khối try
         } catch (IllegalStateException e) {
-            // Request multipart vượt quá maxRequestSize/maxFileSize khai báo ở
-            // @MultipartConfig, ném ra trước khi vào được handleXxx().
             request.setAttribute("errorMessage",
                     "Dung lượng ảnh tải lên vượt quá giới hạn cho phép (tối đa 5 ảnh, mỗi ảnh 5MB).");
-            // Thử thực thi khối lệnh (truy vấn DB hoặc xử lý logic)
+            String serialNumber = request.getParameter("serialNumber");
+            String title = request.getParameter("title");
+            String description = request.getParameter("description");
+            request.setAttribute("serialNumber", serialNumber);
+            request.setAttribute("title", title);
+            request.setAttribute("description", description);
             try {
-                // Kiểm tra điều kiện
                 if (isCustomer(user)) {
+                    if (serialNumber != null && !serialNumber.trim().isEmpty()) {
+                        try {
+                            model.WarrantyEligibilityInfo info = warrantyService.checkEligibility(serialNumber.trim(), user.getUserId());
+                            request.setAttribute("eligibilityInfo", info);
+                        } catch (Exception ignored) {
+                        }
+                    }
                     loadCustomerClaims(request, user);
                     request.getRequestDispatcher("/customer/warranty_center.jsp").forward(request, response);
                 } else {
                     loadConsoleClaims(request, null);
                     request.getRequestDispatcher("/admin/WarrantyProcess.jsp").forward(request, response);
                 }
-            // Bắt và xử lý ngoại lệ xảy ra trong khối try
             } catch (Exception loadEx) {
                 throw new ServletException("Lỗi tải dữ liệu sau khi xử lý lỗi upload ảnh.", loadEx);
             }

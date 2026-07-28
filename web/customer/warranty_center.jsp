@@ -1264,11 +1264,12 @@
                 return;
             }
 
-            // Step bắt đầu: nếu verify đã thành công (panel 2 và 3 tồn tại),
-            // bắt đầu ở Step 1 (đã verify) để người dùng thấy "✓ Product
-            // verified" trước khi tự bấm Next — không tự nhảy thẳng tới
-            // Step 2, tránh gây bối rối khi vừa quay lại trang.
             var currentStep = 1;
+            <c:if test="${not empty errorMessage or not empty title or not empty description}">
+                if (document.querySelector('[data-step-panel="4"]')) {
+                    currentStep = 4;
+                }
+            </c:if>
 
             function showStep(stepNumber) {
                 panels.forEach(function (panel) {

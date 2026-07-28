@@ -39,15 +39,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>AdminPolicy</servlet-name>
-        <servlet-class>controller.AdminPolicy</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AdminPolicy</servlet-name>
-        <url-pattern>/admin/policy</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>ProfileController</servlet-name>
         <servlet-class>controller.ProfileController</servlet-class>
     </servlet>
