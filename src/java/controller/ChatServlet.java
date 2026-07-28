@@ -29,13 +29,13 @@ import model.Users;
  * LIÊN KẾT:
  * - Frontend: web/js/chat.js (Gửi AJAX request POST /chat-ai).
  * - DAO Layer: dal.ChatbotDAO (Gọi các hàm isChatbotBlocked, blockUser, insertSecurityLog).
- * - External Service: FastAPI Server Python RAG (http://127.0.0.1:8000/chat).
+ * - External Service: FastAPI Server Python RAG (https://venture-urw-shareware-inf.trycloudflare.com/chat).
  * - Data Model: model.Users (Lấy thông tin userId từ Session).
  */
 @WebServlet("/chat-ai")
 public class ChatServlet extends HttpServlet {
 
-    private static final String FASTAPI_URL = "http://127.0.0.1:8000/chat";
+    private static final String FASTAPI_URL = "https://venture-urw-shareware-inf.trycloudflare.com/chat";
 
     /**
      * Phương thức doPost: Tiếp nhận tin nhắn chat từ client, xử lý bảo mật và chuyển tới FastAPI AI Server.
@@ -192,9 +192,9 @@ public class ChatServlet extends HttpServlet {
                 String responseStr = result.toString();
                 
                 // 6. Kiểm tra xem phản hồi từ FastAPI có đánh dấu vi phạm an ninh hay không
-                boolean isViolation = responseStr.contains("\"is_violation\":true") || responseStr.contains("\"is_violation\": true");
+                boolean isViolation = responseStr.toLowerCase().contains("\"is_violation\":true") || responseStr.toLowerCase().contains("\"is_violation\": true");
                 if (isViolation) {
-                    String violationType = "UNKNOWN";
+                    String violationType = "SECURITY_VIOLATION";
                     int typeIndex = responseStr.indexOf("\"violation_type\"");
                     if (typeIndex != -1) {
                         String sub = responseStr.substring(typeIndex);
@@ -211,6 +211,9 @@ public class ChatServlet extends HttpServlet {
                     }
                     // Lưu log vi phạm bảo mật vào DB
                     chatbotDAO.insertSecurityLog(user.getUserId(), userSessionId, violationType, userMessage);
+                    
+                    // Tự động khóa tài khoản sử dụng chatbot do vi phạm an ninh thông tin
+                    chatbotDAO.blockUser(user.getUserId(), "Hệ thống tự động khóa do phát hiện vi phạm an toàn thông tin: " + violationType);
                 }
 
                 // 7. Return success response to the client
