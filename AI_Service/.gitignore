@@ -1,0 +1,24 @@
+# Python AI Service
+AI_Service/venv/
+AI_Service/.env
+AI_Service/__pycache__/
+AI_Service/*.pyc
+
+# Env
+.env
+*.env
+
+# NetBeans / Java
+build/
+dist/
+target/
+*.class
+nbproject/private/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
