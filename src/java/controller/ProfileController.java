@@ -50,29 +50,8 @@ public class ProfileController extends HttpServlet {
         session.setAttribute("user", freshUser);
         request.setAttribute("profileUser", freshUser);
         
-        // Kiểm tra trạng thái phê duyệt tài khoản sinh viên (nếu thuộc vai trò Customer/Student)
-        if (freshUser.getRoleId() == 3 || freshUser.getRoleId() == 4) {
-            dal.StudentVerificationDAO svDAO = new dal.StudentVerificationDAO();
-            model.StudentVerification sv = svDAO.getByUserId(freshUser.getUserId());
-            request.setAttribute("studentVerify", sv);
-
-            // Kiểm tra giới hạn 30 ngày để cho phép yêu cầu xác thực lại nếu bị từ chối
-            if (sv != null && ("rejected".equalsIgnoreCase(sv.getStatus()) || "revoked".equalsIgnoreCase(sv.getStatus()))) {
-                java.sql.Timestamp lastDate = sv.getUpdatedAt() != null ? sv.getUpdatedAt() : sv.getCreatedAt();
-                if (lastDate != null) {
-                    long now = System.currentTimeMillis();
-                    long diffInDays = (now - lastDate.getTime()) / (1000L * 60 * 60 * 24);
-                    if (diffInDays < 30) {
-                        long daysRemaining = Math.max(1, 30 - diffInDays);
-                        request.setAttribute("canResubmit", false);
-                        request.setAttribute("daysRemaining", daysRemaining);
-                    } else {
-                        request.setAttribute("canResubmit", true);
-                    }
-                } else {
-                    request.setAttribute("canResubmit", true);
-                }
-            }
+        // Kiểm tra vai trò Customer (roleId == 3) để tải thông tin đơn hàng và voucher
+        if (freshUser.getRoleId() == 3) {
 
             // Tải lịch sử các đơn hàng đã đặt của người dùng
             dal.OrderDAO orderDAO = new dal.OrderDAO();

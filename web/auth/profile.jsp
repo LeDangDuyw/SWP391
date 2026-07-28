@@ -1086,7 +1086,7 @@
                     Đổi mật khẩu
                 </div>
 
-                <c:if test="${profileUser.roleId == 3 || profileUser.roleId == 4}">
+                <c:if test="${profileUser.roleId == 3}">
                 <div class="nav-label">Dịch vụ</div>
 
                 <div class="nav-item" id="nav-warranty" onclick="switchTab('warranty')">
@@ -1383,7 +1383,7 @@
                 </div>
             </div>
 
-            <c:if test="${profileUser.roleId == 3 || profileUser.roleId == 4}">
+            <c:if test="${profileUser.roleId == 3}">
             <!-- ══════════════════════════════════
                  TAB 3 – BẢO HÀNH
             ══════════════════════════════════ -->
