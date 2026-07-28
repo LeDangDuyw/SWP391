@@ -995,48 +995,66 @@
 
                                         <%-- ── PROCESSING: Approve hoặc Reject ── --%>
                                         <c:when test="${sc.status == 'PROCESSING'}">
-                                            <div class="process-form">
-                                                <label>Ghi chú nhân viên</label>
-                                                <textarea id="note-processing" placeholder="Nhập ghi chú hoặc lý do..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
-                                            </div>
-                                            <div class="detail-actions">
-                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
-                                                      style="display:contents"
-                                                      onsubmit="document.getElementById('note-reject').value = document.getElementById('note-processing').value">
-                                                    <input type="hidden" name="action"     value="process">
-                                                    <input type="hidden" name="id"         value="${sc.claimId}">
-                                                    <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="REJECTED">
-                                                    <input type="hidden" name="note"       id="note-reject">
-                                                    <button type="submit" class="btn-reject">Từ chối</button>
-                                                </form>
-                                                <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
-                                                      style="display:contents"
-                                                      onsubmit="document.getElementById('note-approve').value = document.getElementById('note-processing').value">
-                                                    <input type="hidden" name="action"     value="process">
-                                                    <input type="hidden" name="id"         value="${sc.claimId}">
-                                                    <input type="hidden" name="redirectTo" value="console">
-                                                    <input type="hidden" name="newStatus"  value="APPROVED">
-                                                    <input type="hidden" name="note"       id="note-approve">
-                                                    <button type="submit" class="btn-approve">Duyệt ✓</button>
-                                                </form>
-                                            </div>
+                                            <c:choose>
+                                                <c:when test="${not empty sc.staffId and sc.staffId != sessionScope.user.userId}">
+                                                    <div style="background: #fff8e6; border: 1px solid #ffe399; color: #b7791f; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 15px 0;">
+                                                        🔒 Đơn bảo hành này đang được phụ trách bởi Staff khác (ID: ${sc.staffId}).
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="process-form">
+                                                        <label>Ghi chú nhân viên</label>
+                                                        <textarea id="note-processing" placeholder="Nhập ghi chú hoặc lý do..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
+                                                    </div>
+                                                    <div class="detail-actions">
+                                                        <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
+                                                              style="display:contents"
+                                                              onsubmit="document.getElementById('note-reject').value = document.getElementById('note-processing').value">
+                                                            <input type="hidden" name="action"     value="process">
+                                                            <input type="hidden" name="id"         value="${sc.claimId}">
+                                                            <input type="hidden" name="redirectTo" value="console">
+                                                            <input type="hidden" name="newStatus"  value="REJECTED">
+                                                            <input type="hidden" name="note"       id="note-reject">
+                                                            <button type="submit" class="btn-reject">Từ chối</button>
+                                                        </form>
+                                                        <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
+                                                              style="display:contents"
+                                                              onsubmit="document.getElementById('note-approve').value = document.getElementById('note-processing').value">
+                                                            <input type="hidden" name="action"     value="process">
+                                                            <input type="hidden" name="id"         value="${sc.claimId}">
+                                                            <input type="hidden" name="redirectTo" value="console">
+                                                            <input type="hidden" name="newStatus"  value="APPROVED">
+                                                            <input type="hidden" name="note"       id="note-approve">
+                                                            <button type="submit" class="btn-approve">Duyệt ✓</button>
+                                                        </form>
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </c:when>
 
                                         <%-- ── APPROVED: Complete ── --%>
                                         <c:when test="${sc.status == 'APPROVED'}">
-                                            <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
-                                                  class="process-form">
-                                                <input type="hidden" name="action"     value="process">
-                                                <input type="hidden" name="id"         value="${sc.claimId}">
-                                                <input type="hidden" name="redirectTo" value="console">
-                                                <input type="hidden" name="newStatus"  value="COMPLETED">
-                                                <label>Ghi chú nhân viên</label>
-                                                <textarea name="note" placeholder="Nhập ghi chú hoàn thành..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
-                                                <div style="padding:0 0 14px;">
-                                                    <button type="submit" class="btn-full">Đánh dấu hoàn thành</button>
-                                                </div>
-                                            </form>
+                                            <c:choose>
+                                                <c:when test="${not empty sc.staffId and sc.staffId != sessionScope.user.userId}">
+                                                    <div style="background: #fff8e6; border: 1px solid #ffe399; color: #b7791f; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 15px 0;">
+                                                        🔒 Đơn bảo hành này đang được phụ trách bởi Staff khác (ID: ${sc.staffId}).
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <form method="post" action="${pageContext.request.contextPath}/staff/warranty"
+                                                          class="process-form">
+                                                        <input type="hidden" name="action"     value="process">
+                                                        <input type="hidden" name="id"         value="${sc.claimId}">
+                                                        <input type="hidden" name="redirectTo" value="console">
+                                                        <input type="hidden" name="newStatus"  value="COMPLETED">
+                                                        <label>Ghi chú nhân viên</label>
+                                                        <textarea name="note" placeholder="Nhập ghi chú hoàn thành..." oninvalid="this.setCustomValidity('Vui lòng điền vào trường này.')" oninput="this.setCustomValidity('')"></textarea>
+                                                        <div style="padding:0 0 14px;">
+                                                            <button type="submit" class="btn-full">Đánh dấu hoàn thành</button>
+                                                        </div>
+                                                    </form>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </c:when>
 
                                     </c:choose>

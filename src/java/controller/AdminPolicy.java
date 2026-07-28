@@ -18,12 +18,9 @@ import model.WarrantyPolicy;
  * 
  * Created: 2026-05-29
  * Updated: 2026-07-23
- * Version: v2.9
- *
- * @author DuyLD
  */
+@WebServlet(name = "AdminPolicy", urlPatterns = {"/admin/policy"})
 public class AdminPolicy extends HttpServlet {
-
 
     private PolicyDAO dao;
 
@@ -85,27 +82,40 @@ public class AdminPolicy extends HttpServlet {
             request.setAttribute("activeTab", "WARRANTY");
             loadPolicyList(request);
 
+            WarrantyPolicy selected = null;
             String idParam = request.getParameter("id");
             if (idParam != null && !idParam.trim().isEmpty()) {
                 try {
                     int id = Integer.parseInt(idParam.trim());
-                    WarrantyPolicy selected = dao.getPolicyById(id);
-                    if (selected != null) {
-                        selected.setExpiryDate(calculateExpiryDate(selected.getEffectiveDate(), selected.getWarrantyMonths()));
-                        List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(id);
-                        request.setAttribute("historyList", historyList);
-                    }
-                    request.setAttribute("selectedPolicy", selected);
+                    selected = dao.getPolicyById(id);
                 } catch (Exception ignored) {
                 }
             }
+
+            // Mặc định chọn chính sách đầu tiên trong danh sách nếu chưa được truyền id
+            if (selected == null) {
+                List<WarrantyPolicy> policies = (List<WarrantyPolicy>) request.getAttribute("policies");
+                if (policies != null && !policies.isEmpty()) {
+                    selected = policies.get(0);
+                }
+            }
+
+            if (selected != null) {
+                selected.setExpiryDate(calculateExpiryDate(selected.getEffectiveDate(), selected.getWarrantyMonths()));
+                try {
+                    List<model.PolicyHistory> historyList = dao.getHistoryByPolicyId(selected.getPolicyId());
+                    request.setAttribute("historyList", historyList);
+                } catch (Exception ignored) {
+                }
+                request.setAttribute("selectedPolicy", selected);
+            }
+
             request.getRequestDispatcher("/admin/PolicyManagement.jsp")
                     .forward(request, response);
 
         } catch (Exception e) {
             throw new ServletException("Lỗi tải danh sách chính sách bảo hành.", e);
         }
-
     }
 
     /**

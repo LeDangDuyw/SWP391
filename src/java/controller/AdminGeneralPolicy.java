@@ -55,6 +55,8 @@ public class AdminGeneralPolicy extends HttpServlet {
                     request.setAttribute("selectedGeneralPolicy", selected);
                 } catch (NumberFormatException ignored) {
                 }
+            } else if (generalPolicies != null && !generalPolicies.isEmpty()) {
+                request.setAttribute("selectedGeneralPolicy", generalPolicies.get(0));
             }
 
             request.getRequestDispatcher("/admin/PolicyManagement.jsp").forward(request, response);
