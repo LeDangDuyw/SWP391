@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
-from feedback_handler import handle_admin_command, get_corrections_prompt
-from ai_agent_llm_nlu import get_last_products, set_last_products
+
 from security_guard import (
     is_dangerous_request,
     get_security_refusal,
@@ -20,8 +19,23 @@ from product_repository import (
     search_laptops,
     search_accessories,
 )
+
+# Nếu chat_memory.py chưa có 2 hàm này thì vẫn không làm app bị lỗi.
+try:
+    from chat_memory import get_last_products, set_last_products
+except Exception:
+    _LAST_PRODUCTS_STORE = {}
+
+    def get_last_products(session_id: str):
+        return _LAST_PRODUCTS_STORE.get(session_id, [])
+
+    def set_last_products(session_id: str, products: list):
+        _LAST_PRODUCTS_STORE[session_id] = products or []
+
+
 load_dotenv()
 
+# LLM chính để sinh câu trả lời tư vấn
 llm = ChatOpenAI(
     model=os.getenv("LMSTUDIO_MODEL"),
     base_url=os.getenv("LMSTUDIO_BASE_URL"),
@@ -30,6 +44,15 @@ llm = ChatOpenAI(
     max_tokens=1024,
 )
 
+# LLM phụ tối ưu hóa riêng cho phân tích NLU (Cách 1)
+# Sử dụng temperature=0.0 và response_format json để nhanh và chính xác nhất
+llm_nlu = ChatOpenAI(
+    model=os.getenv("LMSTUDIO_MODEL"),
+    base_url=os.getenv("LMSTUDIO_BASE_URL"),
+    api_key="lm-studio",
+    temperature=0.0,
+    max_tokens=150,
+)
 
 class AgentState(MessagesState):
     session_id: str
@@ -94,33 +117,6 @@ def format_money(value) -> str:
 
 def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").lower()).strip()
-
-
-def detect_cpu_keyword(text: str) -> Optional[str]:
-    text_lower = text.lower()
-    if "core i7" in text_lower or "i7" in text_lower:
-        return "i7"
-    if "core i5" in text_lower or "i5" in text_lower:
-        return "i5"
-    if "core i9" in text_lower or "i9" in text_lower:
-        return "i9"
-    if "core i3" in text_lower or "i3" in text_lower:
-        return "i3"
-    if "ryzen 7" in text_lower or "r7" in text_lower:
-        return "ryzen 7"
-    if "ryzen 5" in text_lower or "r5" in text_lower:
-        return "ryzen 5"
-    if "ryzen 9" in text_lower or "r9" in text_lower:
-        return "ryzen 9"
-    if "ryzen 3" in text_lower or "r3" in text_lower:
-        return "ryzen 3"
-    if "intel" in text_lower:
-        return "intel"
-    if "ryzen" in text_lower:
-        return "ryzen"
-    if "amd" in text_lower:
-        return "amd"
-    return None
 
 
 def is_on_sale_product(product: dict) -> bool:
@@ -268,9 +264,6 @@ def build_product_context_for_follow_up(products: list) -> str:
 # Nhận diện câu hỏi tìm sản phẩm / hỏi tên sản phẩm
 # =========================================================
 
-
-
-
 def is_product_lookup_question(user_message: str) -> bool:
     text = normalize_text(user_message)
 
@@ -340,9 +333,6 @@ def clean_product_keyword(keyword: str) -> str:
         "mình hỏi",
         "kiểm tra",
         "tìm",
-        "laptop",
-        "máy tính",
-        "may tinh",
     ]
 
     result = normalize_text(keyword)
@@ -543,6 +533,76 @@ def answer_specific_product_question(product: dict, user_message: str) -> str:
 
 
 # =========================================================
+# Cách 1: Phân tích NLU bằng Local LLM tối ưu (JSON Mode)
+# =========================================================
+
+def analyze_with_llm_optimized(text: str) -> dict:
+    prompt = f"""
+Bạn là một AI phân tích NLU tiếng Việt cho hệ thống chatbot tư vấn cửa hàng laptop.
+Nhiệm vụ của bạn là trích xuất intent (ý định) và các thực thể (entities) từ câu hỏi của khách hàng.
+
+Hãy trả về duy nhất một đối tượng JSON có cấu trúc sau:
+{{
+  "intent": "laptop_advice" | "compare_laptop" | "warranty_policy" | "installment_policy" | "delivery_policy" | "greeting" | "out_of_scope" | "unknown" (Dùng 'greeting' cho các câu chào xã giao ngắn như: alo, chào shop, hi, hello, ad ơi...),
+  "budget": con số ngân sách bằng VNĐ (kiểu số nguyên, ví dụ 30000000) hoặc null nếu không nhắc tới,
+  "brand": tên hãng laptop (chữ thường, ví dụ: "dell", "asus", "hp") hoặc null nếu không có,
+  "majors_or_needs": danh sách các nhu cầu học tập/làm việc (ví dụ: ["it_programming", "gaming", "design_multimedia"]) hoặc mảng rỗng [],
+  "ram": dung lượng RAM yêu cầu (ví dụ: 16, 32) hoặc null,
+  "storage_gb": dung lượng ổ cứng yêu cầu (ví dụ: 512, 1024) hoặc null,
+  "constraints": {{
+    "need_lightweight": true/false (nếu khách cần máy mỏng nhẹ hoặc dễ mang đi học/đi làm),
+    "need_battery": true/false (nếu khách cần pin lâu, pin tốt),
+    "need_screen_quality": true/false (nếu khách cần màn hình đẹp, OLED, IPS, chuẩn màu),
+    "need_gpu": true/false (nếu khách cần card rời, thiết kế đồ họa, game nặng hoặc học AI)
+  }}
+}}
+
+CÂU HỎI CỦA KHÁCH:
+"{text}"
+
+Chỉ trả về JSON hợp lệ, không giải thích gì thêm ngoài JSON.
+"""
+    try:
+        response = llm_nlu.invoke([HumanMessage(content=prompt)])
+        content = response.content.strip()
+
+        if "{" in content and "}" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            json_str = content[start:end]
+            res = json.loads(json_str)
+            res["raw_text"] = text
+
+            if "constraints" not in res:
+                res["constraints"] = {
+                    "need_lightweight": False,
+                    "need_battery": False,
+                    "need_screen_quality": False,
+                    "need_gpu": False
+                }
+            return res
+    except Exception as e:
+        print(f"Lỗi khi phân tích NLU bằng LLM: {e}")
+
+    # Fallback mặc định
+    return {
+        "raw_text": text,
+        "intent": "unknown",
+        "budget": None,
+        "brand": None,
+        "majors_or_needs": [],
+        "ram": None,
+        "storage_gb": None,
+        "constraints": {
+            "need_lightweight": False,
+            "need_battery": False,
+            "need_screen_quality": False,
+            "need_gpu": False
+        }
+    }
+
+
+# =========================================================
 # Node chính
 # =========================================================
 
@@ -583,44 +643,58 @@ def laptop_advisor_node(state: AgentState):
 
         if referred_index_int is not None and 1 <= referred_index_int <= len(last_products):
             product = last_products[referred_index_int - 1]
-            set_last_products(session_id, [product])
             answer = answer_specific_product_question(product, query_to_analyze)
             return {
                 "messages": [AIMessage(content=answer)]
             }
 
-    # 3. Nếu khách hỏi tên sản phẩm cụ thể (Ví dụ: "Shop có bán Akko không?" hoặc trực tiếp tên "MacBook Air M3")
-    is_lookup = is_product_lookup_question(query_to_analyze)
-    keyword = extract_product_keyword(query_to_analyze)
-    matched_products = []
+    # 3. Nếu khách hỏi tên sản phẩm cụ thể: "Shop có bán Akko không?"
+    if is_product_lookup_question(query_to_analyze):
+        keyword = extract_product_keyword(query_to_analyze)
 
-    if is_lookup or len(keyword) >= 3:
-        matched_products = find_products_by_name(keyword, limit=5)
+        if len(keyword) >= 2:
+            matched_products = find_products_by_name(keyword, limit=5)
+        else:
+            matched_products = []
 
-    if matched_products:
+        if not matched_products:
+            return {
+                "messages": [
+                    AIMessage(
+                        content=(
+                            f"Shop chưa tìm thấy sản phẩm phù hợp với từ khóa \"{keyword}\". "
+                            "Bạn có thể gửi tên sản phẩm cụ thể hơn, mã máy, hãng hoặc một phần tên sản phẩm để mình kiểm tra lại nhé."
+                        )
+                    )
+                ]
+            }
+
         set_last_products(session_id, matched_products)
+
         lines = [
             f"Shop tìm thấy {len(matched_products)} sản phẩm liên quan đến \"{keyword}\":"
         ]
+
         for idx, product in enumerate(matched_products, start=1):
             lines.append(build_product_line(idx, product))
+
         return {
             "messages": [AIMessage(content="\n".join(lines))]
-        }
-    elif is_lookup:
-        return {
-            "messages": [
-                AIMessage(
-                    content=(
-                        f"Shop chưa tìm thấy sản phẩm phù hợp với từ khóa \"{keyword}\". "
-                        "Bạn có thể gửi tên sản phẩm cụ thể hơn, mã máy, hãng hoặc một phần tên sản phẩm để mình kiểm tra lại nhé."
-                    )
-                )
-            ]
         }
 
     # 4. spaCy NLU bóc tách câu hỏi tư vấn
     nlu_result = analyze_with_spacy(query_to_analyze)
+
+    # =========================================================
+    # ÁP DỤNG CÁCH 1: FALLBACK ROUTER
+    # Nếu SpaCy trả về intent "unknown", gọi Local LLM để trích xuất thay thế
+    # =========================================================
+    if nlu_result.get("intent") == "unknown":
+        print(f"\n[FALLBACK TRIGGERED] SpaCy không nhận diện được. Gọi Local LLM NLU cho câu hỏi: '{query_to_analyze}'")
+        llm_nlu_result = analyze_with_llm_optimized(query_to_analyze)
+        if llm_nlu_result and llm_nlu_result.get("intent") != "unknown":
+            print(f"[FALLBACK SUCCESS] Local LLM nhận diện Intent: {llm_nlu_result.get('intent')}")
+            nlu_result = llm_nlu_result
 
     # 5. Câu hỏi chính sách shop thì trả lời bằng rule, không gọi Qwen
     policy_answer = get_shop_policy_answer(nlu_result.get("intent"))
@@ -657,16 +731,11 @@ def laptop_advisor_node(state: AgentState):
             limit=3,
         )
     else:
-        cpu_keyword = detect_cpu_keyword(query_to_analyze)
-        nlu_brand = nlu_result.get("brand")
-        if nlu_brand == "macbook":
-            nlu_brand = "apple"
         products = search_laptops(
             budget=nlu_result.get("budget"),
-            brand=nlu_brand,
+            brand=nlu_result.get("brand"),
             need_gpu=should_need_gpu(nlu_result),
             min_ram=get_min_ram(nlu_result),
-            cpu_keyword=cpu_keyword,
             limit=3,
         )
 
@@ -688,7 +757,6 @@ def laptop_advisor_node(state: AgentState):
     # 9. Đưa NLU + sản phẩm từ database cho Qwen diễn đạt
     nlu_text = json.dumps(nlu_result, ensure_ascii=False, indent=2, default=str)
     products_text = json.dumps(products, ensure_ascii=False, indent=2, default=str)
-    corrections_prompt = get_corrections_prompt()
 
     system_prompt = SystemMessage(
         content=f"""
@@ -703,18 +771,15 @@ LOẠI SẢN PHẨM:
 DỮ LIỆU SẢN PHẨM TỪ CỬA HÀNG:
 {products_text}
 
-{corrections_prompt}
-
 QUY TẮC BẮT BUỘC:
 - Chỉ trả lời các câu hỏi liên quan đến laptop, phụ kiện và dịch vụ của shop.
 - Chỉ được đề xuất sản phẩm có trong dữ liệu sản phẩm ở trên.
-- TUYỆT ĐỐI KHÔNG ĐƯỢC tự ý sửa đổi thông số kỹ thuật (ví dụ: tự ý đổi tên CPU từ AMD Ryzen sang Intel Core, tự ý đổi dung lượng RAM/SSD) của sản phẩm để khớp với câu hỏi của khách. Nếu sản phẩm trong dữ liệu không đúng yêu cầu của khách, hãy báo rõ là shop không có mẫu đúng yêu cầu đó.
 - Không được bịa thêm tên sản phẩm, giá, tồn kho, bảo hành hoặc khuyến mãi ngoài dữ liệu.
 - Nếu sản phẩm có OriginalPrice, FinalPrice, IsOnSale, PromoCode, CampaignName, CampaignType, DiscountValue thì phải nêu rõ giá gốc, giá sau giảm và ưu đãi.
 - Nếu không có khuyến mãi thì không được tự nói là đang giảm giá.
 - Đề xuất tối đa 3 sản phẩm tốt nhất.
 - Giải thích ngắn gọn vì sao phù hợp với nhu cầu khách.
-- Trả lời HOÀN TOÀN bằng tiếng Việt, thân thiện, dễ hiểu. TUYỆT ĐỐI KHÔNG sử dụng chữ Trung Quốc (chữ Hán), chữ tượng hình hoặc bất kỳ ngôn ngữ nào khác ngoài tiếng Việt trong toàn bộ câu trả lời.
+- Trả lời bằng tiếng Việt, thân thiện, dễ hiểu.
 - Không nhắc tới JSON, SQL, database nội bộ hay hệ thống backend.
 
 GỢI Ý TƯ VẤN:
@@ -734,31 +799,6 @@ GỢI Ý TƯ VẤN:
     ])
 
     safe_answer = sanitize_ai_output(response.content)
-
-    # Lọc danh sách sản phẩm thực sự được nhắc đến trong câu trả lời của AI
-    mentioned_products = []
-    normalized_answer = normalize_text(safe_answer)
-    for p in products:
-        name = p.get("ProductName") or p.get("product_name") or ""
-        brand = p.get("BrandName") or p.get("brand_name") or ""
-        sku = p.get("SKU") or p.get("sku") or ""
-        
-        norm_name = normalize_text(name)
-        norm_brand = normalize_text(brand)
-        norm_sku = normalize_text(sku)
-        
-        if norm_name in normalized_answer or (norm_sku and norm_sku in normalized_answer):
-            mentioned_products.append(p)
-        else:
-            short_name = norm_name.replace("laptop", "").strip()
-            if short_name and short_name in normalized_answer:
-                mentioned_products.append(p)
-            else:
-                words = [w for w in short_name.split() if len(w) > 2]
-                if norm_brand in normalized_answer and any(w in normalized_answer for w in words):
-                    mentioned_products.append(p)
-
-    set_last_products(session_id, mentioned_products)
 
     return {
         "messages": [AIMessage(content=safe_answer)]
@@ -801,11 +841,6 @@ def ask_ai_with_history(
     # Cho phép app.py cũ gọi nhầm user_messages vẫn chạy.
     if user_message is None:
         user_message = kwargs.get("user_messages") or kwargs.get("message") or ""
-
-    # 1. Kiểm tra xem có phải lệnh của Admin (/train hoặc /day) không. Nếu phải thì xử lý và ngắt sớm
-    command_response = handle_admin_command(user_message, history)
-    if command_response:
-        return command_response
 
     messages = []
 

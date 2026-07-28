@@ -1,33 +1,43 @@
 from pprint import pprint
 from product_repository import search_laptops, search_accessories
 
-print("=== TEST 1: Laptop dưới 25 triệu, RAM >= 16GB ===")
+print("=== TEST 1: Laptop dưới 25 triệu ===")
 laptops = search_laptops(
     budget=25000000,
-    min_ram=16,
-    limit=5
+    limit=10
 )
-pprint(laptops, width=120)
+pprint(laptops, width=140)
 
-print("\n=== TEST 2: Laptop gaming / cần GPU, dưới 30 triệu ===")
-gaming_laptops = search_laptops(
-    budget=30000000,
-    need_gpu=True,
-    min_ram=16,
-    limit=5
+print("\n=== TEST 2: Laptop dưới 40 triệu ===")
+laptops = search_laptops(
+    budget=40000000,
+    limit=10
 )
-pprint(gaming_laptops, width=120)
+pprint(laptops, width=140)
 
-print("\n=== TEST 3: Phụ kiện chuột ===")
+print("\n=== TEST 3: Chuột ===")
 mouses = search_accessories(
     category_keyword="Chuột",
-    limit=5
+    limit=10
 )
-pprint(mouses, width=120)
+pprint(mouses, width=140)
 
-print("\n=== TEST 4: Phụ kiện bàn phím ===")
-keyboards = search_accessories(
-    category_keyword="Bàn Phím",
-    limit=5
+print("\n=== TEST san pham theo ten ===")
+laptops = search_laptops(
+    brand="Dell",
+    limit=10
 )
-pprint(keyboards, width=120)
+pprint(laptops, width=140)
+
+print("\n=== TEST 4: Bàn phím ===")
+keyboards = search_accessories(
+    category_keyword="Bàn phím",
+    limit=10
+)
+pprint(keyboards, width=140)
+
+print("\n=== TEST 5: Tất cả phụ kiện ===")
+accessories = search_accessories(
+    limit=10
+)
+pprint(accessories, width=140)

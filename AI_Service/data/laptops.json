@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Lenovo LOQ 15",
+    "brand": "Lenovo",
+    "cpu": "Intel Core i5",
+    "gpu": "RTX 4050",
+    "ram": "16GB",
+    "storage": "512GB SSD",
+    "screen": "15.6 inch FHD 144Hz",
+    "price": 19990000,
+    "stock": 5,
+    "warranty": "24 tháng",
+    "purpose": ["gaming", "programming", "student"],
+    "description": "Phù hợp học lập trình, chơi game, học sinh sinh viên."
+  },
+  {
+    "id": 2,
+    "name": "ASUS Vivobook 15",
+    "brand": "ASUS",
+    "cpu": "Intel Core i5",
+    "gpu": "Integrated",
+    "ram": "16GB",
+    "storage": "512GB SSD",
+    "screen": "15.6 inch FHD",
+    "price": 13990000,
+    "stock": 8,
+    "warranty": "24 tháng",
+    "purpose": ["office", "student", "programming"],
+    "description": "Phù hợp học tập, văn phòng, lập trình cơ bản."
+  },
+  {
+    "id": 3,
+    "name": "MacBook Air M2",
+    "brand": "Apple",
+    "cpu": "Apple M2",
+    "gpu": "Integrated",
+    "ram": "8GB",
+    "storage": "256GB SSD",
+    "screen": "13.6 inch Retina",
+    "price": 21990000,
+    "stock": 3,
+    "warranty": "12 tháng",
+    "purpose": ["office", "student", "design_basic"],
+    "description": "Phù hợp văn phòng, học tập, thiết kế nhẹ, pin tốt."
+  }
+]

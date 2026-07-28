@@ -81,7 +81,7 @@ for label, phrases in ENTITY_PATTERNS.items():
     phrase_matcher.add(label, patterns)
 
 # Quy định Token Matcher cho các biến phần cứng (Đã cấu trúc lại để khớp văn bản sau khi tách số/chữ)
-token_matcher.add("BUDGET", [[{"LIKE_NUM": True}, {"LOWER": {"IN": ["triệu", "trieu", "tr", "m"]}}]])
+token_matcher.add("BUDGET", [[{"LIKE_NUM": True}, {"LOWER": {"IN": ["triệu", "trieu", "tr", "m" , "cu"]}}]])
 token_matcher.add("RAM", [
     [{"LOWER": "ram"}, {"LIKE_NUM": True}, {"LOWER": {"IN": ["gb", "g"]}, "OP": "?"}],
     [{"LIKE_NUM": True}, {"LOWER": {"IN": ["gb", "g"]}}, {"LOWER": "ram"}]
@@ -142,6 +142,12 @@ def classify_intent(text: str, entities: dict):
         or any(x in text_norm for x in ["mua", "tu van", "chon", "nen mua", "cau hinh", "laptop", "may tinh"])
     ):
         return "laptop_advice"
+
+    # Phân loại câu chào (greeting)
+    greetings = {"alo", "hi", "hello", "hey", "chao", "xin", "shop", "ad", "admin", "nha", "nhe", "a", "da"}
+    words = [w for w in text_norm.split() if len(w) > 1 or w in greetings]
+    if words and all(w in greetings or w == "oi" for w in words):
+        return "greeting"
 
     return "unknown"
 
@@ -216,7 +222,8 @@ def is_allowed_domain(nlu_result: dict) -> bool:
         "compare_laptop",
         "warranty_policy",
         "installment_policy",
-        "delivery_policy"
+        "delivery_policy",
+        "greeting"
     ]
 
     return nlu_result.get("intent") in allowed_intents
